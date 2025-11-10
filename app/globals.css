@@ -1,26 +1,106 @@
 @import "tailwindcss";
 
 :root {
-  --background: #ffffff;
+  --primary: #3D4A26;
+  --secondary: #D35400;
+  --background: #F0EBE3;
   --foreground: #171717;
+  --font-orbitron: var(--font-orbitron), ui-sans-serif, system-ui, -apple-system;
+}
+
+.font-orbitron {
+  font-family: var(--font-orbitron);
 }
 
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+  --font-sans: var(--font-orbitron);
 }
 
 @media (prefers-color-scheme: dark) {
   :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
+    --primary: #3D4A26;
+    --secondary: #D35400;
+    --background: #1a1a1a;
+    --foreground: #F0EBE3;
   }
 }
 
+/* Apply background to html and body and ensure full height so background covers the viewport */
+html, body {
+  background-color: var(--background);
+  min-height: 100%;
+}
+
 body {
-  background: var(--background);
   color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  font-family: var(--font-sans), Arial, sans-serif;
+}
+
+/* Supplier Zone button angled shape */
+.clip-path-supplier {
+  clip-path: polygon(8% 0, 92% 0, 100% 50%, 92% 100%, 8% 100%, 0% 50%);
+}
+
+/* Search input placeholder styling to match design specs */
+.search-input::placeholder {
+  /* Requested font and typographic settings */
+  font-family: Inter, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, "Noto Sans", "Liberation Sans", sans-serif;
+  font-weight: 400;
+  font-style: normal; /* 'Regular' maps to normal */
+  font-size: 14px;
+  line-height: 100%;
+  /* leading-trim is not supported universally but include as requested */
+  leading-trim: cap-height;
+  letter-spacing: 0%;
+  color: #000000; /* ensure placeholder is black */
+  opacity: 1; /* override browsers that apply lower opacity to placeholders */
+}
+
+/* Fallback for WebKit browsers if needed */
+.search-input::-webkit-input-placeholder {
+  color: #000000;
+  opacity: 1;
+}
+
+/* Featured Products animations */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.animate-fadeIn {
+  animation: fadeIn 0.3s ease-out forwards;
+}
+
+/* Custom scrollbar for filter sidebar */
+.filter-scrollbar::-webkit-scrollbar {
+  width: 8px;
+}
+
+.filter-scrollbar::-webkit-scrollbar-track {
+  background: #E8E3D6;
+  border-radius: 4px;
+}
+
+.filter-scrollbar::-webkit-scrollbar-thumb {
+  background: #D9D9D9;
+  border-radius: 4px;
+}
+
+.filter-scrollbar::-webkit-scrollbar-thumb:hover {
+  background: #c0c0c0;
+}
+
+/* For Firefox */
+.filter-scrollbar {
+  scrollbar-width: thin;
+  scrollbar-color: #D9D9D9 #E8E3D6;
 }
