@@ -83,7 +83,9 @@ export const Categories = () => {
           </div>
         ))}
       </div>
-      <div className="container mx-auto relative z-10">
+      <div
+        className="container-figma mx-auto relative z-10"
+      >
         <h2 className="font-orbitron text-[36px] font-extrabold text-white mb-10 leading-none uppercase">CATEGORIES</h2>
         
         <div className="relative overflow-hidden" ref={containerRef}>
