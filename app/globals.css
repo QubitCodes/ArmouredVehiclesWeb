@@ -45,6 +45,11 @@
   }
 }
 
+.clip-triangle {
+  clip-path: polygon(0 0, 100% 0, 0 100%);
+}
+
+
 /* Apply background to html and body and ensure full height so background covers the viewport */
 html, body {
   background-color: var(--background);

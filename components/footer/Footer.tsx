@@ -69,12 +69,12 @@ const Footer = () => {
             backgroundRepeat: 'no-repeat',
         }}
     >
-      <Container>
+      <div className="container-figma mx-auto relative pb-10">
         <div className="grid grid-cols-1 lg:grid-cols-5 gap-10 mb-10">
           {/* Left Logo + Socials */}
           <div className="space-y-4">
             <div>
-              <Image src="/logo.png" alt="ArmoredMart" width={180} height={50} />
+              <Image src="/logo.svg" alt="ArmoredMart" width={180} height={50} />
               {/* <p className="text-[12px] text-gray-400 mt-1 leading-snug">
                 THE WORLD’S FIRST COMPLIANCE INTEGRATED DEFENSE E-STORE
               </p> */}
@@ -159,7 +159,7 @@ const Footer = () => {
           </div>
         </div>
 
-      </Container>
+      </div>
 
       {/* Bottom Bar with Full Width */}
       <div className="border-t bg-black border-gray-800">

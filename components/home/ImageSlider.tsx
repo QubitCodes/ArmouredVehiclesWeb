@@ -1,12 +1,12 @@
 'use client';
 
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, JSX } from 'react';
 import Image from 'next/image';
 
 const slides = [
   {
     url: '/slider/Rectangle.jpg',
-    title: 'Defence Commerce, Reinvented.',
+    title: 'Defence Commerce Reinvented.',
     subtitle: 'Built for Security, Powered by Compliance.',
   },
   {
@@ -79,7 +79,7 @@ export function ImageSlider() {
           quality={100}
           priority
         />
-        <div className="absolute inset-0 bg-black/40" />
+        <div className="absolute" />
       </div>
 
       {/* Content container */}
@@ -103,15 +103,44 @@ export function ImageSlider() {
                 lineHeight: '1.1',
               }}
             >
-              {activeSlides[currentIndex].title
-                .split(',')[0]
-                .split(' ')
-                .map((word, idx) => (
-                  <span key={idx}>
-                    {word}
-                    <br />
-                  </span>
-                ))}
+              {(() => {
+                const title = activeSlides[currentIndex].title.split(',')[0];
+                const words = title.split(' ');
+                const spans: JSX.Element[] = [];
+                let buffer = '';
+                let key = 0;
+
+                for (let i = 0; i < words.length; i++) {
+                  const w = words[i];
+                  const isSpecial = /^[^A-Za-z0-9]+$/.test(w); // tokens like "&", "/", "-", etc.
+
+                  if (isSpecial && buffer) {
+                    // append special token to previous buffer (keep on same line)
+                    buffer += ' ' + w;
+                  } else {
+                    if (buffer) {
+                      spans.push(
+                        <span key={key++}>
+                          {buffer}
+                          <br />
+                        </span>
+                      );
+                    }
+                    buffer = w;
+                  }
+                }
+
+                if (buffer) {
+                  spans.push(
+                    <span key={key++}>
+                      {buffer}
+                      <br />
+                    </span>
+                  );
+                }
+
+                return spans;
+              })()}
             </h1>
 
             <p className="text-sm sm:text-base lg:text-lg text-gray-200 mt-4">

@@ -36,20 +36,20 @@ export default function ProductCard({
   return (
     <div className="bg-white border border-[#E8E3D6] overflow-hidden hover:shadow-md transition-all duration-200 flex flex-col">
       {/* ---------- IMAGE SECTION ---------- */}
-      <div className="relative bg-[#F8F5EF] w-[320px] h-[305px] flex items-center justify-center">
+      <div className="relative bg-[#F8F5EF] w-[370px] h-[370px] flex items-center justify-center group">
         {/* Image slider */}
         <Image
           src={images[slide]}
           alt={name}
-          width={238}
-          height={290}
+          width={375}
+          height={370}
           className="object-contain transition-all duration-300"
         />
 
         {/* Left Arrow */}
         <button
           onClick={prevImage}
-          className="absolute left-3 w-[35px] h-[35px] top-1/2 -translate-y-1/2 rounded-full p-1 shadow bg-white"
+          className="absolute left-3 w-[35px] h-[35px] top-1/2 -translate-y-1/2 rounded-full p-1 shadow bg-white opacity-0 pointer-events-none group-hover:opacity-100 group-hover:pointer-events-auto transition-opacity duration-200"
         >
           <Image src="/icons/productCardLeft.svg" alt="previous" fill />
         </button>
@@ -57,7 +57,7 @@ export default function ProductCard({
         {/* Right Arrow */}
         <button
           onClick={nextImage}
-          className="absolute right-3 w-[35px] h-[35px] top-1/2 -translate-y-1/2 rounded-full p-1 bg-white shadow"
+          className="absolute right-3 w-[35px] h-[35px] top-1/2 -translate-y-1/2 rounded-full p-1 bg-white shadow opacity-0 pointer-events-none group-hover:opacity-100 group-hover:pointer-events-auto transition-opacity duration-200"
         >
           <Image src="/icons/productCardRight.svg" alt="next" fill />
         </button>

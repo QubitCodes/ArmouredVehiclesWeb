@@ -25,7 +25,7 @@ export default function RootLayout({
         className={`${orbitron.variable} antialiased`}
       >
         <Navbar />
-        <main className="min-h-screen pt-[127px]">
+        <main className="min-h-screen pt-[127px] bg-[#F0EBE3]">
           {children}
         </main>
         <Footer />

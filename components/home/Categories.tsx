@@ -4,27 +4,27 @@ import Image from 'next/image';
 const categories = [
   {
     title: "CORE VEHICLE SYSTEMS",
-    image: "/category/00ad928fc7f1fd0dc10beaad4db27af80ac6c15a.jpg"
+    image: "/category/Core vehicle.png"
   },
   {
     title: "ARMOR-SPECIFIC SYSTEMS",
-    image: "/category/06b5af499d983de366426bbf1f8f0907a2ebc416.jpg"
+    image: "/category/ARMOR SPECIFIC SYSTEMS.png"
   },
   {
     title: "COMMUNICATION & CONTROL SYSTEMS",
-    image: "/category/18e33c0223c17aca24945ed720a29bceaba5efbb.jpg"
+    image: "/category/COMMUNICATION & CONTROL SYSTEMS.png"
   },
   {
     title: "CLIMATE & INTERIOR",
-    image: "/category/1a962f6fb0a919096bfd1f17952c34f51ddab776.jpg"
+    image: "/category/CLIMATE & INTERIOR.png"
   },
   {
     title: "EXTERIOR & UTILITY",
-    image: "/category/33b6c185868adc8d2a670e0b378e4924cb737ae0.jpg"
+    image: "/category/EXTERIOR & UTILITY.png"
   },
   {
     title: "OEM / CUSTOM MFG",
-    image: "/category/9298550bbe803a362d34231b7ce8545e6c52e822.jpg"
+    image: "/category/OEM BASELINE CHASSIS SOURCING.png"
   }
 ];
 
@@ -96,7 +96,10 @@ export const Categories = () => {
           >
             {categories.map((category, index) => (
               <div key={index} className="flex-none px-4">
-                <div className="flex flex-col cursor-pointer group w-[258px]">
+                <a
+                  href={`/category`}
+                  className="flex flex-col group w-[258px] no-underline"
+                >
                   <div className="relative w-[258px] h-[328px] bg-black/80">
                     <Image
                       src={category.image}
@@ -108,7 +111,7 @@ export const Categories = () => {
                   <h3 className="font-orbitron text-white text-[14px] font-black mt-4 text-left leading-none uppercase min-h-10">
                     {category.title}
                   </h3>
-                </div>
+                </a>
               </div>
             ))}
           </div>

@@ -33,21 +33,21 @@ const products: Product[] = [
     action: "SUBMIT AN INQUIRY",
   },
   {
-    id: 1,
+    id: 4,
     name: "Tubeless Runflat Solutions",
     price: 3499,
     image: "/featured products/9bf0d8ceacd81abb0ef5d6b2928417f9604f3e30.png",
     action: "BUY NOW",
   },
   {
-    id: 2,
+    id: 5,
     name: "Headlights (LED, HID, Halogen)",
     price: 499,
     image: "/featured products/702ce9381c45cff389ec92314fa6d77761919ed6.jpg",
     action: "BUY NOW",
   },
   {
-    id: 3,
+    id: 6,
     name: "Reinforced Suspension Kits",
     price: 14990,
     image: "/featured products/be2442a365db6898a8061f3a839a2a08a5aa7ee1.png",
@@ -70,12 +70,24 @@ export const FeaturedProducts = () => {
       className="py-16 bg-center bg-cover"
       style={{ backgroundImage: "url('/featured products/background.png')" }}
     >
+      <style jsx>{`
+        @keyframes slideIn {
+          from {
+            opacity: 0;
+            transform: translateX(50px);
+          }
+          to {
+            opacity: 1;
+            transform: translateX(0);
+          }
+        }
+      `}</style>
       <div className="container-figma">
         <h2 className="text-2xl sm:text-3xl lg:text-4xl font-bold text-white mb-8 sm:mb-10 lg:mb-12 font-orbitron">
           FEATURED PRODUCTS
         </h2>
 
-        <div className="flex flex-col md:flex-row justify-between items-start 2xl:gap-[140px] gap-8 relative">
+        <div className="flex flex-col md:flex-row justify-between items-start 2xl:gap-[140px] gap-8 relative overflow-hidden">
         {displayedProducts.map((product, index) => {
           // The middle product (index 1) is always focused
           const isFocused = index === 1;
@@ -83,9 +95,12 @@ export const FeaturedProducts = () => {
           return (
             <div
               key={product.id}
-              className={`bg-transparent border border-b-0 border-white w-[368px] h-[519px] flex flex-col shadow-[0_0_15px_rgba(255,255,255,0.1)] transition-all duration-300 ${
+              className={`bg-transparent border border-b-0 border-white w-[368px] h-[519px] flex flex-col shadow-[0_0_15px_rgba(255,255,255,0.1)] transition-all duration-700 ease-in-out animate-[slideIn_0.5s_ease-out] ${
                 isFocused ? "md:mt-16" : ""
               }`}
+              style={{
+                animation: `slideIn 0.5s ease-out ${index * 0.1}s both`
+              }}
             >
               {/* Image area */}
               <div className="w-full h-[339px] flex items-center justify-center border-b border-white relative overflow-hidden">
@@ -111,8 +126,8 @@ export const FeaturedProducts = () => {
 
               {/* Price */}
               <div className="w-full h-[60px] flex items-center px-6 border-b-0 border-white">
-                <p className="text-white font-orbitron text-lg">
-                  ₮ {product.price.toLocaleString()}
+                <p className="text-white font-orbitron text-lg flex justify-between items-center gap-2">
+                  <Image src="/icons/currency/dirham-white.svg" alt="Currency" width={20} height={20} /> {product.price.toLocaleString()}
                 </p>
               </div>
 

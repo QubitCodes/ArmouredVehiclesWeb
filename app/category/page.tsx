@@ -29,7 +29,7 @@ export default function ProductListingPage() {
             price: 679,
             rating: 4.6,
             reviews: 4.5,
-            image: ['/product/rim.png', '/product/rim.png'],
+            image: ['/product/image.jpeg', '/product/image.jpeg'],
             action: 'ADD TO CART',
         },
         {
@@ -96,13 +96,11 @@ export default function ProductListingPage() {
     };
 
     return (
-        <section className='bg-[#F0EBE3]'>
+        <section className='bg-[#F0EBE3] relative px-4'>
             {/* ---------------- BREADCRUMB BAR ---------------- */}
-            <div className="bg-[#E8E3D6] border-b border-[#D8D3C5]">
-                {/* <Container> */}
-
-                {/* </Container> */}
-            </div>
+            {/* <div className="bg-[#E8E3D6] border-b border-[#D8D3C5]">
+                
+            </div> */}
 
             {/* ---------------- TITLE SECTION ---------------- */}
             <Container>
@@ -321,7 +319,7 @@ export default function ProductListingPage() {
 
 
 
-                        <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-6">
+                        <div className="grid grid-cols-1 w-full sm:grid-cols-2 xl:grid-cols-3 gap-6">
                             {products.map(product => (
                                 <ProductCard
                                     key={product.id}

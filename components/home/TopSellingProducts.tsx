@@ -30,7 +30,7 @@ const products: Product[] = [
     name: "Turbochargers & Superchargers",
     price: 600,
     image: "/top-selling/image 2.png",
-    bigImage: "/top-selling/big product/img2.jpg",
+    bigImage: "/top-selling/big product/img2.png",
     description: "Premium forced induction systems to boost your engine's performance.",
     rating: 4.7,
     reviews: 2083,
@@ -197,7 +197,7 @@ export function TopSellingProducts({ title }: { title: string }) {
         {/* LEFT SECTION */}
         <div className="container-figma pt-10 pb-12 lg:w-auto">
           <h2 className="text-4xl font-bold text-black font-orbitron mb-8">
-            TOP SELLING PRODUCTS
+            {title}
           </h2>
 
           <div className="grid grid-cols-2 md:grid-cols-3 gap-0 border-collapse">
@@ -242,7 +242,7 @@ export function TopSellingProducts({ title }: { title: string }) {
           </div>
 
           {/* DETAILS */}
-          <p className="text-lg text-black font-semibold mt-6">฿ {selectedProduct.price}</p>
+          <p className="text-lg text-black font-semibold mt-6 flex justify-between items-center gap-2"><Image src="/icons/currency/dirham.svg" alt="Currency" width={20} height={20} /> {selectedProduct.price}</p>
 
           <h3 className="text-xl font-bold text-black mb-1 text-center">
             {selectedProduct.name}
