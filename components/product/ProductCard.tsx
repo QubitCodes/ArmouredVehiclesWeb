@@ -36,15 +36,15 @@ export default function ProductCard({
   return (
     <div className="bg-white border border-[#E8E3D6] overflow-hidden hover:shadow-md transition-all duration-200 flex flex-col">
       {/* ---------- IMAGE SECTION ---------- */}
-      <div className="relative bg-[#F8F5EF] w-[370px] h-[350px] flex items-center justify-center group">
+      <div className="relative bg-[#EBE3D6] w-auto max-h-[375px] h-[350px] flex items-center justify-center group">
         {/* Image slider */}
         <Image
           src={images[slide]}
           alt={name}
-          // width={375}
-          // height={370}
-          fill
-          className="object-cover transition-all duration-300"
+          width={375}
+          height={350}
+          // fill
+          className="object-contain max-h-[350px] transition-all duration-300"
         />
 
         {/* Left Arrow */}

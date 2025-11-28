@@ -323,6 +323,7 @@ export default function ProductListingPage() {
                             {products.map(product => (
                                 // <Link key={product.id} href={`/product-details`} className="block">
                                     <ProductCard
+                                    key={product.id}
                                         images={product.image}
                                         name={product.name}
                                         rating={product.rating}
