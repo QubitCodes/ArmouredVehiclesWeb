@@ -33,22 +33,22 @@ export default function ProductListingPage() {
             action: 'ADD TO CART',
         },
         {
-            id: '2',
-            name: 'DFC® - 4000 HybriDynamic Hybrid Rear Brake Pads',
-            price: 16769,
-            rating: 4.6,
-            reviews: 4.5,
-            image: ['/product/rim.png', '/product/rim.png'],
-            action: 'SUBMIT AN INQUIRY',
-        },
-        {
             id: '3',
             name: 'DFC® - 4000 HybriDynamic Hybrid Rear Brake Pads',
             price: 679,
             rating: 4.6,
             reviews: 4.5,
-            image: ['/product/rim.png', '/product/rim.png'],
+            image: ['/product/Group 853.jpg', '/product/image.jpeg', '/product/rim1.png', '/product/image.png'],
             action: 'ADD TO CART',
+        },
+        {
+            id: '2',
+            name: 'DFC® - 4000 HybriDynamic Hybrid Rear Brake Pads',
+            price: 16769,
+            rating: 4.6,
+            reviews: 4.5,
+            image: ['/product/rim1.png', '/product/rim1.png'],
+            action: 'SUBMIT AN INQUIRY',
         },
     ]);
 
@@ -321,16 +321,17 @@ export default function ProductListingPage() {
 
                         <div className="grid grid-cols-1 w-full sm:grid-cols-2 xl:grid-cols-3 gap-6">
                             {products.map(product => (
-                                <ProductCard
-                                    key={product.id}
-                                    images={product.image}
-                                    name={product.name}
-                                    rating={product.rating}
-                                    reviews={`${product.reviews}k`}
-                                    price={product.price}
-                                    delivery="Standard Delivery by tomorrow"
-                                    action={product.action}
-                                />
+                                // <Link key={product.id} href={`/product-details`} className="block">
+                                    <ProductCard
+                                        images={product.image}
+                                        name={product.name}
+                                        rating={product.rating}
+                                        reviews={`${product.reviews}k`}
+                                        price={product.price}
+                                        delivery="Standard Delivery by tomorrow"
+                                        action={product.action}
+                                    />
+                                // </Link>
                             ))}
                         </div>
                     </main>
