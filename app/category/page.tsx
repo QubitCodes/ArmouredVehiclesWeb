@@ -105,7 +105,7 @@ export default function ProductListingPage() {
             {/* ---------------- TITLE SECTION ---------------- */}
             <Container>
 
-                <div className="py-6">
+                <div className="pt-3">
                     <div className="flex items-center gap-2 text-xs py-3 text-[#737373]">
                         <span className="font-[Inter, sans-serif] font-semibold text-[12px] leading-[100%] tracking-[0%] uppercase cursor-pointer">
                             AUTO PARTS
@@ -130,13 +130,13 @@ export default function ProductListingPage() {
             </Container>
 
             <Container>
-                <div className="flex flex-col lg:flex-row gap-8 py-10">
+                <div className="flex flex-col lg:flex-row gap-8 py-5">
                     {/* ---------------- FILTER SIDEBAR ---------------- */}
                     <aside className="w-full lg:w-1/4 bg-[#F0EBE3] rounded-md lg:sticky lg:top-4 lg:self-start">
                         <div className="p-5 space-y-8 max-h-[calc(100vh-8rem)] overflow-y-auto filter-scrollbar">
                             {/* BRAND FILTER */}
                             <div>
-                                <h3 className="text-sm font-bold font-[Orbitron] uppercase text-black mb-3">Brand</h3>
+                                <h3 className="text-sm font-bold font-[Orbitron] uppercase text-black mb-3">Brand </h3>
                                 <div className="space-y-2">
                                     {brands.map(b => (
                                         <label

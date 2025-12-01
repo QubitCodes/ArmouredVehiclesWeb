@@ -105,7 +105,7 @@ export default function ProductCard({
             style={{ width: "calc(100% + 2rem)", marginLeft: "-1rem" }}
           />
 
-          <p className="mt-2 text-lg font-semibold text-gray-900">฿ {price}</p>
+          <p className="mt-2 text-lg font-semibold text-gray-900 flex justify-start items-center gap-2"><Image src="/icons/currency/dirham.svg" alt="Currency" width={20} height={20} />  {price}</p>
 
           <div className="flex items-center gap-1 mt-2 text-sm">
             <Image src="/icons/delivery.svg" alt="delivery" width={18} height={18} />

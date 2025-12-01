@@ -105,7 +105,7 @@ body {
 
 /* Custom scrollbar for filter sidebar */
 .filter-scrollbar::-webkit-scrollbar {
-  width: 8px;
+  width: 0px;
 }
 
 .filter-scrollbar::-webkit-scrollbar-track {
@@ -125,5 +125,5 @@ body {
 /* For Firefox */
 .filter-scrollbar {
   scrollbar-width: thin;
-  scrollbar-color: #D9D9D9 #E8E3D6;
+  scrollbar-color: #D9D9D9 #F0EBE3;
 }
