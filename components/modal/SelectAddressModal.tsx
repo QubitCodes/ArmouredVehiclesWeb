@@ -1,7 +1,9 @@
 "use client";
-import { X, Edit, Plus } from "lucide-react";
+import { Edit, Plus } from "lucide-react";
+import { useRouter } from "next/navigation";
 
-export default function SelectAddressModal({ onClose }:any) {
+export default function SelectAddressModal({ onClose }: { onClose: () => void }) {
+  const router = useRouter();
   const address = {
     label: "Office",
     isDefault: true,
@@ -90,7 +92,10 @@ export default function SelectAddressModal({ onClose }:any) {
               bg-[#D34D24] text-white font-orbitron font-bold text-[14px] uppercase px-10 py-2 relative
               clip-path-[polygon(7%_0%,100%_0%,93%_100%,0%_100%)]
             "
-            onClick={onClose}
+            onClick={() => {
+              onClose();
+              router.push("/checkout");
+            }}
           >
             Confirm
           </button>

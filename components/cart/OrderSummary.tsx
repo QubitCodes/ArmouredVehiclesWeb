@@ -1,9 +1,10 @@
 type OrderSummaryProps = {
   subtotal: number;
   onCheckout?: () => void;
+  buttonText?: string;
 };
 
-export default function OrderSummary({ subtotal, onCheckout }: OrderSummaryProps) {
+export default function OrderSummary({ subtotal, onCheckout, buttonText = "CHECKOUT" }: OrderSummaryProps) {
 
   return (
     <aside className="bg-[#EBE3D6] p-6 w-full max-w-[500px] space-y-6 overflow-hidden">
@@ -98,7 +99,7 @@ export default function OrderSummary({ subtotal, onCheckout }: OrderSummaryProps
         style={{ clipPath: 'polygon(30px 0, calc(100% - 30px) 0, 100% 50%, calc(100% - 30px) 100%, 30px 100%, 0 50%)' }}
         onClick={() => onCheckout?.()}
       >
-        CHECKOUT
+        {buttonText}
       </button>
     </aside>
   );

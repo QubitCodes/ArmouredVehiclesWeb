@@ -1,13 +1,8 @@
-import { Orbitron } from "next/font/google";
 import "./globals.css";
 import type { Metadata } from "next";
 import Navbar from "@/components/navbar/Navbar";
 import { Footer } from "@/components/footer";
-
-const orbitron = Orbitron({
-  variable: "--font-orbitron",
-  subsets: ["latin"],
-});
+import { orbitron } from "@/lib/fonts";
 
 export const metadata: Metadata = {
   title: "ArmoredMart",
@@ -20,9 +15,9 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en">
+    <html lang="en" className={orbitron.variable}>
       <body
-        className={`${orbitron.variable} antialiased`}
+        className="antialiased"
       >
         <Navbar />
         <main className="min-h-screen pt-[127px] bg-[#F0EBE3]">
