@@ -101,8 +101,11 @@ export default function ProductListingPage() {
         );
     };
     const toggleFilter = (key: string) => {
-        setOpenFilters(prev => ({ ...prev, [key]: !prev[key] }));
-    };
+    setOpenFilters(prev => ({ 
+        ...prev, 
+        [key]: !(prev as any)[key] 
+    }));
+};
 
     return (
         <section className='bg-[#F0EBE3] relative px-4'>
