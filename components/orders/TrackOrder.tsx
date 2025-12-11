@@ -91,8 +91,8 @@ export default function TrackOrder({ orderId }: TrackOrderProps) {
           <p className="text-sm text-[#666]">
             Shipment ID: <span className="text-black font-medium">{orderData.shipmentId}</span>
           </p>
-          <p className="text-sm text-[#666]">
-            Order Date: <span className="text-black font-medium">{orderData.orderDate}</span>
+          <p className="text-sm  self-end text-[#666]t ext-sm  self-end text-[#666]">
+            Order Date: <span className="text-sm text-[#666]">{orderData.orderDate}</span>
           </p>
         </div>
       </div>
@@ -113,81 +113,89 @@ export default function TrackOrder({ orderId }: TrackOrderProps) {
               </p>
             </div>
           </div>
-          <div className="hidden lg:block relative clip-path-supplier bg-[#3D4A26] p-[1px]">
-            <button className="clip-path-supplier bg-[#EBE3D6] hover:bg-[#3D4A26] text-[#000] hover:text-white px-6 py-2 text-sm font-bold font-orbitron uppercase tracking-wide transition-colors">
-              RESCHEDULE
-            </button>
-          </div>
+         
         </div>
       </div>
 
       {/* Tracking Timeline */}
       <div className="bg-[#EBE3D6] p-4 lg:p-5 mb-4">
-        <div className="relative">
-          {orderData.tracking.map((step, index) => (
-            <div key={index} className="flex gap-4 relative">
-              {/* Timeline Line */}
-              {index < orderData.tracking.length - 1 && (
-                <div
-                  className={`absolute left-[11px] top-6 w-0.5 h-full ${
-                    step.completed ? "bg-[#D35400]" : "bg-[#CCCCCC]"
-                  }`}
-                  style={{ height: step.current ? "100px" : "32px" }}
-                />
-              )}
-
-              {/* Status Icon - Using Track images with rounded circle background */}
-              <div 
-                className={`relative z-10 w-7 h-7 flex items-center justify-center flex-shrink-0 ${
-                  step.completed 
-                    ? "bg-[#D35400] rounded-full" 
-                    : ""
-                }`}
-              >
-                <Image
-                  src={
-                    step.completed 
-                      ? step.current 
-                        ? "/order/Track2.png" 
-                        : "/order/Track.png"
-                      : index === orderData.tracking.length - 2
-                        ? "/order/Track14.png"
-                        : index === orderData.tracking.length - 1
-                          ? "/order/Track15.png"
-                          : "/order/Track1.png"
-                  }
-                  alt={step.completed ? "Completed" : "Pending"}
-                  width={step.completed ? 14 : 20}
-                  height={step.completed ? 14 : 20}
-                  className="object-contain"
-                />
-              </div>
-
-              {/* Status Content */}
-              <div className={`pb-6 ${step.current ? "pb-8" : ""}`}>
-                <div className="flex items-center gap-2 flex-wrap">
-                  <span
-                    className={`font-medium text-sm ${
-                      step.current ? "text-[#D35400]" : step.completed ? "text-black" : "text-[#666]"
+        <div className="flex flex-col lg:flex-row lg:gap-8">
+          {/* Timeline */}
+          <div className="relative flex-1">
+            {orderData.tracking.map((step, index) => (
+              <div key={index} className="flex gap-4 relative">
+                {/* Timeline Line */}
+                {index < orderData.tracking.length - 1 && (
+                  <div
+                    className={`absolute left-[11px] top-6 w-0.5 h-full ${
+                      step.completed ? "bg-[#D35400]" : "bg-[#CCCCCC]"
                     }`}
-                  >
-                    {step.status}
-                  </span>
-                  {step.date && (
-                    <span className="text-sm text-[#666]">on {step.date}</span>
-                  )}
-                  {step.onTime && (
-                    <span className="bg-[#E8F5E9] text-[#2E7D32] text-xs px-2 py-0.5 rounded font-medium">
-                      On Time
+                    style={{ height: step.current ? "100px" : "32px" }}
+                  />
+                )}
+
+                {/* Status Icon - Using Track images with rounded circle background */}
+                <div 
+                  className={`relative z-10 w-7 h-7 flex items-center justify-center flex-shrink-0 ${
+                    step.completed 
+                      ? "bg-[#D35400] rounded-full" 
+                      : ""
+                  }`}
+                >
+                  <Image
+                    src={
+                      step.completed 
+                        ? step.current 
+                          ? "/order/Track2.png" 
+                          : "/order/Track.png"
+                        : index === orderData.tracking.length - 2
+                          ? "/order/Track14.png"
+                          : index === orderData.tracking.length - 1
+                            ? "/order/Track15.png"
+                            : "/order/Track1.png"
+                    }
+                    alt={step.completed ? "Completed" : "Pending"}
+                    width={step.completed ? 14 : 20}
+                    height={step.completed ? 14 : 20}
+                    className="object-contain"
+                  />
+                </div>
+
+                {/* Status Content */}
+                <div className={`pb-6 ${step.current ? "pb-8" : ""}`}>
+                  <div className="flex items-center gap-2 flex-wrap">
+                    <span
+                      className={`font-medium text-sm ${
+                        step.current ? "text-[#D35400]" : step.completed ? "text-black" : "text-[#666]"
+                      }`}
+                    >
+                      {step.status}
                     </span>
+                    {step.date && (
+                      <span className="text-sm text-[#666]">on {step.date}</span>
+                    )}
+                    {step.onTime && (
+                      <span className="bg-[#E8F5E9] text-[#2E7D32] text-xs px-2 py-0.5 rounded font-medium">
+                        On Time
+                      </span>
+                    )}
+                  </div>
+                  {step.message && (
+                    <p className="text-sm text-[#666] mt-2 max-w-lg">{step.message}</p>
                   )}
                 </div>
-                {step.message && (
-                  <p className="text-sm text-[#666] mt-2 max-w-lg">{step.message}</p>
-                )}
               </div>
+            ))}
+          </div>
+
+          {/* Reschedule Button - Right Side */}
+          <div className="hidden lg:block self-start">
+            <div className="relative clip-path-supplier bg-[#3D4A26] p-[1px]">
+              <button className="clip-path-supplier bg-[#EBE3D6] hover:bg-[#3D4A26] text-[#000] hover:text-white px-6 py-2 text-sm font-bold font-orbitron uppercase tracking-wide transition-colors">
+                RESCHEDULE
+              </button>
             </div>
-          ))}
+          </div>
         </div>
 
         {/* Toggle Tracking */}
@@ -269,7 +277,7 @@ export default function TrackOrder({ orderId }: TrackOrderProps) {
                 </span>
               </div>
             </div>
-            <p className="text-xs text-[#666] flex-shrink-0">
+            <p className="text-xs text-[#666] self-end flex-shrink-0">
               Order ID: #{item.orderId}
             </p>
           </div>

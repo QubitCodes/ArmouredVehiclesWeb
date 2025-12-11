@@ -9,6 +9,7 @@ import {
   MoreVertical,
   ArrowLeft,
 } from "lucide-react";
+import OrdersSupportPanel from "@/components/modal/OrdersSupportPanel";
 
 // Mock orders data
 const inProgressOrders = [
@@ -64,6 +65,7 @@ export default function OrdersPage() {
   const [searchQuery, setSearchQuery] = useState("");
   const [timeFilter, setTimeFilter] = useState("Last 3 Months");
   const [openDropdown, setOpenDropdown] = useState<string | null>(null);
+  const [showSupportPanel, setShowSupportPanel] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
 
   // Close dropdown when clicking outside
@@ -88,7 +90,7 @@ export default function OrdersPage() {
 
       {/* Desktop Header - Hidden on mobile */}
       <div className="hidden lg:flex items-center justify-between mb-6">
-        <h1 className="font-orbitron font-black text-3xl uppercase tracking-wide text-black">
+        <h1 className="font-orbitron font-black text-[32px] uppercase tracking-wide text-black">
           Orders
         </h1>
         <div className="flex items-center gap-4">
@@ -130,7 +132,7 @@ export default function OrdersPage() {
       </div>
 
       {/* IN PROGRESS Section */}
-      <div className="mb-6 lg:mb-8 px-3 py-4 lg:px-5 lg:py-5 bg-[#EBE3D6] border border-[#EBE3D6] rounded-lg overflow-hidden">
+      <div className="mb-6 lg:mb-8 px-3 py-4 lg:px-5 lg:py-5 bg-[#EBE3D6] border border-[#EBE3D6]  overflow-hidden">
         <h2 className="font-orbitron font-bold text-xs lg:text-sm uppercase tracking-wider text-black mb-3 lg:mb-4">
           In Progress{" "}
           <span className="text-[#666] font-normal">({inProgressOrders.length} Item)</span>
@@ -190,11 +192,20 @@ export default function OrdersPage() {
                           <Image src="/order/Frame9.png" alt="Tracking" width={16} height={16} />
                           Tracking Details
                         </button>
-                        <button className="w-full flex items-center gap-3 px-4 py-3 text-sm text-[#333] hover:bg-[#F5F5F5] transition-colors">
+                        <button 
+                          onClick={() => router.push(`/orders/summary/${order.id}`)}
+                          className="w-full flex items-center gap-3 px-4 py-3 text-sm text-[#333] hover:bg-[#F5F5F5] transition-colors"
+                        >
                           <Image src="/order/Frame10.png" alt="Order Summary" width={16} height={16} />
                           Order Summary
                         </button>
-                        <button className="w-full flex items-center gap-3 px-4 py-3 text-sm text-[#333] hover:bg-[#F5F5F5] transition-colors">
+                        <button 
+                          onClick={() => {
+                            setShowSupportPanel(true);
+                            setOpenDropdown(null);
+                          }}
+                          className="w-full flex items-center gap-3 px-4 py-3 text-sm text-[#333] hover:bg-[#F5F5F5] transition-colors"
+                        >
                           <Image src="/order/Frame11.png" alt="Help" width={16} height={16} />
                           Need Help?
                         </button>
@@ -235,7 +246,7 @@ export default function OrdersPage() {
       </div>
 
       {/* COMPLETED Section */}
-      <div className="mb-6 lg:mb-8 px-3 py-4 lg:px-5 lg:py-5 bg-[#EBE3D6] border border-[#EBE3D6] rounded-lg overflow-hidden">
+      <div className="mb-6 lg:mb-8 px-3 py-4 lg:px-5 lg:py-5 bg-[#EBE3D6] border border-[#EBE3D6]  overflow-hidden">
         <h2 className="font-orbitron font-bold text-xs lg:text-sm uppercase tracking-wider text-black mb-3 lg:mb-4">
           Completed
         </h2>
@@ -267,7 +278,10 @@ export default function OrdersPage() {
                 {/* Track Refund Button - Mobile with angled sides */}
                 {order.status === "cancelled" && (
                   <div className="w-full p-[1px] clip-path-supplier bg-[#C2B280]">
-                    <button className="w-full bg-[#F0EBE3] hover:bg-[#E8E3DB] text-[#333] clip-path-supplier flex items-center justify-center py-2.5 transition-colors">
+                    <button 
+                      onClick={() => router.push(`/orders/refund/${order.id}`)}
+                      className="w-full bg-[#F0EBE3] hover:bg-[#E8E3DB] text-[#333] clip-path-supplier flex items-center justify-center py-2.5 transition-colors"
+                    >
                       <span className="font-bold text-[11px] font-orbitron uppercase tracking-wide">
                         Track Refund
                       </span>
@@ -295,7 +309,10 @@ export default function OrdersPage() {
                 <div className="flex items-center gap-3">
                   {order.status === "cancelled" && (
                     <div className="relative clip-path-supplier bg-[#C2B280] p-[1px]">
-                      <button className="bg-[#F5F0E6] text-[#333333] clip-path-supplier flex items-center justify-center px-8 h-[36px] hover:bg-[#EBE6DC] transition-colors">
+                      <button 
+                        onClick={() => router.push(`/orders/refund/${order.id}`)}
+                        className="bg-[#F5F0E6] text-[#333333] clip-path-supplier flex items-center justify-center px-8 h-[36px] hover:bg-[#EBE6DC] transition-colors"
+                      >
                         <span className="font-semibold text-[12px] font-orbitron uppercase leading-none tracking-normal whitespace-nowrap">
                           Track Refund
                         </span>
@@ -315,11 +332,20 @@ export default function OrdersPage() {
                           <Image src="/order/Frame9.png" alt="Tracking" width={16} height={16} />
                           Tracking Details
                         </button>
-                        <button className="w-full flex items-center gap-3 px-4 py-3 text-sm text-[#333] hover:bg-[#F5F5F5] transition-colors">
+                        <button 
+                          onClick={() => router.push(`/orders/summary/${order.id}`)}
+                          className="w-full flex items-center gap-3 px-4 py-3 text-sm text-[#333] hover:bg-[#F5F5F5] transition-colors"
+                        >
                           <Image src="/order/Frame10.png" alt="Order Summary" width={16} height={16} />
                           Order Summary
                         </button>
-                        <button className="w-full flex items-center gap-3 px-4 py-3 text-sm text-[#333] hover:bg-[#F5F5F5] transition-colors">
+                        <button 
+                          onClick={() => {
+                            setShowSupportPanel(true);
+                            setOpenDropdown(null);
+                          }}
+                          className="w-full flex items-center gap-3 px-4 py-3 text-sm text-[#333] hover:bg-[#F5F5F5] transition-colors"
+                        >
                           <Image src="/order/Frame11.png" alt="Help" width={16} height={16} />
                           Need Help?
                         </button>
@@ -359,6 +385,12 @@ export default function OrdersPage() {
           ))}
         </div>
       </div>
+
+      {/* Orders Support Panel */}
+      <OrdersSupportPanel 
+        isOpen={showSupportPanel} 
+        onClose={() => setShowSupportPanel(false)} 
+      />
     </main>
   );
 }

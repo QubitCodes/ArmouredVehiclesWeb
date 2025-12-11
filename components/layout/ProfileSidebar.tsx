@@ -137,78 +137,84 @@ export default function ProfileSidebar() {
         </div>
 
         {/* Orders & Activity */}
-        <div className="rounded-lg overflow-hidden bg-[#3D4A26]">
-          <h4 className="font-orbitron font-bold text-xs uppercase tracking-wider text-white px-4 py-3">
+        <div>
+          <h4 className="font-orbitron font-extrabold text-[16px] uppercase leading-none tracking-normal text-[#1A1A1A] px-1 py-3">
             Orders & Activity
           </h4>
-          <nav className="px-2 pb-2 space-y-1">
-            {sidebarNav.ordersActivity.map((item) => (
-              <button
-                key={item.id}
-                onClick={() => router.push(item.href)}
-                className={`w-full flex items-center gap-3 px-3 py-2.5 text-sm font-medium text-white transition-colors ${
-                  isActive(item.href)
-                    ? "bg-[#4A5D3A]"
-                    : "hover:bg-[#4A5D3A]"
-                }`}
-              >
-                <Image src={item.iconImg} alt={item.label} width={18} height={18} />
-                {item.label}
-              </button>
-            ))}
-          </nav>
+          <div className=" overflow-hidden bg-[#3D4A26]">
+            <nav className="px-2 py-2 space-y-1">
+              {sidebarNav.ordersActivity.map((item) => (
+                <button
+                  key={item.id}
+                  onClick={() => router.push(item.href)}
+                  className={`w-full flex items-center gap-3 px-3 py-2.5 text-sm font-medium text-white transition-colors ${
+                    isActive(item.href)
+                      ? "bg-[#4A5D3A]"
+                      : "hover:bg-[#4A5D3A]"
+                  }`}
+                >
+                  <Image src={item.iconImg} alt={item.label} width={18} height={18} />
+                  {item.label}
+                </button>
+              ))}
+            </nav>
+          </div>
         </div>
 
         {/* My Account */}
-        <div className="rounded-lg overflow-hidden bg-[#3D4A26]">
-          <h4 className="font-orbitron font-bold text-xs uppercase tracking-wider text-white px-4 py-3">
+        <div>
+          <h4 className="font-orbitron font-extrabold text-[16px] uppercase leading-none tracking-normal text-[#1A1A1A] px-1 py-3">
             My Account
           </h4>
-          <nav className="px-2 pb-2 space-y-1">
-            {sidebarNav.myAccount.map((item) => (
-              <button
-                key={item.id}
-                onClick={() => router.push(item.href)}
-                className={`w-full flex items-center gap-3 px-3 py-2.5 text-sm font-medium text-white transition-colors ${
-                  isActive(item.href)
-                    ? "bg-[#4A5D3A]"
-                    : "hover:bg-[#4A5D3A]"
-                }`}
-              >
-                <Image src={item.iconImg} alt={item.label} width={18} height={18} />
-                {item.label}
-              </button>
-            ))}
-          </nav>
+          <div className=" overflow-hidden bg-[#3D4A26]">
+            <nav className="px-2 py-2 space-y-1">
+              {sidebarNav.myAccount.map((item) => (
+                <button
+                  key={item.id}
+                  onClick={() => router.push(item.href)}
+                  className={`w-full flex items-center gap-3 px-3 py-2.5 text-sm font-medium text-white transition-colors ${
+                    isActive(item.href)
+                      ? "bg-[#4A5D3A]"
+                      : "hover:bg-[#4A5D3A]"
+                  }`}
+                >
+                  <Image src={item.iconImg} alt={item.label} width={18} height={18} />
+                  {item.label}
+                </button>
+              ))}
+            </nav>
+          </div>
         </div>
 
         {/* Others */}
-        <div className="rounded-lg overflow-hidden bg-[#3D4A26]">
-          <h4 className="font-orbitron font-bold text-xs uppercase tracking-wider text-white px-4 py-3">
+        <div>
+          <h4 className="font-orbitron font-extrabold text-[16px] uppercase leading-none tracking-normal text-[#1A1A1A] px-1 py-3">
             Others
           </h4>
-          <nav className="px-2 pb-2 space-y-1">
-            {sidebarNav.others.map((item) => (
-              <button
-                key={item.id}
-                onClick={() => router.push(item.href)}
-                className={`w-full flex items-center gap-3 px-3 py-2.5 text-sm font-medium text-white transition-colors ${
-                  isActive(item.href)
-                    ? "bg-[#4A5D3A]"
-                    : "hover:bg-[#4A5D3A]"
-                }`}
-              >
-                <Image src={item.iconImg} alt={item.label} width={18} height={18} />
-                {item.label}
-              </button>
-            ))}
-          </nav>
+          <div className=" overflow-hidden bg-[#3D4A26]">
+            <nav className="px-2 py-2 space-y-1">
+              {sidebarNav.others.map((item) => (
+                <button
+                  key={item.id}
+                  onClick={() => router.push(item.href)}
+                  className={`w-full flex items-center gap-3 px-3 py-2.5 text-sm font-medium text-white transition-colors ${
+                    isActive(item.href)
+                      ? "bg-[#4A5D3A]"
+                      : "hover:bg-[#4A5D3A]"
+                  }`}
+                >
+                  <Image src={item.iconImg} alt={item.label} width={18} height={18} />
+                  {item.label}
+                </button>
+              ))}
+            </nav>
+          </div>
         </div>
 
         {/* Log Out */}
         <button
           onClick={handleLogout}
-          className="w-full flex items-center gap-3 px-4 py-3 rounded-lg text-sm font-medium bg-[#3D4A26] text-white hover:bg-[#4A5D3A] transition-colors"
+          className="w-full flex items-center gap-3 px-4 py-3  text-sm font-medium bg-[#3D4A26] text-white hover:bg-[#4A5D3A] transition-colors"
         >
           <Image src="/order/Frame8.png" alt="Log Out" width={18} height={18} />
           Log Out

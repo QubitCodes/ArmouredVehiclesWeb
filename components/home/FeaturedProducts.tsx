@@ -82,7 +82,7 @@ export const FeaturedProducts = () => {
       `}</style>
 
       <div className="container-figma">
-        <h2 className="text-2xl sm:text-3xl lg:text-4xl font-bold text-white mb-8 sm:mb-10 lg:mb-12 font-orbitron">
+        <h2 className="text-2xl sm:text-[32px] lg:text-4xl font-bold text-white mb-8 sm:mb-10 lg:mb-12 font-orbitron">
           FEATURED PRODUCTS
         </h2>
 

@@ -63,7 +63,9 @@ body {
 .clip-path-supplier {
   clip-path: polygon(8% 0, 92% 0, 100% 50%, 92% 100%, 8% 100%, 0% 50%);
 }
-
+.clip-path-supplier-refund {
+  clip-path: polygon(3% 0, 97% 0, 100% 50%, 97% 100%, 3% 100%, 0% 50%);
+}
 /* Search input placeholder styling to match design specs */
 .search-input::placeholder {
   /* Requested font and typographic settings */

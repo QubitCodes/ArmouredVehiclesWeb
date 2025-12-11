@@ -165,14 +165,14 @@ export function ImageSlider() {
           onClick={goToPrevious}
           className="pointer-events-auto text-[#cccccc] hover:text-orange-500 transition-colors p-2 sm:p-4"
         >
-          <span className="text-3xl sm:text-4xl lg:text-5xl">‹</span>
+          <span className="text-[32px] sm:text-4xl lg:text-5xl">‹</span>
         </button>
 
         <button
           onClick={goToNext}
           className="pointer-events-auto text-[#cccccc] hover:text-orange-500 transition-colors p-2 sm:p-4"
         >
-          <span className="text-3xl sm:text-4xl lg:text-5xl">›</span>
+          <span className="text-[32px] sm:text-4xl lg:text-5xl">›</span>
         </button>
       </div>
 
