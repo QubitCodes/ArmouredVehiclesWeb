@@ -335,7 +335,7 @@ const ProductDetails = () => {
 
               <div className="space-y-4">
                 <div >
-                  <span className="text-3xl font-bold font-[inter, sans-serif] text-black">฿ 679</span>
+                  <span className="text-[32px] font-bold font-[inter, sans-serif] text-black">฿ 679</span>
                   <div className="flex items-center gap-2 font-[inter, sans-serif]">
                     <span className="text-[#3D4A26]">฿ 559.25 with coupon code</span>
                     <button className="text-[#D35400] text-sm underline">Price Details</button>

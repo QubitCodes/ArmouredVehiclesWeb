@@ -87,7 +87,10 @@ export default function TrackingDetails({ orderId }: TrackingDetailsProps) {
             </div>
           </div>
           <div className="relative clip-path-supplier bg-[#3D4A26] p-[1px] w-full lg:w-auto">
-            <button className="clip-path-supplier bg-[#EBE3D6] hover:bg-[#3D4A26] text-[#000] hover:text-white px-6 py-2 text-sm font-bold font-orbitron uppercase tracking-wide transition-colors w-full lg:w-auto">
+            <button 
+              onClick={() => router.push(`/orders/refund/${orderId}`)}
+              className="clip-path-supplier bg-[#EBE3D6] hover:bg-[#3D4A26] text-[#000] hover:text-white px-6 py-2 text-sm font-bold font-orbitron uppercase tracking-wide transition-colors w-full lg:w-auto"
+            >
               Track Refund
             </button>
           </div>
@@ -171,7 +174,7 @@ export default function TrackingDetails({ orderId }: TrackingDetailsProps) {
                 </span>
               </div>
             </div>
-            <p className="text-xs text-[#666] flex-shrink-0">
+            <p className="text-xs text-[#666] self-end flex-shrink-0">
               Order ID: #{item.orderId}
             </p>
           </div>

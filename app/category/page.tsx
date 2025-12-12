@@ -135,7 +135,7 @@ export default function ProductListingPage() {
                             PERFORMANCE BRAKE KITS
                         </span>
                     </div>
-                    <h1 className="text-3xl font-[Orbitron] sm:text-4xl font-bold uppercase tracking-wide text-black">
+                    <h1 className="text-[32px] font-[Orbitron] sm:text-4xl font-bold uppercase tracking-wide text-black">
                         PERFORMANCE BRAKES
                     </h1>
                 </div>
