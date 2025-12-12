@@ -3,6 +3,8 @@ import type { Metadata } from "next";
 import Navbar from "@/components/navbar/Navbar";
 import { Footer } from "@/components/footer";
 import { orbitron } from "@/lib/fonts";
+import MobileBottomNav from "@/components/mobile/MobileBottomNav";
+
 
 export const metadata: Metadata = {
   title: "ArmoredMart",
@@ -20,10 +22,12 @@ export default function RootLayout({
         className="antialiased"
       >
         <Navbar />
-        <main className="min-h-screen pt-[127px] bg-[#F0EBE3]">
+        <main className="min-h-screen pt-[127px] pb-20 bg-[#F0EBE3]">
           {children}
         </main>
+
         <Footer />
+        <MobileBottomNav />
       </body>
     </html>
   );

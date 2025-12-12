@@ -220,7 +220,7 @@ export function TopSellingProducts({ title }: { title: string }) {
                 <div className="relative w-[150px] h-[150px]">
                   <Image src={product.image} alt={product.name} fill className="object-contain" />
                 </div>
-                <p className="text-black mt-2 text-[16px] leading-none">{product.name}</p>
+                <p className="text-black mt-2 text-[16px] leading-none p-2">{product.name}</p>
               </div>
             ))}
           </div>

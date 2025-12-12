@@ -61,25 +61,29 @@ const Footer = () => {
 
   return (
     <footer
-        className="text-white pt-14  bg-[#111]"
-        style={{
-            backgroundImage: "url('/footer.png')",
-            backgroundSize: 'cover',
-            backgroundPosition: 'center',
-            backgroundRepeat: 'no-repeat',
-        }}
+      className="text-white pt-14  bg-[#111]"
+      style={{
+        backgroundImage: "url('/footer.png')",
+        backgroundSize: 'cover',
+        backgroundPosition: 'center',
+        backgroundRepeat: 'no-repeat',
+      }}
     >
       <div className="container-figma mx-auto relative pb-10">
         <div className="grid grid-cols-1 lg:grid-cols-5 gap-10 mb-10">
           {/* Left Logo + Socials */}
-          <div className="space-y-4">
-            <div>
-              <Image src="/logo.svg" alt="ArmoredMart" width={180} height={50} />
-              {/* <p className="text-[12px] text-gray-400 mt-1 leading-snug">
-                THE WORLD’S FIRST COMPLIANCE INTEGRATED DEFENSE E-STORE
-              </p> */}
-            </div>
-            <div className="flex items-center gap-4 pt-2">
+          <div className="flex flex-col items-start gap-3">
+
+            {/* Logo */}
+            <Image
+              src="/logofullwhite.svg"
+              alt="ArmoredMart"
+              width={220}
+              height={150}
+            />
+
+            {/* Social Icons - same width as logo */}
+            <div className="flex items-center gap-5 w-[220px] p-2 mt-5">
               {socialLinks.map((social) => (
                 <Link
                   key={social.href}
@@ -87,20 +91,22 @@ const Footer = () => {
                   target="_blank"
                   rel="noopener noreferrer"
                 >
-                  <Image src={social.icon} alt="social" width={18} height={18} />
+                  <Image src={social.icon} alt="social" width={23} height={23} />
                 </Link>
               ))}
             </div>
+
           </div>
+
 
           {/* Links Columns */}
           <div>
             <h3 className="font-orbitron text-base font-extrabold text-[#D35400] mb-3 uppercase leading-none">USEFUL LINKS</h3>
-            <ul className="space-y-2">
+            <ul className="space-y-1">
               {usefulLinks.map((link) => (
                 <li key={link.href}>
-                  <Link 
-                    href={link.href} 
+                  <Link
+                    href={link.href}
                     className="font-inter text-[14px] leading-[34px] text-white hover:text-white"
                   >
                     {link.title}
@@ -112,11 +118,11 @@ const Footer = () => {
 
           <div>
             <h3 className="font-orbitron text-base font-extrabold text-[#D35400] mb-3 uppercase leading-none">CATEGORIES</h3>
-            <ul className="space-y-2">
+            <ul className="space-y-1">
               {categories.map((item) => (
                 <li key={item.href}>
-                  <Link 
-                    href={item.href} 
+                  <Link
+                    href={item.href}
                     className="font-inter text-[14px] leading-[34px] text-white hover:text-white"
                   >
                     {item.title}
@@ -128,11 +134,11 @@ const Footer = () => {
 
           <div>
             <h3 className="font-orbitron text-base font-extrabold text-[#D35400] mb-3 uppercase leading-none">HELP</h3>
-            <ul className="space-y-2">
+            <ul className="space-y-1">
               {help.map((item) => (
                 <li key={item.href}>
-                  <Link 
-                    href={item.href} 
+                  <Link
+                    href={item.href}
                     className="font-inter text-[14px] leading-[34px] text-white hover:text-white"
                   >
                     {item.title}
@@ -144,11 +150,11 @@ const Footer = () => {
 
           <div>
             <h3 className="font-orbitron text-base font-extrabold text-[#D35400] mb-3 uppercase leading-none">ABOUT US</h3>
-            <ul className="space-y-2">
+            <ul className="space-y-1">
               {aboutUs.map((item) => (
                 <li key={item.href}>
-                  <Link 
-                    href={item.href} 
+                  <Link
+                    href={item.href}
                     className="font-inter text-[14px] leading-[34px] text-white hover:text-white"
                   >
                     {item.title}
