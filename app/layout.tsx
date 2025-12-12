@@ -4,6 +4,8 @@ import Navbar from "@/components/navbar/Navbar";
 import { Footer } from "@/components/footer";
 import { orbitron } from "@/lib/fonts";
 import MobileBottomNav from "@/components/mobile/MobileBottomNav";
+import AOSProvider from "@/components/AOSProvider";
+
 
 
 export const metadata: Metadata = {
@@ -21,8 +23,9 @@ export default function RootLayout({
       <body
         className="antialiased"
       >
+        <AOSProvider />
         <Navbar />
-        <main className="min-h-screen pt-[127px] pb-20 bg-[#F0EBE3]">
+        <main className="min-h-screen pt-[127px]  bg-[#F0EBE3]">
           {children}
         </main>
 

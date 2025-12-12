@@ -18,7 +18,7 @@ const slides = [
 
 const mobileSlides = [
   {
-    url: '/slider/mobile/mobile1.jpg',
+    url: '/slider/mobile/mobile1.png',
     title: 'Defence Commerce, Reinvented.',
     subtitle: 'Built for Security, Powered by Compliance.',
   },
