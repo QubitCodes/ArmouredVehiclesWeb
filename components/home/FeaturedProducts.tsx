@@ -146,12 +146,12 @@ export const FeaturedProducts = () => {
       `}</style>
 
       <div className="container-figma">
-        <h2 className="text-2xl sm:text-[32px] lg:text-4xl font-bold text-white mb-8 sm:mb-10 lg:mb-12 font-orbitron">
+        <h2 className="text-2xl sm:text-[32px] lg:text-4xl font-bold text-white mb-8 sm:mb-10 lg:mb-12 font-orbitron" data-aos="fade-up">
           FEATURED PRODUCTS
         </h2>
 
         {/* SLIDER WRAPPER */}
-        <div className="overflow-hidden relative w-full">
+        <div className="overflow-hidden relative w-full" >
           {/* TRACK */}
           <div
             ref={sliderRef}
@@ -175,6 +175,7 @@ export const FeaturedProducts = () => {
                   return (
                     <div
                       key={product.id}
+                      data-aos="fade-up"
                       onMouseEnter={() => setHoveredKey(uniqueKey)}
                       onMouseLeave={() => setHoveredKey(null)}
                       className={`
@@ -192,7 +193,7 @@ export const FeaturedProducts = () => {
 
 
                       {/* IMAGE */}
-                      <div className="w-full h-[349px] flex items-center justify-center border-b border-white relative overflow-hidden">
+                      <div className="w-full h-[349px] flex items-center justify-center border-b border-white relative overflow-hidden" >
                         <Image
                           src={product.image}
                           alt={product.name}
