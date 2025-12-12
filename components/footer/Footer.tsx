@@ -74,15 +74,9 @@ const Footer = () => {
     >
       <div className="container-figma mx-auto relative pb-10">
 
-        {/* ================= MOBILE FOOTER ================= */}
+        {/* ========== MOBILE FOOTER ========== */}
         <div className="lg:hidden mb-6">
-          <Image
-            src="/logofullwhite.svg"
-            alt="ArmoredMart"
-            width={280}
-            height={160}
-            className="mb-4"
-          />
+          <Image src="/logofullwhite.svg" alt="ArmoredMart" width={260} height={140} className="mb-4" />
 
           <div className="flex gap-6 mb-6">
             {socialLinks.map((s) => (
@@ -99,12 +93,10 @@ const Footer = () => {
           ].map((section) => (
             <div key={section.id} className="border-t border-gray-700">
               <button
-                onClick={() =>
-                  setOpenSection(openSection === section.id ? null : section.id)
-                }
+                onClick={() => setOpenSection(openSection === section.id ? null : section.id)}
                 className="w-full flex justify-between py-4"
               >
-                <span className="font-orbitron fold-bold text-sm text-[#D35400]">
+                <span className="font-orbitron text-sm text-[#D35400]">
                   {section.title}
                 </span>
                 <span>{openSection === section.id ? "−" : "+"}</span>
@@ -125,14 +117,14 @@ const Footer = () => {
           ))}
         </div>
 
-        {/* ================= DESKTOP FOOTER ================= */}
-        <div className="hidden lg:grid grid-cols-5 gap-6 mb-10">
+        {/* ========== DESKTOP FOOTER ========== */}
+        <div className="hidden lg:grid grid-cols-5 gap-8 mb-10">
           <div>
             <Image src="/logofullwhite.svg" alt="logo" width={220} height={120} />
             <div className="flex gap-4 mt-4">
               {socialLinks.map((s) => (
                 <Link key={s.href} href={s.href} target="_blank">
-                  <Image src={s.icon} alt="social" width={18} height={18} />
+                  <Image src={s.icon} alt="social" width={20} height={20} />
                 </Link>
               ))}
             </div>
@@ -140,7 +132,7 @@ const Footer = () => {
 
           {[usefulLinks, categories, help, aboutUs].map((group, i) => (
             <div key={i}>
-              <h3 className="font-orbitron font-bold text-[#D35400] mb-3 uppercase">
+              <h3 className="font-orbitron text-[#D35400] mb-3 uppercase">
                 {["Useful Links", "Categories", "Help", "About Us"][i]}
               </h3>
               <ul className="space-y-1">
@@ -157,7 +149,7 @@ const Footer = () => {
         </div>
       </div>
 
-      {/* ================= BOTTOM BAR ================= */}
+      {/* ========== BOTTOM BAR ========== */}
       <div className="border-t bg-black border-gray-800">
         <Container>
           <div className="flex flex-col md:flex-row justify-between items-center py-5 gap-4">
