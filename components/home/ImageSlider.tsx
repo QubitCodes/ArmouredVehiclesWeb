@@ -23,7 +23,7 @@ const mobileSlides = [
     subtitle: 'Built for Security, Powered by Compliance.',
   },
   {
-    url: '/slider/mobile/mobile1.jpg',
+    url: '/slider/mobile/mobile2.png',
     title: 'Tactical & Emergency Lighting Systems.',
     subtitle: 'Built for Security, Powered by Compliance.',
   },
@@ -111,7 +111,8 @@ export function ImageSlider() {
     extendedSlides[currentIndex] || extendedSlides[1];
 
   return (
-    <div className="relative h-[550px] sm:h-[650px] lg:h-[700px] w-full overflow-hidden -mt-16">
+    <div className="relative h-[550px] sm:h-[650px] lg:h-[700px] w-full overflow-hidden lg:-mt-16">
+
 
       {/* BACKGROUND SLIDES */}
       <div className="absolute inset-0 w-full h-full overflow-hidden">
@@ -141,7 +142,9 @@ export function ImageSlider() {
       </div>
 
       {/* CONTENT (Text) */}
-      <div className="container-figma h-full flex items-center relative z-10">
+      <div className={`container-figma h-full flex relative z-10 ${
+          isMobile ? 'items-center pb-40' : 'items-center'
+        }`}>
         <div
           className={
             isMobile
@@ -162,7 +165,7 @@ export function ImageSlider() {
               }}
             >
               {(() => {
-                const title = realSlide.title.split(',')[0];
+                const title = realSlide.title;
                 const words = title.split(' ');
                 const spans: JSX.Element[] = [];
                 let buffer = '';
