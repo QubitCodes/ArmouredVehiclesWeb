@@ -143,7 +143,7 @@ export function TopSellingProducts({ title }: { title: string }) {
       <div className="lg:hidden text-black w-full pb-12">
 
         <div className="px-4 pt-8 pb-4">
-          <h2 className="text-xl font-orbitron font-bold">{title}</h2>
+          <h2 className="text-xl font-orbitron font-bold" data-aos="fade-up" >{title}</h2>
         </div>
 
         {/* Product horizontal scroll */}
