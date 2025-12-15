@@ -21,8 +21,8 @@ export default function RootLayout({
       >
         <Navbar />
                 
-=======
-        <main className="min-h-screen pt-[96px] bg-[#F0EBE3]">
+
+        <main className=" pt-[120px] pb-[0px] bg-[#F0EBE3]">
 
           {children}
         </main>
