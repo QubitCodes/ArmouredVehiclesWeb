@@ -5,7 +5,7 @@ import Image from "next/image";
 import { Container } from "../ui";
 
 const Footer = () => {
-  const [openSection, setOpenSection] = useState<string | null>(null);
+  const [openSection, setOpenSection] = useState(null);
 
   const usefulLinks = [
     { title: "Where to Buy", href: "/where-to-buy" },
@@ -58,7 +58,7 @@ const Footer = () => {
     { icon: "/icons/payment/visa.svg", alt: "Visa" },
     { icon: "/icons/payment/tabby.svg", alt: "Tabby" },
     { icon: "/icons/payment/tamara.svg", alt: "Tamara" },
-    { icon: "/icons/payment/apple pay.svg", alt: "Apple Pay" },
+    { icon: "/icons/payment/apple-pay.svg", alt: "Apple Pay" },
   ];
 
   return (
