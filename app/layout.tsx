@@ -1,8 +1,8 @@
 import "./globals.css";
 import type { Metadata } from "next";
 import Navbar from "@/components/navbar/Navbar";
-import { Footer } from "@/components/footer";
 import { orbitron } from "@/lib/fonts";
+import { Footer } from "@/components/footer";
 
 export const metadata: Metadata = {
   title: "ArmoredMart",

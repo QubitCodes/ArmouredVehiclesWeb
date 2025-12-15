@@ -1,18 +1,12 @@
 "use client";
+
 import React, { useState } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import { Container } from "../ui";
 
-
 const Footer = () => {
-<<<<<<< HEAD
-
- const [openSection, setOpenSection] = useState<string | null>(null);
-
-=======
   const [openSection, setOpenSection] = useState<string | null>(null);
->>>>>>> 7c82db4 (footer mobile view changed)
 
   const usefulLinks = [
     { title: "Where to Buy", href: "/where-to-buy" },
@@ -70,27 +64,6 @@ const Footer = () => {
 
   return (
     <footer
-<<<<<<< HEAD
-        className="text-white pt-14  bg-[#111]"
-        style={{
-            backgroundImage: "url('/footer.png')",
-            backgroundSize: 'cover',
-            backgroundPosition: 'center',
-            backgroundRepeat: 'no-repeat',
-        }}
-    >
-      <div className="container-figma mx-auto relative pb-10">
-        <div className="grid grid-cols-1 lg:grid-cols-5 gap-10 mb-10">
-          {/* Left Logo + Socials */}
-          <div className="space-y-4">
-            <div>
-              <Image src="/logo.svg" alt="ArmoredMart" width={180} height={50} />
-              {/* <p className="text-[12px] text-gray-400 mt-1 leading-snug">
-                THE WORLD’S FIRST COMPLIANCE INTEGRATED DEFENSE E-STORE
-              </p> */}
-            </div>
-            <div className="flex items-center gap-4 pt-2">
-=======
       className="text-white pt-14 bg-[#111]"
       style={{
         backgroundImage: "url('/footer.png')",
@@ -99,79 +72,81 @@ const Footer = () => {
         backgroundRepeat: "no-repeat",
       }}
     >
-      <div className="container-figma mx-auto relative pb-6">
+      <div className="container-figma mx-auto relative pb-10">
 
-        {/* ================= MOBILE ACCORDION (ONLY MOBILE) ================= */}
-        {/* ===== MOBILE LOGO + SOCIAL SECTION ===== */}
-        <div className="lg:hidden flex flex-col items-start text-center mb-6">
-          {/* Logo */}
+        {/* ================= MOBILE FOOTER ================= */}
+        <div className="lg:hidden mb-6">
           <Image
             src="/logofullwhite.svg"
             alt="ArmoredMart"
-            width={300}
-            height={190}
-            className="mb-3"
+            width={280}
+            height={160}
+            className="mb-4"
           />
 
-          {/* Tagline */}
-          {/* <p className="text-xs text-gray-300 uppercase tracking-wide mb-4 px-4">
-            The World’s First Compliance Integrated Defence E-Store
-          </p> */}
-
-          {/* Social Icons */}
-          <div className="flex items-center justify-center gap-8 p-2">
-            {socialLinks.map((social) => (
-              <Link
-                key={social.href}
-                href={social.href}
-                target="_blank"
-                rel="noopener noreferrer"
-              >
-                <Image
-                  src={social.icon}
-                  alt="social"
-                  width={25}
-                  height={25}
-                  className="opacity-90 hover:opacity-100"
-                />
+          <div className="flex gap-6 mb-6">
+            {socialLinks.map((s) => (
+              <Link key={s.href} href={s.href} target="_blank">
+                <Image src={s.icon} alt="social" width={22} height={22} />
               </Link>
             ))}
           </div>
- 
-        </div>
 
-        <div className="lg:hidden divide-y divide-gray-700">
-          {[
-            { id: "useful", title: "USEFUL LINKS", items: usefulLinks },
+          {[{ id: "useful", title: "USEFUL LINKS", items: usefulLinks },
             { id: "categories", title: "CATEGORIES", items: categories },
             { id: "help", title: "HELP", items: help },
             { id: "about", title: "ABOUT US", items: aboutUs },
           ].map((section) => (
-            <div key={section.id}>
+            <div key={section.id} className="border-t border-gray-700">
               <button
                 onClick={() =>
                   setOpenSection(openSection === section.id ? null : section.id)
                 }
-                className="w-full flex justify-between items-center py-4"
+                className="w-full flex justify-between py-4"
               >
-                <span className="font-orbitron text-sm font-extrabold text-[#D35400] uppercase">
+                <span className="font-orbitron fold-bold text-sm text-[#D35400]">
                   {section.title}
                 </span>
-                <span className="text-2xl text-white">
-                  {openSection === section.id ? "−" : "+"}
-                </span>
+                <span>{openSection === section.id ? "−" : "+"}</span>
               </button>
 
-              <ul
-                className={`overflow-hidden transition-all duration-300 ${openSection === section.id ? "max-h-[500px] pb-4" : "max-h-0"
-                  }`}
-              >
-                {section.items.map((item) => (
+              {openSection === section.id && (
+                <ul className="pb-4 space-y-1">
+                  {section.items.map((i) => (
+                    <li key={i.href}>
+                      <Link href={i.href} className="text-sm text-gray-300">
+                        {i.title}
+                      </Link>
+                    </li>
+                  ))}
+                </ul>
+              )}
+            </div>
+          ))}
+        </div>
+
+        {/* ================= DESKTOP FOOTER ================= */}
+        <div className="hidden lg:grid grid-cols-5 gap-6 mb-10">
+          <div>
+            <Image src="/logofullwhite.svg" alt="logo" width={220} height={120} />
+            <div className="flex gap-4 mt-4">
+              {socialLinks.map((s) => (
+                <Link key={s.href} href={s.href} target="_blank">
+                  <Image src={s.icon} alt="social" width={18} height={18} />
+                </Link>
+              ))}
+            </div>
+          </div>
+
+          {[usefulLinks, categories, help, aboutUs].map((group, i) => (
+            <div key={i}>
+              <h3 className="font-orbitron font-bold text-[#D35400] mb-3 uppercase">
+                {["Useful Links", "Categories", "Help", "About Us"][i]}
+              </h3>
+              <ul className="space-y-1">
+                {group.map((item) => (
                   <li key={item.href}>
-                    <Link
-                      href={item.href}
-                      className="block py-1 text-sm text-gray-300 hover:text-white"
-                    >
+                    <Link href={item.href} className="text-sm">
                       {item.title}
                     </Link>
                   </li>
@@ -179,154 +154,24 @@ const Footer = () => {
               </ul>
             </div>
           ))}
-
-        </div>
-    
-
-        {/* ================= DESKTOP FOOTER (UNCHANGED) ================= */}
-        <div className="hidden lg:grid grid-cols-1 lg:grid-cols-5 gap-5 mb-5">
-
-          {/* Logo + Socials */}
-          <div className="flex flex-col items-start gap-3">
-            <Image src="/logofullwhite.svg" alt="ArmoredMart" width={220} height={150} />
-            <div className="flex items-center gap-5 w-[220px] p-2 mt-5">
->>>>>>> 7c82db4 (footer mobile view changed)
-              {socialLinks.map((social) => (
-                <Link
-                  key={social.href}
-                  href={social.href}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                >
-                  <Image src={social.icon} alt="social" width={18} height={18} />
-                </Link>
-              ))}
-            </div>
-          </div>
-
-<<<<<<< HEAD
-          {/* Links Columns */}
-          <div>
-            <h3 className="font-orbitron text-base font-extrabold text-[#D35400] mb-3 uppercase leading-none">USEFUL LINKS</h3>
-            <ul className="space-y-2">
-=======
-          {/* USEFUL LINKS */}
-          <div>
-            <h3 className="font-orbitron text-base font-extrabold text-[#D35400] mb-3 uppercase leading-none">
-              USEFUL LINKS
-            </h3>
-            <ul className="space-y-1">
->>>>>>> 7c82db4 (footer mobile view changed)
-              {usefulLinks.map((link) => (
-                <li key={link.href}>
-                  <Link 
-                    href={link.href} 
-                    className="font-inter text-[14px] leading-[34px] text-white hover:text-white"
-                  >
-                    {link.title}
-                  </Link>
-                </li>
-              ))}
-            </ul>
-          </div>
-
-          {/* CATEGORIES */}
-          <div>
-<<<<<<< HEAD
-            <h3 className="font-orbitron text-base font-extrabold text-[#D35400] mb-3 uppercase leading-none">CATEGORIES</h3>
-            <ul className="space-y-2">
-=======
-            <h3 className="font-orbitron text-base font-extrabold text-[#D35400] mb-3 uppercase leading-none">
-              CATEGORIES
-            </h3>
-            <ul className="space-y-1">
->>>>>>> 7c82db4 (footer mobile view changed)
-              {categories.map((item) => (
-                <li key={item.href}>
-                  <Link 
-                    href={item.href} 
-                    className="font-inter text-[14px] leading-[34px] text-white hover:text-white"
-                  >
-                    {item.title}
-                  </Link>
-                </li>
-              ))}
-            </ul>
-          </div>
-
-          {/* HELP */}
-          <div>
-<<<<<<< HEAD
-            <h3 className="font-orbitron text-base font-extrabold text-[#D35400] mb-3 uppercase leading-none">HELP</h3>
-            <ul className="space-y-2">
-=======
-            <h3 className="font-orbitron text-base font-extrabold text-[#D35400] mb-3 uppercase leading-none">
-              HELP
-            </h3>
-            <ul className="space-y-1">
->>>>>>> 7c82db4 (footer mobile view changed)
-              {help.map((item) => (
-                <li key={item.href}>
-                  <Link 
-                    href={item.href} 
-                    className="font-inter text-[14px] leading-[34px] text-white hover:text-white"
-                  >
-                    {item.title}
-                  </Link>
-                </li>
-              ))}
-            </ul>
-          </div>
-
-          {/* ABOUT US */}
-          <div>
-<<<<<<< HEAD
-            <h3 className="font-orbitron text-base font-extrabold text-[#D35400] mb-3 uppercase leading-none">ABOUT US</h3>
-            <ul className="space-y-2">
-=======
-            <h3 className="font-orbitron text-base font-extrabold text-[#D35400] mb-3 uppercase leading-none">
-              ABOUT US
-            </h3>
-            <ul className="space-y-1">
->>>>>>> 7c82db4 (footer mobile view changed)
-              {aboutUs.map((item) => (
-                <li key={item.href}>
-                  <Link 
-                    href={item.href} 
-                    className="font-inter text-[14px] leading-[34px] text-white hover:text-white"
-                  >
-                    {item.title}
-                  </Link>
-                </li>
-              ))}
-            </ul>
-          </div>
         </div>
       </div>
 
-      {/* ================= BOTTOM BAR (UNCHANGED) ================= */}
-      <div className="border-t bg-black border-gray-800 pb-16 md:pb-0">
+      {/* ================= BOTTOM BAR ================= */}
+      <div className="border-t bg-black border-gray-800">
         <Container>
-          <div className="flex flex-col md:flex-row items-center justify-between gap-4 py-5">
-            <div className="flex items-center justify-center gap-4">
-              {paymentMethods.map((method) => (
-                <Image
-                  key={method.alt}
-                  src={method.icon}
-                  alt={method.alt}
-                  width={50}
-                  height={28}
-                />
+          <div className="flex flex-col md:flex-row justify-between items-center py-5 gap-4">
+            <div className="flex gap-4">
+              {paymentMethods.map((m) => (
+                <Image key={m.alt} src={m.icon} alt={m.alt} width={50} height={28} />
               ))}
             </div>
 
-            <p className="text-xs text-white text-center">
-              Copyright ©{new Date().getFullYear()} ArmoredMart.com. All rights reserved.
+            <p className="text-xs text-center">
+              © {new Date().getFullYear()} ArmoredMart.com. All rights reserved.
             </p>
 
-            <div className="flex items-center gap-1">
-              <Image src="/icons/tatyx.svg" alt="Tactyx" width={140} height={50} />
-            </div>
+            <Image src="/icons/tatyx.svg" alt="Tactyx" width={140} height={50} />
           </div>
         </Container>
       </div>
