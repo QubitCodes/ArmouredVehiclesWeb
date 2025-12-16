@@ -143,7 +143,7 @@ export function TopSellingProducts({ title }: { title: string }) {
       <div className="lg:hidden text-black w-full pb-12">
 
         <div className="px-4 pt-8 pb-4">
-          <h2 className="text-xl font-orbitron font-bold" data-aos="fade-up" >{title}</h2>
+          <h2 className="text-xl font-orbitron font-bold">{title}</h2>
         </div>
 
         {/* Product horizontal scroll */}
@@ -220,7 +220,7 @@ export function TopSellingProducts({ title }: { title: string }) {
                 <div className="relative w-[150px] h-[150px]">
                   <Image src={product.image} alt={product.name} fill className="object-contain" />
                 </div>
-                <p className="text-black mt-2 text-[16px] leading-none p-2">{product.name}</p>
+                <p className="text-black mt-2 text-[16px] leading-none">{product.name}</p>
               </div>
             ))}
           </div>
