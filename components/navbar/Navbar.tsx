@@ -1,9 +1,86 @@
 'use client';
 
+import React from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
 import { Search } from 'lucide-react';
 import { useState, useEffect, useRef, useMemo } from 'react';
+
+// Profile Menu Icon Component
+const ProfileMenuIcon = ({ icon }: { icon: string }) => {
+  const icons: { [key: string]: React.ReactNode } = {
+    orders: (
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <path d="M3.17 7.44L12 12.55L20.77 7.47" stroke="#666" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+        <path d="M12 21.61V12.54" stroke="#666" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+        <path d="M9.93 2.48L4.59 5.44C3.38 6.11 2.39 7.79 2.39 9.17V14.82C2.39 16.2 3.38 17.88 4.59 18.55L9.93 21.52C11.07 22.15 12.94 22.15 14.08 21.52L19.42 18.55C20.63 17.88 21.62 16.2 21.62 14.82V9.17C21.62 7.79 20.63 6.11 19.42 5.44L14.08 2.47C12.93 1.84 11.07 1.84 9.93 2.48Z" stroke="#666" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+      </svg>
+    ),
+    wishlist: (
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <path d="M12.62 20.81C12.28 20.93 11.72 20.93 11.38 20.81C8.48 19.82 2 15.69 2 8.69C2 5.6 4.49 3.1 7.56 3.1C9.38 3.1 10.99 3.98 12 5.34C13.01 3.98 14.63 3.1 16.44 3.1C19.51 3.1 22 5.6 22 8.69C22 15.69 15.52 19.82 12.62 20.81Z" stroke="#666" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+      </svg>
+    ),
+    returns: (
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <path d="M9.11 5.08C9.98 4.82 10.94 4.65 12 4.65C16.79 4.65 20.67 8.53 20.67 13.32C20.67 18.11 16.79 21.99 12 21.99C7.21 21.99 3.33 18.11 3.33 13.32C3.33 11.54 3.87 9.88 4.79 8.5" stroke="#666" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+        <path d="M7.87 5.32L10.76 2" stroke="#666" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+        <path d="M7.87 5.32L11.24 7.78" stroke="#666" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+      </svg>
+    ),
+    warranty: (
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <path d="M10.49 2.23L5.5 4.11C4.35 4.54 3.41 5.9 3.41 7.12V14.55C3.41 15.73 4.19 17.28 5.14 17.99L9.44 21.2C10.85 22.26 13.17 22.26 14.58 21.2L18.88 17.99C19.83 17.28 20.61 15.73 20.61 14.55V7.12C20.61 5.89 19.67 4.53 18.52 4.1L13.53 2.23C12.68 1.92 11.32 1.92 10.49 2.23Z" stroke="#666" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+        <path d="M9.05 11.87L10.66 13.48L14.96 9.18" stroke="#666" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+      </svg>
+    ),
+    profile: (
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <path d="M12 12C14.7614 12 17 9.76142 17 7C17 4.23858 14.7614 2 12 2C9.23858 2 7 4.23858 7 7C7 9.76142 9.23858 12 12 12Z" stroke="#666" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+        <path d="M20.59 22C20.59 18.13 16.74 15 12 15C7.26 15 3.41 18.13 3.41 22" stroke="#666" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+      </svg>
+    ),
+    address: (
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <path d="M12 13.43C13.7231 13.43 15.12 12.0331 15.12 10.31C15.12 8.58687 13.7231 7.19 12 7.19C10.2769 7.19 8.88 8.58687 8.88 10.31C8.88 12.0331 10.2769 13.43 12 13.43Z" stroke="#666" strokeWidth="1.5"/>
+        <path d="M3.62 8.49C5.59 -0.17 18.42 -0.16 20.38 8.5C21.53 13.58 18.37 17.88 15.6 20.54C13.59 22.48 10.41 22.48 8.39 20.54C5.63 17.88 2.47 13.57 3.62 8.49Z" stroke="#666" strokeWidth="1.5"/>
+      </svg>
+    ),
+    payments: (
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <path d="M2 8.5H14.5" stroke="#666" strokeWidth="1.5" strokeMiterlimit="10" strokeLinecap="round" strokeLinejoin="round"/>
+        <path d="M6 16.5H8" stroke="#666" strokeWidth="1.5" strokeMiterlimit="10" strokeLinecap="round" strokeLinejoin="round"/>
+        <path d="M10.5 16.5H14.5" stroke="#666" strokeWidth="1.5" strokeMiterlimit="10" strokeLinecap="round" strokeLinejoin="round"/>
+        <path d="M22 12.03V16.11C22 19.62 21.11 20.5 17.56 20.5H6.44C2.89 20.5 2 19.62 2 16.11V7.89C2 4.38 2.89 3.5 6.44 3.5H14.5" stroke="#666" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+        <path d="M20 3.5V9.5L22 7.5" stroke="#666" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+        <path d="M20 9.5L18 7.5" stroke="#666" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+      </svg>
+    ),
+    notifications: (
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <path d="M12 6.44V9.77" stroke="#666" strokeWidth="1.5" strokeMiterlimit="10" strokeLinecap="round"/>
+        <path d="M12.02 2C8.34 2 5.36 4.98 5.36 8.66V10.76C5.36 11.44 5.08 12.46 4.73 13.04L3.46 15.16C2.68 16.47 3.22 17.93 4.66 18.41C9.44 20 14.61 20 19.39 18.41C20.74 17.96 21.32 16.38 20.59 15.16L19.32 13.04C18.97 12.46 18.69 11.43 18.69 10.76V8.66C18.68 5 15.68 2 12.02 2Z" stroke="#666" strokeWidth="1.5" strokeMiterlimit="10" strokeLinecap="round"/>
+        <path d="M15.33 18.82C15.33 20.65 13.83 22.15 12 22.15C11.09 22.15 10.25 21.77 9.65 21.17C9.05 20.57 8.67 19.73 8.67 18.82" stroke="#666" strokeWidth="1.5" strokeMiterlimit="10"/>
+      </svg>
+    ),
+    security: (
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <path d="M10.49 2.23L5.5 4.11C4.35 4.54 3.41 5.9 3.41 7.12V14.55C3.41 15.73 4.19 17.28 5.14 17.99L9.44 21.2C10.85 22.26 13.17 22.26 14.58 21.2L18.88 17.99C19.83 17.28 20.61 15.73 20.61 14.55V7.12C20.61 5.89 19.67 4.53 18.52 4.1L13.53 2.23C12.68 1.92 11.32 1.92 10.49 2.23Z" stroke="#666" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+        <path d="M12 12.5C13.1046 12.5 14 11.6046 14 10.5C14 9.39543 13.1046 8.5 12 8.5C10.8954 8.5 10 9.39543 10 10.5C10 11.6046 10.8954 12.5 12 12.5Z" stroke="#666" strokeWidth="1.5" strokeMiterlimit="10" strokeLinecap="round" strokeLinejoin="round"/>
+        <path d="M12 12.5V15.5" stroke="#666" strokeWidth="1.5" strokeMiterlimit="10" strokeLinecap="round" strokeLinejoin="round"/>
+      </svg>
+    ),
+    help: (
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <path d="M17 18.43H13L8.55 21.39C7.89 21.83 7 21.36 7 20.56V18.43C4 18.43 2 16.43 2 13.43V7.43C2 4.43 4 2.43 7 2.43H17C20 2.43 22 4.43 22 7.43V13.43C22 16.43 20 18.43 17 18.43Z" stroke="#666" strokeWidth="1.5" strokeMiterlimit="10" strokeLinecap="round" strokeLinejoin="round"/>
+        <path d="M12 11.36V11.15C12 10.47 12.42 10.11 12.84 9.82C13.25 9.54 13.66 9.18 13.66 8.52C13.66 7.6 12.92 6.86 12 6.86C11.08 6.86 10.34 7.6 10.34 8.52" stroke="#666" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+        <path d="M11.9955 13.75H12.0045" stroke="#666" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+      </svg>
+    ),
+  };
+  
+  return icons[icon] || null;
+};
 
 const Navbar = () => {
   const [menuOpen, setMenuOpen] = useState(false);
@@ -15,8 +92,33 @@ const Navbar = () => {
   const containerRef = useRef<HTMLDivElement | null>(null);
   const measureRef = useRef<HTMLDivElement | null>(null);
   const currencyRef = useRef<HTMLDivElement | null>(null);
+  const profileRef = useRef<HTMLDivElement | null>(null);
   const [currencyOpen, setCurrencyOpen] = useState(false);
+  const [profileDropdownOpen, setProfileDropdownOpen] = useState(false);
   const [selectedCurrency, setSelectedCurrency] = useState('د.إ');
+
+  // Auth state - in real app, this would come from auth context/provider
+  const [isLoggedIn, setIsLoggedIn] = useState(true); // Set to true to test logged in state
+  const [user, setUser] = useState({
+    name: "John",
+    fullName: "John Martin",
+    email: "info@johnmartin.com",
+    cartCount: 2,
+  });
+
+  // Profile dropdown menu items - using icons from icons/profile folder (pf0-pf9)
+  const profileMenuItems = [
+    { name: 'Orders', href: '/orders', iconImg: '/icons/profile/pf0.svg' },
+    { name: 'Wishlist', href: '/wishlist', iconImg: '/icons/profile/pf1.svg' },
+    { name: 'Returns', href: '/returns', iconImg: '/icons/profile/pf2.svg' },
+    { name: 'Warranty Claims', href: '/warranty-claims', iconImg: '/icons/profile/pf3.svg' },
+    { name: 'User Profile', href: '/profile', iconImg: '/icons/profile/pf4.svg' },
+    { name: 'Address', href: '/address', iconImg: '/icons/profile/pf5.svg' },
+    { name: 'Payments', href: '/payments', iconImg: '/icons/profile/pf6.svg' },
+    { name: 'Notifications', href: '/notifications', iconImg: '/icons/profile/pf7.svg' },
+    { name: 'Security Settings', href: '/security', iconImg: '/icons/profile/pf8.svg' },
+    { name: 'Need Help?', href: '/help', iconImg: '/icons/profile/pf9.svg' },
+  ];
 
   const navItems = useMemo(
     () => [
@@ -100,6 +202,9 @@ const Navbar = () => {
       if (currencyRef.current && !currencyRef.current.contains(e.target as Node)) {
         setCurrencyOpen(false);
       }
+      if (profileRef.current && !profileRef.current.contains(e.target as Node)) {
+        setProfileDropdownOpen(false);
+      }
     };
     document.addEventListener('mousedown', handler);
     return () => document.removeEventListener('mousedown', handler);
@@ -126,7 +231,7 @@ const Navbar = () => {
               />
             </Link>
 
-            {/* Supplier + Login + Hamburger */}
+            {/* Supplier + Login/Profile + Hamburger */}
             <div className="flex items-center gap-3">
 
               <Link href="/supplier">
@@ -137,13 +242,40 @@ const Navbar = () => {
                 </div>
               </Link>
 
-              <Link href="/login">
-                <div className="bg-[#D35400] text-white hover:bg-[#39482C] clip-path-supplier flex items-center justify-center px-4 h-[38px]">
-                  <span className="font-black text-[13px] font-orbitron uppercase">
-                    LOGIN
-                  </span>
-                </div>
-              </Link>
+              {isLoggedIn ? (
+                <>
+                  {/* Profile Icon & Name */}
+                  <Link href="/profile" className="flex items-center gap-2">
+                    <div className="w-8 h-8 rounded-full bg-[#39482C] flex items-center justify-center text-white text-sm font-bold">
+                      {user.name.charAt(0)}
+                    </div>
+                  </Link>
+
+                  {/* Cart with count */}
+                  <Link href="/cart" className="relative">
+                    <Image
+                      src="/cart.svg"
+                      alt="Shopping Cart"
+                      width={28}
+                      height={28}
+                      className="hover:opacity-80 transition-opacity"
+                    />
+                    {user.cartCount > 0 && (
+                      <span className="absolute -top-1 -right-1 w-4 h-4 bg-[#D35400] text-white text-[10px] font-bold rounded-full flex items-center justify-center">
+                        {user.cartCount}
+                      </span>
+                    )}
+                  </Link>
+                </>
+              ) : (
+                <Link href="/login">
+                  <div className="bg-[#D35400] text-white hover:bg-[#39482C] clip-path-supplier flex items-center justify-center px-4 h-[38px]">
+                    <span className="font-black text-[13px] font-orbitron uppercase">
+                      LOGIN
+                    </span>
+                  </div>
+                </Link>
+              )}
 
               <button
                 className="p-2"
@@ -249,23 +381,130 @@ const Navbar = () => {
                 </div>
               </Link>
 
-              <Link href="/login">
-                <div className="bg-[#D35400] hover:bg-[#39482C] text-white clip-path-supplier flex items-center justify-center w-[140px] h-[45px]">
-                  <span className="font-black text-[20px] font-orbitron uppercase">
-                    LOGIN
-                  </span>
-                </div>
-              </Link>
+              {isLoggedIn ? (
+                <>
+                  {/* Profile with Name and Dropdown */}
+                  <div className="relative" ref={profileRef}>
+                    <button 
+                      onClick={() => setProfileDropdownOpen(!profileDropdownOpen)}
+                      className="flex items-center gap-2 hover:opacity-80 transition-opacity"
+                    >
+                      <span className="text-black font-inter text-[16px]">{user.name}</span>
+                      <Image
+                        src="/icons/profileicon.svg"
+                        alt="Profile"
+                        width={36}
+                        height={36}
+                        className="rounded-full"
+                      />
+                      {/* Arrow */}
+                      <svg 
+                        width="10" 
+                        height="6" 
+                        viewBox="0 0 10 6" 
+                        fill="none" 
+                        xmlns="http://www.w3.org/2000/svg"
+                        className={`transition-transform duration-200 ${profileDropdownOpen ? 'rotate-180' : ''}`}
+                      >
+                        <path d="M1 1L5 5L9 1" stroke="#666" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+                      </svg>
+                    </button>
 
-              <Link href="/cart">
-                <Image
-                  src="/cart.svg"
-                  alt="Shopping Cart"
-                  width={40}
-                  height={40}
-                  className="hover:opacity-80 transition-opacity"
-                />
-              </Link>
+                    {/* Profile Dropdown Menu */}
+                    {profileDropdownOpen && (
+                      <div className="absolute right-0 top-full mt-2 w-[250px] bg-white border border-[#E5E5E5] shadow-lg z-50">
+                        {/* User Info Header */}
+                        <div className="px-4 py-3 border-b border-[#E5E5E5] bg-white">
+                          <p className="font-inter font-medium text-[14px] text-black">Hello, {user.fullName}</p>
+                          <p className="font-inter text-[12px] text-[#666]">{user.email}</p>
+                        </div>
+
+                        {/* Menu Items */}
+                        <div>
+                          {profileMenuItems.map((item, index) => (
+                            <Link
+                              key={item.name}
+                              href={item.href}
+                              className={`flex items-center justify-between px-4 py-2.5 hover:bg-[#F5F5F5] transition-colors ${
+                                index < profileMenuItems.length - 1 ? 'border-b border-[#E5E5E5]' : ''
+                              }`}
+                              onClick={() => setProfileDropdownOpen(false)}
+                            >
+                              <div className="flex items-center gap-3">
+                                <Image 
+                                  src={item.iconImg} 
+                                  alt={item.name} 
+                                  width={18} 
+                                  height={18} 
+                                />
+                                <span className="font-inter text-[14px] text-black">{item.name}</span>
+                              </div>
+                              <svg width="6" height="10" viewBox="0 0 6 10" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                <path d="M1 1L5 5L1 9" stroke="#999" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+                              </svg>
+                            </Link>
+                          ))}
+                        </div>
+
+                        {/* Logout */}
+                        <div className="border-t border-[#E5E5E5]">
+                          <button 
+                            className="w-full flex items-center gap-3 px-4 py-3 hover:bg-[#F5F5F5] transition-colors"
+                            onClick={() => {
+                              setProfileDropdownOpen(false);
+                              // Handle logout
+                            }}
+                          >
+                            <Image 
+                              src="/order/Frame8.png" 
+                              alt="Log Out" 
+                              width={18} 
+                              height={18} 
+                            />
+                            <span className="font-inter text-[14px] text-black">Log Out</span>
+                          </button>
+                        </div>
+                      </div>
+                    )}
+                  </div>
+
+                  {/* Cart with count */}
+                  <Link href="/cart" className="relative">
+                    <Image
+                      src="/cart.svg"
+                      alt="Shopping Cart"
+                      width={40}
+                      height={40}
+                      className="hover:opacity-80 transition-opacity"
+                    />
+                    {user.cartCount > 0 && (
+                      <span className="absolute -top-1 -right-1 w-5 h-5 bg-[#D35400] text-white text-[11px] font-bold rounded-full flex items-center justify-center">
+                        {user.cartCount}
+                      </span>
+                    )}
+                  </Link>
+                </>
+              ) : (
+                <>
+                  <Link href="/login">
+                    <div className="bg-[#D35400] hover:bg-[#39482C] text-white clip-path-supplier flex items-center justify-center w-[140px] h-[45px]">
+                      <span className="font-black text-[20px] font-orbitron uppercase">
+                        LOGIN
+                      </span>
+                    </div>
+                  </Link>
+
+                  <Link href="/cart">
+                    <Image
+                      src="/cart.svg"
+                      alt="Shopping Cart"
+                      width={40}
+                      height={40}
+                      className="hover:opacity-80 transition-opacity"
+                    />
+                  </Link>
+                </>
+              )}
             </div>
           </div>
 

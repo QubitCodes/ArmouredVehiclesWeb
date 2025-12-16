@@ -1,21 +1,20 @@
 "use client";
 
-import { useState } from "react";
 import Image from "next/image";
-import { ChevronRight, ChevronDown } from "lucide-react";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 
-// Mock returnable items data - set all returnEligible to false to see empty state
-const mockReturnableItems = [
+// Mock claimable items data - items with active warranty
+const mockClaimableItems = [
   {
     id: "1",
     orderId: "AMZ-12345678-987654",
     productName: "DFC® - 4000 HybriDynamic Hybrid Rear Brake Pads",
     productImage: "/order/wishlist2.svg",
     price: 679,
-    orderDate: "Monday, 3rd Nov, 2024",
-    returnEligible: false,
-    returnDeadline: "",
+    purchaseDate: "Monday, 3rd Nov, 2024",
+    warrantyEligible: true,
+    warrantyEndDate: "November 3rd, 2025",
   },
   {
     id: "2",
@@ -23,9 +22,9 @@ const mockReturnableItems = [
     productName: "Duralast 45084DL High-Performance Disc Brake Rotor",
     productImage: "/order/wishlist3.svg",
     price: 475,
-    orderDate: "Friday, 1st Nov, 2024",
-    returnEligible: false,
-    returnDeadline: "",
+    purchaseDate: "Friday, 1st Nov, 2024",
+    warrantyEligible: true,
+    warrantyEndDate: "November 1st, 2025",
   },
   {
     id: "3",
@@ -33,185 +32,100 @@ const mockReturnableItems = [
     productName: "Duralast Heavy-Duty Disc Brake Rotor 54094DL",
     productImage: "/order/wishlist4.svg",
     price: 1625,
-    orderDate: "Wednesday, 30th Oct, 2024",
-    returnEligible: false,
-    returnDeadline: "",
+    purchaseDate: "Wednesday, 30th Oct, 2024",
+    warrantyEligible: true,
+    warrantyEndDate: "October 30th, 2025",
   },
 ];
 
-export default function CreateReturnPage() {
-  const [selectedItems, setSelectedItems] = useState<string[]>([]);
-  const [timeFilter, setTimeFilter] = useState("Last 3 Months");
-  const [showFilterDropdown, setShowFilterDropdown] = useState(false);
-
-  const timeFilterOptions = ["Last 3 Months", "Last 6 Months", "Last Year", "All Time"];
-
-  const toggleItemSelection = (itemId: string) => {
-    setSelectedItems((prev) =>
-      prev.includes(itemId)
-        ? prev.filter((id) => id !== itemId)
-        : [...prev, itemId]
-    );
-  };
-
-  const returnableItems = mockReturnableItems.filter((item) => item.returnEligible);
+export default function FileClaimPage() {
+  const router = useRouter();
+  const claimableItems = mockClaimableItems.filter((item) => item.warrantyEligible);
 
   return (
     <main className="flex-1">
       {/* Header - Mobile */}
       <div className="lg:hidden mb-4">
         <div className="flex items-center justify-between mb-2">
-          <h1 className="font-orbitron font-black text-xl uppercase tracking-wide text-black">
-            Returns
-          </h1>
-          <div className="relative">
-            <button
-              onClick={() => setShowFilterDropdown(!showFilterDropdown)}
-              className="flex items-center gap-2 px-3 py-2 border border-[#C2B280] text-[#666] text-xs bg-white"
-            >
-              {timeFilter}
-              <ChevronDown size={14} />
-            </button>
-            {showFilterDropdown && (
-              <div className="absolute right-0 top-full mt-1 w-36 bg-[#EBE3D6] border border-[#C2B280] shadow-lg z-10">
-                {timeFilterOptions.map((option) => (
-                  <button 
-                    key={option}
-                    onClick={() => {
-                      setTimeFilter(option);
-                      setShowFilterDropdown(false);
-                    }}
-                    className="w-full px-3 py-2 text-left text-xs text-[#666] bg-[#EBE3D6] hover:bg-[#D9D2C5]"
-                  >
-                    {option}
-                  </button>
-                ))}
-              </div>
-            )}
+          <div>
+            <h1 className="font-orbitron font-black text-xl uppercase tracking-wide text-black">
+              File a Claim
+            </h1>
+            <p className="font-inter text-xs text-[#666] mt-1">
+              Order ID: #AMZ-12345678-987654
+            </p>
+          </div>
+          <div
+            onClick={() => router.push("/warranty-claims")}
+            className="bg-[#C2B280] clip-path-supplier p-[1px] cursor-pointer"
+          >
+            <div className="bg-[#EBE3D6] hover:bg-[#E3DDD0] clip-path-supplier flex items-center justify-center px-4 h-[30px]">
+              <span className="font-black text-[11px] font-orbitron uppercase text-black">Cancel</span>
+            </div>
           </div>
         </div>
-        <p className="font-inter text-xs text-[#666]">
-          View your returns history or file a new return
-        </p>
       </div>
 
       {/* Header - Desktop */}
       <div className="hidden lg:flex items-center justify-between mb-6">
         <div>
           <h1 className="font-orbitron font-black text-[32px] uppercase tracking-wide text-black">
-            Returns
+            File a Claim
           </h1>
           <p className="font-inter text-sm text-[#666] mt-1">
-            View your returns history or file a new return
+            Order ID: #AMZ-12345678-987654
           </p>
         </div>
-        <div className="relative">
-          <button
-            onClick={() => setShowFilterDropdown(!showFilterDropdown)}
-            className="flex items-center gap-2 px-4 py-2.5 border border-[#C2B280] text-[#666] text-sm bg-white min-w-[150px] justify-between"
-          >
-            {timeFilter}
-            <ChevronDown size={16} />
-          </button>
-          {showFilterDropdown && (
-            <div className="absolute right-0 top-full mt-1 w-full bg-[#EBE3D6] border border-[#C2B280] shadow-lg z-10">
-              {timeFilterOptions.map((option) => (
-                <button
-                  key={option}
-                  onClick={() => {
-                    setTimeFilter(option);
-                    setShowFilterDropdown(false);
-                  }}
-                  className="w-full px-4 py-2.5 text-left text-sm text-[#666] bg-[#EBE3D6] hover:bg-[#D9D2C5]"
-                >
-                  {option}
-                </button>
-              ))}
-            </div>
-          )}
+        <div
+          onClick={() => router.push("/warranty-claims")}
+          className="bg-[#C2B280] clip-path-supplier p-[1px] cursor-pointer"
+        >
+          <div className="bg-[#EBE3D6] hover:bg-[#E3DDD0] clip-path-supplier flex items-center justify-center px-6 h-[38px]">
+            <span className="font-black text-[14px] font-orbitron uppercase text-black">Cancel</span>
+          </div>
         </div>
       </div>
 
       {/* Content */}
-      {returnableItems.length === 0 ? (
-        /* No Returnable Items State */
+      {claimableItems.length === 0 ? (
+        /* No Claimable Items State */
         <div className="flex flex-col items-center justify-center text-center py-16 lg:py-24">
           <Image
-            src="/order/return2.svg"
-            alt="No Returnable Items"
+            src="/order/waranty1.svg"
+            alt="No Claimable Items"
             width={200}
             height={180}
             className="mb-8"
           />
           <h2 className="font-orbitron font-bold text-lg lg:text-xl uppercase tracking-wide text-black mb-3">
-            No Returnable Items
+            No Items Eligible for Warranty Claim
           </h2>
           <p className="font-inter text-sm lg:text-base text-[#666] max-w-md mb-6">
-            None of the items from your previous orders are returnable
+            None of the items from your previous orders are eligible for warranty claims
           </p>
-          {/* <Link href="/returns">
-            <div className="bg-[#D35400] hover:bg-[#B84700] text-white flex items-center justify-center px-8 py-3 transition-colors">
-              <span className="font-bold text-sm font-orbitron uppercase tracking-wide">
-                Back to Existing Returns
-              </span>
-            </div>
-          </Link> */}
-          <a href="/returns">
-            
-            <button className="bg-[#D35400] hover:bg-[#39482C] text-white clip-path-supplier-refund flex items-center justify-center w-full h-[45px] px-[30px] py-[15px]cursor-pointer" >
-              <span className="font-black text-[16px] font-orbitron uppercase">Back to Existing Returns</span></button>
-              </a>
+          <a href="/warranty-claims">
+            <button className="bg-[#D35400] hover:bg-[#39482C] text-white clip-path-supplier-refund flex items-center justify-center w-full h-[45px] px-[30px] py-[15px] cursor-pointer">
+              <span className="font-black text-[16px] font-orbitron uppercase">Back to Warranty Claims</span>
+            </button>
+          </a>
         </div>
       ) : (
-        /* Returnable Items List */
+        /* Claimable Items List */
         <div className="space-y-4">
-          <p className="font-inter text-sm text-[#666] mb-4">
-            {returnableItems.length} item(s) eligible for return
-          </p>
+          {/* <p className="font-inter text-sm text-[#666] mb-4">
+            {claimableItems.length} item(s) eligible for warranty claim
+          </p> */}
 
-          {returnableItems.map((item) => (
-            <div
+          {claimableItems.map((item) => (
+            <Link
               key={item.id}
-              className={`bg-[#F0EBE3] border overflow-hidden cursor-pointer transition-all ${
-                selectedItems.includes(item.id)
-                  ? "border-[#D35400] border-2"
-                  : "border-[#CCCCCC]"
-              }`}
-              onClick={() => toggleItemSelection(item.id)}
+              href={`/warranty-claims/new/${item.id}`}
+              className="block bg-[#EBE3D6] overflow-hidden hover:bg-[#E3DDD0] transition-all"
             >
               <div className="p-4 lg:p-5">
                 <div className="flex gap-4 lg:gap-5">
-                  {/* Checkbox */}
-                  <div className="flex items-center">
-                    <div
-                      className={`w-5 h-5 border-2 flex items-center justify-center transition-colors ${
-                        selectedItems.includes(item.id)
-                          ? "bg-[#D35400] border-[#D35400]"
-                          : "border-[#C2B280] bg-white"
-                      }`}
-                    >
-                      {selectedItems.includes(item.id) && (
-                        <svg
-                          width="12"
-                          height="10"
-                          viewBox="0 0 12 10"
-                          fill="none"
-                          xmlns="http://www.w3.org/2000/svg"
-                        >
-                          <path
-                            d="M1 5L4.5 8.5L11 1.5"
-                            stroke="white"
-                            strokeWidth="2"
-                            strokeLinecap="round"
-                            strokeLinejoin="round"
-                          />
-                        </svg>
-                      )}
-                    </div>
-                  </div>
-
                   {/* Product Image */}
-                  <div className="w-20 h-20 lg:w-24 lg:h-24 bg-[#EBE3D6] flex-shrink-0 flex items-center justify-center p-2">
+                  <div className="w-20 h-20 lg:w-24 lg:h-24 bg-[#F0EBE3] flex-shrink-0 flex items-center justify-center p-2">
                     <Image
                       src={item.productImage}
                       alt={item.productName}
@@ -247,31 +161,14 @@ export default function CreateReturnPage() {
                     </div>
 
                     {/* Order Info */}
-                    <div className="flex flex-wrap gap-x-4 gap-y-1 text-xs text-[#666]">
-                      <span>Ordered: {item.orderDate}</span>
-                      <span>Return by: {item.returnDeadline}</span>
+                    <div className="text-xs text-[#666]">
+                      <span>Order ID: #{item.orderId}</span>
                     </div>
-                  </div>
-
-                  {/* Arrow */}
-                  <div className="self-center text-[#666]">
-                    <ChevronRight size={24} />
                   </div>
                 </div>
               </div>
-            </div>
+            </Link>
           ))}
-
-          {/* Continue Button */}
-          {selectedItems.length > 0 && (
-            <div className="pt-4">
-              <button className="w-full lg:w-auto bg-[#D35400] hover:bg-[#B84700] text-white flex items-center justify-center px-8 py-3 transition-colors">
-                <span className="font-bold text-sm font-orbitron uppercase tracking-wide">
-                  Continue with {selectedItems.length} item(s)
-                </span>
-              </button>
-            </div>
-          )}
         </div>
       )}
     </main>
