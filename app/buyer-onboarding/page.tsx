@@ -35,11 +35,17 @@ export default function BuyerOnboardingPage() {
         />
       )}
 
-      {step === 4 && (
-        <AccountSetup
-          onPrev={() => setStep(3)}
-        />
-      )}
+     {step === 4 && (
+  <AccountSetup
+    onPrev={() => setStep(3)}
+    onSubmit={() => {
+      console.log("Submitted");
+      // later: API call / redirect
+    }}
+  />
+)}
+
+   
     </section>
   );
 }
