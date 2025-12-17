@@ -20,11 +20,10 @@ export default function RootLayout({
         className="antialiased"
       >
         <Navbar />
-<<<<<<< HEAD
-        <main className=" pt-[96px]  bg-[#F0EBE3]">
+                
 =======
-        <main className="min-h-screen pt-[127px] bg-[#F0EBE3]">
->>>>>>> b50bd12917f41a3e1d60216dc262d06bd0cbbbf5
+        <main className="min-h-screen pt-[96px] bg-[#F0EBE3]">
+
           {children}
         </main>
         <Footer />

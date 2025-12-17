@@ -1,16 +1,15 @@
 "use client";
-import React from "react";
+import React, { useState } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import { Container } from "../ui";
 
+
 const Footer = () => {
-<<<<<<< HEAD
+
  const [openSection, setOpenSection] = useState<string | null>(null);
 
 
-=======
->>>>>>> b50bd12917f41a3e1d60216dc262d06bd0cbbbf5
   const usefulLinks = [
     { title: "Where to Buy", href: "/where-to-buy" },
     { title: "Catalogs", href: "/catalogs" },

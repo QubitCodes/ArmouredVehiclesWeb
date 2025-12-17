@@ -138,7 +138,7 @@ body {
   display: none;  /* Chrome, Safari and Opera */
 }
 
-<<<<<<< HEAD
+
 
 .btn-primary {
   width: 260px;
@@ -162,7 +162,7 @@ body {
   background: transparent;
 }
 
-=======
+
 /* Custom scrollbar for delete account modal only - beige color, no arrows */
 .scrollbar-delete-modal::-webkit-scrollbar {
   width: 8px;
@@ -190,4 +190,4 @@ body {
   scrollbar-width: thin;
   scrollbar-color: #C2B280 #F0EBE3;
 }
->>>>>>> b50bd12917f41a3e1d60216dc262d06bd0cbbbf5
+
