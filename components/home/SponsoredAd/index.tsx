@@ -17,14 +17,15 @@ const SponsoredAd = () => {
                         target="_blank"
                         rel="noopener noreferrer"
                     >
-                        <div className="relative w-full h-[200px] lg:h-[152px]">
-                            <Image
-                                src="/sponsored/Group 362.jpg"
-                                alt="Princeton Tec VIZZ 550 RGB Headlamp"
-                                fill
-                                className="object-cover"
-                            />
-                        </div>
+                        <Image
+                            src="/sponsored/Group 362.png"
+                            alt="Princeton Tec VIZZ 550 RGB Headlamp"
+                            width={1920}
+                            height={400}
+                            className="w-full h-auto"
+                            priority
+                        />
+
                     </Link>
                     <div className="flex flex-row justify-between items-start mt-1 gap-3 mb-10 flex-wrap">
                         <p className="text-xs leading-relaxed flex-1">

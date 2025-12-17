@@ -137,3 +137,27 @@ body {
 .scrollbar-hide::-webkit-scrollbar {
   display: none;  /* Chrome, Safari and Opera */
 }
+
+
+.btn-primary {
+  width: 260px;
+  height: 48px;
+  background: #D35400;
+  color: white;
+  font-weight: 800;
+  text-transform: uppercase;
+  transition: 0.3s;
+}
+
+.btn-primary:hover {
+  background: #39482C;
+}
+
+.btn-outline {
+  width: 260px;
+  height: 48px;
+  border: 1px solid #C7B88A;
+  text-transform: uppercase;
+  background: transparent;
+}
+

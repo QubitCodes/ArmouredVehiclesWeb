@@ -25,7 +25,7 @@ export default function RootLayout({
       >
         <AOSProvider />
         <Navbar />
-        <main className="min-h-screen pt-[127px]  bg-[#F0EBE3]">
+        <main className=" pt-[96px]  bg-[#F0EBE3]">
           {children}
         </main>
 

@@ -5,7 +5,8 @@ import Image from "next/image";
 import { Container } from "../ui";
 
 const Footer = () => {
-  const [openSection, setOpenSection] = useState(null);
+ const [openSection, setOpenSection] = useState<string | null>(null);
+
 
   const usefulLinks = [
     { title: "Where to Buy", href: "/where-to-buy" },
