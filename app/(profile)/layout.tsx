@@ -14,6 +14,7 @@ export default function ProfileLayout({
         <div className="lg:hidden flex flex-col gap-4">
           <ProfileSidebar />
           {children}
+          
         </div>
 
         {/* Desktop Layout: Side by side */}

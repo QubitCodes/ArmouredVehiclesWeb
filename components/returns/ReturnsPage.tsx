@@ -150,10 +150,10 @@ export default function ReturnsPage() {
             You have not requested any previous returns
           </p>
           <a href="/returns/new">
-            <div className="bg-[#D35400] hover:bg-[#B84700] text-white flex items-center justify-center px-8 py-3 transition-colors">
-              <span className="font-bold text-sm font-orbitron uppercase tracking-wide">Create a New Return</span>
-            </div>
-          </a>
+            
+          <button className="bg-[#D35400] hover:bg-[#39482C] text-white clip-path-supplier-refund flex items-center justify-center w-full h-[45px] px-[30px] py-[15px]cursor-pointer" >
+            <span className="font-black text-[16px] font-orbitron uppercase">CREATE A NEW RETURN</span></button>
+            </a>
         </div>
       ) : (
         /* Returns List */

@@ -86,10 +86,10 @@ export const Categories = () => {
       <div
         className="container-figma mx-auto relative z-10"
       >
-        <h2 className="font-orbitron text-[36px] font-extrabold text-white mb-10 leading-none uppercase" data-aos="fade-up">CATEGORIES</h2>
-
+        <h2 className="font-orbitron text-[36px] font-extrabold text-white mb-10 leading-none uppercase">CATEGORIES</h2>
+        
         <div className="relative overflow-hidden" ref={containerRef}>
-          <div
+          <div 
             ref={slideRef}
             className="flex gap-6 transition-transform duration-500 ease-out -mx-4"
             style={slideStyle}
@@ -99,30 +99,26 @@ export const Categories = () => {
                 <a
                   href={`/category`}
                   className="flex flex-col group w-[258px] no-underline"
-                  data-aos="fade-up"
-                  data-aos-delay={index * 100}
                 >
-                  <div className="relative w-[258px] h-[328px] bg-black/80 overflow-hidden">
+                  <div className="relative w-[258px] h-[328px] bg-black/80">
                     <Image
                       src={category.image}
                       alt={category.title}
                       fill
-                      className="object-cover transform scale-100 transition-transform duration-500 group-hover:scale-110"
+                      className="object-cover opacity-100 group-hover:brightness-110 transition-all duration-300"
                     />
                   </div>
-                  <h3 className="relative font-orbitron text-white text-[14px] font-black mt-4 text-left leading-none uppercase min-h-10
-after:block after:h-[2px] after:bg-white after:w-0 after:transition-all after:duration-500 after:mt-2 group-hover:after:w-full"
->
+                  <h3 className="font-orbitron text-white text-[14px] font-black mt-4 text-left leading-none uppercase min-h-10">
                     {category.title}
                   </h3>
                 </a>
               </div>
             ))}
           </div>
-
+          
           {/* Slider Progress Bar with Navigation */}
           <div className="mt-8 flex items-center">
-            <button
+            <button 
               className={`text-white/60 hover:text-white transition-colors mr-4 ${currentIndex === 0 ? 'opacity-50 cursor-not-allowed' : ''}`}
               onClick={handlePrevious}
               disabled={currentIndex === 0}
@@ -132,12 +128,12 @@ after:block after:h-[2px] after:bg-white after:w-0 after:transition-all after:du
               </svg>
             </button>
             <div className="flex-1 h-0.5 bg-white/10 relative">
-              <div
+              <div 
                 className="absolute left-0 top-0 h-full bg-orange-500 rounded-full transition-all duration-500 ease-out"
                 style={progressStyle}
               ></div>
             </div>
-            <button
+            <button 
               className={`text-white/60 hover:text-white transition-colors ml-4 ${currentIndex >= maxSlide ? 'opacity-50 cursor-not-allowed' : ''}`}
               onClick={handleNext}
               disabled={currentIndex >= maxSlide}

@@ -25,7 +25,7 @@ const sidebarNav = {
   ],
   others: [
     { id: "notifications", label: "Notifications", iconImg: "/order/Frame6.png", href: "/notifications" },
-    { id: "security", label: "Security Settings", iconImg: "/order/Frame7.png", href: "/security" },
+    { id: "security", label: "Security Settings", iconImg: "/order/Frame7.png", href: "/security-settings" },
   ],
 };
 

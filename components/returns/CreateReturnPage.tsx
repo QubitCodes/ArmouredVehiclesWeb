@@ -2,10 +2,10 @@
 
 import { useState } from "react";
 import Image from "next/image";
-import { ChevronRight, ArrowLeft } from "lucide-react";
+import { ChevronRight, ChevronDown } from "lucide-react";
 import Link from "next/link";
 
-// Mock returnable items data
+// Mock returnable items data - set all returnEligible to false to see empty state
 const mockReturnableItems = [
   {
     id: "1",
@@ -14,8 +14,8 @@ const mockReturnableItems = [
     productImage: "/order/wishlist2.svg",
     price: 679,
     orderDate: "Monday, 3rd Nov, 2024",
-    returnEligible: true,
-    returnDeadline: "December 3rd, 2024",
+    returnEligible: false,
+    returnDeadline: "",
   },
   {
     id: "2",
@@ -24,8 +24,8 @@ const mockReturnableItems = [
     productImage: "/order/wishlist3.svg",
     price: 475,
     orderDate: "Friday, 1st Nov, 2024",
-    returnEligible: true,
-    returnDeadline: "December 1st, 2024",
+    returnEligible: false,
+    returnDeadline: "",
   },
   {
     id: "3",
@@ -41,6 +41,10 @@ const mockReturnableItems = [
 
 export default function CreateReturnPage() {
   const [selectedItems, setSelectedItems] = useState<string[]>([]);
+  const [timeFilter, setTimeFilter] = useState("Last 3 Months");
+  const [showFilterDropdown, setShowFilterDropdown] = useState(false);
+
+  const timeFilterOptions = ["Last 3 Months", "Last 6 Months", "Last Year", "All Time"];
 
   const toggleItemSelection = (itemId: string) => {
     setSelectedItems((prev) =>
@@ -54,22 +58,78 @@ export default function CreateReturnPage() {
 
   return (
     <main className="flex-1">
-      {/* Header with Back Button */}
-      <div className="mb-6">
-        <Link
-          href="/returns"
-          className="inline-flex items-center gap-2 text-[#666] hover:text-black transition-colors mb-4"
-        >
-          <ArrowLeft size={20} />
-          <span className="font-inter text-sm">Back to Returns</span>
-        </Link>
-
-        <h1 className="font-orbitron font-black text-xl lg:text-[32px] uppercase tracking-wide text-black">
-          Create a New Return
-        </h1>
-        <p className="font-inter text-sm text-[#666] mt-1">
-          Select items from your recent orders to initiate a return
+      {/* Header - Mobile */}
+      <div className="lg:hidden mb-4">
+        <div className="flex items-center justify-between mb-2">
+          <h1 className="font-orbitron font-black text-xl uppercase tracking-wide text-black">
+            Returns
+          </h1>
+          <div className="relative">
+            <button
+              onClick={() => setShowFilterDropdown(!showFilterDropdown)}
+              className="flex items-center gap-2 px-3 py-2 border border-[#C2B280] text-[#666] text-xs bg-white"
+            >
+              {timeFilter}
+              <ChevronDown size={14} />
+            </button>
+            {showFilterDropdown && (
+              <div className="absolute right-0 top-full mt-1 w-36 bg-[#EBE3D6] border border-[#C2B280] shadow-lg z-10">
+                {timeFilterOptions.map((option) => (
+                  <button 
+                    key={option}
+                    onClick={() => {
+                      setTimeFilter(option);
+                      setShowFilterDropdown(false);
+                    }}
+                    className="w-full px-3 py-2 text-left text-xs text-[#666] bg-[#EBE3D6] hover:bg-[#D9D2C5]"
+                  >
+                    {option}
+                  </button>
+                ))}
+              </div>
+            )}
+          </div>
+        </div>
+        <p className="font-inter text-xs text-[#666]">
+          View your returns history or file a new return
         </p>
+      </div>
+
+      {/* Header - Desktop */}
+      <div className="hidden lg:flex items-center justify-between mb-6">
+        <div>
+          <h1 className="font-orbitron font-black text-[32px] uppercase tracking-wide text-black">
+            Returns
+          </h1>
+          <p className="font-inter text-sm text-[#666] mt-1">
+            View your returns history or file a new return
+          </p>
+        </div>
+        <div className="relative">
+          <button
+            onClick={() => setShowFilterDropdown(!showFilterDropdown)}
+            className="flex items-center gap-2 px-4 py-2.5 border border-[#C2B280] text-[#666] text-sm bg-white min-w-[150px] justify-between"
+          >
+            {timeFilter}
+            <ChevronDown size={16} />
+          </button>
+          {showFilterDropdown && (
+            <div className="absolute right-0 top-full mt-1 w-full bg-[#EBE3D6] border border-[#C2B280] shadow-lg z-10">
+              {timeFilterOptions.map((option) => (
+                <button
+                  key={option}
+                  onClick={() => {
+                    setTimeFilter(option);
+                    setShowFilterDropdown(false);
+                  }}
+                  className="w-full px-4 py-2.5 text-left text-sm text-[#666] bg-[#EBE3D6] hover:bg-[#D9D2C5]"
+                >
+                  {option}
+                </button>
+              ))}
+            </div>
+          )}
+        </div>
       </div>
 
       {/* Content */}
@@ -89,13 +149,18 @@ export default function CreateReturnPage() {
           <p className="font-inter text-sm lg:text-base text-[#666] max-w-md mb-6">
             None of the items from your previous orders are returnable
           </p>
-          <Link href="/returns">
+          {/* <Link href="/returns">
             <div className="bg-[#D35400] hover:bg-[#B84700] text-white flex items-center justify-center px-8 py-3 transition-colors">
               <span className="font-bold text-sm font-orbitron uppercase tracking-wide">
                 Back to Existing Returns
               </span>
             </div>
-          </Link>
+          </Link> */}
+          <a href="/returns">
+            
+            <button className="bg-[#D35400] hover:bg-[#39482C] text-white clip-path-supplier-refund flex items-center justify-center w-full h-[45px] px-[30px] py-[15px]cursor-pointer" >
+              <span className="font-black text-[16px] font-orbitron uppercase">Back to Existing Returns</span></button>
+              </a>
         </div>
       ) : (
         /* Returnable Items List */
