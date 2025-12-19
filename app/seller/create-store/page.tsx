@@ -166,18 +166,18 @@ export default function SellerCreateStorePage() {
       {/* RIGHT SIDE – ORANGE PANEL */}
       <div className="hidden lg:flex w-1/2 bg-[#D35400] items-center px-20">
         <div className="max-w-[520px] text-white font-inter">
-          <h1 className="text-[40px] leading-[1.25] mb-8 font-normal">
+          <h1 className="text-[40px] leading-[1.25] mb-8 ">
             Create Your Store <br />
             on <span className="font-semibold">Armored Mart</span>
           </h1>
 
-          <p className="text-[16px] leading-[1.6] mb-8 font-normal">
+          <p className="text-[16px] leading-[1.6] mb-8 ">
             Reach thousands of verified buyers in the defense and automotive
             industries. Setting up your Armored Mart store is the first step
             toward growing your business online.
           </p>
 
-          <p className="text-[14px] font-normal">
+          <p className="text-[14px] ">
             Join 10,000+ trusted sellers today.
           </p>
         </div>

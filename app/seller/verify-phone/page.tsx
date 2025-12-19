@@ -27,7 +27,7 @@ export default function SellerVerifyPhonePage() {
         </h1>
 
         {/* Body text – INTER */}
-        <p className="mt-3 text-sm text-gray-700 font-normal">
+        <p className="mt-3 text-sm text-gray-700 ">
           We sent a security code to:{" "}
           <span className="font-semibold">+91xxxxxx50</span>
         </p>
@@ -50,7 +50,7 @@ export default function SellerVerifyPhonePage() {
         </div>
 
         {/* Timer – INTER */}
-        <p className="mt-6 text-xs text-gray-600 font-normal">
+        <p className="mt-6 text-xs text-gray-600">
           You can resend the security code in 59 seconds.
         </p>
 
