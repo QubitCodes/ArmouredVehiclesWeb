@@ -150,7 +150,7 @@ export default function SellerCreateStorePage() {
           {/* CREATE BUTTON */}
           <button
             onClick={() =>
-              router.push("/seller/onboarding/step-1-company-information")
+              router.push("/seller/onboarding")
             }
             className="w-full h-[40px] bg-[#D35400] clip-path-supplier
                        hover:bg-[#39482C] transition-colors"
