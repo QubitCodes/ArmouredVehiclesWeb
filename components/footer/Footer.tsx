@@ -59,7 +59,7 @@ const Footer = () => {
     { icon: "/icons/payment/visa.svg", alt: "Visa" },
     { icon: "/icons/payment/tabby.svg", alt: "Tabby" },
     { icon: "/icons/payment/tamara.svg", alt: "Tamara" },
-    { icon: "/icons/payment/apple pay.svg", alt: "Apple Pay" },
+    { icon: "/icons/payment/apple-pay.svg", alt: "Apple Pay" },
   ];
 
   return (

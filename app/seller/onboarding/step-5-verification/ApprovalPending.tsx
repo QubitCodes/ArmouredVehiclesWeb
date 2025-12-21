@@ -14,14 +14,14 @@ export default function ApprovalPending() {
         <div className="max-w-6xl mx-auto">
 
             {/* ================= GREEN STATUS BANNER ================= */}
-<div className="text-center mb-6">
-  <p className="text-sm font-bold text-black font-orbitron">
-    YOUR LEGAL ENTITY IS PENDING FOR APPROVAL
-  </p>
-  <p className="text-xs text-[#2E7D32] mt-1">
-    Please wait for the approval to be completed.
-  </p>
-</div>
+            <div className="text-center mb-6">
+                <p className="text-sm font-bold text-black font-orbitron">
+                    YOUR LEGAL ENTITY IS PENDING FOR APPROVAL
+                </p>
+                <p className="text-xs text-[#2E7D32] mt-1">
+                    Please wait for the approval to be completed.
+                </p>
+            </div>
 
 
             {/* ================= EDIT LINK (ACTIVE) ================= */}

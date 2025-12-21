@@ -521,7 +521,7 @@ const Navbar = () => {
               //   className="p-2 hover:bg-[#2C3922]"
               //   onClick={() => setMenuOpen(!menuOpen)}
               //   ref={menuButtonRef}
-              // >
+              / >
                 <span className="sr-only">Menu</span>
                 <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2}
