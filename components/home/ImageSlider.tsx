@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect, useCallback, JSX } from 'react';
+import { useState, useEffect, useCallback, useRef, JSX } from 'react';
 import Image from 'next/image';
 
 const slides = [
@@ -18,66 +18,118 @@ const slides = [
 
 const mobileSlides = [
   {
-    url: '/slider/mobile/mobile1.jpg',
+    url: '/slider/mobile/mobile1.png',
     title: 'Defence Commerce, Reinvented.',
     subtitle: 'Built for Security, Powered by Compliance.',
   },
   {
-    url: '/slider/mobile/mobile1.jpg',
+    url: '/slider/mobile/mobile2.png',
     title: 'Tactical & Emergency Lighting Systems.',
     subtitle: 'Built for Security, Powered by Compliance.',
   },
 ];
 
 export function ImageSlider() {
-  const [currentIndex, setCurrentIndex] = useState(0);
   const [isMobile, setIsMobile] = useState(false);
 
-  
+  const activeSlides = isMobile ? mobileSlides : slides;
 
-  const goToPrevious = useCallback(() => {
-    const totalSlides = isMobile ? mobileSlides.length : slides.length;
-    const isFirstSlide = currentIndex === 0;
-    const newIndex = isFirstSlide ? totalSlides - 1 : currentIndex - 1;
-    setCurrentIndex(newIndex);
-  }, [currentIndex, isMobile]);
+  // Extended slides for infinite loop
+  const extendedSlides = [
+    activeSlides[activeSlides.length - 1], // clone last
+    ...activeSlides,
+    activeSlides[0], // clone first
+  ];
 
-  const goToNext = useCallback(() => {
-    const totalSlides = isMobile ? mobileSlides.length : slides.length;
-    const isLastSlide = currentIndex === totalSlides - 1;
-    const newIndex = isLastSlide ? 0 : currentIndex + 1;
-    setCurrentIndex(newIndex);
-  }, [currentIndex, isMobile]);
+  const [currentIndex, setCurrentIndex] = useState(1); // start at real first slide
+  const [transitionEnabled, setTransitionEnabled] = useState(true);
 
+  const sliderRef = useRef<HTMLDivElement | null>(null);
+
+  // Handle responsive mode
   useEffect(() => {
     const updateSize = () => {
       setIsMobile(window.innerWidth < 640);
-      setCurrentIndex(0); // Reset slide when switching between mobile/desktop
+      setCurrentIndex(1); // reset to first extended slide
     };
 
     updateSize();
     window.addEventListener('resize', updateSize);
+
     return () => window.removeEventListener('resize', updateSize);
   }, []);
 
+  // Auto play
   useEffect(() => {
-    const timer = setInterval(goToNext, 5000);
-    return () => clearInterval(timer);
-  }, [currentIndex, goToNext]);
+    const timer = setInterval(() => {
+      goToNext();
+    }, 5000);
 
-  const activeSlides = isMobile ? mobileSlides : slides;
+    return () => clearInterval(timer);
+  });
+
+  // NEXT button handler
+  const goToNext = useCallback(() => {
+    setTransitionEnabled(true);
+    setCurrentIndex((prev) => prev + 1);
+  }, []);
+
+  // PREV button handler
+  const goToPrevious = useCallback(() => {
+    setTransitionEnabled(true);
+    setCurrentIndex((prev) => prev - 1);
+  }, []);
+
+  // Fix looping when you reach cloned slides
+  useEffect(() => {
+    const el = sliderRef.current;
+    if (!el) return;
+
+    const handleTransitionEnd = () => {
+      const lastIndex = extendedSlides.length - 1;
+
+      // If at cloned-first → snap to real first
+      if (currentIndex === lastIndex) {
+        setTransitionEnabled(false);
+        setCurrentIndex(1); // real first
+      }
+
+      // If at cloned-last → snap to real last
+      if (currentIndex === 0) {
+        setTransitionEnabled(false);
+        setCurrentIndex(lastIndex - 1); // real last
+      }
+    };
+
+    el.addEventListener('transitionend', handleTransitionEnd);
+    return () => el.removeEventListener('transitionend', handleTransitionEnd);
+  }, [currentIndex, extendedSlides.length]);
+
+  // Get the real slide to show text
+  const realIndex = currentIndex - 1;
+  const realSlide =
+    extendedSlides[currentIndex] || extendedSlides[1];
 
   return (
-    <div className="relative h-[550px] sm:h-[650px] lg:h-[700px] w-full overflow-hidden -mt-16">
+    <div className="relative h-[550px] sm:h-[650px] lg:h-[700px] w-full overflow-hidden lg:-mt-16">
 
-      {/* Background Image */}
+
+      {/* BACKGROUND SLIDES */}
       <div className="absolute inset-0 w-full h-full overflow-hidden">
         <div
-          className="flex h-full transition-transform duration-700 ease-in-out"
-          style={{ transform: `translateX(-${currentIndex * 100}%)` }}
+          ref={sliderRef}
+          className={`flex h-full ${transitionEnabled ? 'transition-transform duration-700 ease-in-out' : ''}`}
+          style={{
+            width: `${extendedSlides.length * 100}%`,
+            transform: `translateX(-${currentIndex * (100 / extendedSlides.length)}%)`,
+          }}
         >
-          {activeSlides.map((slide, index) => (
-            <div key={index} className="relative w-full h-full flex-shrink-0">
+          {extendedSlides.map((slide, index) => (
+            <div
+              key={`${slide.url}-${index}`}
+              className="relative h-full flex-shrink-0"
+              style={{ width: `${100 / extendedSlides.length}%` }}
+            >
               <Image
                 src={slide.url}
                 alt={slide.title}
@@ -89,10 +141,10 @@ export function ImageSlider() {
         </div>
       </div>
 
-      {/* Content container */}
-      <div className="container-figma h-full flex items-center relative z-10">
-
-        {/* Text Block */}
+      {/* CONTENT (Text) */}
+      <div className={`container-figma h-full flex relative z-10 ${
+          isMobile ? 'items-center pb-40' : 'items-center'
+        }`}>
         <div
           className={
             isMobile
@@ -101,6 +153,8 @@ export function ImageSlider() {
           }
         >
           <div className="max-w-lg mx-auto lg:mx-0">
+
+            {/* TITLE */}
             <h1
               className="uppercase text-orange-500 transition-opacity duration-500"
               style={{
@@ -111,7 +165,7 @@ export function ImageSlider() {
               }}
             >
               {(() => {
-                const title = activeSlides[currentIndex].title.split(',')[0];
+                const title = realSlide.title;
                 const words = title.split(' ');
                 const spans: JSX.Element[] = [];
                 let buffer = '';
@@ -119,49 +173,35 @@ export function ImageSlider() {
 
                 for (let i = 0; i < words.length; i++) {
                   const w = words[i];
-                  const isSpecial = /^[^A-Za-z0-9]+$/.test(w); // tokens like "&", "/", "-", etc.
+                  const isSpecial = /^[^A-Za-z0-9]+$/.test(w);
 
                   if (isSpecial && buffer) {
-                    // append special token to previous buffer (keep on same line)
                     buffer += ' ' + w;
                   } else {
                     if (buffer) {
-                      spans.push(
-                        <span key={key++}>
-                          {buffer}
-                          <br />
-                        </span>
-                      );
+                      spans.push(<span key={key++}>{buffer}<br /></span>);
                     }
                     buffer = w;
                   }
                 }
 
                 if (buffer) {
-                  spans.push(
-                    <span key={key++}>
-                      {buffer}
-                      <br />
-                    </span>
-                  );
+                  spans.push(<span key={key++}>{buffer}<br /></span>);
                 }
 
                 return spans;
               })()}
             </h1>
 
+            {/* SUBTITLE */}
             <p className="text-sm sm:text-base lg:text-lg text-gray-200 mt-4">
-              {activeSlides[currentIndex].subtitle}
+              {realSlide.subtitle}
             </p>
           </div>
         </div>
-
-        {!isMobile && (
-          <div className="hidden lg:block lg:w-1/2 h-full relative"></div>
-        )}
       </div>
 
-      {/* Nav Buttons - Hidden on mobile */}
+      {/* ARROWS */}
       <div className="container-figma absolute inset-0 hidden sm:flex items-center justify-between pointer-events-none z-20">
         <button
           onClick={goToPrevious}
@@ -178,39 +218,21 @@ export function ImageSlider() {
         </button>
       </div>
 
-      {/* Slide indicators */}
-      <div className="absolute bottom-4 sm:bottom-6 lg:bottom-8 left-1/2 -translate-x-1/2 flex gap-2 z-20">
-
-        {/* MOBILE INDICATORS (bars) */}
-        <div className="flex sm:hidden gap-2">
-          {activeSlides.map((_, index) => (
-            <button
-              key={index}
-              onClick={() => setCurrentIndex(index)}
-              className={`
-          h-[3px] w-[37px] rounded-full transition-all
-          ${index === currentIndex ? 'bg-orange-500' : 'bg-white/50'}
-        `}
-            />
-          ))}
-        </div>
-
-        {/* DESKTOP INDICATORS (dots) */}
-        {/* <div className="hidden sm:flex gap-2">
-    {activeSlides.map((_, index) => (
-      <button
-        key={index}
-        onClick={() => setCurrentIndex(index)}
-        className={`
-          w-2 h-2 sm:w-3 sm:h-3 rounded-full transition-all
-          ${index === currentIndex ? 'bg-orange-500 w-4 sm:w-6 lg:w-8' : 'bg-white/50 hover:bg-white/80'}
-        `}
-      />
-    ))}
-  </div> */}
-
+      {/* MOBILE INDICATORS */}
+      <div className="absolute bottom-4 sm:bottom-6 lg:bottom-8 left-1/2 -translate-x-1/2 flex gap-2 z-20 sm:hidden">
+        {activeSlides.map((_, idx) => (
+          <button
+            key={idx}
+            onClick={() => {
+              setTransitionEnabled(true);
+              setCurrentIndex(idx + 1); // map real index → extended index
+            }}
+            className={`h-[3px] w-[37px] rounded-full transition-all ${
+              idx === realIndex ? 'bg-orange-500' : 'bg-white/50'
+            }`}
+          />
+        ))}
       </div>
-
     </div>
   );
 }

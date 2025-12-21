@@ -100,8 +100,24 @@ export default function Declaration({
                                 {/* Remove */}
                                 <span className="ml-1 cursor-pointer text-sm leading-none">×</span>
                             </span>
-                        ))}
-                    </div>
+                        ))} 
+                        {/* add a search box and get the country inside country list */}
+                        {/* Search box */}
+                       
+                      
+                    </div>  <input
+                            type="text"
+                            value="In"
+                            readOnly
+                            className="
+        flex-1 min-w-[120px]
+        bg-transparent
+        outline-none
+        text-sm
+        text-[#8A8A8A]
+        placeholder-[#8A8A8A] pb-6
+      "
+                        />
 
 
                     {/* Country List */}
@@ -191,36 +207,36 @@ export default function Declaration({
             </div>
 
 
-          <div className="bg-[#F0EBE3] py-2 px-5 mt-4">
-  <div className="p-4">
-    <h4 className="text-sm font-semibold mb-2">
-      Agree to Compliance Terms
-    </h4>
+            <div className="bg-[#F0EBE3] py-2 px-5 mt-4">
+                <div className="p-4">
+                    <h4 className="text-sm font-semibold mb-2">
+                        Agree to Compliance Terms
+                    </h4>
 
-    <label className="flex items-start gap-3 text-xs text-[#2B2B2B] cursor-pointer">
-      
-      {/* ✅ Native checkbox (WORKING) */}
-      <input
-        type="checkbox"
-        className="
+                    <label className="flex items-start gap-3 text-xs text-[#2B2B2B] cursor-pointer">
+
+                        {/* ✅ Native checkbox (WORKING) */}
+                        <input
+                            type="checkbox"
+                            className="
           mt-[2px]
           w-[16px] h-[16px]
           border border-[#C7B88A]
           bg-[#EBE3D6]
           accent-[#C7B88A]
         "
-      />
+                        />
 
-      {/* Text */}
-      <span className="leading-relaxed">
-        I acknowledge that all transactions are subject to UAE and international
-        laws and may be screened, paused, or reported in accordance with
-        ArmoredMart’s regulatory obligations.
-      </span>
+                        {/* Text */}
+                        <span className="leading-relaxed">
+                            I acknowledge that all transactions are subject to UAE and international
+                            laws and may be screened, paused, or reported in accordance with
+                            ArmoredMart’s regulatory obligations.
+                        </span>
 
-    </label>
-  </div>
-</div>
+                    </label>
+                </div>
+            </div>
 
 
 

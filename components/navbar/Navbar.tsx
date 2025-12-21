@@ -242,40 +242,41 @@ const Navbar = () => {
                 </div>
               </Link>
 
-              {isLoggedIn ? (
-                <>
-                  {/* Profile Icon & Name */}
-                  <Link href="/profile" className="flex items-center gap-2">
-                    <div className="w-8 h-8 rounded-full bg-[#39482C] flex items-center justify-center text-white text-sm font-bold">
-                      {user.name.charAt(0)}
-                    </div>
-                  </Link>
+{isLoggedIn ? (
+  <>
+    {/* Profile Icon */}
+    <Link href="/profile" className="flex items-center gap-2">
+      <div className="w-8 h-8 rounded-full bg-[#39482C] flex items-center justify-center text-white text-sm font-bold">
+        {user.name.charAt(0)}
+      </div>
+    </Link>
 
-                  {/* Cart with count */}
-                  <Link href="/cart" className="relative">
-                    <Image
-                      src="/cart.svg"
-                      alt="Shopping Cart"
-                      width={28}
-                      height={28}
-                      className="hover:opacity-80 transition-opacity"
-                    />
-                    {user.cartCount > 0 && (
-                      <span className="absolute -top-1 -right-1 w-4 h-4 bg-[#D35400] text-white text-[10px] font-bold rounded-full flex items-center justify-center">
-                        {user.cartCount}
-                      </span>
-                    )}
-                  </Link>
-                </>
-              ) : (
-                <Link href="/login">
-                  <div className="bg-[#D35400] text-white hover:bg-[#39482C] clip-path-supplier flex items-center justify-center px-4 h-[38px]">
-                    <span className="font-black text-[13px] font-orbitron uppercase">
-                      LOGIN
-                    </span>
-                  </div>
-                </Link>
-              )}
+    {/* Cart */}
+    <Link href="/cart" className="relative">
+      <Image
+        src="/cart.svg"
+        alt="Shopping Cart"
+        width={28}
+        height={28}
+        className="hover:opacity-80 transition-opacity"
+      />
+      {user.cartCount > 0 && (
+        <span className="absolute -top-1 -right-1 w-4 h-4 bg-[#D35400] text-white text-[10px] font-bold rounded-full flex items-center justify-center">
+          {user.cartCount}
+        </span>
+      )}
+    </Link>
+  </>
+) : (
+  <Link href="/login">
+    <div className="bg-[#D35400] text-white hover:bg-[#39482C] clip-path-supplier flex items-center justify-center px-4 h-[38px]">
+      <span className="font-black text-[13px] font-orbitron uppercase">
+        LOGIN
+      </span>
+    </div>
+  </Link>
+)}
+
 
               <button
                 className="p-2"
@@ -296,7 +297,7 @@ const Navbar = () => {
               <input
                 type="text"
                 placeholder="Search Products"
-                className="w-full h-full px-4 border border-[#000000] focus:outline-none placeholder-[#6E6E6E]"
+                className="w-full h-full px-4 border border-[#000000] focus:outline-none placeholder-[#6E6E6E] text-black"
               />
               <button className="absolute right-0 top-0 h-full w-[50px] flex items-center justify-center bg-[#D35400] text-white">
                 <Search className="w-5 h-5" />
@@ -326,7 +327,7 @@ const Navbar = () => {
                 <input
                   type="text"
                   placeholder="Search Products"
-                  className="w-full h-full px-4 border border-[#000000] focus:outline-none placeholder-[#6E6E6E]"
+                  className="w-full h-full px-4 border border-[#000000] focus:outline-none placeholder-[#6E6E6E] text-black"
                 />
                 <button className="absolute right-0 top-0 h-full w-[50px] flex items-center justify-center bg-[#D35400] text-white hover:bg-black">
                   <Search className="w-6 h-6" />
@@ -515,19 +516,19 @@ const Navbar = () => {
         <div className="container-figma">
           <div className="flex items-center h-[50px]" ref={containerRef}>
 
-            {showMenuButton && (
-              <button
-                className="p-2 hover:bg-[#2C3922]"
-                onClick={() => setMenuOpen(!menuOpen)}
-                ref={menuButtonRef}
-              >
+            {/* {showMenuButton && (
+              // <button
+              //   className="p-2 hover:bg-[#2C3922]"
+              //   onClick={() => setMenuOpen(!menuOpen)}
+              //   ref={menuButtonRef}
+              / >
                 <span className="sr-only">Menu</span>
                 <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2}
                     d="M4 6h16M4 12h16M4 18h16" />
                 </svg>
               </button>
-            )}
+            )} */}
 
             {visibleCount > 0 && (
               <div
@@ -567,7 +568,7 @@ const Navbar = () => {
         </div>
 
         {/* Dropdown */}
-        <div
+        {/* <div
           className={`absolute left-0 top-full w-full bg-[#39482C] border-b shadow-lg overflow-hidden transition-all duration-300 ease-in-out ${menuOpen ? 'max-h-[400px] opacity-100' : 'max-h-0 opacity-0'
             }`}
         >
@@ -584,7 +585,7 @@ const Navbar = () => {
               ))}
             </div>
           </div>
-        </div>
+        </div> */}
       </div>
 
     </nav>
