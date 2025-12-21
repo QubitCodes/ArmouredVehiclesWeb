@@ -33,6 +33,8 @@ export function ImageSlider() {
   const [currentIndex, setCurrentIndex] = useState(0);
   const [isMobile, setIsMobile] = useState(false);
 
+  
+
   const goToPrevious = useCallback(() => {
     const totalSlides = isMobile ? mobileSlides.length : slides.length;
     const isFirstSlide = currentIndex === 0;

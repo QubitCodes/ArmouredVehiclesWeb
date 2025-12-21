@@ -1,5 +1,6 @@
 "use client";
 import Image from 'next/image';
+import api from '@/lib/api'; // your API service
 
 const categories = [
   {
@@ -30,11 +31,35 @@ const categories = [
 
 import { useCallback, useEffect, useRef, useState } from 'react';
 
+interface Category {
+  title: string;
+  image: string;
+}
+
 export const Categories = () => {
+  const [categories, setCategories] = useState<Category[]>([]);
   const [currentIndex, setCurrentIndex] = useState(0);
   const [maxSlide, setMaxSlide] = useState(0);
   const containerRef = useRef<HTMLDivElement>(null);
   const slideRef = useRef<HTMLDivElement>(null);
+
+   useEffect(() => {
+    const fetchCategories = async () => {
+      try {
+        const data = await api.products.getCategories(); // call your API
+        // Map API response to your Category interface
+        const mapped = data.map((item: any) => ({
+          title: item.name || "Unknown Category",
+          image: item.image || "/placeholder.png",
+        }));
+        setCategories(mapped);
+      } catch (err) {
+        console.error("Failed to fetch categories:", err);
+      }
+    };
+
+    fetchCategories();
+  }, []);
 
   const updateMaxSlide = useCallback(() => {
     if (containerRef.current && slideRef.current) {

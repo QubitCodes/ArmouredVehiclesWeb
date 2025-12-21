@@ -1,140 +1,125 @@
 "use client";
-import Image from "next/image";
-import { useState } from "react";
 
-// ---- PRODUCTS DATA ----
+import Image from "next/image";
+import { useState, useEffect } from "react";
+import api from '@/lib/api';
+// import type { Product } from '@/lib/types';
+
+// ---- INTERFACES ----
 interface Product {
   id: number;
   name: string;
   price: number;
   image: string; // thumbnail
-  images: string[]; // NEW: multiple preview images
+  images: string[]; // multiple preview images
   description: string;
   rating: number;
   reviews: number;
 }
 
-const products: Product[] = [
-  {
-    id: 1,
-    name: "Engines (diesel, petrol, hybrid)",
-    price: 15000,
-    image: "/top-selling/image 1.png",
-    images: [
-      "/top-selling/big product/img1.jpg",
-      "/top-selling/big product/img2.png",
-      "/top-selling/big product/img1-3.jpg",
-    ],
-    description: "High-performance engines designed for optimal power and efficiency.",
-    rating: 4.8,
-    reviews: 1523,
-  },
-  {
-    id: 2,
-    name: "Turbochargers & Superchargers",
-    price: 600,
-    image: "/top-selling/image 2.png",
-    images: [
-      "/top-selling/big product/img2.png",
-      "/top-selling/big product/img2-2.png",
-    ],
-    description: "Premium forced induction systems to boost your engine's performance.",
-    rating: 4.7,
-    reviews: 2083,
-  },
-  {
-    id: 3,
-    name: "Radiators & Intercoolers SYSTEMS",
-    price: 450,
-    image: "/top-selling/image 3.png",
-    images: [
-      "/top-selling/big product/img3.jpg",
-      "/top-selling/big product/img3-2.jpg",
-    ],
-    description: "Advanced cooling solutions for engine performance.",
-    rating: 4.6,
-    reviews: 987,
-  },
-  {
-    id: 4,
-    name: "Fuel Pumps, Injectors & Fuel Rails",
-    price: 300,
-    image: "/top-selling/image 4.png",
-    images: [
-      "/top-selling/big product/img4.jpg",
-      "/top-selling/big product/img4-2.jpg",
-    ],
-    description: "Precision-engineered fuel components for reliability.",
-    rating: 4.9,
-    reviews: 1245,
-  },
-  {
-    id: 5,
-    name: "Car Transmissions (manual/automatic)",
-    price: 2500,
-    image: "/top-selling/image 5.png",
-    images: [
-      "/top-selling/big product/img5.jpg",
-      "/top-selling/big product/img5-2.jpg",
-    ],
-    description: "Manual and automatic transmission systems.",
-    rating: 4.5,
-    reviews: 856,
-  },
-  {
-    id: 6,
-    name: "ShopPro Non-VOC Brake Cleaner 14oz",
-    price: 25,
-    image: "/top-selling/image 6.png",
-    images: [
-      "/top-selling/big product/img6.jpg",
-      "/top-selling/big product/img6-2.jpg",
-    ],
-    description: "Professional-grade brake parts cleaner.",
-    rating: 4.8,
-    reviews: 3421,
-  },
-];
-
 export function TopSellingProducts({ title }: { title: string }) {
-  const [selectedProduct, setSelectedProduct] = useState<Product>(products[0]);
+  // 1. State for data and loading status
+  const [products, setProducts] = useState<Product[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
-  // NEW: tracks which image index is active in the RIGHT SECTION
+  // 2. State for UI interaction
+  const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
   const [imageIndex, setImageIndex] = useState(0);
 
-  // 👇 Whenever user selects a new product, reset image index to 0
+  // 3. Fetch Data on Mount
+  useEffect(() => {
+    const fetchProducts = async () => {
+      try {
+        // ✅ Call your API service method
+        const data = await api.products.getTopSelling();
+  
+        // ✅ Map API response to UI model
+        const mappedProducts: Product[] = Array.isArray(data)
+          ? data.map((item: any) => ({
+              id: item.id,
+              name: item.name || "Unknown Product",
+              price: Number(item.price) || 0,
+              image: item.image || item.thumbnail || "/placeholder.png",
+              images:
+                item.images && item.images.length > 0
+                  ? item.images
+                  : [item.image || "/placeholder.png"],
+              description: item.description || "No description available.",
+              rating: item.rating || 4.5,
+              reviews: item.reviews || 0,
+            }))
+          : [];
+  
+        setProducts(mappedProducts);
+  
+        if (mappedProducts.length > 0) {
+          setSelectedProduct(mappedProducts[0]);
+        }
+      } catch (err) {
+        console.error(err);
+        setError("Unable to load top selling products.");
+      } finally {
+        setIsLoading(false);
+      }
+    };
+  
+    fetchProducts();
+  }, []);
+  
+  // UI Handlers
   const selectProduct = (product: Product) => {
     setSelectedProduct(product);
     setImageIndex(0);
   };
 
-  // ---- MOBILE left/right changes PRODUCT (existing behavior) ----
   const handlePreviousProduct = () => {
+    if (!selectedProduct) return;
     const idx = products.findIndex(p => p.id === selectedProduct.id);
     const prev = idx === 0 ? products.length - 1 : idx - 1;
     selectProduct(products[prev]);
   };
 
   const handleNextProduct = () => {
+    if (!selectedProduct) return;
     const idx = products.findIndex(p => p.id === selectedProduct.id);
     const next = idx === products.length - 1 ? 0 : idx + 1;
     selectProduct(products[next]);
   };
 
-  // ---- DESKTOP right section arrows change IMAGE, NOT PRODUCT ----
   const handlePreviousImage = () => {
+    if (!selectedProduct) return;
     setImageIndex(prev =>
       prev === 0 ? selectedProduct.images.length - 1 : prev - 1
     );
   };
 
   const handleNextImage = () => {
+    if (!selectedProduct) return;
     setImageIndex(prev =>
       prev === selectedProduct.images.length - 1 ? 0 : prev + 1
     );
   };
 
-  const previewImage = selectedProduct.images[imageIndex];
+  // ---- RENDER LOADING / ERROR STATES ----
+  if (isLoading) {
+    return (
+      <section className="bg-[#F0EBE3] min-h-[400px] flex items-center justify-center font-sans">
+        <p className="text-xl animate-pulse">Loading Products...</p>
+      </section>
+    );
+  }
+
+  if (error || !selectedProduct) {
+    return (
+      <section className="bg-[#F0EBE3] min-h-[400px] flex items-center justify-center font-sans">
+        <p className="text-red-500">{error || "No products found."}</p>
+      </section>
+    );
+  }
+
+  // Safe to access properties now
+  const previewImage = selectedProduct.images[imageIndex] || selectedProduct.image;
 
   return (
     <section className="bg-[#F0EBE3] font-sans">
@@ -164,11 +149,10 @@ export function TopSellingProducts({ title }: { title: string }) {
           ))}
         </div>
 
-        {/* MOBILE preview – product NEXT/PREV (unchanged behavior) */}
+        {/* MOBILE preview */}
         <div className="bg-[#EBE3D6] w-full mt-4 pb-10 pt-4 text-center relative">
 
           <div className="relative w-[90%] mx-auto h-[260px]">
-
             <button onClick={handlePreviousProduct} className="absolute -left-4 top-1/2 -translate-y-1/2 z-30">
               <Image src="/icons/circled arrow left.svg" width={28} height={28} alt="Prev" />
             </button>
@@ -226,21 +210,18 @@ export function TopSellingProducts({ title }: { title: string }) {
           </div>
         </div>
 
-        {/* RIGHT PREVIEW SECTION (NEW LOGIC!) */}
+        {/* RIGHT PREVIEW SECTION */}
         <div className="flex-1 bg-[#EBE3D6] flex flex-col items-center pt-0 lg:h-[900px]">
 
           <div className="relative w-full flex justify-center items-start pt-[123px]">
-
             <div className="relative w-[467px] h-[514px]">
 
-              {/* Left arrow — now cycles image instead of product */}
               <button onClick={handlePreviousImage} className="absolute -left-20 top-1/2 -translate-y-1/2 z-30">
                 <Image src="/icons/circled arrow left.svg" alt="Prev" width={40} height={40} />
               </button>
 
               <Image src={previewImage} alt={selectedProduct.name} fill className="object-cover rounded" />
 
-              {/* Right arrow — now cycles image instead of product */}
               <button onClick={handleNextImage} className="absolute -right-20 top-1/2 -translate-y-1/2 z-30">
                 <Image src="/icons/circled arrow right.svg" alt="Next" width={40} height={40} />
               </button>
