@@ -38,7 +38,7 @@ export default function LoginPage() {
         }
 
         const loginData: { identifier: string; password: string } = {
-            email: identifier.trim(),
+            identifier: identifier.trim(),
             password: password.trim(),
         };
 
