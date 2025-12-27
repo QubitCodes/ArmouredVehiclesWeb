@@ -6,6 +6,7 @@ import Navbar from "@/components/navbar/Navbar";
 import Footer from "@/components/footer/Footer";
 import { useState } from "react";
 import { useRouter } from "next/navigation";
+import { loginConsumer } from "../services/auth";
 
 
 export default function LoginPage() {
@@ -13,6 +14,7 @@ export default function LoginPage() {
 
     const router = useRouter();
     const [identifier, setIdentifier] = useState("");
+    const [password, setPassword] = useState("");
   
 
 
@@ -24,20 +26,38 @@ export default function LoginPage() {
         return /^[+0-9\s]+$/.test(value);
     };
 
-    const handleContinue = () => {
+    const handleContinue = async () => {
         if (!identifier.trim()) {
             alert("Please enter email or phone number");
             return;
         }
 
-     
-        if (isEmail(identifier)) {
-            router.push("/verify-email");
-        } else if (isPhone(identifier)) {
-            router.push("/verify-phone");
-        } else {
-            alert("Enter a valid email or phone number");
+        if (!password.trim()) {
+            alert("Please enter your password");
+            return;
         }
+
+        const loginData: { identifier: string; password: string } = {
+            email: identifier.trim(),
+            password: password.trim(),
+        };
+
+        // Proceed with login
+       const res = await loginConsumer(loginData);
+           const { user, accessToken, refreshToken, expiresIn } = res.data;
+
+      localStorage.setItem("accessToken", accessToken);
+      localStorage.setItem("refreshToken", refreshToken);
+      localStorage.setItem("user", JSON.stringify(user));
+      localStorage.setItem("expiresIn", expiresIn.toString());
+      router.push('/')
+    //   if (isEmail(identifier)) {
+    //         router.push("/verify-email");
+    //     } else if (isPhone(identifier)) {
+    //         router.push("/verify-phone");
+    //     } else {
+    //         alert("Enter a valid email or phone number");
+    //     }
     };
 
 
@@ -84,6 +104,15 @@ export default function LoginPage() {
                             placeholder="Please Enter Email or Mobile Number"
                             value={identifier}
                             onChange={(e) => setIdentifier(e.target.value)}
+                            className="w-full mb-3 px-4 py-3 border border-[#C7B88A] bg-transparent text-sm text-black placeholder:text-[#9D9A95] focus:outline-none"
+                        />
+
+                        {/* Password */}
+                        <input
+                            type="password"
+                            placeholder="Please Enter Password"
+                            value={password}
+                            onChange={(e) => setPassword(e.target.value)}
                             className="w-full mb-3 px-4 py-3 border border-[#C7B88A] bg-transparent text-sm text-black placeholder:text-[#9D9A95] focus:outline-none"
                         />
 

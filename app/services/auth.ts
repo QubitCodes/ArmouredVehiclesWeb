@@ -10,3 +10,9 @@ export const registerConsumer = (data: {
     userType: "customer",
   });
 };
+
+export const loginConsumer = (data: { identifier: string; password: string }) => {
+  return API.post("/auth/login", {
+    ...data,
+  });
+}
