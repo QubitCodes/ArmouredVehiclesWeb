@@ -12,22 +12,56 @@ const SponsoredAd = () => {
             <div className="max-w-[1720px] mx-auto px-4 sm:px-8 lg:px-[140px]">
                 {/* Top Banner */}
                 <div className="relative rounded-lg overflow-hidden mb-3">
-                    <Link
-                        href="https://princetontec.com"
-                        target="_blank"
-                        rel="noopener noreferrer"
-                    >
-                        <Image
-                            src="/sponsored/Group 362.png"
-                            alt="Princeton Tec VIZZ 550 RGB Headlamp"
-                            width={1920}
-                            height={400}
-                            className="w-full h-auto"
-                            priority
-                        />
+                    {/* Desktop View */}
+                    <div className="hidden md:block">
+                        <Link
+                            href="https://princetontec.com"
+                            target="_blank"
+                            rel="noopener noreferrer"
+                        >
+                            <Image
+                                src="/sponsored/Group 362.png"
+                                alt="Princeton Tec VIZZ 550 RGB Headlamp"
+                                width={1920}
+                                height={400}
+                                className="w-full h-auto"
+                                priority
+                            />
+                        </Link>
+                    </div>
 
-                    </Link>
-                    <div className="flex flex-row justify-between items-start mt-1 gap-3 mb-10 flex-wrap">
+                    {/* Mobile View */}
+                    <div className="md:hidden rounded-lg overflow-hidden">
+                        <Link
+                            href="https://princetontec.com"
+                            target="_blank"
+                            rel="noopener noreferrer"
+                        >
+                            <Image
+                                src="/sponsored/group361.png"
+                                alt="Princeton Tec VIZZ 550 RGB Headlamp"
+                                width={800}
+                                height={600}
+                                className="w-full h-auto"
+                            />
+                        </Link>
+                    </div>
+
+                    {/* Disclaimer and Sponsored - Mobile */}
+                    <div className="md:hidden mt-1">
+                        <div className="flex flex-row justify-between items-start gap-3 flex-wrap">
+                            <p className="text-xs leading-relaxed flex-1">
+                                <span className="text-[#D35400] font-semibold">Disclaimer:</span>{" "}
+                                <span className="text-white">
+                                    This is sponsored content. ArmoredMart assumes no responsibility for the accuracy, validity, or claims presented herein.
+                                </span>
+                            </p>
+                            <p className="text-xs text-[#737373] ml-4 shrink-0">sponsored</p>
+                        </div>
+                    </div>
+
+                    {/* Disclaimer + Sponsored Row - Desktop */}
+                    <div className="hidden md:flex flex-row justify-between items-start mt-1 gap-3 mb-10 flex-wrap">
                         <p className="text-xs leading-relaxed flex-1">
                             <span
                                 className="text-[#D35400] font-semibold"

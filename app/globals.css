@@ -41,6 +41,16 @@
       padding-right: 140px;
     }
   }
+
+  /* Hide scrollbar for touch scrolling */
+  .scrollbar-hide::-webkit-scrollbar {
+    display: none;
+  }
+  
+  .scrollbar-hide {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+  }
 }
 
 .clip-triangle {

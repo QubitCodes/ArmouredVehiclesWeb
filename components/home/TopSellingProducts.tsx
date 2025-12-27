@@ -17,6 +17,89 @@ interface Product {
   reviews: number;
 }
 
+// Fallback products to use when API fails
+const fallbackProducts: Product[] = [
+  {
+    id: 1,
+    name: "Engines (diesel, petrol, hybrid)",
+    price: 15000,
+    image: "/top-selling/image 1.png",
+    images: [
+      "/top-selling/big product/img1.jpg",
+      "/top-selling/big product/img2.png",
+      "/top-selling/big product/img1-3.jpg",
+    ],
+    description: "High-performance engines designed for optimal power and efficiency.",
+    rating: 4.8,
+    reviews: 1523,
+  },
+  {
+    id: 2,
+    name: "Turbochargers & Superchargers",
+    price: 600,
+    image: "/top-selling/image 2.png",
+    images: [
+      "/top-selling/big product/img2.png",
+      "/top-selling/big product/img2-2.png",
+    ],
+    description: "Premium forced induction systems to boost your engine's performance.",
+    rating: 4.7,
+    reviews: 2083,
+  },
+  {
+    id: 3,
+    name: "Radiators & Intercoolers SYSTEMS",
+    price: 450,
+    image: "/top-selling/image 3.png",
+    images: [
+      "/top-selling/big product/img3.jpg",
+      "/top-selling/big product/img3-2.jpg",
+    ],
+    description: "Advanced cooling solutions for engine performance.",
+    rating: 4.6,
+    reviews: 987,
+  },
+  {
+    id: 4,
+    name: "Fuel Pumps, Injectors & Fuel Rails",
+    price: 300,
+    image: "/top-selling/image 4.png",
+    images: [
+      "/top-selling/big product/img4.jpg",
+      "/top-selling/big product/img4-2.jpg",
+    ],
+    description: "Precision-engineered fuel components for reliability.",
+    rating: 4.9,
+    reviews: 1245,
+  },
+  {
+    id: 5,
+    name: "Car Transmissions (manual/automatic)",
+    price: 2500,
+    image: "/top-selling/image 5.png",
+    images: [
+      "/top-selling/big product/img5.jpg",
+      "/top-selling/big product/img5-2.jpg",
+    ],
+    description: "Manual and automatic transmission systems.",
+    rating: 4.5,
+    reviews: 856,
+  },
+  {
+    id: 6,
+    name: "ShopPro Non-VOC Brake Cleaner 14oz",
+    price: 25,
+    image: "/top-selling/image 6.png",
+    images: [
+      "/top-selling/big product/img6.jpg",
+      "/top-selling/big product/img6-2.jpg",
+    ],
+    description: "Professional-grade brake parts cleaner.",
+    rating: 4.8,
+    reviews: 3421,
+  },
+];
+
 export function TopSellingProducts({ title }: { title: string }) {
   // 1. State for data and loading status
   const [products, setProducts] = useState<Product[]>([]);
@@ -33,7 +116,7 @@ export function TopSellingProducts({ title }: { title: string }) {
       try {
         // ✅ Call your API service method
         const data = await api.products.getTopSelling();
-  
+
         // ✅ Map API response to UI model
         const mappedProducts: Product[] = Array.isArray(data)
           ? data.map((item: any) => ({
@@ -50,15 +133,24 @@ export function TopSellingProducts({ title }: { title: string }) {
               reviews: item.reviews || 0,
             }))
           : [];
-  
-        setProducts(mappedProducts);
-  
+
+        // Use mapped products when available, otherwise fall back
         if (mappedProducts.length > 0) {
+          setProducts(mappedProducts);
           setSelectedProduct(mappedProducts[0]);
+        } else {
+          console.warn('Top selling API returned no products, using fallbackProducts.');
+          setProducts(fallbackProducts);
+          setSelectedProduct(fallbackProducts[0]);
+          setError(null);
         }
       } catch (err) {
         console.error(err);
-        setError("Unable to load top selling products.");
+        // Use fallback products when API call fails
+        console.warn('Top selling API failed, using fallbackProducts.');
+        setProducts(fallbackProducts);
+        setSelectedProduct(fallbackProducts[0]);
+        setError(null);
       } finally {
         setIsLoading(false);
       }
@@ -132,12 +224,12 @@ export function TopSellingProducts({ title }: { title: string }) {
         </div>
 
         {/* Product horizontal scroll */}
-        <div className="flex overflow-x-auto gap-3 px-3 pb-3 snap-x snap-mandatory scrollbar-hide">
+        <div className="flex overflow-x-auto px-3 pb-3 snap-x snap-mandatory scrollbar-hide">
           {products.map((product) => (
             <div
               key={product.id}
               onClick={() => selectProduct(product)}
-              className="min-w-[110px] bg-[#faf8f4] border border-[#ccc] flex flex-col items-center p-3 snap-start rounded-md active:scale-95 transition"
+              className="min-w-[110px] bg-[#F0EBE3] border border-[#ccc] flex flex-col items-center p-3 snap-start active:scale-95 transition"
             >
               <div className="relative w-[70px] h-[70px] mx-auto">
                 <Image src={product.image} alt={product.name} fill className="object-contain" />
@@ -152,19 +244,22 @@ export function TopSellingProducts({ title }: { title: string }) {
         {/* MOBILE preview */}
         <div className="bg-[#EBE3D6] w-full mt-4 pb-10 pt-4 text-center relative">
 
-          <div className="relative w-[90%] mx-auto h-[260px]">
-            <button onClick={handlePreviousProduct} className="absolute -left-4 top-1/2 -translate-y-1/2 z-30">
+          <div className="relative w-[281px] mx-auto h-[310px]">
+            <button onClick={handlePreviousProduct} className="absolute -left-10 top-1/2 -translate-y-1/2 z-30">
               <Image src="/icons/circled arrow left.svg" width={28} height={28} alt="Prev" />
             </button>
 
             <Image src={previewImage} alt={selectedProduct.name} fill className="object-cover rounded" />
 
-            <button onClick={handleNextProduct} className="absolute -right-4 top-1/2 -translate-y-1/2 z-30">
+            <button onClick={handleNextProduct} className="absolute -right-10 top-1/2 -translate-y-1/2 z-30">
               <Image src="/icons/circled arrow right.svg" width={28} height={28} alt="Next" />
             </button>
           </div>
 
-          <p className="mt-4 text-lg font-semibold">฿ {selectedProduct.price}</p>
+          <p className="mt-4 text-lg font-semibold flex justify-center items-center gap-2">
+            <Image src="/icons/currency/dirham.svg" alt="Currency" width={20} height={20} /> 
+            {selectedProduct.price}
+          </p>
           <h3 className="text-sm font-bold mt-1 px-4">{selectedProduct.name}</h3>
 
           <div className="flex justify-center items-center text-[#FF5C00] mt-1 gap-1">

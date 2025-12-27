@@ -245,14 +245,14 @@ const Navbar = () => {
 {isLoggedIn ? (
   <>
     {/* Profile Icon */}
-    <Link href="/profile" className="flex items-center gap-2">
+    {/* <Link href="/profile" className="flex items-center gap-2">
       <div className="w-8 h-8 rounded-full bg-[#39482C] flex items-center justify-center text-white text-sm font-bold">
         {user.name.charAt(0)}
       </div>
-    </Link>
+    </Link> */}
 
     {/* Cart */}
-    <Link href="/cart" className="relative">
+    {/* <Link href="/cart" className="relative">
       <Image
         src="/cart.svg"
         alt="Shopping Cart"
@@ -265,7 +265,7 @@ const Navbar = () => {
           {user.cartCount}
         </span>
       )}
-    </Link>
+    </Link> */}
   </>
 ) : (
   <Link href="/login">

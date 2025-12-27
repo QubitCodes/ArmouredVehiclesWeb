@@ -57,6 +57,7 @@ export default function ProductListingPage() {
     const [priceRange, setPriceRange] = useState({ min: 9, max: 10850 });
     const [selectedDepartments, setSelectedDepartments] = useState<string[]>([]);
     const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid');
+    const [showFilters, setShowFilters] = useState(false);
     const [openFilters, setOpenFilters] = useState({
         brand: true,
         price: true,
@@ -135,16 +136,41 @@ export default function ProductListingPage() {
                             PERFORMANCE BRAKE KITS
                         </span>
                     </div>
-                    <h1 className="text-3xl font-[Orbitron] sm:text-4xl font-bold uppercase tracking-wide text-black">
+                    <h1 className="text-xl md:text-3xl font-[Orbitron] lg:text-4xl font-bold uppercase tracking-wide text-black">
                         PERFORMANCE BRAKES
                     </h1>
+                </div>
+
+                {/* Mobile Filter Buttons */}
+                <div className="flex lg:hidden items-center gap-2 mt-4 mb-3 overflow-x-auto pb-2">
+                    <button 
+                        onClick={() => setShowFilters(!showFilters)}
+                        className="px-4 py-2 border border-gray-300 bg-white text-sm font-medium whitespace-nowrap flex items-center gap-1"
+                    >
+                        BRAND
+                        <ChevronDown size={14} />
+                    </button>
+                    <button 
+                        onClick={() => setShowFilters(!showFilters)}
+                        className="px-4 py-2 border border-gray-300 bg-white text-sm font-medium whitespace-nowrap flex items-center gap-1"
+                    >
+                        PRICE
+                        <ChevronDown size={14} />
+                    </button>
+                    <button 
+                        onClick={() => setShowFilters(!showFilters)}
+                        className="px-4 py-2 border border-gray-300 bg-white text-sm font-medium whitespace-nowrap flex items-center gap-1"
+                    >
+                        SELECT PRODUCT TYPE
+                        <ChevronDown size={14} />
+                    </button>
                 </div>
             </Container>
 
             <Container>
                 <div className="flex flex-col lg:flex-row gap-8 py-5">
                     {/* ---------------- FILTER SIDEBAR ---------------- */}
-                    <aside className="w-full lg:w-1/4 bg-[#F0EBE3] rounded-md lg:sticky lg:top-4 lg:self-start">
+                    <aside className={`w-full lg:w-1/4 bg-[#F0EBE3] rounded-md lg:sticky lg:top-4 lg:self-start ${showFilters ? 'block' : 'hidden lg:block'}`}>
                         <div className="p-5 space-y-8 max-h-[calc(100vh-8rem)] overflow-y-auto filter-scrollbar">
                             {/* BRAND FILTER */}
                             <div>
@@ -344,14 +370,14 @@ export default function ProductListingPage() {
                         <div className="flex justify-between items-center mb-6">
 
                             {/* Result Count */}
-                            <p className="text-black text-[16px] font-semibold font-[Inter, sans-serif]">
-                                <span>{products.length}</span> Results
+                            <p className="text-black text-sm md:text-[16px] font-semibold font-[Inter, sans-serif]">
+                                <span>72471</span> Results for <span className="font-normal">"Performance Brakes"</span>
                             </p>
 
                             <div className="flex items-center gap-4">
 
                                 {/* Sort By */}
-                                <div className="relative">
+                                <div className="relative hidden md:block">
                                     <select
                                         className="border border-[#D8D3C5] px-3 py-2 text-sm bg-[#F0EBE3] text-black cursor-pointer appearance-none pr-8"
                                     >
@@ -367,6 +393,11 @@ export default function ProductListingPage() {
                                         className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-700 pointer-events-none"
                                     />
                                 </div>
+
+                                {/* Mobile Sort By - Icon Only */}
+                                <button className="md:hidden p-2">
+                                    <Image src="/icons/sort.svg" alt="Sort" width={20} height={20} className="w-5 h-5" />
+                                </button>
 
                                 {/* View Icons */}
                                 {/* <div className="flex items-center gap-3">
@@ -390,7 +421,7 @@ export default function ProductListingPage() {
 
 
 
-                        <div className="grid grid-cols-1 w-full sm:grid-cols-2 xl:grid-cols-3 gap-6">
+                        <div className="grid grid-cols-2 w-full lg:grid-cols-2 xl:grid-cols-3 gap-3 md:gap-6">
                             {products.map(product => (
                                 // <Link key={product.id} href={`/product-details`} className="block">
                                 <ProductCard
@@ -409,7 +440,9 @@ export default function ProductListingPage() {
                     </main>
                 </div>
                 <TopSellingProducts title={"Recommended For You"} />
-                <DescriptionSection />
+                <div className="hidden lg:block">
+                    <DescriptionSection />
+                </div>
             </Container>
             <section className="w-full bg-[#31332C] text-white py-10">
                 <div className="max-w-[1720px] mx-auto px-4 sm:px-8 lg:px-[140px]">

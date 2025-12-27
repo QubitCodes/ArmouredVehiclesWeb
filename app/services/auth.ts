@@ -16,3 +16,14 @@ export const loginConsumer = (data: { identifier: string; password: string }) =>
     ...data,
   });
 }
+
+export const registerSeller = (data: {
+  name: string;
+  email: string;
+  password: string;
+}) => {
+  return API.post("/auth/register", {
+    ...data,
+    userType: "seller",
+  });
+}
