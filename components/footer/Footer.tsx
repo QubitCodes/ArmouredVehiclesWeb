@@ -72,13 +72,13 @@ const Footer = () => {
         backgroundRepeat: "no-repeat",
       }}
     >
-      <div className="container-figma mx-auto relative pb-10">
+      <div className="container-figma mx-auto relative pb-6">
 
         {/* ========== MOBILE FOOTER ========== */}
         <div className="lg:hidden mb-6">
           <Image src="/logofullwhite.svg" alt="ArmoredMart" width={260} height={140} className="mb-4" />
 
-          <div className="flex gap-6 mb-6">
+          <div className="flex gap-8 mb-6">
             {socialLinks.map((s) => (
               <Link key={s.href} href={s.href} target="_blank">
                 <Image src={s.icon} alt="social" width={22} height={22} />
@@ -87,9 +87,9 @@ const Footer = () => {
           </div>
 
           {[{ id: "useful", title: "USEFUL LINKS", items: usefulLinks },
-            { id: "categories", title: "CATEGORIES", items: categories },
-            { id: "help", title: "HELP", items: help },
-            { id: "about", title: "ABOUT US", items: aboutUs },
+          { id: "categories", title: "CATEGORIES", items: categories },
+          { id: "help", title: "HELP", items: help },
+          { id: "about", title: "ABOUT US", items: aboutUs },
           ].map((section) => (
             <div key={section.id} className="border-t border-gray-700">
               <button
@@ -118,7 +118,7 @@ const Footer = () => {
         </div>
 
         {/* ========== DESKTOP FOOTER ========== */}
-        <div className="hidden lg:grid grid-cols-5 gap-8 mb-10">
+        <div className="hidden lg:grid grid-cols-5 gap-8 mb-5">
           <div>
             <Image src="/logofullwhite.svg" alt="logo" width={220} height={120} />
             <div className="flex gap-4 mt-4">
@@ -132,7 +132,7 @@ const Footer = () => {
 
           {[usefulLinks, categories, help, aboutUs].map((group, i) => (
             <div key={i}>
-              <h3 className="font-orbitron text-[#D35400] mb-3 uppercase">
+              <h3 className="font-orbitron text-[#D35400] mb-2 uppercase">
                 {["Useful Links", "Categories", "Help", "About Us"][i]}
               </h3>
               <ul className="space-y-1">
@@ -152,7 +152,7 @@ const Footer = () => {
       {/* ========== BOTTOM BAR ========== */}
       <div className="border-t bg-black border-gray-800">
         <Container>
-          <div className="flex flex-col md:flex-row justify-between items-center py-5 gap-4">
+          <div className="flex flex-col md:flex-row justify-between items-center py-5 gap-4 mb-14 md:mb-0">
             <div className="flex gap-4">
               {paymentMethods.map((m) => (
                 <Image key={m.alt} src={m.icon} alt={m.alt} width={50} height={28} />

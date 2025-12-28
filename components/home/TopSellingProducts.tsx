@@ -291,15 +291,18 @@ export function TopSellingProducts({ title }: { title: string }) {
               <div
                 key={product.id}
                 onClick={() => selectProduct(product)}
-                className={`border bg-[#FAF8F4] cursor-pointer flex flex-col items-center justify-center text-center hover:shadow-md transition ${
-                  selectedProduct.id === product.id ? "bg-[#FDF9F0]" : "border-[#CCCCCC]"
-                }`}
+   className={`border cursor-pointer flex flex-col items-center justify-center text-center hover:shadow-md transition bg-[#EBE3D6] ${
+  selectedProduct.id === product.id
+    ? "border-[#D35400] border-3"
+    : "border-[#CCCCCC]"
+}`}
+
                 style={{ width: "245px", height: "281px" }}
               >
                 <div className="relative w-[150px] h-[150px]">
                   <Image src={product.image} alt={product.name} fill className="object-contain" />
                 </div>
-                <p className="text-black mt-2 text-[16px] leading-none p-2">{product.name}</p>
+                <p className="text-black mt-2 text-[16px] leading-none p-4">{product.name}</p>
               </div>
             ))}
           </div>

@@ -118,46 +118,46 @@ export default function ContactPerson({ onNext, onPrev }: any) {
       </div>
 
       {/* ACTION BUTTONS */}
-     <div className="flex justify-center items-center mt-10 gap-6">
-  {/* PREVIOUS */}
-   <button
-                    onClick={onPrev}
-                    className="relative w-[280px] h-[42px] bg-transparent"
-                >
-                    {/* Border shape */}
-                    <span
-                        className="absolute inset-0 clip-path-supplier bg-[#C7B88A]"
-                        aria-hidden
-                    />
+      <div className="flex justify-center items-center mt-10 gap-6">
+        {/* PREVIOUS */}
+        <button
+          onClick={onPrev}
+          className="relative w-[280px] h-[42px] bg-transparent"
+        >
+          {/* Border shape */}
+          <span
+            className="absolute inset-0 clip-path-supplier bg-[#C7B88A]"
+            aria-hidden
+          />
 
-                    {/* Inner fill */}
-                    <span
-                        className="absolute inset-[1.5px] clip-path-supplier bg-[#F0EBE3]"
-                        aria-hidden
-                    />
+          {/* Inner fill */}
+          <span
+            className="absolute inset-[1.5px] clip-path-supplier bg-[#F0EBE3]"
+            aria-hidden
+          />
 
-                    {/* Text */}
-                    <span className="relative z-10 flex items-center justify-center h-full w-full
+          {/* Text */}
+          <span className="relative z-10 flex items-center justify-center h-full w-full
                    font-orbitron font-bold text-[13px] uppercase text-black">
-                        Previous
-                    </span>
-                </button>
+            Previous
+          </span>
+        </button>
 
 
 
-  {/* NEXT */}
-  <button
-    onClick={onNext}
-    className="w-[280px] h-[42px]
+        {/* NEXT */}
+        <button
+          onClick={onNext}
+          className="w-[280px] h-[42px]
                bg-[#D35400]
                font-orbitron font-bold
                text-[12px] uppercase
                text-white hover:bg-[#39482C] transition-colors
                clip-next clip-path-supplier"
-  >
-    NEXT
-  </button>
-</div>
+        >
+          NEXT
+        </button>
+      </div>
 
     </div>
   );

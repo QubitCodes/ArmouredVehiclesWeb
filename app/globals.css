@@ -1,5 +1,6 @@
 @import "tailwindcss";
 
+
 :root {
   --primary: #3D4A26;
   --secondary: #D35400;
@@ -10,6 +11,15 @@
 .font-orbitron {
   font-family: var(--font-orbitron), 'Orbitron', ui-sans-serif, system-ui, sans-serif;
 }
+
+.font-ruda {
+  font-family: var(--font-ruda), ui-sans-serif, system-ui, sans-serif;
+}
+
+/* .font-orbitron {
+  font-family: var(--font-orbitron), ui-sans-serif, system-ui, sans-serif;
+} */
+
 
 @theme inline {
   --color-background: var(--background);

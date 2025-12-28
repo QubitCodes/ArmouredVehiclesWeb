@@ -47,7 +47,7 @@ const SimilarProductCard = ({
       <p className="text-sm text-black mt-1 leading-tight">{displayName}</p>
 
       {/* BUY NOW */}
-      <button className="mt-3 text-left text-[18px] font-semibold text-[#D35400]">BUY NOW</button>
+      <button className="font-ruda mt-3 text-left text-[18px] font-semibold text-[#D35400]">BUY NOW</button>
     </div>
   );
 };

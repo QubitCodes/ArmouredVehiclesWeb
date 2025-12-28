@@ -20,7 +20,7 @@ const SponsoredAd = () => {
                             rel="noopener noreferrer"
                         >
                             <Image
-                                src="/sponsored/Group 362.png"
+                                src="/sponsored/sponseredbanner.svg"
                                 alt="Princeton Tec VIZZ 550 RGB Headlamp"
                                 width={1920}
                                 height={400}

@@ -48,11 +48,10 @@ const TabbedSection = ({
           <button
             key={tab.id}
             onClick={() => setActiveTab(tab.id)}
-            className={`flex-1 px-6 py-4 font-bold text-sm font-[Orbitron] uppercase tracking-wider transition-colors ${
-              activeTab === tab.id
+            className={`flex-1 px-6 py-4 font-bold text-sm font-[Orbitron] uppercase tracking-wider transition-colors ${activeTab === tab.id
                 ? "text-black border-b-2 border-black bg-[#EBE3D6]"
                 : "text-gray-600 hover:text-black bg-[#F0EBE3]"
-            }`}
+              }`}
           >
             {tab.label}
           </button>
@@ -69,29 +68,44 @@ const TabbedSection = ({
       </div>
 
       {/* Accordion - Mobile */}
+      {/* Accordion - Mobile */}
       <div className="md:hidden">
-        {tabs.map((tab) => (
-          <div key={tab.id} className="border-b border-gray-300">
-            <button
-              onClick={() => toggleSection(tab.id)}
-              className="w-full px-4 py-4 flex items-center justify-between font-bold text-sm uppercase tracking-wider hover:bg-gray-50 transition-colors"
-            >
-              {tab.label}
-              <ChevronDown
-                size={20}
-                className={`transition-transform ${
-                  expandedSections.has(tab.id) ? "rotate-180" : ""
-                }`}
-              />
-            </button>
-            {expandedSections.has(tab.id) && (
-              <div className="px-4 py-4 bg-gray-50">
-                {tab.content}
-              </div>
-            )}
-          </div>
-        ))}
+        {tabs.map((tab) => {
+          const isOpen = expandedSections.has(tab.id);
+
+          return (
+            <div key={tab.id} className="mb-4">
+              {/* HEADER */}
+              <button
+                onClick={() => toggleSection(tab.id)}
+                className="w-full flex items-center justify-between
+                     px-4 py-4
+                     bg-[#F0EBE3]
+                     border border-[#3D4A26]
+                     font-bold text-sm uppercase tracking-wide
+                     text-black"
+              >
+                {tab.label}
+                <ChevronDown
+                  size={20}
+                  className={`transition-transform ${isOpen ? "rotate-180" : ""
+                    }`}
+                />
+              </button>
+
+              {/* CONTENT */}
+              {isOpen && (
+                <div className="border border-t-0 border-[#3D4A26]
+                          bg-[#F6F1E9]
+                          px-4 py-4">
+                  {tab.content}
+                </div>
+              )}
+            </div>
+          );
+        })}
       </div>
+
     </div>
   );
 };

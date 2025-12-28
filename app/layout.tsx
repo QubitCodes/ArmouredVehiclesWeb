@@ -5,6 +5,14 @@ import { Footer } from "@/components/footer";
 import MobileBottomNav from "@/components/mobile/MobileBottomNav";
 import AOSProvider from "@/components/AOSProvider";
 import { orbitron } from "@/lib/fonts";
+import { Ruda } from "next/font/google";
+
+const ruda = Ruda({
+  subsets: ["latin"],
+  weight: ["400", "700"],
+  variable: "--font-ruda",
+  display: "swap",
+});
 
 export const metadata: Metadata = {
   title: "ArmoredMart",
@@ -17,7 +25,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html lang="en" className={orbitron.variable}>
+    <html lang="en" className={`${ruda.variable} ${orbitron.variable}`}>
       <body className="antialiased">
         {/* AOS animations */}
         <AOSProvider />
@@ -26,7 +34,7 @@ export default function RootLayout({
         <Navbar />
 
         {/* Main content */}
-        <main className="pt-[96px] pb-20 md:pb-0 bg-[#F0EBE3]">
+        <main className="pt-[96px] pb-0 md:pb-0 bg-[#F0EBE3]">
           {children}
         </main>
 
