@@ -40,10 +40,10 @@ const DesktopLayout = () => {
 
     const images = [
         "/product/product 1.png",
-        "/product/brake-pad-2.jpg",
-        "/product/brake-pad-3.jpg",
-        "/product/brake-pad-4.jpg",
-        "/product/brake-pad-5.jpg",
+        "/product/product 1.png",
+        "/product/product2.svg",
+        "/product/product2.svg",
+        "/product/product2.svg",
     ];
 
     const similarProducts = [
