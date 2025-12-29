@@ -8,43 +8,42 @@ import { Container } from "../ui";
 const Footer = () => {
   const [openSection, setOpenSection] = useState<string | null>(null);
 
-  const usefulLinks = [
-    { title: "Where to Buy", href: "/where-to-buy" },
-    { title: "Catalogs", href: "/catalogs" },
-    { title: "Affiliate Program", href: "/affiliate-program" },
-    { title: "Careers", href: "/careers" },
-  ];
+const usefulLinks = [
+  { title: "Careers", href: "/careers" },
+  { title: "FAQ", href: "/faq" },
+  { title: "Terms of Use", href: "/terms-of-use" },
+  { title: "Terms of Sale", href: "/terms-of-sale" },
+  { title: "Privacy Policy", href: "/privacy-policy" },
+];
 
-  const categories = [
-    { title: "Core Vehicle Systems", href: "/categories/core-vehicle-systems" },
-    { title: "Armor-specific Systems", href: "/categories/armor-specific-systems" },
-    { title: "Communication & Control Systems", href: "/categories/communication-control-systems" },
-    { title: "Climate & Interior", href: "/categories/climate-interior" },
-    { title: "Exterior & Utility", href: "/categories/exterior-utility" },
-    { title: "OEM / Custom Manufacturing Support", href: "/categories/oem-custom-manufacturing" },
-    { title: "Platform & Rolling Chassis", href: "/categories/platform-rolling-chassis" },
-    { title: "OEM Baseline Chassis Sourcing", href: "/categories/oem-baseline-chassis" },
-    { title: "Custom Tactical Hardware", href: "/categories/custom-tactical-hardware" },
-  ];
+const categories = [
+  { title: "Core Vehicle Systems", href: "/categories/core-vehicle-systems" },
+  { title: "Armor-specific Systems", href: "/categories/armor-specific-systems" },
+  { title: "Communication & Control Systems", href: "/categories/communication-control-systems" },
+  { title: "Climate & Interior", href: "/categories/climate-interior" },
+  { title: "Exterior & Utility", href: "/categories/exterior-utility" },
+  { title: "OEM / Custom Manufacturing Support", href: "/categories/oem-custom-manufacturing" },
+  { title: "Platform & Rolling Chassis", href: "/categories/platform-rolling-chassis" },
+  { title: "OEM Baseline Chassis Sourcing", href: "/categories/oem-baseline-chassis" },
+  { title: "Custom Tactical Hardware", href: "/categories/custom-tactical-hardware" },
+];
 
-  const help = [
-    { title: "Order Status", href: "/order-status" },
-    { title: "Warranty", href: "/warranty" },
-    { title: "FAQ", href: "/faq" },
-    { title: "Manuals", href: "/manuals" },
-    { title: "Returns", href: "/returns" },
-    { title: "Shipping", href: "/shipping" },
-  ];
+const help = [
+  { title: "Order Status", href: "/order-status" },
+  { title: "Warranty", href: "/warranty" },
+  { title: "Returns", href: "/returns" },
+  { title: "Shipping", href: "/shipping" },
+];
 
-  const aboutUs = [
-    { title: "About Armored Mart", href: "/about" },
-    { title: "Warranty Policy", href: "/warranty-policy" },
-    { title: "Sell with Us", href: "/sell-with-us" },
-    { title: "Terms of Use", href: "/terms-of-use" },
-    { title: "Terms of Sale", href: "/terms-of-sale" },
-    { title: "Privacy Policy", href: "/privacy-policy" },
-    { title: "Consumer Rights", href: "/consumer-rights" },
-  ];
+const aboutUs = [
+  { title: "About Armored Mart", href: "/about" },
+  { title: "Warranty Policy", href: "/warranty-policy" },
+  { title: "Sell with Us", href: "/sell-with-us" },
+  { title: "Consumer Rights", href: "/consumer-rights" },
+];
+
+
+
 
   const socialLinks = [
     { icon: "/icons/social/meta.svg", href: "https://facebook.com/armoredmart" },
