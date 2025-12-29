@@ -11,10 +11,12 @@ const Footer = () => {
 const usefulLinks = [
   { title: "Careers", href: "/careers" },
   { title: "FAQ", href: "/faq" },
+  { title: "Terms & Conditions", href: "/terms-conditions" },
   { title: "Terms of Use", href: "/terms-of-use" },
   { title: "Terms of Sale", href: "/terms-of-sale" },
   { title: "Privacy Policy", href: "/privacy-policy" },
 ];
+
 
 const categories = [
   { title: "Core Vehicle Systems", href: "/categories/core-vehicle-systems" },
@@ -30,14 +32,15 @@ const categories = [
 
 const help = [
   { title: "Order Status", href: "/order-status" },
-  { title: "Warranty", href: "/warranty" },
+  { title: "Warranty Policy", href: "/warranty-policy" },
   { title: "Returns", href: "/returns" },
   { title: "Shipping", href: "/shipping" },
+  { title: "Contact & Legal", href: "/contact-legal" },
 ];
+
 
 const aboutUs = [
   { title: "About Armored Mart", href: "/about" },
-  { title: "Warranty Policy", href: "/warranty-policy" },
   { title: "Sell with Us", href: "/sell-with-us" },
   { title: "Consumer Rights", href: "/consumer-rights" },
 ];
