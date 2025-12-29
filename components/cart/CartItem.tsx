@@ -1,11 +1,11 @@
 import QuantitySelector from "./QuantitySelector";
 import { Trash2, Share2, Bookmark } from "lucide-react";
 
-export default function CartItem({ data, updateQty, removeItem }:any) {
+export default function CartItem({ data, updateQty, removeItem }: any) {
   return (
     <div className="bg-[#F4F0E7] p-5">
 
-      <div className="flex gap-5">
+      <div className="flex flex-col sm:flex-row gap-5">
         {/* Product Image */}
         <img
           src="/cart/image1.png"
@@ -46,7 +46,7 @@ export default function CartItem({ data, updateQty, removeItem }:any) {
         </div>
 
         {/* Price + Qty */}
-        <div className="text-right">
+        <div className="order-3 sm:order-none mt-3 sm:mt-0 text-center sm:text-right flex flex-col items-center sm:items-end">
           <div className="font-extrabold flex items-center justify-end gap-2 text-xl text-[#1A1A1A]">
             <svg width="17" height="15" viewBox="0 0 17 15" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
               <g clipPath="url(#clip0_260_315)">
@@ -78,7 +78,7 @@ export default function CartItem({ data, updateQty, removeItem }:any) {
           <div className="mt-3 flex justify-end">
             <QuantitySelector
               value={data.qty}
-              onChange={(newQty:any) => updateQty(data.id, newQty)}
+              onChange={(newQty: any) => updateQty(data.id, newQty)}
             />
           </div>
         </div>

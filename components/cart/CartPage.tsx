@@ -101,7 +101,7 @@ export default function CartPage() {
 
     return (
         <section className="bg-[#F0EBE3]">
-            <div className=" max-w-[1660px] mx-auto px-6 py-10 grid lg:grid-cols-[1fr_350px] gap-10 items-start">
+            <div className=" max-w-[1660px] mx-auto px-6 py-10 grid grid grid-cols-1 lg:grid-cols-[1fr_350px] gap-10 items-start">
                 <div>
                     <div className="mb-4">
                         <Link href="/" className="inline-flex items-center text-sm text-gray-700 hover:text-gray-900">
@@ -145,7 +145,7 @@ export default function CartPage() {
                         ))}
                     </div>
                 </div>
-                <div className="mt-24 sticky top-36 self-start bg-[#EBE3D6]">
+                <div className="mt-10 lg:mt-24 lg:sticky lg:top-36 self-start bg-[#EBE3D6]">
                     <OrderSummary subtotal={subtotal} onCheckout={handleCheckout} />
                 </div>
                 <div className="mt-8">
@@ -162,7 +162,7 @@ export default function CartPage() {
                     </div>
 
 
-                    <div className="grid grid-cols-5 gap-4 mt-6">
+                    <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-4 mt-6">
                         {similarProducts.map((product) => (
                             <RecommendedForYouCard key={product.id} {...product} />
                         ))}

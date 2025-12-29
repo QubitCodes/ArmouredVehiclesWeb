@@ -394,8 +394,8 @@ const Navbar = () => {
                       <Image
                         src="/icons/profileicon.svg"
                         alt="Profile"
-                        width={36}
-                        height={36}
+                        width={26}
+                        height={26}
                         className="rounded-full"
                       />
                       {/* Arrow */}
@@ -474,8 +474,8 @@ const Navbar = () => {
                     <Image
                       src="/cart.svg"
                       alt="Shopping Cart"
-                      width={40}
-                      height={40}
+                      width={30}
+                      height={30}
                       className="hover:opacity-80 transition-opacity"
                     />
                     {user.cartCount > 0 && (
@@ -499,8 +499,8 @@ const Navbar = () => {
                     <Image
                       src="/cart.svg"
                       alt="Shopping Cart"
-                      width={40}
-                      height={40}
+                      width={30}
+                      height={30}
                       className="hover:opacity-80 transition-opacity"
                     />
                   </Link>
