@@ -11,27 +11,63 @@ import { Star, ShieldCheck } from "lucide-react";
 type Props = {
     quantity: number;
     setQuantity: (qty: number) => void;
+    price?: string | number | null;
+    originalPrice?: string | null;
+    currency?: string | null;
+    condition?: string | null;
+    stock?: number | null;
 };
 
 export default function ProductPurchaseSection({
     quantity,
     setQuantity,
+    price,
+    originalPrice,
+    currency,
+    condition,
+    stock,
 }: Props) {
+    const currencySymbol = (code?: string | null) => {
+        switch ((code || '').toUpperCase()) {
+            case 'USD':
+                return '$';
+            case 'EUR':
+                return '€';
+            case 'GBP':
+                return '£';
+            case 'AED':
+                return 'د.إ';
+            case 'THB':
+                return '฿';
+            default:
+                return code ? `${code} ` : '';
+        }
+    };
+
+    const displayPrice = price != null && price !== '' ? String(price) : undefined;
+    const symbol = currencySymbol(currency);
     return (
         <div className="space-y-4">
             {/* PRICE */}
             <div>
-                <span className="text-3xl font-bold font-[inter, sans-serif] text-black">
-                    ฿ 679
-                </span>
-                <div className="flex items-center gap-2 font-[inter, sans-serif]">
-                    <span className="text-[#3D4A26]">
-                        ฿ 559.25 with coupon code
-                    </span>
-                    <button className="text-[#D35400] text-sm underline">
-                        Price Details
-                    </button>
-                </div>
+                {displayPrice ? (
+                    <>
+                        <span className="text-3xl font-bold font-[inter, sans-serif] text-black">
+                            {symbol}
+                            {displayPrice}
+                        </span>
+                        {originalPrice && (
+                            <div className="flex items-center gap-2 font-[inter, sans-serif]">
+                                <span className="text-[#3D4A26] line-through opacity-70">
+                                    {symbol}
+                                    {originalPrice}
+                                </span>
+                            </div>
+                        )}
+                    </>
+                ) : (
+                    <span className="text-3xl font-bold font-[inter, sans-serif] text-black">—</span>
+                )}
             </div>
 
             {/* CONDITION & AVAILABILITY */}
@@ -39,7 +75,7 @@ export default function ProductPurchaseSection({
                 <div className="flex justify-start">
                     <span>Condition: </span>
                     <div className="flex items-center gap-1">
-                        <span className="font-medium text-black">New</span>
+                        <span className="font-medium text-black">{condition ? String(condition).toUpperCase().charAt(0) + String(condition).slice(1) : '—'}</span>
                         <Info
                             size={14}
                             className="text-gray-600 cursor-pointer"
@@ -50,9 +86,17 @@ export default function ProductPurchaseSection({
                 </div>
                 <div className="flex justify-start">
                     <span>Availability:</span>
-                    <span>
-                        <span className="text-[#3BAF7F]">In Stock</span> (65)
-                    </span>
+                    {typeof stock === 'number' ? (
+                        stock > 0 ? (
+                            <span>
+                                <span className="text-[#3BAF7F]">In Stock</span> ({stock})
+                            </span>
+                        ) : (
+                            <span className="text-[#D35400]">Out of Stock</span>
+                        )
+                    ) : (
+                        <span>—</span>
+                    )}
                 </div>
             </div>
 
@@ -136,7 +180,7 @@ export default function ProductPurchaseSection({
 
                 {/* BUY IT NOW */}
                 <button
-                    className="w-full h-[44px] bg-[#D35400] clip-path-supplier
+                    className="w-full h-11 bg-[#D35400] clip-path-supplier
                flex items-center justify-center
                hover:bg-[#A84300] transition-colors"
                 >
@@ -147,7 +191,7 @@ export default function ProductPurchaseSection({
 
                 {/* ADD TO CART */}
                 <button
-                    className="w-full h-[44px] bg-[#3D4A26] clip-path-supplier
+                    className="w-full h-11 bg-[#3D4A26] clip-path-supplier
                flex items-center justify-center
                hover:bg-[#2F3A1D] transition-colors"
                 >
@@ -157,7 +201,7 @@ export default function ProductPurchaseSection({
                 </button>
 
                 {/* ADD TO WISHLIST */}
-                <button className="relative w-full h-[44px] bg-transparent">
+                <button className="relative w-full h-11 bg-transparent">
 
                     {/* BORDER */}
                     <span

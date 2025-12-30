@@ -2,26 +2,38 @@
 
 import { Typography } from "@/components/ui/Typography";
 
-export default function ProductHeader() {
+type Props = {
+  name?: string | null;
+  rating?: number | string | null;
+  reviewCount?: number | null;
+  sku?: string | null;
+};
+
+export default function ProductHeader({ name, rating, reviewCount, sku }: Props) {
+  const numericRating = typeof rating === "string" ? parseFloat(rating) : rating ?? 0;
+  const showRating = Number.isFinite(numericRating) && numericRating! > 0;
+  const stars = Math.round(Math.max(0, Math.min(5, Number(numericRating) || 0)));
+
   return (
     <div>
-      <Typography
-        variant="h1"
-        className=" text-black text-[24px] font-bold mb-2"
-      >
-        DFC® - 4000 HybriDynamic Hybrid Rear Brake Pads
+      <Typography variant="h1" className=" text-black text-[24px] font-bold mb-2">
+        {name || "Product"}
       </Typography>
 
       <div className="flex items-center gap-2">
-        <div className="flex text-[#D35400]">
-          {"★★★★★".split("").map((star, i) => (
-            <span key={i}>{star}</span>
-          ))}
-        </div>
+        {showRating && (
+          <div className="flex text-[#D35400]" aria-label={`Rating ${numericRating} out of 5`}>
+            {Array.from({ length: 5 }).map((_, i) => (
+              <span key={i}>{i < stars ? "★" : "☆"}</span>
+            ))}
+          </div>
+        )}
 
-        <span className="text-sm text-[#D35400]">0 Review</span>
-        <span className="text-sm text-gray-500">Part #54GD94DL</span>
-        <span className="text-sm text-gray-500">SKU #374155</span>
+        {typeof reviewCount === "number" && (
+          <span className="text-sm text-[#D35400]">{reviewCount} Review{reviewCount === 1 ? "" : "s"}</span>
+        )}
+
+        {sku && <span className="text-sm text-gray-500">SKU #{sku}</span>}
       </div>
     </div>
   );
