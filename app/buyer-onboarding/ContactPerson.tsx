@@ -1,6 +1,7 @@
 "use client";
 
 import Image from "next/image";
+import API from "@/app/services/api";
 
 export default function ContactPerson({
     onNext,
@@ -9,6 +10,19 @@ export default function ContactPerson({
     onNext: () => void;
     onPrev: () => void;
 }) {
+    // Local API helper: submit Step 2 payload to vendor endpoint (token is attached via axios interceptors)
+    const submitVendorOnboardingStep2 = (payload: {
+        contactFullName: string;
+        contactJobTitle?: string;
+        contactWorkEmail: string;
+        contactIdDocumentUrl?: string;
+        contactMobile: string;
+        contactMobileCountryCode: string;
+        termsAccepted: boolean;
+    }) => {
+        return API.post("/vendor/onboarding/step2", payload);
+    };
+
     return (
         <div className="max-w-[1200px] mx-auto bg-[#EBE3D6] p-8 mt-8 text-black">
 
@@ -69,7 +83,7 @@ export default function ContactPerson({
                             Upload Passport Copy or Emirates ID:
                         </label>
 
-                        <div className="border border-dashed border-[#C7B88A] bg-[#EBE3D6] p-6 text-center">
+                        <div className="border border-dashed border-[#C7B88A] bg-[#EBE3D6] p-6 text-center relative">
                             <div className="flex justify-center mb-2">
                                 <Image
                                     src="/icons/upload.png"
@@ -86,6 +100,14 @@ export default function ContactPerson({
                             <p className="text-xs text-gray-600">
                                 JPEG, PNG, PDF, and MP4 formats, up to 10 MB.
                             </p>
+
+                            {/* Invisible file input overlay to preserve UI while enabling click */}
+                            <input
+                                type="file"
+                                accept=".jpg,.jpeg,.png,.pdf,.mp4"
+                                className="absolute inset-0 opacity-0 cursor-pointer"
+                                aria-label="Upload Passport or Emirates ID"
+                            />
                         </div>
                     </div>
 
@@ -104,6 +126,8 @@ export default function ContactPerson({
                                     height={16}
                                 />
                                 <span className="text-sm text-black">+91</span>
+                                {/* Hidden input to capture country code for API without changing UI */}
+                                <input type="hidden" name="contactMobileCountryCode" value="+91" />
                             </div>
 
                             <input

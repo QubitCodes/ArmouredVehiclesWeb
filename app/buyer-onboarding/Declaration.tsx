@@ -1,27 +1,28 @@
 "use client";
 
 
-const selectedCountries = [
-    {
-        name: "United Arab Emirates (UAE)",
-        code: "AE",
-        flag: "/icons/flags/uae.svg",
-    },
-    {
-        name: "Saudi Arabia (KSA)",
-        code: "SA",
-        flag: "/icons/flags/ksa.png",
-    },
-    {
-        name: "Qatar",
-        code: "QA",
-        flag: "/icons/flags/qatar.png",
-    },
-    {
-        name: "Oman",
-        code: "OM",
-        flag: "/icons/flags/oman.png",
-    },
+import { useMemo, useState } from "react";
+
+type Country = {
+    name: string;
+    code: string; // ISO 3166-1 alpha-2
+    flag?: string; // optional flag asset path
+};
+
+const ALL_COUNTRIES: Country[] = [
+    // GCC preset
+    { name: "United Arab Emirates (UAE)", code: "AE", flag: "/icons/flags/uae.svg" },
+    { name: "Saudi Arabia (KSA)", code: "SA", flag: "/icons/flags/ksa.png" },
+    { name: "Qatar", code: "QA", flag: "/icons/flags/qatar.png" },
+    { name: "Oman", code: "OM", flag: "/icons/flags/oman.png" },
+
+    // Common examples shown in UI
+    { name: "India", code: "IN", flag: "/icons/flags/India.png" },
+    { name: "Indonesia", code: "ID" },
+    { name: "Iran", code: "IR" },
+    { name: "Iraq", code: "IQ" },
+    { name: "Ireland", code: "IE" },
+    { name: "United States", code: "US", flag: "/icons/flags/usa.png" },
 ];
 
 export default function Declaration({
@@ -31,6 +32,38 @@ export default function Declaration({
     onNext: () => void;
     onPrev: () => void;
 }) {
+    const [search, setSearch] = useState("");
+    const [selected, setSelected] = useState<Country[]>([
+        { name: "United Arab Emirates (UAE)", code: "AE", flag: "/icons/flags/uae.svg" },
+        { name: "Saudi Arabia (KSA)", code: "SA", flag: "/icons/flags/ksa.png" },
+        { name: "Qatar", code: "QA", flag: "/icons/flags/qatar.png" },
+        { name: "Oman", code: "OM", flag: "/icons/flags/oman.png" },
+    ]);
+
+    const filteredCountries = useMemo(() => {
+        const term = search.trim().toLowerCase();
+        if (!term) return ALL_COUNTRIES;
+        return ALL_COUNTRIES.filter((c) => c.name.toLowerCase().includes(term));
+    }, [search]);
+
+    const isSelected = (code: string) => selected.some((c) => c.code === code);
+
+    const addCountry = (country: Country) => {
+        if (isSelected(country.code)) return;
+        setSelected((prev) => [...prev, country]);
+    };
+
+    const removeCountry = (code: string) => {
+        setSelected((prev) => prev.filter((c) => c.code !== code));
+    };
+
+    const toggleCountry = (country: Country) => {
+        if (isSelected(country.code)) {
+            removeCountry(country.code);
+        } else {
+            addCountry(country);
+        }
+    };
     return (
         <div className="max-w-[1200px] mx-auto bg-[#EBE3D6] p-8 mt-8 text-black">
             {/* Title */}
@@ -79,8 +112,8 @@ export default function Declaration({
                     </label>
 
                     {/* Selected Countries */}
-                    <div className="border border-[#C7B88A] bg-[#EFE8DC] p-3 flex flex-wrap gap-2 mb-3 pb-10">
-                        {selectedCountries.map((c) => (
+                    <div className="border border-[#C7B88A] bg-[#EFE8DC] p-3 flex flex-wrap gap-2 mb-3">
+                        {selected.map((c) => (
                             <span
                                 key={c.code}
                                 className="flex items-center gap-2 px-3 py-1
@@ -88,56 +121,54 @@ export default function Declaration({
                  text-xs text-black"
                             >
                                 {/* Flag */}
-                                <img
-                                    src={c.flag}
-                                    alt={c.name}
-                                    className="w-5 h-3 object-cover rounded-[2px]"
-                                />
+                                {c.flag ? (
+                                    <img
+                                        src={c.flag}
+                                        alt={c.name}
+                                        className="w-5 h-3 object-cover rounded-[2px]"
+                                    />
+                                ) : null}
 
                                 {/* Country Name */}
                                 <span>{c.name}</span>
 
                                 {/* Remove */}
-                                <span className="ml-1 cursor-pointer text-sm leading-none">×</span>
+                                <button
+                                    type="button"
+                                    onClick={() => removeCountry(c.code)}
+                                    className="ml-1 cursor-pointer text-sm leading-none"
+                                    aria-label={`Remove ${c.name}`}
+                                >
+                                    ×
+                                </button>
                             </span>
                         ))} 
-                        {/* add a search box and get the country inside country list */}
-                        {/* Search box */}
-                       
-                      
-                    </div>  <input
-                            type="text"
-                            value="In"
-                            readOnly
-                            className="
-        flex-1 min-w-[120px]
-        bg-transparent
-        outline-none
-        text-sm
-        text-[#8A8A8A]
-        placeholder-[#8A8A8A] pb-6
-      "
-                        />
+                    </div>
+
+                    {/* Search box */}
+                    <input
+                        type="text"
+                        value={search}
+                        onChange={(e) => setSearch(e.target.value)}
+                        placeholder="Search countries..."
+                        className="w-full px-3 py-2 mb-3 border border-[#C7B88A] bg-[#EFE8DC] text-sm focus:outline-none placeholder-[#8A8A8A] text-black"
+                    />
 
 
                     {/* Country List */}
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 text-sm">
-                        {["India", "Indonesia", "Iran", "Iraq", "Ireland"].map((country) => (
+                        {filteredCountries.map((country) => (
                             <label
-                                key={country}
+                                key={country.code}
                                 className="flex items-center gap-2 cursor-pointer text-black"
                             >
                                 <input
                                     type="checkbox"
-                                    className="
-          w-[16px] h-[16px]
-          border border-[#DDCFBC]
-          bg-[#EBE3D6]
-          accent-[#C7B88A]
-        "
-                                    defaultChecked={country === "India"}
+                                    className="w-[16px] h-[16px] border border-[#DDCFBC] bg-[#EBE3D6] accent-[#C7B88A]"
+                                    checked={isSelected(country.code)}
+                                    onChange={() => toggleCountry(country)}
                                 />
-                                {country}
+                                {country.name}
                             </label>
                         ))}
                     </div>

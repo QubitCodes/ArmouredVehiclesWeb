@@ -1,5 +1,5 @@
 import QuantitySelector from "./QuantitySelector";
-import { Trash2, Share2, Bookmark } from "lucide-react";
+import { Bookmark } from "lucide-react";
 
 export default function CartItem({ data, updateQty, removeItem }: any) {
   return (
@@ -10,39 +10,65 @@ export default function CartItem({ data, updateQty, removeItem }: any) {
         <img
           src="/cart/image1.png"
           alt={data.title}
-          className="w-28 h-28 object-contain"
+          className="w-20 h-20 lg:w-28 lg:h-28 object-contain flex-shrink-0"
         />
 
-        {/* Product Info Section */}
-        <div className="flex-1">
-          <h3 className="font-inter font-semibold text-[16px] leading-[100%] tracking-[0%] text-[#1A1A1A]">
+        {/* Product Info */}
+        <div className="flex-1 min-w-0">
+          <h3 className="font-semibold text-[14px] lg:text-[16px] text-[#1A1A1A] mb-1">
             {data.title}
           </h3>
-          {
-            data.stock == "In Stock" ?
-              <p className="text-xs text-[#3BAF7F] font-medium tracking-tight mt-1">
-                {data.stock}
-              </p> :
-              <p className="text-xs text-[#FF0000] font-medium tracking-tight mt-1">{data.stock}</p>
-          }
 
-          <p className="text-[14px] leading-[100%] text-[#737373] tracking-[0%] font-inter font-normal [leading-trim:cap-height] mt-1">
+          <p
+            className={`text-xs font-medium mb-1 ${
+              data.stock === "In Stock" ? "text-[#3BAF7F]" : "text-red-600"
+            }`}
+          >
+            {data.stock}
+          </p>
+
+          <p className="text-xs lg:text-sm text-[#737373] mb-1">
             Part <span className="font-medium">{data.part}</span>
           </p>
 
-          <div className="text-[14px] text-[#6A6A6A] mt-1 space-x-2">
-            <span>Standard Delivery</span>
-            <span>|</span>
-            <span>
-              Estimated delivery{" "}
-              <span className="font-semibold">tomorrow</span>
-            </span>
-          </div>
-
-          <p className="text-[14px] text-black mt-1">
-            12 months/12,000 Miles Limited{" "}
-            <span className="font-semibold underline">Warranty</span>
+          <p className="text-xs lg:text-sm text-[#6A6A6A] mb-1">
+            Standard Delivery | Estimated delivery{" "}
+            <span className="font-semibold">tomorrow</span>
           </p>
+
+          <p className="text-xs lg:text-sm text-black mb-2">
+            12 months/12,000 Miles Limited{" "}
+            <span className="underline font-semibold">Warranty</span>
+          </p>
+
+          {/* Mobile Price + Qty */}
+          <div className="lg:hidden">
+            <div className="flex justify-between items-center mb-3">
+              <div className="font-extrabold text-lg text-[#1A1A1A]">
+                ₹{data.price.toFixed(2)}
+              </div>
+
+              <div className="flex items-center gap-2">
+                {data.oldPrice && (
+                  <span className="text-xs line-through text-gray-500">
+                    ₹{data.oldPrice.toFixed(2)}
+                  </span>
+                )}
+                {data.discount && (
+                  <span className="text-xs text-green-600 font-medium">
+                    {data.discount}
+                  </span>
+                )}
+              </div>
+            </div>
+
+            <div className="flex justify-center">
+              <QuantitySelector
+                value={data.qty}
+                onChange={(q: any) => updateQty(data.id, q)}
+              />
+            </div>
+          </div>
         </div>
 
         {/* Price + Qty */}
@@ -60,22 +86,20 @@ export default function CartItem({ data, updateQty, removeItem }: any) {
             </svg> {data.price.toFixed(2)}
           </div>
 
-          <div className="flex items-center gap-2 justify-end ">
-
+          <div className="flex justify-end gap-2">
             {data.oldPrice && (
-              <div className="text-xs ml-5 text-gray-500 line-through flex items-center gap-2 justify-end">
-                {data.oldPrice.toFixed(2)}
-              </div>
+              <span className="text-xs line-through text-gray-500">
+                ₹{data.oldPrice.toFixed(2)}
+              </span>
             )}
-
             {data.discount && (
-              <div className="text-xs text-green-600 font-medium">
+              <span className="text-xs text-green-600 font-medium">
                 {data.discount}
-              </div>
+              </span>
             )}
           </div>
 
-          <div className="mt-3 flex justify-end">
+          <div className="mt-3">
             <QuantitySelector
               value={data.qty}
               onChange={(newQty: any) => updateQty(data.id, newQty)}
@@ -85,55 +109,32 @@ export default function CartItem({ data, updateQty, removeItem }: any) {
       </div>
 
       {/* Divider */}
-      <div className="-mx-5 border-t border-[#DBD4C3] my-4"></div>
+      <div className="-mx-4 lg:-mx-5 border-t border-[#DBD4C3] my-4" />
 
-      {/* Bottom Row: Return Policy + Actions (Left Aligned) */}
-      <div className="flex flex-wrap items-center gap-6 text-xs text-[#3A3A3A] mt-4">
+      {/* Bottom Section */}
+      <div className="flex flex-col lg:flex-row gap-4 text-xs text-[#6A6A6A]">
+        <span>This item cannot be exchanged or returned.</span>
 
-        {/* Return Policy */}
-        <div className="flex items-center gap-2 text-[12px] text-[#6A6A6A]">
-          <svg
-            className="w-5 h-6"
-            width="21"
-            height="25"
-            viewBox="0 0 21 25"
-            fill="none"
-            xmlns="http://www.w3.org/2000/svg"
-          >
-            <g clipPath="url(#clip0_260_56)">
-              <path d="M10.2339 25C9.70907 24.576 9.17751 24.1519 8.65267 23.7213C7.97981 23.1668 7.31368 22.6122 6.64755 22.0512C6.2371 21.7119 6.2371 21.3401 6.64082 21.0008C7.74431 20.0809 8.8478 19.1676 9.94457 18.2477C10.1464 18.078 10.355 17.9867 10.6107 18.1041C10.8664 18.2151 10.9404 18.4303 10.9337 18.6848C10.9269 19.0436 10.9337 19.3959 10.9337 19.7678C11.0279 19.7743 11.1019 19.7808 11.1759 19.7808C12.4678 19.7808 13.7597 19.7808 15.0516 19.7808C15.4015 19.7808 15.4553 19.7286 15.4553 19.3828C15.4553 17.9606 15.4553 16.5319 15.4553 15.1096C15.4553 14.5094 15.6841 14.2876 16.3031 14.2876C16.9558 14.2876 17.6152 14.2876 18.2679 14.2876C18.7725 14.2876 19.0349 14.542 19.0349 15.0248C19.0349 16.5449 19.0484 18.0715 19.0282 19.5916C19.0013 21.5684 17.4133 23.1537 15.3813 23.2451C14.9372 23.2646 14.4931 23.2581 14.049 23.2516C13.7866 23.2516 13.6251 23.1081 13.6184 22.8993C13.6117 22.684 13.7799 22.5274 14.049 22.5209C14.4864 22.5144 14.9237 22.5274 15.3611 22.5078C16.9558 22.4296 18.2342 21.203 18.2679 19.6503C18.3015 18.1433 18.2746 16.6362 18.2746 15.1357C18.2746 15.1031 18.2611 15.077 18.2544 15.0313C17.5815 15.0313 16.9087 15.0313 16.2022 15.0313C16.2022 15.1292 16.2022 15.2205 16.2022 15.3119C16.2022 16.6623 16.2022 18.0128 16.2022 19.3633C16.2022 20.1331 15.8254 20.505 15.0381 20.505C13.6588 20.505 12.2861 20.505 10.9068 20.505C10.355 20.505 10.1666 20.3223 10.1666 19.7873C10.1666 19.5525 10.1666 19.3176 10.1666 19.0175C9.63505 19.4546 9.15059 19.8591 8.66613 20.2636C8.17494 20.6681 7.68375 21.0791 7.15892 21.5162C8.15476 22.3447 9.13041 23.1602 10.1666 24.0149C10.1666 23.6952 10.1666 23.4277 10.1666 23.1668C10.1733 22.7362 10.3819 22.5209 10.8327 22.5209C11.371 22.5144 11.9093 22.5144 12.4476 22.5209C12.7504 22.5209 12.9052 22.6579 12.8984 22.8928C12.8917 23.1211 12.7437 23.2451 12.4543 23.2516C11.9497 23.2581 11.4518 23.2516 10.9269 23.2516C10.9269 23.6104 10.9135 23.9431 10.9337 24.2759C10.9539 24.6021 10.8462 24.8434 10.53 24.987C10.4358 25 10.3348 25 10.2339 25Z" fill="#D35400" />
-              <path d="M12.9796 2.79881C13.1949 2.53132 13.39 2.25079 13.6188 2.0094C14.4397 1.14823 15.4759 0.724173 16.6803 0.685029C16.7543 0.685029 16.8351 0.678505 16.9091 0.691553C17.1244 0.724173 17.2657 0.893798 17.2388 1.08299C17.2119 1.28524 17.084 1.38962 16.8687 1.41572C16.4919 1.45486 16.1084 1.46139 15.7518 1.55925C14.0764 2.01593 13.0402 3.59474 13.2689 5.2975C13.4842 6.87631 14.9578 8.16154 16.5996 8.19416C18.3759 8.22678 19.8697 7.06551 20.1725 5.40189C20.4416 3.92746 19.6947 2.47261 18.3288 1.78759C18.275 1.76149 18.2212 1.73539 18.1741 1.7093C17.9655 1.59187 17.8982 1.40267 17.9924 1.21347C18.0933 1.02428 18.2885 0.959038 18.5038 1.0569C19.1834 1.357 19.7553 1.79411 20.1725 2.39432C21.1683 3.81003 21.2962 5.31707 20.4282 6.81107C19.5602 8.30507 18.1741 8.99009 16.4112 8.9118C16.0882 8.89876 15.772 8.81394 15.4288 8.75523C15.4288 8.84004 15.4288 8.93137 15.4288 9.01619C15.4288 10.0796 15.4288 11.1495 15.4288 12.213C15.4288 12.5848 15.2808 12.8784 14.9443 13.0676C12.697 14.3267 10.4429 15.5859 8.18882 16.845C7.85912 17.0277 7.53615 17.0211 7.20644 16.8385C4.97927 15.5989 2.73865 14.3463 0.504746 13.0937C0.168315 12.9045 0.000100016 12.6305 0.000100016 12.2521C0.00682863 11.554 0.000100016 10.8494 0.000100016 10.1514C0.000100016 9.87736 0.134672 9.72078 0.356716 9.70773C0.592218 9.70121 0.746976 9.86431 0.753705 10.1448C0.760433 10.8233 0.760433 11.4953 0.753705 12.1738C0.753705 12.3173 0.794076 12.4152 0.928649 12.487C3.00779 13.6482 5.08693 14.8095 7.15934 15.9708C7.19972 15.9969 7.24682 16.0099 7.32756 16.0491C7.32756 15.9382 7.32756 15.8599 7.32756 15.7816C7.32756 13.4917 7.32756 11.2083 7.32756 8.91833C7.32756 8.76827 7.29392 8.67041 7.14589 8.5856C5.0802 7.43738 3.02125 6.28263 0.955563 5.12788C0.901734 5.09526 0.841177 5.07569 0.753705 5.03654C0.753705 5.29098 0.753705 5.51932 0.753705 5.74114C0.753705 6.66102 0.753705 7.58091 0.753705 8.50079C0.753705 8.59865 0.767162 8.72261 0.713333 8.78132C0.612404 8.87918 0.464374 9.00966 0.343259 8.99661C0.222144 8.98357 0.121215 8.82699 0.0135572 8.72261C-0.0066286 8.70303 0.000100016 8.65737 0.000100016 8.62475C0.000100016 7.30037 0.000100016 5.96948 0.000100016 4.6451C0.000100016 4.30585 0.181773 4.05794 0.477831 3.89484C2.71846 2.63571 4.96582 1.3831 7.20644 0.123965C7.57652 -0.0848035 7.91968 -0.0391355 8.27629 0.156585C9.7835 1.00471 11.2974 1.8463 12.8047 2.69442C12.8652 2.74009 12.9258 2.77271 12.9796 2.79881ZM8.08789 16.0752C8.35031 15.9251 8.57235 15.7946 8.80113 15.6837C8.94916 15.612 9.00298 15.5206 8.99625 15.3575C8.9828 14.8356 9.00299 14.3137 8.98953 13.7983C8.97607 13.4917 9.08373 13.3025 9.36633 13.1524C10.4967 12.5326 11.6204 11.8998 12.7441 11.267C12.9392 11.1561 13.1344 10.9799 13.39 11.1104C13.6525 11.2474 13.5784 11.5018 13.5852 11.7236C13.5919 12.1347 13.5852 12.5457 13.5852 12.9958C13.9216 12.8066 14.2042 12.6435 14.5003 12.4935C14.6348 12.4217 14.6819 12.3239 14.6752 12.1803C14.6685 10.993 14.6685 9.80559 14.6752 8.61822C14.6752 8.48122 14.6281 8.40945 14.5137 8.32464C14.1504 8.04411 13.7601 7.7701 13.4641 7.43085C13.1411 7.05898 12.9123 6.6023 12.6364 6.17172C12.5961 6.19782 12.5086 6.24348 12.4211 6.28915C11.0552 7.05246 9.69603 7.82229 8.32339 8.57908C8.14845 8.67694 8.08116 8.7748 8.08116 8.97704C8.08789 10.5298 8.08789 12.0825 8.08789 13.6352C8.08789 14.4246 8.08789 15.2205 8.08789 16.0752ZM1.14396 4.37762C1.21125 4.42329 1.25162 4.45591 1.29199 4.47548C3.38459 5.64328 5.47046 6.8176 7.56979 7.97887C7.6438 8.02454 7.79856 8.01149 7.87931 7.96582C8.81458 7.45695 9.74313 6.9285 10.6717 6.41311C10.7255 6.38701 10.7726 6.34787 10.8264 6.31525C10.7995 6.28915 10.7928 6.26958 10.7793 6.26306C8.6531 5.06916 6.52685 3.88179 4.39388 2.69442C4.33333 2.6618 4.21221 2.66833 4.15165 2.70095C3.15582 3.24896 2.17344 3.8035 1.14396 4.37762ZM5.03983 2.1986C5.13403 2.25732 5.20132 2.29646 5.27533 2.3356C7.15262 3.38597 9.04336 4.41676 10.9005 5.50627C11.4253 5.81942 11.8425 5.88466 12.3202 5.49322C12.4413 5.39536 12.4884 5.3236 12.5019 5.16702C12.5288 4.66467 12.5826 4.16885 12.6432 3.67303C12.6633 3.5295 12.6499 3.45773 12.5153 3.38597C10.9745 2.53132 9.43361 1.67015 7.89949 0.802462C7.75819 0.724173 7.65053 0.717649 7.50923 0.802462C6.78927 1.22652 6.05585 1.63101 5.32243 2.04202C5.23496 2.08769 5.14749 2.13988 5.03983 2.1986ZM9.74986 15.1031C9.79696 15.0966 9.82388 15.0966 9.84406 15.0835C10.8063 14.5485 11.7617 14.0136 12.7172 13.4721C12.7643 13.446 12.8181 13.3742 12.8181 13.322C12.8248 12.9175 12.8248 12.5131 12.8248 12.089C12.7643 12.1086 12.7306 12.1086 12.7037 12.1281C11.7617 12.6566 10.813 13.185 9.87097 13.7135C9.81715 13.7461 9.74986 13.8179 9.74986 13.8766C9.74313 14.2876 9.74986 14.6921 9.74986 15.1031Z" fill="#D35400" />
-              <path d="M16.223 4.83429C15.826 4.4559 15.4828 4.12317 15.1397 3.79045C14.9311 3.5882 14.9109 3.37291 15.0791 3.21633C15.2406 3.05976 15.4694 3.07933 15.6712 3.27505C16.0144 3.60778 16.3576 3.94702 16.7276 4.31237C17.0506 3.99269 17.3601 3.68606 17.6696 3.37943C17.7369 3.31419 17.7975 3.24895 17.8715 3.19676C18.0397 3.07281 18.2147 3.07933 18.3761 3.22286C18.5309 3.35986 18.5376 3.56211 18.3829 3.72521C18.1339 3.98617 17.8648 4.23408 17.6024 4.48852C17.4947 4.5929 17.3803 4.68424 17.239 4.80167C17.562 5.11482 17.858 5.40188 18.1541 5.68241C18.2281 5.75417 18.3021 5.81941 18.3627 5.89118C18.5242 6.06733 18.5242 6.26305 18.3694 6.4131C18.2214 6.55663 17.9993 6.56315 17.8311 6.40005C17.5283 6.11952 17.239 5.82594 16.9362 5.53888C16.8689 5.47364 16.8016 5.41493 16.7074 5.32359C16.3979 5.63022 16.0951 5.93685 15.7924 6.23695C15.7251 6.30219 15.6645 6.36743 15.5905 6.42615C15.4156 6.56315 15.207 6.5501 15.0657 6.4131C14.9244 6.26957 14.9176 6.0608 15.0724 5.91075C15.3483 5.63022 15.6376 5.35621 15.9269 5.0822C16.0144 4.99086 16.1086 4.92562 16.223 4.83429Z" fill="#D35400" />
-              <path d="M2.57033 11.2604C2.72509 11.3257 2.81929 11.3518 2.90677 11.3974C3.56617 11.7628 4.22557 12.1347 4.88498 12.5065C5.15412 12.6566 5.23487 12.8653 5.10029 13.0676C4.97918 13.2633 4.77059 13.2894 4.50817 13.1394C3.83531 12.761 3.16245 12.3826 2.48286 12.0107C2.30119 11.9128 2.19353 11.7563 2.27428 11.5671C2.33483 11.4431 2.47613 11.3583 2.57033 11.2604Z" fill="#D35400" />
-            </g>
-            <defs>
-              <clipPath id="clip0_260_56">
-                <rect width="21" height="25" fill="white" />
-              </clipPath>
-            </defs>
-          </svg>    This item cannot be exchanged or returned.
-        </div>
-
-        {/* Actions */}
-        <div className="flex items-center gap-3 ml-auto">
+        <div className="flex gap-3 lg:ml-auto">
           <button
-            className="flex items-center gap-1 text-[#3A3A3A] hover:text-red-600 transition"
             onClick={() => removeItem(data.id)}
+            className="flex items-center gap-1 hover:text-red-600"
           >
-            <img src="/icons/delete.svg" alt="Remove" width={12} height={12} /> <span className="underline">Remove</span>
+            <img src="/icons/delete.svg" width={12} />
+            <span className="underline">Remove</span>
           </button>
 
-          <button className="flex items-center gap-1 text-[#3A3A3A] hover:text-black transition">
-            <Bookmark size={16} /> <span className="underline">Save for later</span>
+          <button className="flex items-center gap-1 hover:text-black">
+            <Bookmark size={14} />
+            <span className="underline">Save for later</span>
           </button>
 
-          <button className="flex items-center gap-1 text-[#3A3A3A] hover:text-black transition">
-            <img src="/icons/share.svg" alt="share" width={12} height={12} /> <span className="underline">Share</span>
+          <button className="flex items-center gap-1 hover:text-black">
+            <img src="/icons/share.svg" width={12} />
+            <span className="underline">Share</span>
           </button>
         </div>
-
       </div>
-
     </div>
   );
 }

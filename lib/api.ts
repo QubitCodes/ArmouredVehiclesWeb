@@ -2,6 +2,7 @@
 import type {
   User,
   AuthResponse,
+  OtpStartResponse,
   Product,
   Category,
   CartItem,
@@ -16,12 +17,8 @@ import type {
 } from './types';
 
 // 1. Safe Environment Variable Access
-const API_BASE = process.env.NEXT_PUBLIC_API_BASE_URL;
+const API_BASE = process.env.NEXT_PUBLIC_API_BASE_URL || 'https://armored-api.qubyt.codes/api';
 console.log("API_BASE", API_BASE);
-
-if (!API_BASE) {
-  console.warn("⚠️ API_BASE is undefined! Check your .env.local file.");
-}
 
 // ==================== Token Management (Client Side Only) ====================
 
@@ -202,6 +199,34 @@ export const api = {
       return data;
     },
 
+    // OTP Login Flow
+    otpLoginStart: async (email: string): Promise<OtpStartResponse> => {
+      const response = await fetch(`${API_BASE}/auth/otp/login/start`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email }),
+      });
+
+      const data = await response.json();
+      if (!response.ok) throw new Error(data.error || data.message || 'OTP start failed');
+      return data;
+    },
+
+    otpLoginVerify: async (email: string, code: string): Promise<AuthResponse> => {
+      const response = await fetch(`${API_BASE}/auth/otp/login/verify`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email, code }),
+      });
+
+      const data = await response.json();
+      if (!response.ok) throw new Error(data.error || 'OTP verify failed');
+
+      storeTokens(data.accessToken, data.refreshToken, data.expiresIn);
+      storeUser(data.user);
+      return data;
+    },
+
     logout: async (): Promise<void> => {
       try {
         await fetchJson('/auth/logout', { method: 'POST' });
@@ -324,6 +349,18 @@ export const api = {
     getOrderHistory: (orderId: string) => fetchJson<any[]>(`/vendor/orders/${orderId}/history`),
     getCustomers: () => fetchJson<User[]>('/vendor/customers'),
     getAnalytics: () => fetchJson<any>('/vendor/analytics'),
+    submitOnboardingStep2: (data: {
+      contactFullName: string;
+      contactJobTitle?: string;
+      contactWorkEmail: string;
+      contactIdDocumentUrl?: string;
+      contactMobile: string;
+      contactMobileCountryCode: string;
+      termsAccepted: boolean;
+    }) => fetchJson<{ success: boolean; message?: string }>(
+      '/vendor/onboarding/step2',
+      { method: 'POST', body: JSON.stringify(data) }
+    ),
   },
 };
 

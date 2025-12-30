@@ -5,6 +5,8 @@ import { Footer } from "@/components/footer";
 import MobileBottomNav from "@/components/mobile/MobileBottomNav";
 import AOSProvider from "@/components/AOSProvider";
 import { orbitron } from "@/lib/fonts";
+import { AuthProvider } from "@/lib/auth-context";
+import QueryProvider from "@/components/QueryProvider";
 import { Ruda } from "next/font/google";
 
 const ruda = Ruda({
@@ -30,19 +32,26 @@ export default function RootLayout({
         {/* AOS animations */}
         <AOSProvider />
 
-        {/* Top navigation */}
-        <Navbar />
+        {/* React Query + Auth Providers */}
+        <QueryProvider>
+          <AuthProvider>
+            {/* Top navigation */}
+            <Navbar />
 
+            {/* Main content */}
+            <main className="pt-24 pb-20 md:pb-0 bg-[#F0EBE3]">{children}</main>
         {/* Main content */}
         <main className="pt-[96px] pb-0 md:pb-0 bg-[#F0EBE3]">
           {children}
         </main>
 
-        {/* Footer */}
-        <Footer />
+            {/* Footer */}
+            <Footer />
 
-        {/* Mobile bottom navigation */}
-        <MobileBottomNav />
+            {/* Mobile bottom navigation */}
+            <MobileBottomNav />
+          </AuthProvider>
+        </QueryProvider>
       </body>
     </html>
   );

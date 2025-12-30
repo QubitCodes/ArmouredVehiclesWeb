@@ -136,34 +136,62 @@ export default function ProductListingPage() {
                             PERFORMANCE BRAKE KITS
                         </span>
                     </div>
-                    <h1 className="text-xl md:text-3xl font-[Orbitron] lg:text-4xl font-bold uppercase tracking-wide text-black">
+                    
+                    {/* Title */}
+                    <h1 className="text-xl md:text-3xl font-[Orbitron] lg:text-4xl font-bold uppercase tracking-wide text-black mb-4">
                         PERFORMANCE BRAKES
                     </h1>
-                </div>
 
-                {/* Mobile Filter Buttons */}
-                <div className="flex lg:hidden items-center gap-2 mt-4 mb-3 overflow-x-auto pb-2">
-                    <button 
-                        onClick={() => setShowFilters(!showFilters)}
-                        className="px-4 py-2 border border-gray-300 bg-white text-sm font-medium whitespace-nowrap flex items-center gap-1"
-                    >
-                        BRAND
-                        <ChevronDown size={14} />
-                    </button>
-                    <button 
-                        onClick={() => setShowFilters(!showFilters)}
-                        className="px-4 py-2 border border-gray-300 bg-white text-sm font-medium whitespace-nowrap flex items-center gap-1"
-                    >
-                        PRICE
-                        <ChevronDown size={14} />
-                    </button>
-                    <button 
-                        onClick={() => setShowFilters(!showFilters)}
-                        className="px-4 py-2 border border-gray-300 bg-white text-sm font-medium whitespace-nowrap flex items-center gap-1"
-                    >
-                        SELECT PRODUCT TYPE
-                        <ChevronDown size={14} />
-                    </button>
+                    {/* Results Count and Sort By - Mobile View */}
+                    <div className="flex justify-between items-center mb-4">
+                        <div className="flex-1 border border-gray-300 bg-[#F0EBE3] px-4 py-3">
+                            <p className="text-black text-sm font-[Inter, sans-serif]">
+                                <span className="font-semibold">72471</span> Results for <span className="font-normal">"Performance Brakes"</span>
+                            </p>
+                        </div>
+                        <button className="ml-2 p-3 border border-gray-300 bg-[#F0EBE3]">
+                            <svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                <g clipPath="url(#clip0_199_3457)">
+                                    <path d="M13.3083 3.26234C11.3392 3.26234 9.37004 3.26234 7.40926 3.26234C6.90863 3.26234 6.65832 3.00368 6.68335 2.54477C6.70004 2.21102 6.91698 1.98574 7.25073 1.94402C7.35085 1.93568 7.45932 1.93568 7.55944 1.93568C11.4143 1.93568 15.2607 1.93568 19.1156 1.93568C19.2157 1.93568 19.3242 1.92734 19.4243 1.94402C19.7664 1.98574 19.9917 2.23606 19.9917 2.57815C20 2.92024 19.758 3.21228 19.4243 3.25399C19.3075 3.27068 19.199 3.26234 19.0822 3.26234C17.1548 3.26234 15.2274 3.26234 13.3083 3.26234Z" fill="#737373"/>
+                                    <path d="M13.3075 10.8711C11.3467 10.8711 9.39423 10.8711 7.43345 10.8711C6.89944 10.8711 6.63244 10.5958 6.67416 10.1119C6.69919 9.80313 6.89944 9.59454 7.20816 9.55282C7.33332 9.53613 7.45848 9.53613 7.58363 9.53613C11.4134 9.53613 15.2432 9.53613 19.073 9.53613C19.1648 9.53613 19.2566 9.53613 19.3567 9.54448C19.7488 9.57785 19.9825 9.80313 19.9908 10.1786C19.9992 10.5374 19.7405 10.8294 19.365 10.8711C19.2649 10.8795 19.1564 10.8795 19.0563 10.8795C17.1372 10.8711 15.2265 10.8711 13.3075 10.8711Z" fill="#737373"/>
+                                    <path d="M13.3411 17.1293C15.3102 17.1293 17.2794 17.1293 19.2401 17.1293C19.8075 17.1293 20.1246 17.5465 19.941 18.0221C19.8492 18.2641 19.674 18.4142 19.407 18.4476C19.2819 18.4643 19.1567 18.4643 19.0315 18.4643C15.2184 18.4643 11.4137 18.4643 7.60059 18.4643C7.47543 18.4643 7.35027 18.4643 7.22512 18.4476C6.88302 18.4059 6.68277 18.189 6.66608 17.8469C6.6494 17.4714 6.83296 17.2127 7.1834 17.146C7.30855 17.121 7.43371 17.1293 7.55887 17.1293C9.49462 17.121 11.4137 17.121 13.3411 17.1293Z" fill="#737373"/>
+                                    <path d="M-0.00019791 17.5712C-0.00019791 17.204 -0.00854167 16.8452 -0.00019791 16.4781C0.00814585 15.7522 0.525459 15.2099 1.25137 15.1932C1.98562 15.1765 2.72821 15.1765 3.46246 15.1932C4.18837 15.2099 4.71403 15.7355 4.73072 16.4698C4.7474 17.2624 4.7474 18.0467 4.73072 18.8394C4.72237 19.4485 4.20506 19.9658 3.58762 19.9825C2.79496 19.9992 2.01065 20.0075 1.21799 19.9825C0.508772 19.9575 0.00814585 19.4068 -0.00019791 18.6976C-0.00019791 18.3221 -0.00019791 17.9466 -0.00019791 17.5712ZM3.44578 16.5198C2.70318 16.5198 2.00231 16.5198 1.31812 16.5198C1.31812 17.2791 1.31812 17.9883 1.31812 18.6809C2.05237 18.6809 2.7449 18.6809 3.44578 18.6809C3.44578 17.9216 3.44578 17.2124 3.44578 16.5198Z" fill="#737373"/>
+                                    <path d="M0.0662083 2.33559C0.0662083 1.96012 0.0662083 1.58465 0.0662083 1.20918C0.0662083 0.524995 0.550147 0.0160252 1.23434 0.00768142C1.97693 -0.0090061 2.71118 -0.00066234 3.45378 0.00768142C4.163 0.0160252 4.70534 0.516651 4.73037 1.23421C4.7554 2.04356 4.7554 2.86125 4.73872 3.67059C4.72203 4.28803 4.19637 4.78866 3.54556 4.80535C2.81131 4.82203 2.06871 4.82203 1.32612 4.80535C0.600209 4.78866 0.0828959 4.24631 0.0662083 3.52041C0.0578646 3.12825 0.0662083 2.72775 0.0662083 2.33559ZM3.42875 3.52875C3.42875 2.7194 3.42875 2.00184 3.42875 1.326C2.69449 1.326 1.99362 1.326 1.31777 1.326C1.31777 2.04356 1.31777 2.70272 1.32612 3.37022C1.32612 3.42862 1.4179 3.52041 1.45962 3.52041C2.11877 3.52875 2.77793 3.52875 3.42875 3.52875Z" fill="#737373"/>
+                                    <path d="M2.42014 12.3898C2.04468 12.3898 1.66921 12.3982 1.29374 12.3898C0.601204 12.3565 0.0838907 11.8475 0.0672031 11.1466C0.0505156 10.3957 0.0505156 9.64473 0.0672031 8.90213C0.0838907 8.21795 0.601204 7.69229 1.28539 7.6756C2.04468 7.65891 2.80396 7.65891 3.56324 7.6756C4.24743 7.69229 4.77309 8.18457 4.79812 8.8771C4.82315 9.63639 4.82315 10.3957 4.79812 11.1549C4.78143 11.8308 4.2224 12.3648 3.54655 12.3898C3.17108 12.3982 2.79561 12.3898 2.42014 12.3898ZM1.31042 11.0799C2.06136 11.0799 2.74555 11.0799 3.44643 11.0799C3.44643 10.3206 3.44643 9.61135 3.44643 8.92717C2.71218 8.92717 2.00296 8.92717 1.31042 8.92717C1.31042 9.66976 1.31042 10.3706 1.31042 11.0799Z" fill="#737373"/>
+                                </g>
+                                <defs>
+                                    <clipPath id="clip0_199_3457">
+                                        <rect width="20" height="20" fill="white"/>
+                                    </clipPath>
+                                </defs>
+                            </svg>
+                        </button>
+                    </div>
+
+                    {/* Filter Buttons - Mobile View */}
+                    <div className="flex lg:hidden items-center gap-2 mb-4 text-black overflow-x-auto pb-2">
+                        <button 
+                            onClick={() => setShowFilters(!showFilters)}
+                            className="px-4 py-2.5 border border-gray-300 bg-[#EBE3D6] text-xs font-semibold whitespace-nowrap flex items-center gap-2 font-[Orbitron] uppercase"
+                        >
+                            BRAND
+                            <ChevronDown size={14} />
+                        </button>
+                        <button 
+                            onClick={() => setShowFilters(!showFilters)}
+                            className="px-4 py-2.5 border border-gray-300 bg-[#EBE3D6] text-xs font-semibold whitespace-nowrap flex items-center gap-2 font-[Orbitron] uppercase"
+                        >
+                            PRICE
+                            <ChevronDown size={14} />
+                        </button>
+                        <button 
+                            onClick={() => setShowFilters(!showFilters)}
+                            className="px-4 py-2.5 border border-gray-300 bg-[#EBE3D6] text-xs font-semibold whitespace-nowrap flex items-center gap-2 font-[Orbitron] uppercase"
+                        >
+                            SELECT PRODUCT TYPE
+                            <ChevronDown size={14} />
+                        </button>
+                    </div>
                 </div>
             </Container>
 
@@ -366,18 +394,16 @@ export default function ProductListingPage() {
 
                     {/* ---------------- PRODUCT LISTING ---------------- */}
                     <main className="flex-1">
-                        {/* Top bar: Sort By + Icons */}
-                        <div className="flex justify-between items-center mb-6">
-
-                            {/* Result Count */}
-                            <p className="text-black text-sm md:text-[16px] font-semibold font-[Inter, sans-serif]">
+                        {/* Top bar: Sort By - Desktop Only */}
+                        <div className="hidden md:flex justify-between items-center mb-6">
+                            {/* Result Count - Desktop */}
+                            <p className="text-black text-[16px] font-semibold font-[Inter, sans-serif]">
                                 <span>72471</span> Results for <span className="font-normal">"Performance Brakes"</span>
                             </p>
 
                             <div className="flex items-center gap-4">
-
-                                {/* Sort By */}
-                                <div className="relative hidden md:block">
+                                {/* Sort By - Desktop */}
+                                <div className="relative">
                                     <select
                                         className="border border-[#D8D3C5] px-3 py-2 text-sm bg-[#F0EBE3] text-black cursor-pointer appearance-none pr-8"
                                     >
@@ -393,29 +419,6 @@ export default function ProductListingPage() {
                                         className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-700 pointer-events-none"
                                     />
                                 </div>
-
-                                {/* Mobile Sort By - Icon Only */}
-                                <button className="md:hidden p-2">
-                                    <Image src="/icons/sort.svg" alt="Sort" width={20} height={20} className="w-5 h-5" />
-                                </button>
-
-                                {/* View Icons */}
-                                {/* <div className="flex items-center gap-3">
-
-                                    <List
-                                        size={22}
-                                        onClick={() => setViewMode("list")}
-                                        className={`cursor-pointer ${viewMode === "list" ? "text-[#D35400]" : "text-gray-700"
-                                            }`}
-                                    />
-                                    <Grid3x3
-                                        size={22}
-                                        onClick={() => setViewMode("grid")}
-                                        className={`cursor-pointer ${viewMode === "grid" ? "text-[#D35400]" : "text-gray-700"
-                                            }`}
-                                    />
-                                </div> */}
-
                             </div>
                         </div>
 
@@ -444,7 +447,7 @@ export default function ProductListingPage() {
                     <DescriptionSection />
                 </div>
             </Container>
-            <section className="w-full bg-[#31332C] text-white py-10">
+            {/* <section className="w-full bg-[#31332C] text-white py-10">
                 <div className="max-w-[1720px] mx-auto px-4 sm:px-8 lg:px-[140px]">
                     <div className="grid grid-cols-1 sm:grid-cols-3 gap-6 2xl:mt-[120px] xl:mt-[100px] mb-16">
                         {[
@@ -519,10 +522,10 @@ export default function ProductListingPage() {
                     <div className="w-full h-px bg-gray-700 mb-10"></div>
 
 
-                    {/* Text Section (shared) */}
-                    <SeoText />
+                     <SeoText /> 
                 </div>
-            </section>
+            </section> */}
+                    <SponsoredAd />
         </section>
     );
 }

@@ -15,6 +15,31 @@ export interface AuthResponse {
   expiresIn: number;
 }
 
+// OTP Login Types
+export interface OtpStartResponse {
+  message: string;
+  expiresIn: number;
+  debugOtp?: string;
+}
+
+// OTP Registration Types
+export interface OtpRegisterStartResponse {
+  message: string;
+  userId: string;
+  email: string;
+  name: string;
+  username: string;
+  resuming: boolean;
+  expiresIn: number;
+  debugOtp?: string;
+}
+
+export interface VerifyEmailResponse {
+  message: string;
+  userId: string;
+  nextStep: 'phone_number' | string;
+}
+
 // Product Types
 export interface Product {
   id: number;

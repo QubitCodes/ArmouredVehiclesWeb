@@ -9,6 +9,7 @@
     "lint": "eslint"
   },
   "dependencies": {
+    "@tanstack/react-query": "^5.64.0",
     "aos": "^2.3.4",
     "axios": "^1.13.2",
     "class-variance-authority": "^0.7.1",

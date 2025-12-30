@@ -225,3 +225,16 @@ body {
          text-sm text-black
          focus:outline-none;
 }
+
+/* ===== Cart Styles ===== */
+.checkout-button {
+  clip-path: none;
+  border-radius: 0.5rem;
+}
+
+@media (min-width: 1024px) {
+  .checkout-button {
+    clip-path: polygon(30px 0, calc(100% - 30px) 0, 100% 50%, calc(100% - 30px) 100%, 30px 100%, 0 50%);
+    border-radius: 0;
+  }
+}

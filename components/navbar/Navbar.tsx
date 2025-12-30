@@ -5,6 +5,7 @@ import Link from 'next/link';
 import Image from 'next/image';
 import { Search } from 'lucide-react';
 import { useState, useEffect, useRef, useMemo } from 'react';
+import { useAuth } from '@/lib/auth-context';
 
 // Profile Menu Icon Component
 const ProfileMenuIcon = ({ icon }: { icon: string }) => {
@@ -97,14 +98,8 @@ const Navbar = () => {
   const [profileDropdownOpen, setProfileDropdownOpen] = useState(false);
   const [selectedCurrency, setSelectedCurrency] = useState('د.إ');
 
-  // Auth state - in real app, this would come from auth context/provider
-  const [isLoggedIn, setIsLoggedIn] = useState(true); // Set to true to test logged in state
-  const [user, setUser] = useState({
-    name: "John",
-    fullName: "John Martin",
-    email: "info@johnmartin.com",
-    cartCount: 2,
-  });
+  // Auth state from provider
+  const { user, isAuthenticated, isLoading, logout } = useAuth();
 
   // Profile dropdown menu items - using icons from icons/profile folder (pf0-pf9)
   const profileMenuItems = [
@@ -242,7 +237,7 @@ const Navbar = () => {
                 </div>
               </Link>
 
-{isLoggedIn ? (
+{isAuthenticated ? (
   <>
     {/* Profile Icon */}
     {/* <Link href="/profile" className="flex items-center gap-2">
@@ -260,9 +255,9 @@ const Navbar = () => {
         height={28}
         className="hover:opacity-80 transition-opacity"
       />
-      {user.cartCount > 0 && (
+      {0 > 0 && (
         <span className="absolute -top-1 -right-1 w-4 h-4 bg-[#D35400] text-white text-[10px] font-bold rounded-full flex items-center justify-center">
-          {user.cartCount}
+          {0}
         </span>
       )}
     </Link> */}
@@ -382,7 +377,7 @@ const Navbar = () => {
                 </div>
               </Link>
 
-              {isLoggedIn ? (
+              {isAuthenticated ? (
                 <>
                   {/* Profile with Name and Dropdown */}
                   <div className="relative" ref={profileRef}>
@@ -390,7 +385,7 @@ const Navbar = () => {
                       onClick={() => setProfileDropdownOpen(!profileDropdownOpen)}
                       className="flex items-center gap-2 hover:opacity-80 transition-opacity"
                     >
-                      <span className="text-black font-inter text-[16px]">{user.name}</span>
+                      <span className="text-black font-inter text-[16px]">{user?.name || 'User'}</span>
                       <Image
                         src="/icons/profileicon.svg"
                         alt="Profile"
@@ -416,8 +411,8 @@ const Navbar = () => {
                       <div className="absolute right-0 top-full mt-2 w-[250px] bg-white border border-[#E5E5E5] shadow-lg z-50">
                         {/* User Info Header */}
                         <div className="px-4 py-3 border-b border-[#E5E5E5] bg-white">
-                          <p className="font-inter font-medium text-[14px] text-black">Hello, {user.fullName}</p>
-                          <p className="font-inter text-[12px] text-[#666]">{user.email}</p>
+                          <p className="font-inter font-medium text-[14px] text-black">Hello, {user?.name || 'User'}</p>
+                          <p className="font-inter text-[12px] text-[#666]">{user?.email || ''}</p>
                         </div>
 
                         {/* Menu Items */}
@@ -451,9 +446,9 @@ const Navbar = () => {
                         <div className="border-t border-[#E5E5E5]">
                           <button 
                             className="w-full flex items-center gap-3 px-4 py-3 hover:bg-[#F5F5F5] transition-colors"
-                            onClick={() => {
+                            onClick={async () => {
                               setProfileDropdownOpen(false);
-                              // Handle logout
+                              await logout();
                             }}
                           >
                             <Image 
@@ -478,9 +473,9 @@ const Navbar = () => {
                       height={30}
                       className="hover:opacity-80 transition-opacity"
                     />
-                    {user.cartCount > 0 && (
+                    {0 > 0 && (
                       <span className="absolute -top-1 -right-1 w-5 h-5 bg-[#D35400] text-white text-[11px] font-bold rounded-full flex items-center justify-center">
-                        {user.cartCount}
+                        {0}
                       </span>
                     )}
                   </Link>

@@ -10,55 +10,27 @@ import {
   ArrowLeft,
 } from "lucide-react";
 import OrdersSupportPanel from "@/components/modal/OrdersSupportPanel";
+import { useOrders } from "@/lib/hooks/orders";
+import type { Order } from "@/lib/types";
 
-// Mock orders data
-const inProgressOrders = [
-  {
-    id: "AMZ-12345678-987654",
-    status: "dispatched",
-    deliveryDate: "Delivery by today",
-    statusText: "Dispatched",
-    statusNote: "on time",
-    product: {
-      name: "DFC® - 4000 HybriDynamic Hybrid Rear Brake Pads",
-      price: 679.0,
-      image: "/product/product 1.png",
-    },
-  },
-];
-
-const completedOrders = [
-  {
-    id: "AMZ-12345678-987654",
-    status: "delivered",
-    statusText: "Delivered on Monday, November 3, at 4:08 PM.",
-    product: {
-      name: "DFC® - 4000 HybriDynamic Hybrid Rear Brake Pads",
-      price: 679.0,
-      image: "/product/product 1.png",
-    },
-  },
-  {
-    id: "AMZ-12345678-987654",
-    status: "cancelled",
-    statusText: "Cancelled on Monday, 4th Nov, 6:14 PM.",
-    product: {
-      name: "Duralast 45084DL High-Performance Disc Brake Rotor",
-      price: 475.0,
-      image: "/product/brake-rotor-1.jpg",
-    },
-  },
-  {
-    id: "AMZ-12345678-987654",
-    status: "cancelled",
-    statusText: "Cancelled on Monday, 5th Nov, 12:20 PM.",
-    product: {
-      name: "Duralast Heavy-Duty Disc Brake Rotor 54094DL Reliable OEM-Grade Performance",
-      price: 1625.0,
-      image: "/product/rim.png",
-    },
-  },
-];
+function formatStatusText(order: Order): string {
+  switch (order.status) {
+    case "pending":
+      return "Order placed";
+    case "processing":
+      return "Processing";
+    case "shipped":
+      return "Dispatched";
+    case "delivered":
+      return "Delivered";
+    case "cancelled":
+      return "Cancelled";
+    case "returned":
+      return "Returned";
+    default:
+      return order.status;
+  }
+}
 
 export default function OrdersPage() {
   const router = useRouter();
@@ -67,6 +39,7 @@ export default function OrdersPage() {
   const [openDropdown, setOpenDropdown] = useState<string | null>(null);
   const [showSupportPanel, setShowSupportPanel] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
+  const { data: orders, isLoading, error } = useOrders();
 
   // Close dropdown when clicking outside
   useEffect(() => {
@@ -79,8 +52,17 @@ export default function OrdersPage() {
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
 
+  const inProgressOrders = (orders || []).filter((o) => ["pending", "processing", "shipped"].includes(o.status));
+  const completedOrders = (orders || []).filter((o) => ["delivered", "cancelled", "returned"].includes(o.status));
+
   return (
     <main className="flex-1">
+      {isLoading && (
+        <div className="mb-4 text-sm text-[#6E6E6E]">Loading your orders...</div>
+      )}
+      {error && (
+        <div className="mb-4 text-sm text-red-600">Failed to load orders.</div>
+      )}
       {/* Mobile Header - Only visible on mobile */}
       <div className="lg:hidden mb-4">
         <h1 className="font-orbitron font-black text-xl uppercase tracking-wide text-black">
@@ -139,15 +121,21 @@ export default function OrdersPage() {
         </h2>
 
         <div className="space-y-3 lg:space-y-4">
-          {inProgressOrders.map((order, index) => (
-            <div key={index} className="bg-[#F0EBE3] border border-[#C2B280] overflow-visible py-4 sm:py-5 lg:py-0">
+          {inProgressOrders.map((order, index) => {
+            const first = order.items?.[0];
+            const image = first?.image || "/product/product 1.png";
+            const price = first?.price ? parseFloat(first.price) : parseFloat(order.total || "0");
+            const statusText = formatStatusText(order);
+            const statusNote = order.estimatedDelivery ? `ETA: ${order.estimatedDelivery}` : "on time";
+            return (
+            <div key={index} className="bg-[#F0EBE3] border border-[#C2B280] overflow-hidden">
               {/* Order Header - Mobile */}
               <div className="lg:hidden px-3 py-3">
                 <div className="flex items-center justify-between mb-3">
-                  <p className="font-semibold text-sm text-black">{order.deliveryDate}</p>
+                  <p className="font-semibold text-sm text-black">{order.estimatedDelivery || ""}</p>
                   <p className="text-sm">
-                    <span className="text-[#009900]">{order.statusText}</span>
-                    <span className="text-[#666]"> · {order.statusNote}</span>
+                    <span className="text-[#009900]">{statusText}</span>
+                    <span className="text-[#666]"> · {statusNote}</span>
                   </p>
                 </div>
                 {/* Track + More (Mobile) */}
@@ -208,10 +196,10 @@ export default function OrdersPage() {
               {/* Order Header - Desktop */}
               <div className="hidden lg:flex px-5 py-4 items-center justify-between">
                 <div>
-                  <p className="font-semibold text-sm text-black">{order.deliveryDate}</p>
+                  <p className="font-semibold text-sm text-black">{order.estimatedDelivery || ""}</p>
                   <p className="text-sm">
-                    <span className="text-[#009900]">{order.statusText}</span>
-                    <span className="text-[#666]"> · {order.statusNote}</span>
+                    <span className="text-[#009900]">{statusText}</span>
+                    <span className="text-[#666]"> · {statusNote}</span>
                   </p>
                 </div>
                 <div className="flex items-center gap-3">
@@ -265,13 +253,13 @@ export default function OrdersPage() {
               {/* Order Content */}
               <div className="p-3 lg:p-5 flex items-start gap-5 lg:gap-5">
                 <img
-                  src={order.product.image}
-                  alt={order.product.name}
+                  src={image}
+                  alt={first?.name || `Order ${order.id}`}
                   className="w-16 h-16 lg:w-20 lg:h-20 object-contain flex-shrink-0"
                 />
                 <div className="flex-1 min-w-0">
                   <h3 className="text-sm font-medium text-black mb-1 line-clamp-2">
-                    {order.product.name}
+                    {first?.name || `Order ${order.id}`}
                   </h3>
                   <div className="flex items-center gap-1 mb-1">
                     <Image
@@ -283,7 +271,7 @@ export default function OrdersPage() {
                     />
 
                     <span className="font-semibold text-sm text-black">
-                      {order.product.price.toFixed(2)}
+                      {price.toFixed(2)}
                     </span>
                   </div>
 
@@ -291,7 +279,7 @@ export default function OrdersPage() {
                 </div>
               </div>
             </div>
-          ))}
+          );})}
         </div>
       </div>
 
@@ -302,7 +290,12 @@ export default function OrdersPage() {
         </h2>
 
         <div className="space-y-3 lg:space-y-4">
-          {completedOrders.map((order, index) => (
+          {completedOrders.map((order, index) => {
+            const first = order.items?.[0];
+            const price = first?.price ? parseFloat(first.price) : parseFloat(order.total || "0");
+            const statusText = formatStatusText(order);
+            const image = first?.image || "/order/Frame12.png";
+            return (
             <div key={index} className="bg-[#F0EBE3] border border-[#C2B280] overflow-hidden">
               {/* Order Header - Mobile */}
               <div className="lg:hidden px-3 py-3">
@@ -316,10 +309,10 @@ export default function OrdersPage() {
                       </div>
                     ) : (
                       <div className="w-5 h-5 bg-[#C2B280] rounded flex items-center justify-center flex-shrink-0 mt-0.5">
-                        <Image src="/order/Frame12.png" alt="Cancelled" width={12} height={12} />
+                        <Image src="/order/Frame12.png" alt="Status" width={12} height={12} />
                       </div>
                     )}
-                    <p className="text-sm text-black leading-tight">{order.statusText}</p>
+                    <p className="text-sm text-black leading-tight">{statusText}</p>
                   </div>
                   <button className="text-[#666] hover:text-black p-1 flex-shrink-0">
                     <MoreVertical size={18} />
@@ -351,10 +344,10 @@ export default function OrdersPage() {
                     </div>
                   ) : (
                     <div className="w-6 h-6 bg-[#C2B280] rounded flex items-center justify-center flex-shrink-0">
-                      <Image src="/order/Frame12.png" alt="Cancelled" width={14} height={14} />
+                      <Image src="/order/Frame12.png" alt="Status" width={14} height={14} />
                     </div>
                   )}
-                  <p className="text-sm text-black truncate">{order.statusText}</p>
+                  <p className="text-sm text-black truncate">{statusText}</p>
                 </div>
                 <div className="flex items-center gap-3">
                   {order.status === "cancelled" && (
@@ -411,13 +404,13 @@ export default function OrdersPage() {
               {/* Order Content */}
               <div className="p-3 lg:p-5 flex items-start gap-3 lg:gap-10">
                 <img
-                  src={order.product.image}
-                  alt={order.product.name}
+                  src={image}
+                  alt={first?.name || `Order ${order.id}`}
                   className="w-16 h-16 lg:w-20 lg:h-20 object-contain flex-shrink-0"
                 />
                 <div className="flex-1 min-w-0">
                   <h3 className="text-xs lg:text-sm font-medium text-black mb-1 line-clamp-2">
-                    {order.product.name}
+                    {first?.name || `Order ${order.id}`}
                   </h3>
                   <div className="flex items-center gap-1 mb-2 lg:mb-0">
                     <Image
@@ -428,7 +421,7 @@ export default function OrdersPage() {
                       className="flex-shrink-0 w-[12px] h-[10px] lg:w-[14px] lg:h-[12px]"
                     />
                     <span className="font-semibold text-xs lg:text-sm text-black">
-                      {order.product.price.toFixed(2)}
+                      {price.toFixed(2)}
                     </span>
                   </div>
 
@@ -437,7 +430,7 @@ export default function OrdersPage() {
                 <p className="hidden lg:block text-xs text-[#666] flex-shrink-0">Order ID: #{order.id}</p>
               </div>
             </div>
-          ))}
+          );})}
         </div>
       </div>
 

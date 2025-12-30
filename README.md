@@ -34,3 +34,17 @@ You can check out [the Next.js GitHub repository](https://github.com/vercel/next
 The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
 
 Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+
+## Backend API Configuration
+
+To connect the app to your backend (for endpoints like `/api/cart`), set the API base URL via environment variable:
+
+Create a `.env.local` file in the project root with:
+
+```bash
+NEXT_PUBLIC_API_BASE_URL=http://localhost:5000/api
+```
+
+Replace `5000` with your backend `PORT`. The app reads this value and attaches `Authorization: Bearer <access_token>` headers from `localStorage` when calling protected routes.
+
+Login flows store `access_token` under `localStorage` key `access_token`. Ensure your backend accepts this token.

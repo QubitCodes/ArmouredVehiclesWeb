@@ -6,8 +6,11 @@ import BuyerInfo from "./BuyerInfo";
 import ContactPerson from "./ContactPerson";
 import Declaration from "./Declaration";
 import AccountSetup from "./AccountSetup";
+import { useRouter } from "next/navigation";
 
 export default function BuyerOnboardingPage() {
+    const router = useRouter();
+  
   const [step, setStep] = useState(1);
 
   return (
@@ -40,6 +43,7 @@ export default function BuyerOnboardingPage() {
     onPrev={() => setStep(3)}
     onSubmit={() => {
       console.log("Submitted");
+      router.push("/");
       // later: API call / redirect
     }}
   />

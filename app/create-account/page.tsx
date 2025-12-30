@@ -2,7 +2,8 @@
 
 import Image from "next/image";
 import { useRouter } from "next/navigation";
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import { useAuth } from "@/lib/auth-context";
 
 /* ✅ Countries data MUST be defined before useState */
 const countries = [
@@ -25,10 +26,21 @@ const countries = [
 
 export default function CreateAccountPage() {
   const router = useRouter();
+  const { user, isLoading } = useAuth();
 
   const [selectedCountry, setSelectedCountry] = useState(countries[0]);
   const [open, setOpen] = useState(false);
   const [phone, setPhone] = useState("");
+  const [name, setName] = useState("");
+  const [email, setEmail] = useState("");
+
+  // Prefill name and email from auth context once available
+  useEffect(() => {
+    if (user) {
+      setName(user.name ?? "");
+      setEmail(user.email ?? "");
+    }
+  }, [user]);
 
   return (
     <section className="relative w-full min-h-[calc(100vh-140px)] bg-[#EFE8DC] flex">
@@ -57,7 +69,8 @@ export default function CreateAccountPage() {
           </label>
           <input
             type="text"
-            placeholder="John Martin"
+            value={name}
+            onChange={(e) => setName(e.target.value)}
             className="w-full mb-4 px-4 py-3 border border-[#C7B88A] bg-transparent text-sm focus:outline-none"
           />
 
@@ -67,19 +80,18 @@ export default function CreateAccountPage() {
           </label>
           <input
             type="email"
-            placeholder="info@blueweb2.com"
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
             className="w-full mb-4 px-4 py-3 border border-[#C7B88A] bg-transparent text-sm focus:outline-none"
           />
 
-          {/* PHONE NUMBER */}
-          <label className="text-xs font-semibold mb-1 block">
+          {/* <label className="text-xs font-semibold mb-1 block">
             Phone Number*
           </label>
 
           <div className="relative mb-6">
             <div className="flex items-center border border-[#C7B88A] h-[48px]">
 
-              {/* COUNTRY DROPDOWN */}
               <button
                 type="button"
                 onClick={() => setOpen(!open)}
@@ -94,8 +106,7 @@ export default function CreateAccountPage() {
                 <span className="text-sm">{selectedCountry.code}</span>
                 <span className="text-xs">▼</span>
               </button>
-
-              {/* PHONE INPUT */}
+x`
               <input
                 type="tel"
                 value={phone}
@@ -105,7 +116,6 @@ export default function CreateAccountPage() {
               />
             </div>
 
-            {/* DROPDOWN LIST */}
             {open && (
               <div className="absolute z-20 w-full bg-[#F3EDE3] border border-[#C7B88A] mt-1 shadow">
                 {countries.map((country) => (
@@ -130,11 +140,11 @@ export default function CreateAccountPage() {
                 ))}
               </div>
             )}
-          </div>
+          </div> */}
 
           {/* CREATE BUTTON */}
           <button
-            onClick={() => router.push("/dashboard")} // change later
+            onClick={() => router.push("/buyer-onboarding")} // change later
             className="w-full h-[42px] bg-[#D35400] text-white font-orbitron text-[16px] clip-path-supplier uppercase hover:bg-[#39482C] transition-colors"
           >
             Create
@@ -146,15 +156,27 @@ export default function CreateAccountPage() {
       <div className="hidden lg:flex w-1/2 bg-[#D35400] text-white items-center px-20 py-20">
         <div>
           <h2 className="text-[34px] font-light mb-4 leading-tight">
-            Create Your Account
-            <br />
-            on <span className="font-bold">Armored Mart</span>
+            {user?.name ? (
+              <>
+                Welcome, <span className="font-bold">{user.name}</span>
+                <br />
+                Complete Your Account on <span className="font-bold">Armored Mart</span>
+              </>
+            ) : (
+              <>
+                Create Your Account
+                <br />
+                on <span className="font-bold">Armored Mart</span>
+              </>
+            )}
           </h2>
 
           <p className="text-sm leading-relaxed mb-6 max-w-[420px]">
-            Discover trusted suppliers in the defense and automotive industries.
-            Creating your Armored Mart account is the first step toward smarter,
-            more secure sourcing online.
+            {user?.email ? (
+              <>Signed in as <span className="font-semibold">{user.email}</span>. Continue by adding your phone number.</>
+            ) : (
+              <>Discover trusted suppliers in the defense and automotive industries. Creating your Armored Mart account is the first step toward smarter, more secure sourcing online.</>
+            )}
           </p>
 
           <p className="text-sm font-semibold">

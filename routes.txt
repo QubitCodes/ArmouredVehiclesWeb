@@ -1,0 +1,65 @@
+# Routes for browser testing
+# Replace dynamic segments like :id with actual values (e.g., 123)
+
+/
+/login
+/create-account
+/register
+/verify-email
+/verify-phone
+/add-phone
+/cart
+/checkout
+/product-details
+/order-confirmation
+/delete-account-success
+/category
+/buyer-onboarding
+
+# Seller routes
+/seller/dashboard
+/seller/add-phone
+/seller/create-store
+/seller/register
+/seller/verify-email
+/seller/verify-phone
+/seller/onboarding
+
+# Vendor routes
+/vendor/onboarding/step2
+
+# Profile (note: `(profile)` is a route group and does not add a URL segment)
+/profile
+/orders
+/orders/track/:id    # example: /orders/track/123
+/orders/summary/:id  # example: /orders/summary/123
+/orders/details/:id  # example: /orders/details/123
+/orders/refund/:id   # example: /orders/refund/123
+/payments
+/wishlist
+/warranty-claims
+/warranty-claims/new
+/warranty-claims/new/:id  # example: /warranty-claims/new/123
+/warranty-claims/success
+/security-settings
+/notifications
+/address
+/address/new
+/address/details
+/returns
+/returns/new
+
+# Notes:
+# - Files under `app/` that are not named `page.tsx` are not direct routes (they may be components/layouts).
+# - Replace :id placeholders with real IDs when testing in the browser.
+
+
+
+customer details - 3-5
+vendor - 4 and 2 not approved
+admins - 3-4
+orders - 5-6 with different status
+
+
+vendors bulk product create api to add products (if null then it is admin added product) 
+download the csv schema and ask ai to generate
