@@ -1,6 +1,8 @@
 "use client";
 import Image from "next/image";
+import { useRouter } from "next/navigation";
 import api from "@/lib/api";
+import { useAuth } from "@/lib/auth-context";
 import { useState, useEffect, useRef } from "react";
 import { FaInfoCircle } from "react-icons/fa";
 
@@ -59,6 +61,7 @@ const defaultProducts: Product[] = [
 ];
 
 export const FeaturedProducts = () => {
+  const router = useRouter();
   const [products, setProducts] = useState<Product[]>([]);
   const [index, setIndex] = useState(1);
   const [transitionEnabled, setTransitionEnabled] = useState(true);
@@ -66,6 +69,7 @@ export const FeaturedProducts = () => {
   const [isMobile, setIsMobile] = useState(false);
 
   const sliderRef = useRef<HTMLDivElement | null>(null);
+  const { isAuthenticated, isLoading } = useAuth();
 
   // Detect mobile screen size
   useEffect(() => {
@@ -219,6 +223,7 @@ export const FeaturedProducts = () => {
                       data-aos="fade-up"
                       onMouseEnter={() => setHoveredKey(uniqueKey)}
                       onMouseLeave={() => setHoveredKey(null)}
+                      onClick={() => router.push(`/product-details/${product.id}`)}
                       className={`
     bg-transparent border border-b-0 border-white 
     w-[221px] md:w-[368px] h-[363px] md:h-[519px] flex flex-col flex-shrink-0
@@ -229,7 +234,8 @@ export const FeaturedProducts = () => {
     ${isHovered ? "" : ""}
     ${isMiddle ? "md:mt-16" : ""}
   `}
-                      style={{ animation: `slideIn 0.5s ease-out ${idx * 0.1}s both` }}
+                      role="button"
+                      style={{ cursor: "pointer", animation: `slideIn 0.5s ease-out ${idx * 0.1}s both` }}
                     >
 
 
@@ -255,18 +261,32 @@ export const FeaturedProducts = () => {
                       <div className="w-full h-[42px] md:h-[60px] flex items-center px-3 md:px-6 relative group">
                         <p className="text-white font-orbitron text-sm md:text-lg flex items-center gap-1 md:gap-2 select-none">
                           <Image src="/icons/currency/dirham-white.svg" alt="Currency" width={16} height={16} className="opacity-60 md:w-5 md:h-5" />
-                          <span className="blur-sm opacity-70">{product.price.toLocaleString()}</span>
-                          <FaInfoCircle className="text-white opacity-90 text-xs md:text-sm ml-1 md:ml-2 cursor-pointer" />
+                          {isLoading ? (
+                            <span className="opacity-70">...</span>
+                          ) : isAuthenticated ? (
+                            <span className="">{product.price.toLocaleString()}</span>
+                          ) : (
+                            <span className="blur-sm opacity-70">{product.price.toLocaleString()}</span>
+                          )}
+                          {!isAuthenticated && !isLoading && (
+                            <FaInfoCircle className="text-white opacity-90 text-xs md:text-sm ml-1 md:ml-2 cursor-pointer" />
+                          )}
                         </p>
 
-                        <div className="absolute left-6 top-[55px] bg-black text-white text-xs px-3 py-2 rounded-md shadow-lg opacity-0 pointer-events-none group-hover:opacity-100 transition-all duration-300 whitespace-nowrap">
-                          Login to view the price
-                        </div>
+                        {!isAuthenticated && !isLoading && (
+                          <div className="absolute left-6 top-[55px] bg-black text-white text-xs px-3 py-2 rounded-md shadow-lg opacity-0 pointer-events-none group-hover:opacity-100 transition-all duration-300 whitespace-nowrap">
+                            Login to view the price
+                          </div>
+                        )}
                       </div>
 
                       {/* BUTTON */}
                       <div className="w-full grow">
                         <button
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            router.push(`/product-details/${product.id}`);
+                          }}
                           className={`w-full h-full text-[14px] md:text-[18px] font-orbitron font-extrabold uppercase transition-all ${isHovered ? "bg-[#FF5C00] text-white" : "bg-white text-[#FF5C00]"}`}
                         >
                           {product.action}
