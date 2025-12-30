@@ -258,7 +258,7 @@ export const api = {
       const queryString = params.toString();
       return fetchJson<Product[]>(`/products${queryString ? `?${queryString}` : ''}`);
     },
-    getFeatured: () => fetchJson<Product[]>('/api/products/featured'),
+    getFeatured: () => fetchJson<Product[]>('/products/featured'),
     getTopSelling: () => fetchJson<Product[]>('/api/products/top-selling'),
     getCategories:() => fetchJson<Product[]>('/api/categories'),
         getSliderProduct:() => fetchJson<Product[]>('/api/products'),
