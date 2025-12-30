@@ -158,6 +158,10 @@ body {
   display: none;  /* Chrome, Safari and Opera */
 }
 
+.filter-orange {
+  filter: invert(41%) sepia(91%) saturate(694%) hue-rotate(357deg)
+    brightness(96%) contrast(95%);
+}
 
 
 .btn-primary {
