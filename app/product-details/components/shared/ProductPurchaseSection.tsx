@@ -27,41 +27,27 @@ export default function ProductPurchaseSection({
     condition,
     stock,
 }: Props) {
-    const currencySymbol = (code?: string | null) => {
-        switch ((code || '').toUpperCase()) {
-            case 'USD':
-                return '$';
-            case 'EUR':
-                return '€';
-            case 'GBP':
-                return '£';
-            case 'AED':
-                return 'د.إ';
-            case 'THB':
-                return '฿';
-            default:
-                return code ? `${code} ` : '';
-        }
-    };
-
     const displayPrice = price != null && price !== '' ? String(price) : undefined;
-    const symbol = currencySymbol(currency);
     return (
         <div className="space-y-4">
             {/* PRICE */}
             <div>
                 {displayPrice ? (
                     <>
-                        <span className="text-3xl font-bold font-[inter, sans-serif] text-black">
-                            {symbol}
-                            {displayPrice}
-                        </span>
+                        <div className="flex items-center gap-1">
+                            <Image src="/icons/currency/dirham-white.svg" alt="Currency" width={16} height={16} className="opacity-60 md:w-5 md:h-5" />
+                            <span className="text-3xl font-bold font-[inter, sans-serif] text-black">
+                                {displayPrice}
+                            </span>
+                        </div>
                         {originalPrice && (
                             <div className="flex items-center gap-2 font-[inter, sans-serif]">
-                                <span className="text-[#3D4A26] line-through opacity-70">
-                                    {symbol}
-                                    {originalPrice}
-                                </span>
+                                <div className="flex items-center gap-1">
+                                    <Image src="/icons/currency/dirham-white.svg" alt="Currency" width={14} height={14} className="opacity-60" />
+                                    <span className="text-[#3D4A26] line-through opacity-70">
+                                        {originalPrice}
+                                    </span>
+                                </div>
                             </div>
                         )}
                     </>

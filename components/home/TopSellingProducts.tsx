@@ -3,6 +3,8 @@
 import Image from "next/image";
 import { useState, useEffect } from "react";
 import api from '@/lib/api';
+import { useAuth } from "@/lib/auth-context";
+import { FaInfoCircle } from "react-icons/fa";
 // import type { Product } from '@/lib/types';
 
 // ---- INTERFACES ----
@@ -105,6 +107,7 @@ export function TopSellingProducts({ title }: { title: string }) {
   const [products, setProducts] = useState<Product[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const { isAuthenticated, isLoading: authLoading } = useAuth();
 
   // 2. State for UI interaction
   const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
@@ -256,10 +259,24 @@ export function TopSellingProducts({ title }: { title: string }) {
             </button>
           </div>
 
-          <p className="mt-4 text-lg font-semibold flex justify-center items-center gap-2">
+          <div className="mt-4 text-lg font-semibold flex justify-center items-center gap-2 relative group">
             <Image src="/icons/currency/dirham.svg" alt="Currency" width={20} height={20} /> 
-            {selectedProduct.price}
-          </p>
+            {authLoading ? (
+              <span className="opacity-70">...</span>
+            ) : isAuthenticated ? (
+              <span>{selectedProduct.price.toLocaleString()}</span>
+            ) : (
+              <span className="blur-sm opacity-70">{selectedProduct.price.toLocaleString()}</span>
+            )}
+            {!isAuthenticated && !authLoading && (
+              <>
+                <FaInfoCircle className="text-black opacity-90 text-sm cursor-pointer" />
+                <div className="absolute left-1/2 -translate-x-1/2 top-[35px] bg-black text-white text-xs px-3 py-2 rounded-md shadow-lg opacity-0 pointer-events-none group-hover:opacity-100 transition-all duration-300 whitespace-nowrap z-10">
+                  Login to view the price
+                </div>
+              </>
+            )}
+          </div>
           <h3 className="text-sm font-bold mt-1 px-4">{selectedProduct.name}</h3>
 
           <div className="flex justify-center items-center text-[#FF5C00] mt-1 gap-1">
@@ -327,10 +344,24 @@ export function TopSellingProducts({ title }: { title: string }) {
             </div>
           </div>
 
-          <p className="text-lg text-black font-semibold mt-6 flex justify-between items-center gap-2">
+          <div className="text-lg text-black font-semibold mt-6 flex justify-between items-center gap-2 relative group">
             <Image src="/icons/currency/dirham.svg" alt="Currency" width={20} height={20} /> 
-            {selectedProduct.price}
-          </p>
+            {authLoading ? (
+              <span className="opacity-70">...</span>
+            ) : isAuthenticated ? (
+              <span>{selectedProduct.price.toLocaleString()}</span>
+            ) : (
+              <span className="blur-sm opacity-70">{selectedProduct.price.toLocaleString()}</span>
+            )}
+            {!isAuthenticated && !authLoading && (
+              <>
+                <FaInfoCircle className="text-black opacity-90 text-sm ml-2 cursor-pointer" />
+                <div className="absolute left-1/2 -translate-x-1/2 top-[35px] bg-black text-white text-xs px-3 py-2 rounded-md shadow-lg opacity-0 pointer-events-none group-hover:opacity-100 transition-all duration-300 whitespace-nowrap z-10">
+                  Login to view the price
+                </div>
+              </>
+            )}
+          </div>
 
           <h3 className="text-xl font-bold text-black mb-1 text-center">
             {selectedProduct.name}

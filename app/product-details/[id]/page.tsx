@@ -70,7 +70,61 @@ export default function ProductDetailsPage() {
             : typeof data.features === "string" && data.features
             ? (data.features as string).split("| ").map((s: string) => s.trim()).filter(Boolean)
             : null,
-          specifications: (data.specifications ?? data.technicalDescription) || null,
+          specifications: (() => {
+            // Build specifications from available fields
+            const specs: string[] = [];
+            
+            if (data.specifications) {
+              specs.push(data.specifications);
+            } else if (data.technicalDescription) {
+              specs.push(data.technicalDescription);
+            }
+            
+            // Add dimensions if available
+            if (data.dimensionLength || data.dimensionWidth || data.dimensionHeight) {
+              const dims = [
+                data.dimensionLength && `Length: ${data.dimensionLength}`,
+                data.dimensionWidth && `Width: ${data.dimensionWidth}`,
+                data.dimensionHeight && `Height: ${data.dimensionHeight}`
+              ].filter(Boolean).join(' x ');
+              if (dims) specs.push(`Dimensions: ${dims}${data.dimensionUnit ? ` ${data.dimensionUnit}` : ''}`);
+            }
+            
+            // Add weight if available
+            if (data.weightValue) {
+              specs.push(`Weight: ${data.weightValue}${data.weightUnit ? ` ${data.weightUnit}` : ''}`);
+            }
+            
+            // Add materials if available
+            if (Array.isArray(data.materials) && data.materials.length) {
+              specs.push(`Materials: ${data.materials.join(', ')}`);
+            }
+            
+            // Add performance if available
+            if (Array.isArray(data.performance) && data.performance.length) {
+              specs.push(`Performance: ${data.performance.join(', ')}`);
+            }
+            
+            // Add available variants
+            const variants: string[] = [];
+            if (Array.isArray(data.driveTypes) && data.driveTypes.length) {
+              variants.push(`Drive Types: ${data.driveTypes.join(', ')}`);
+            }
+            if (Array.isArray(data.sizes) && data.sizes.length) {
+              variants.push(`Sizes: ${data.sizes.join(', ')}`);
+            }
+            if (Array.isArray(data.thickness) && data.thickness.length) {
+              variants.push(`Thickness: ${data.thickness.join(', ')}`);
+            }
+            if (Array.isArray(data.colors) && data.colors.length) {
+              variants.push(`Colors: ${data.colors.join(', ')}`);
+            }
+            if (variants.length) {
+              specs.push('\nAvailable Variants:\n' + variants.join('\n'));
+            }
+            
+            return specs.length ? specs.join('\n\n') : null;
+          })(),
           vehicleFitment: data.vehicleFitment ?? null,
           warranty:
             data.warranty ??

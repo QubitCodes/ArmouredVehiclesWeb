@@ -11,6 +11,7 @@ interface Product {
   name: string;
   price: number;
   image: string;
+  gallery?: string[];
   action: "BUY NOW" | "SUBMIT AN INQUIRY";
 }
 
@@ -21,6 +22,7 @@ const defaultProducts: Product[] = [
     name: "Tubeless Runflat Solutions",
     price: 3499,
     image: "/featured products/9bf0d8ceacd81abb0ef5d6b2928417f9604f3e30.png",
+    gallery: ["/featured products/9bf0d8ceacd81abb0ef5d6b2928417f9604f3e30.png"],
     action: "BUY NOW",
   },
   {
@@ -28,6 +30,7 @@ const defaultProducts: Product[] = [
     name: "Headlights (LED, HID, Halogen)",
     price: 499,
     image: "/featured products/702ce9381c45cff389ec92314fa6d77761919ed6.jpg",
+    gallery: ["/featured products/702ce9381c45cff389ec92314fa6d77761919ed6.jpg"],
     action: "BUY NOW",
   },
   {
@@ -35,6 +38,7 @@ const defaultProducts: Product[] = [
     name: "Reinforced Suspension Kits",
     price: 14990,
     image: "/featured products/be2442a365db6898a8061f3a839a2a08a5aa7ee1.png",
+    gallery: ["/featured products/be2442a365db6898a8061f3a839a2a08a5aa7ee1.png"],
     action: "SUBMIT AN INQUIRY",
   },
   {
@@ -42,6 +46,7 @@ const defaultProducts: Product[] = [
     name: "Tubeless Runflat Solutions",
     price: 3499,
     image: "/featured products/9bf0d8ceacd81abb0ef5d6b2928417f9604f3e30.png",
+    gallery: ["/featured products/9bf0d8ceacd81abb0ef5d6b2928417f9604f3e30.png"],
     action: "BUY NOW",
   },
   {
@@ -49,6 +54,7 @@ const defaultProducts: Product[] = [
     name: "Headlights (LED, HID, Halogen)",
     price: 499,
     image: "/featured products/702ce9381c45cff389ec92314fa6d77761919ed6.jpg",
+    gallery: ["/featured products/702ce9381c45cff389ec92314fa6d77761919ed6.jpg"],
     action: "BUY NOW",
   },
   {
@@ -56,6 +62,7 @@ const defaultProducts: Product[] = [
     name: "Reinforced Suspension Kits",
     price: 14990,
     image: "/featured products/be2442a365db6898a8061f3a839a2a08a5aa7ee1.png",
+    gallery: ["/featured products/be2442a365db6898a8061f3a839a2a08a5aa7ee1.png"],
     action: "SUBMIT AN INQUIRY",
   },
 ];
@@ -66,6 +73,7 @@ export const FeaturedProducts = () => {
   const [index, setIndex] = useState(1);
   const [transitionEnabled, setTransitionEnabled] = useState(true);
   const [hoveredKey, setHoveredKey] = useState<string | null>(null);
+  const [imageIndices, setImageIndices] = useState<Record<string, number>>({});
   const [isMobile, setIsMobile] = useState(false);
   const [isLoadingProducts, setIsLoadingProducts] = useState(true);
 
@@ -94,6 +102,7 @@ export const FeaturedProducts = () => {
           name: item.name,
           price: Number(item.price),
           image: item.image || "/placeholder.png",
+          gallery: item.gallery && item.gallery.length > 0 ? item.gallery : [item.image || "/placeholder.png"],
           action:
             item.actionType === "buy_now"
               ? "BUY NOW"
@@ -172,6 +181,31 @@ export const FeaturedProducts = () => {
     }
     return;
   }, [transitionEnabled]);
+
+  // Cycle through product images on hover
+  useEffect(() => {
+    if (!hoveredKey) return;
+
+    const interval = setInterval(() => {
+      setImageIndices((prev) => {
+        const currentIndex = prev[hoveredKey] || 0;
+        // Find the product to get its gallery length
+        let galleryLength = 1;
+        extendedSlides.forEach((group) => {
+          group.forEach((product, idx) => {
+            const key = `${extendedSlides.findIndex(g => g === group)}-${idx}`;
+            if (key === hoveredKey && product.gallery && product.gallery.length > 0) {
+              galleryLength = product.gallery.length;
+            }
+          });
+        });
+        const nextIndex = (currentIndex + 1) % galleryLength;
+        return { ...prev, [hoveredKey]: nextIndex };
+      });
+    }, 500); // Change image every 500ms
+
+    return () => clearInterval(interval);
+  }, [hoveredKey, extendedSlides]);
 
   if (baseSlides.length === 0 && !isLoadingProducts) {
     return null;
@@ -304,7 +338,11 @@ export const FeaturedProducts = () => {
                       {/* IMAGE */}
                       <div className="w-full h-[244px] md:h-[349px] flex items-center justify-center border-b border-white relative overflow-hidden" >
                         <Image
-                          src={product.image}
+                          src={
+                            isHovered && product.gallery && product.gallery.length > 0
+                              ? product.gallery[imageIndices[uniqueKey] || 0]
+                              : product.image
+                          }
                           alt={product.name}
                           width={300}
                           height={300}
