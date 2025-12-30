@@ -1,14 +1,13 @@
 "use client";
 
-import { useState } from "react";
+import { Suspense, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { submitOnboardingStep2 } from "@/app/services/vendor";
 
-export default function VendorOnboardingStep2Page() {
+function Step2Content() {
   const router = useRouter();
   const searchParams = useSearchParams();
 
-  // Optional: token from query (?token=...) if provided; lib/api also reads localStorage tokens
   const urlToken = searchParams.get("token");
 
   const [form, setForm] = useState({
@@ -34,12 +33,10 @@ export default function VendorOnboardingStep2Page() {
     setError(null);
     setSuccess(null);
     try {
-      // If a token is present in the URL, store it in localStorage so lib/api includes it
       if (typeof window !== "undefined" && urlToken) {
         localStorage.setItem("access_token", urlToken);
       }
 
-      // Basic required validation
       if (!form.contactFullName || !form.contactWorkEmail || !form.contactMobile || !form.termsAccepted) {
         throw new Error("Please fill required fields and accept the acknowledgment.");
       }
@@ -57,7 +54,6 @@ export default function VendorOnboardingStep2Page() {
       const { data } = await submitOnboardingStep2(payload);
       if (data?.success) {
         setSuccess(data.message || "Step 2 submitted successfully.");
-        // Navigate to next step if needed
         router.push("/vendor/onboarding/step3");
       } else {
         throw new Error(data?.message || "Submission failed");
@@ -74,9 +70,7 @@ export default function VendorOnboardingStep2Page() {
       <div className="max-w-[1000px] mx-auto">
         <h1 className="font-orbitron font-bold text-[22px] uppercase mb-6">Authorized Contact Person</h1>
 
-        {/* Card */}
         <div className="border border-[#E2D6C3] bg-[#F0EBE3] p-6">
-          {/* Full Name */}
           <div className="mb-4">
             <label className="text-xs font-semibold mb-1 block">Full Name*</label>
             <input
@@ -89,7 +83,6 @@ export default function VendorOnboardingStep2Page() {
             <p className="text-xs text-gray-600 mt-1">Enter your complete name as on passport/ID.</p>
           </div>
 
-          {/* Job Title + Work Email */}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-4">
             <div>
               <label className="text-xs font-semibold mb-1 block">Job Title</label>
@@ -113,7 +106,6 @@ export default function VendorOnboardingStep2Page() {
             </div>
           </div>
 
-          {/* ID Document URL + Mobile */}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             <div>
               <label className="text-xs font-semibold mb-1 block">ID Document URL</label>
@@ -152,7 +144,6 @@ export default function VendorOnboardingStep2Page() {
           </div>
         </div>
 
-        {/* Acknowledgment */}
         <div className="mt-8 bg-[#F0EBE3] px-6 py-5 border border-[#E2D6C3]">
           <label className="flex items-start gap-3 text-sm cursor-pointer">
             <input
@@ -167,7 +158,6 @@ export default function VendorOnboardingStep2Page() {
           </label>
         </div>
 
-        {/* Feedback */}
         {error && (
           <div className="mt-4 text-red-700 bg-red-100 border border-red-300 px-4 py-2">{error}</div>
         )}
@@ -175,7 +165,6 @@ export default function VendorOnboardingStep2Page() {
           <div className="mt-4 text-green-700 bg-green-100 border border-green-300 px-4 py-2">{success}</div>
         )}
 
-        {/* Actions */}
         <div className="flex justify-center gap-6 mt-10">
           <button
             onClick={() => router.back()}
@@ -197,5 +186,13 @@ export default function VendorOnboardingStep2Page() {
         </div>
       </div>
     </section>
+  );
+}
+
+export default function VendorOnboardingStep2Page() {
+  return (
+    <Suspense fallback={<div className="min-h-screen bg-[#EBE3D6] px-6 py-12 text-black">Loading…</div>}>
+      <Step2Content />
+    </Suspense>
   );
 }

@@ -122,7 +122,7 @@ export default function CartPage() {
 
     return (
         <section className="bg-[#F0EBE3]">
-            <div className=" max-w-[1660px] mx-auto px-6 py-10 grid grid grid-cols-1 lg:grid-cols-[1fr_350px] gap-10 items-start">
+            <div className=" max-w-[1660px] mx-auto px-6 py-10 grid grid-cols-1 lg:grid-cols-[1fr_350px] gap-10 items-start">
                 <div>
                     <div className="mb-4">
                         <Link href="/" className="inline-flex items-center text-sm text-gray-700 hover:text-gray-900">
