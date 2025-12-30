@@ -67,6 +67,7 @@ export const FeaturedProducts = () => {
   const [transitionEnabled, setTransitionEnabled] = useState(true);
   const [hoveredKey, setHoveredKey] = useState<string | null>(null);
   const [isMobile, setIsMobile] = useState(false);
+  const [isLoadingProducts, setIsLoadingProducts] = useState(true);
 
   const sliderRef = useRef<HTMLDivElement | null>(null);
   const { isAuthenticated, isLoading } = useAuth();
@@ -84,6 +85,7 @@ export const FeaturedProducts = () => {
   // Fetch products from API
   useEffect(() => {
     const fetchFeatured = async () => {
+      setIsLoadingProducts(true);
       try {
         const data = await api.products.getFeatured();
         console.log("Fetched featured products:", data);
@@ -109,6 +111,8 @@ export const FeaturedProducts = () => {
         console.error("Failed to fetch featured products:", err);
         // Use fallback products when fetch fails
         setProducts(defaultProducts);
+      } finally {
+        setIsLoadingProducts(false);
       }
     };
     fetchFeatured();
@@ -169,7 +173,7 @@ export const FeaturedProducts = () => {
     return;
   }, [transitionEnabled]);
 
-  if (baseSlides.length === 0) {
+  if (baseSlides.length === 0 && !isLoadingProducts) {
     return null;
   }
 
@@ -189,6 +193,24 @@ export const FeaturedProducts = () => {
             transform: translateX(0);
           }
         }
+        @keyframes shimmer {
+          0% {
+            background-position: -1000px 0;
+          }
+          100% {
+            background-position: 1000px 0;
+          }
+        }
+        .shimmer {
+          animation: shimmer 2s infinite;
+          background: linear-gradient(
+            to right,
+            rgba(255, 255, 255, 0.05) 0%,
+            rgba(255, 255, 255, 0.2) 50%,
+            rgba(255, 255, 255, 0.05) 100%
+          );
+          background-size: 1000px 100%;
+        }
       `}</style>
 
       <div className="container-figma">
@@ -196,8 +218,47 @@ export const FeaturedProducts = () => {
           FEATURED PRODUCTS
         </h2>
 
-        {/* SLIDER WRAPPER - Desktop: auto-slide, Mobile: horizontal scroll */}
-        <div className="overflow-x-auto md:overflow-hidden relative w-full scrollbar-hide" >
+        {isLoadingProducts ? (
+          // SHIMMER SKELETON LOADER
+          <div className="overflow-x-auto md:overflow-hidden relative w-full scrollbar-hide">
+            <div className="flex flex-row gap-4 md:flex-col md:flex-row md:justify-between md:items-center 2xl:gap-[140px] md:gap-8 w-full px-4 md:px-0">
+              {[0, 1, 2].map((idx) => (
+                <div
+                  key={idx}
+                  className={`
+                    bg-transparent border border-b-0 border-white/30 
+                    w-[221px] md:w-[368px] h-[363px] md:h-[519px] flex flex-col flex-shrink-0
+                    shadow-[0_0_15px_rgba(255,255,255,0.1)]
+                    overflow-hidden
+                    ${idx === 1 ? "md:mt-16" : ""}
+                  `}
+                >
+                  {/* IMAGE SKELETON */}
+                  <div className="w-full h-[244px] md:h-[349px] flex items-center justify-center border-b border-white/30 shimmer bg-white/5">
+                  </div>
+
+                  {/* NAME SKELETON */}
+                  <div className="w-full h-[42px] md:h-[60px] flex items-center px-3 md:px-6 border-b border-white/30">
+                    <div className="shimmer w-3/4 h-4 md:h-5 bg-white/10 rounded"></div>
+                  </div>
+
+                  {/* PRICE SKELETON */}
+                  <div className="w-full h-[42px] md:h-[60px] flex items-center px-3 md:px-6">
+                    <div className="shimmer w-1/2 h-4 md:h-5 bg-white/10 rounded"></div>
+                  </div>
+
+                  {/* BUTTON SKELETON */}
+                  <div className="w-full grow">
+                    <div className="shimmer w-full h-full bg-white/10"></div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        ) : (
+          <>
+            {/* SLIDER WRAPPER - Desktop: auto-slide, Mobile: horizontal scroll */}
+            <div className="overflow-x-auto md:overflow-hidden relative w-full scrollbar-hide" >
           {/* TRACK */}
           <div
             ref={sliderRef}
@@ -325,6 +386,8 @@ export const FeaturedProducts = () => {
             />
           ))}
         </div>
+        </>
+        )}
       </div>
     </section>
   );
