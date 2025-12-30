@@ -5,45 +5,50 @@ import Link from "next/link";
 import Image from "next/image";
 import { Container } from "../ui";
 
-const Footer = () => {
+type FooterProps = {
+  disableMobileBottomSpace?: boolean;
+};
+
+const Footer = ({ disableMobileBottomSpace = false }: FooterProps) => {
+
   const [openSection, setOpenSection] = useState<string | null>(null);
 
-const usefulLinks = [
-  { title: "Careers", href: "/careers" },
-  { title: "FAQ", href: "/faq" },
-  { title: "Terms & Conditions", href: "/terms-conditions" },
-  { title: "Terms of Use", href: "/terms-of-use" },
-  { title: "Terms of Sale", href: "/terms-of-sale" },
-  { title: "Privacy Policy", href: "/privacy-policy" },
-];
+  const usefulLinks = [
+    { title: "Careers", href: "/careers" },
+    { title: "FAQ", href: "/faq" },
+    { title: "Terms & Conditions", href: "/terms-conditions" },
+    { title: "Terms of Use", href: "/terms-of-use" },
+    { title: "Terms of Sale", href: "/terms-of-sale" },
+    { title: "Privacy Policy", href: "/privacy-policy" },
+  ];
 
 
-const categories = [
-  { title: "Core Vehicle Systems", href: "/categories/core-vehicle-systems" },
-  { title: "Armor-specific Systems", href: "/categories/armor-specific-systems" },
-  { title: "Communication & Control Systems", href: "/categories/communication-control-systems" },
-  { title: "Climate & Interior", href: "/categories/climate-interior" },
-  { title: "Exterior & Utility", href: "/categories/exterior-utility" },
-  { title: "OEM / Custom Manufacturing Support", href: "/categories/oem-custom-manufacturing" },
-  { title: "Platform & Rolling Chassis", href: "/categories/platform-rolling-chassis" },
-  { title: "OEM Baseline Chassis Sourcing", href: "/categories/oem-baseline-chassis" },
-  { title: "Custom Tactical Hardware", href: "/categories/custom-tactical-hardware" },
-];
+  const categories = [
+    { title: "Core Vehicle Systems", href: "/categories/core-vehicle-systems" },
+    { title: "Armor-specific Systems", href: "/categories/armor-specific-systems" },
+    { title: "Communication & Control Systems", href: "/categories/communication-control-systems" },
+    { title: "Climate & Interior", href: "/categories/climate-interior" },
+    { title: "Exterior & Utility", href: "/categories/exterior-utility" },
+    { title: "OEM / Custom Manufacturing Support", href: "/categories/oem-custom-manufacturing" },
+    { title: "Platform & Rolling Chassis", href: "/categories/platform-rolling-chassis" },
+    { title: "OEM Baseline Chassis Sourcing", href: "/categories/oem-baseline-chassis" },
+    { title: "Custom Tactical Hardware", href: "/categories/custom-tactical-hardware" },
+  ];
 
-const help = [
-  { title: "Order Status", href: "/order-status" },
-  { title: "Warranty Policy", href: "/warranty-policy" },
-  { title: "Returns", href: "/returns" },
-  { title: "Shipping", href: "/shipping" },
-  { title: "Contact & Legal", href: "/contact-legal" },
-];
+  const help = [
+    { title: "Order Status", href: "/order-status" },
+    { title: "Warranty Policy", href: "/warranty-policy" },
+    { title: "Returns", href: "/returns" },
+    { title: "Shipping", href: "/shipping" },
+    { title: "Contact & Legal", href: "/contact-legal" },
+  ];
 
 
-const aboutUs = [
-  { title: "About Armored Mart", href: "/about" },
-  { title: "Sell with Us", href: "/sell-with-us" },
-  { title: "Consumer Rights", href: "/consumer-rights" },
-];
+  const aboutUs = [
+    { title: "About Armored Mart", href: "/about" },
+    { title: "Sell with Us", href: "/sell-with-us" },
+    { title: "Consumer Rights", href: "/consumer-rights" },
+  ];
 
 
 
@@ -154,7 +159,10 @@ const aboutUs = [
       {/* ========== BOTTOM BAR ========== */}
       <div className="border-t bg-black border-gray-800">
         <Container>
-          <div className="flex flex-col md:flex-row justify-between items-center py-5 gap-4 mb-14 md:mb-0">
+          <div
+            className={`flex flex-col md:flex-row justify-between items-center py-5 gap-4 ${disableMobileBottomSpace ? "mb-0" : "mb-14 md:mb-0"
+              }`}
+          >
             <div className="flex gap-4">
               {paymentMethods.map((m) => (
                 <Image key={m.alt} src={m.icon} alt={m.alt} width={50} height={28} />
