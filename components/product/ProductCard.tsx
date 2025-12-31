@@ -3,8 +3,11 @@
 import Image from "next/image";
 import { useState } from "react";
 import { Heart } from "lucide-react";
+import { useCartStore } from "@/lib/cart-store";
+import { syncAddToServer } from "@/lib/cart-sync";
 
 interface ProductCardProps {
+  id?: string;
   images: string[]; // <<--------- updated
   name: string;
   rating: number;
@@ -15,6 +18,7 @@ interface ProductCardProps {
 }
 
 export default function ProductCard({
+  id,
   images,
   name,
   rating,
@@ -25,6 +29,7 @@ export default function ProductCard({
 }: ProductCardProps) {
   const [liked, setLiked] = useState(false);
   const [slide, setSlide] = useState(0);
+  const addItem = useCartStore((s) => s.addItem);
   const nextImage = () => {
     setSlide((prev) => (prev + 1) % images.length);
   };
@@ -82,7 +87,7 @@ export default function ProductCard({
             <div
               key={idx}
               className={`h-[3px] rounded-full transition-all duration-300 ${
-                idx === slide ? "bg-[#D35400] w-[30px]" : "bg-gray-400 w-[12px]"
+                idx === slide ? "bg-[#D35400] w-[30px]" : "bg-gray-400 w-3"
               }`}
             />
           ))}
@@ -120,6 +125,20 @@ export default function ProductCard({
       {/* ---------- FULL-WIDTH BUTTON ---------- */}
       <button
         className={`w-full py-2 md:py-3 font-black font-[Orbitron] uppercase text-sm md:text-[18px] tracking-wide transition bg-[#D35400] text-white hover:bg-[#b44400]`}
+        onClick={async () => {
+          if (action === "ADD TO CART") {
+            addItem({
+              id: String(id ?? name + "-" + price),
+              name,
+              price: Number(price) ?? 0,
+              image: images?.[0],
+            }, 1);
+            const pid = id ? Number(id) : NaN;
+            if (Number.isFinite(pid)) {
+              await syncAddToServer(pid, 1);
+            }
+          }
+        }}
       >
         {action}
       </button>

@@ -14,8 +14,11 @@ import { TopSellingProducts } from "@/components/home";
 import TabbedSection, { TabContent } from "@/components/ui/TabbedSection";
 import ProductHeader from "../shared/ProductHeader";
 import ProductPurchaseSection from "../shared/ProductPurchaseSection";
+import { useCartStore } from "@/lib/cart-store";
 import ImageGallery from "../shared/ImageGallery";
 import SimilarItemsSection from "../shared/SimilarItemsSection";
+import { syncAddToServer } from "@/lib/cart-sync";
+import { useRouter } from "next/navigation";
 
 
 
@@ -24,6 +27,8 @@ const DesktopLayout = ({ id, product }: { id?: string; product?: any }) => {
     const [quantity, setQuantity] = useState(1);
     const [showGallery, setShowGallery] = useState(false);
     const [expandedVehicle, setExpandedVehicle] = useState<string | null>("genesis");
+    const addItem = useCartStore((s) => s.addItem);
+    const router = useRouter();
     const imgRef = useRef<HTMLImageElement | null>(null);
 
     const handleMove = (e: any) => {
@@ -200,6 +205,21 @@ const DesktopLayout = ({ id, product }: { id?: string; product?: any }) => {
                                 currency={product?.currency}
                                 condition={product?.condition}
                                 stock={product?.stock}
+                                onAddToCart={async () => {
+                                    if (!product) return;
+                                    addItem({
+                                        id: String(product.id ?? product?.sku ?? Math.random()),
+                                        name: product?.name ?? "Unnamed Product",
+                                        price: Number(product?.price ?? 0),
+                                        image: product?.image,
+                                        sku: product?.sku,
+                                        stock: product?.stock,
+                                    }, quantity);
+                                    if (product?.id != null) {
+                                        await syncAddToServer(Number(product.id), quantity);
+                                    }
+                                    router.push("/cart");
+                                }}
                             />
 
 
