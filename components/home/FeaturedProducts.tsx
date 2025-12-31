@@ -148,7 +148,7 @@ export const FeaturedProducts = () => {
     const timer = setInterval(() => {
       setTransitionEnabled(true);
       setIndex((p) => p + 1);
-    }, 4000);
+    }, 700000); // increased delay to slow autoplay (7s)
     return () => clearInterval(timer);
   }, [baseSlides.length, isMobile]);
 
@@ -295,7 +295,7 @@ export const FeaturedProducts = () => {
           {/* TRACK */}
           <div
             ref={sliderRef}
-            className={`flex ${transitionEnabled && !isMobile ? "md:transition-transform md:duration-700 md:ease-in-out" : ""}`}
+            className={`flex ${transitionEnabled && !isMobile ? "md:transition-transform md:duration-1000 md:ease-in-out" : ""}`}
             style={{
               width: isMobile ? 'auto' : `${total * 100}%`,
               transform: isMobile ? 'none' : `translateX(-${index * (100 / total)}%)`,
@@ -345,7 +345,7 @@ export const FeaturedProducts = () => {
                           alt={product.name}
                           width={300}
                           height={300}
-                          className={`transition-all duration-300 ${isHovered ? "object-cover w-full h-full" : "object-contain w-[200px] h-[200px] md:w-[300px] md:h-[300px]"}`}
+                          className="object-cover w-full h-full"
                         />
                       </div>
 
