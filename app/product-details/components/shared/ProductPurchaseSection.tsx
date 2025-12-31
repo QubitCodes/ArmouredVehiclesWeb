@@ -43,7 +43,7 @@ export default function ProductPurchaseSection({
                         {originalPrice && (
                             <div className="flex items-center gap-2 font-[inter, sans-serif]">
                                 <div className="flex items-center gap-1">
-                                    <Image src="/icons/currency/dirham-white.svg" alt="Currency" width={14} height={14} className="opacity-60" />
+                                    <Image src="/icons/currency/dirham.svg" alt="Currency" width={14} height={14} className="opacity-60" />
                                     <span className="text-[#3D4A26] line-through opacity-70">
                                         {originalPrice}
                                     </span>
