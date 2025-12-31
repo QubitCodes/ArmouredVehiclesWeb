@@ -2,7 +2,7 @@
 
 import Image from 'next/image';
 import { useState } from 'react';
-import { useEffect } from 'react';
+import { useEffect, Suspense } from 'react';
 import { Container } from '@/components/ui';
 import { ChevronRight, ExternalLink, Grid3x3, List, ChevronDown } from 'lucide-react';
 import ProductCard from '@/components/product/ProductCard';
@@ -24,7 +24,7 @@ interface Product {
     action: 'ADD TO CART' | 'SUBMIT AN INQUIRY';
 }
 
-export default function ProductListingPage() {
+function CategoryContent() {
     const searchParams = useSearchParams();
     const categoryIdParam = searchParams.get('categoryId');
     const categoryNameParam = searchParams.get('name');
@@ -161,7 +161,7 @@ export default function ProductListingPage() {
                     <div className="flex justify-between items-center mb-4">
                         <div className="flex-1 border border-gray-300 bg-[#F0EBE3] px-4 py-3">
                             <p className="text-black text-sm font-[Inter, sans-serif]">
-                                <span className="font-semibold">{products.length}</span> Results for <span className="font-normal">"{categoryNameParam || 'All Products'}"</span>
+                                <span className="font-semibold">{products.length}</span> Results for <span className="font-normal">{categoryNameParam || 'All Products'}</span>
                             </p>
                         </div>
                         <button className="ml-2 p-3 border border-gray-300 bg-[#F0EBE3]">
@@ -413,7 +413,7 @@ export default function ProductListingPage() {
                         <div className="hidden md:flex justify-between items-center mb-6">
                             {/* Result Count - Desktop */}
                             <p className="text-black text-[16px] font-semibold font-[Inter, sans-serif]">
-                                <span>{products.length}</span> Results for <span className="font-normal">"{categoryNameParam || 'All Products'}"</span>
+                                <span>{products.length}</span> Results for <span className="font-normal">{categoryNameParam || 'All Products'}</span>
                             </p>
 
                             <div className="flex items-center gap-4">
@@ -547,5 +547,13 @@ export default function ProductListingPage() {
             </section> */}
                     <SponsoredAd />
         </section>
+    );
+}
+
+export default function ProductListingPage() {
+    return (
+        <Suspense fallback={<section className='bg-[#F0EBE3] relative px-4'><Container><div className="py-10 text-center text-black">Loading category...</div></Container></section>}>
+            <CategoryContent />
+        </Suspense>
     );
 }

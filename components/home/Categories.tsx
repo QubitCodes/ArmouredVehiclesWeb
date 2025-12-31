@@ -42,6 +42,7 @@ export const Categories = () => {
   const [currentIndex, setCurrentIndex] = useState(0);
   const [isMobile, setIsMobile] = useState(false);
   const containerRef = useRef<HTMLDivElement>(null);
+  const [measuredWidth, setMeasuredWidth] = useState<number>(0);
 
   useEffect(() => {
     const fetchCategories = async () => {
@@ -72,6 +73,18 @@ export const Categories = () => {
     checkMobile();
     window.addEventListener('resize', checkMobile);
     return () => window.removeEventListener('resize', checkMobile);
+  }, []);
+
+  // Measure container width for desktop slider calculations
+  useEffect(() => {
+    const updateWidth = () => {
+      if (containerRef.current) {
+        setMeasuredWidth(containerRef.current.offsetWidth);
+      }
+    };
+    updateWidth();
+    window.addEventListener('resize', updateWidth);
+    return () => window.removeEventListener('resize', updateWidth);
   }, []);
 
   const handlePrevious = () => {
@@ -235,7 +248,7 @@ export const Categories = () => {
   }
 
   // Desktop view (original design)
-  const maxSlide = Math.max(0, categories.length - Math.floor((containerRef.current?.offsetWidth || 0) / 282));
+  const maxSlide = Math.max(0, categories.length - Math.floor((measuredWidth || 0) / 282));
   
   const slideStyle = {
     transform: `translateX(-${currentIndex * 282}px)`
