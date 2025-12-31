@@ -4,7 +4,6 @@ import Image from "next/image";
 import { useState, useEffect } from "react";
 import api from '@/lib/api';
 import { useAuth } from "@/lib/auth-context";
-import { FaInfoCircle } from "react-icons/fa";
 // import type { Product } from '@/lib/types';
 
 // ---- INTERFACES ----
@@ -259,22 +258,16 @@ export function TopSellingProducts({ title }: { title: string }) {
             </button>
           </div>
 
-          <div className="mt-4 text-lg font-semibold flex justify-center items-center gap-2 relative group">
-            <Image src="/icons/currency/dirham.svg" alt="Currency" width={20} height={20} /> 
+          <div className="mt-4 text-lg font-semibold flex justify-center items-center gap-2">
             {authLoading ? (
               <span className="opacity-70">...</span>
             ) : isAuthenticated ? (
-              <span>{selectedProduct.price.toLocaleString()}</span>
-            ) : (
-              <span className="blur-sm opacity-70">{selectedProduct.price.toLocaleString()}</span>
-            )}
-            {!isAuthenticated && !authLoading && (
               <>
-                <FaInfoCircle className="text-black opacity-90 text-sm cursor-pointer" />
-                <div className="absolute left-1/2 -translate-x-1/2 top-[35px] bg-black text-white text-xs px-3 py-2 rounded-md shadow-lg opacity-0 pointer-events-none group-hover:opacity-100 transition-all duration-300 whitespace-nowrap z-10">
-                  Login to view the price
-                </div>
+                <Image src="/icons/currency/dirham.svg" alt="Currency" width={20} height={20} /> 
+                <span>{selectedProduct.price.toLocaleString()}</span>
               </>
+            ) : (
+              <span className="text-black/70">Log in to access product pricing.</span>
             )}
           </div>
           <h3 className="text-sm font-bold mt-1 px-4">{selectedProduct.name}</h3>
@@ -344,22 +337,16 @@ export function TopSellingProducts({ title }: { title: string }) {
             </div>
           </div>
 
-          <div className="text-lg text-black font-semibold mt-6 flex justify-between items-center gap-2 relative group">
-            <Image src="/icons/currency/dirham.svg" alt="Currency" width={20} height={20} /> 
+          <div className="text-lg text-black font-semibold mt-6 flex justify-between items-center gap-2">
             {authLoading ? (
               <span className="opacity-70">...</span>
             ) : isAuthenticated ? (
-              <span>{selectedProduct.price.toLocaleString()}</span>
-            ) : (
-              <span className="blur-sm opacity-70">{selectedProduct.price.toLocaleString()}</span>
-            )}
-            {!isAuthenticated && !authLoading && (
               <>
-                <FaInfoCircle className="text-black opacity-90 text-sm ml-2 cursor-pointer" />
-                <div className="absolute left-1/2 -translate-x-1/2 top-[35px] bg-black text-white text-xs px-3 py-2 rounded-md shadow-lg opacity-0 pointer-events-none group-hover:opacity-100 transition-all duration-300 whitespace-nowrap z-10">
-                  Login to view the price
-                </div>
+                <Image src="/icons/currency/dirham.svg" alt="Currency" width={20} height={20} /> 
+                <span>{selectedProduct.price.toLocaleString()}</span>
               </>
+            ) : (
+              <span className="text-black/70">Log in to access product pricing.</span>
             )}
           </div>
 
