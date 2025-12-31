@@ -11,10 +11,15 @@ import { TopSellingProducts } from "@/components/home";
 import { Container } from "@/components/ui/Container";
 import TabbedSection, { TabContent } from "@/components/ui/TabbedSection";
 import { ChevronDown } from "lucide-react";
+import { useCartStore } from "@/lib/cart-store";
+import { syncAddToServer } from "@/lib/cart-sync";
+import { useRouter } from "next/navigation";
 
 
 export default function MobileLayout({ id, product }: { id?: string; product?: any }) {
     const [expandedVehicle, setExpandedVehicle] = useState<string | null>("genesis");
+    const addItem = useCartStore((s) => s.addItem);
+    const router = useRouter();
 
     const images = Array.isArray(product?.gallery) && product.gallery.length > 0
         ? product.gallery
@@ -149,6 +154,21 @@ export default function MobileLayout({ id, product }: { id?: string; product?: a
                     currency={product?.currency}
                     condition={product?.condition}
                     stock={product?.stock}
+                    onAddToCart={async () => {
+                        if (!product) return;
+                        addItem({
+                            id: String(product.id ?? product?.sku ?? Math.random()),
+                            name: product?.name ?? "Unnamed Product",
+                            price: Number(product?.price ?? 0),
+                            image: product?.image,
+                            sku: product?.sku,
+                            stock: product?.stock,
+                        }, quantity);
+                        if (product?.id != null) {
+                            await syncAddToServer(Number(product.id), quantity);
+                        }
+                        router.push("/cart");
+                    }}
                 />
 
                 {/* 4️⃣ SIMILAR ITEMS */}

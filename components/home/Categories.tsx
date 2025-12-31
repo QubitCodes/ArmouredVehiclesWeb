@@ -1,9 +1,11 @@
 "use client";
 import Image from 'next/image';
+import Link from 'next/link';
 import api from '@/lib/api';
 import { useCallback, useEffect, useRef, useState } from 'react';
 
 interface Category {
+  id?: number;
   title: string;
   image: string;
 }
@@ -47,6 +49,7 @@ export const Categories = () => {
         const data = await api.products.getCategories();
         if (data && data.length > 0) {
           const mapped = data.map((item: any) => ({
+            id: item.id,
             title: item.name || "Unknown Category",
             image: item.image || "/placeholder.png",
           }));
@@ -136,8 +139,10 @@ export const Categories = () => {
               <div className="flex gap-3">
                 {categories.map((category, index) => (
                   <div key={index} className="flex-shrink-0 snap-start" style={{ width: `${cardWidth}px` }}>
-                    <a
-                      href="/category"
+                    <Link
+                      href={category.id !== undefined 
+                        ? `/category?categoryId=${category.id}&name=${encodeURIComponent(category.title)}` 
+                        : `/category?name=${encodeURIComponent(category.title)}`}
                       className="block relative w-full h-[208px] overflow-hidden group"
                     >
                       <Image
@@ -155,7 +160,7 @@ export const Categories = () => {
                           {category.title}
                         </h3>
                       </div>
-                    </a>
+                    </Link>
                   </div>
                 ))}
               </div>
@@ -267,8 +272,10 @@ export const Categories = () => {
           >
             {categories.map((category, index) => (
               <div key={index} className="flex-none">
-                <a
-                  href="/category"
+                <Link
+                  href={category.id !== undefined 
+                    ? `/category?categoryId=${category.id}&name=${encodeURIComponent(category.title)}` 
+                    : `/category?name=${encodeURIComponent(category.title)}`}
                   className="flex flex-col group w-[258px] no-underline"
                   data-aos="fade-up"
                   data-aos-delay={index * 100}
@@ -284,7 +291,7 @@ export const Categories = () => {
                   <h3 className="relative font-orbitron text-white text-[14px] font-black mt-4 text-left leading-none uppercase min-h-10 after:block after:h-[2px] after:bg-white after:w-0 after:transition-all after:duration-500 after:mt-2 group-hover:after:w-full">
                     {category.title}
                   </h3>
-                </a>
+                </Link>
               </div>
             ))}
           </div>

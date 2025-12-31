@@ -9,6 +9,9 @@ import { Container } from "../ui";
 import RecommendedForYouCard from "../product/RecommendedForYouCard";
 import SelectAddressModal from "../modal/SelectAddressModal";
 import api from "@/lib/api";
+import { useCartStore } from "@/lib/cart-store";
+import { hydrateCartFromServer, pushLocalCartToServer, syncRemoveFromServer, syncUpdateQtyToServer } from "@/lib/cart-sync";
+import { getAccessToken } from "@/lib/api";
 
 type UiCartItem = {
     id: number;
@@ -64,38 +67,30 @@ const similarProducts = [
     },
 ];
 export default function CartPage() {
-    const [items, setItems] = useState<UiCartItem[]>([]);
     const [showAddressModal, setShowAddressModal] = useState(false);
-    const [loading, setLoading] = useState(true);
+    // Using persisted store; no async loading needed
     const [error, setError] = useState<string | null>(null);
+    const storeItems = useCartStore((s) => s.items);
+    const updateQtyStore = useCartStore((s) => s.updateQty);
+    const removeItemStore = useCartStore((s) => s.removeItem);
 
-    useEffect(() => {
-        let mounted = true;
-        (async () => {
-            try {
-                const cartItems = await api.cart.get();
-                // Map backend CartItem -> UI shape
-                const mapped: UiCartItem[] = (cartItems || []).map((ci: any) => ({
-                    id: ci.id,
-                    title: ci.product?.name ?? `Product #${ci.productId}`,
-                    part: ci.product?.sku ? `#${ci.product.sku}` : undefined,
-                    price: Number(ci.product?.price ?? 0),
-                    qty: Number(ci.quantity ?? 1),
-                    stock: ci.product?.stock && ci.product.stock > 0 ? "In Stock" : "Out of Stock",
-                }));
-                if (mounted) {
-                    setItems(mapped);
-                }
-            } catch (e: any) {
-                if (mounted) setError(e?.message || "Failed to load cart");
-            } finally {
-                if (mounted) setLoading(false);
-            }
-        })();
-        return () => {
-            mounted = false;
-        };
-    }, []);
+    // No loading effect required; store hydrates client-side
+
+    const items: UiCartItem[] = useMemo(() => {
+        return (storeItems || []).map((i) => ({
+            id: i.id as any,
+            title: i.name,
+            part: i.sku ? `#${i.sku}` : undefined,
+            price: Number(i.price ?? 0),
+            qty: Number(i.qty ?? 1),
+            stock:
+                typeof i.stock === "number"
+                    ? i.stock > 0
+                        ? "In Stock"
+                        : "Out of Stock"
+                    : "In Stock",
+        }));
+    }, [storeItems]);
 
     const handleCheckout = () => {
         setShowAddressModal(true);
@@ -103,8 +98,11 @@ export default function CartPage() {
 
     const updateQty = async (id: number, newQty: number) => {
         try {
-            await api.cart.update(id, newQty);
-            setItems(items.map(item => item.id === id ? { ...item, qty: newQty } : item));
+            updateQtyStore(String(id), newQty);
+            const pid = Number(id);
+            if (Number.isFinite(pid)) {
+                await syncUpdateQtyToServer(pid, newQty);
+            }
         } catch (e: any) {
             console.error("Update qty failed", e);
         }
@@ -112,13 +110,31 @@ export default function CartPage() {
 
     const removeItem = async (id: number) => {
         try {
-            await api.cart.remove(id);
-            setItems(items.filter(item => item.id !== id));
+            removeItemStore(String(id));
+            const pid = Number(id);
+            if (Number.isFinite(pid)) {
+                await syncRemoveFromServer(pid);
+            }
         } catch (e: any) {
             console.error("Remove item failed", e);
         }
     };
     const subtotal = useMemo(() => items.reduce((sum, i) => sum + i.qty * i.price, 0), [items]);
+
+    // On mount: if logged in, hydrate from server. If server empty and local not, push local up.
+    useEffect(() => {
+        (async () => {
+            const token = getAccessToken();
+            if (!token) return;
+            try {
+                await hydrateCartFromServer();
+                // Optionally push local to server if server returns empty and we have local
+                // This is conservative; comment out if you don't want merging behavior
+                // const current = useCartStore.getState().items;
+                // if (!current.length && items.length) await pushLocalCartToServer();
+            } catch {}
+        })();
+    }, []);
 
     return (
         <section className="bg-[#F0EBE3]">
@@ -153,13 +169,10 @@ export default function CartPage() {
                         </span>
                     </h1>
                     <div className="space-y-5 p-5 bg-[#EBE3D6]">
-                        {loading && (
-                            <div className="text-[#737373]">Loading your cart…</div>
-                        )}
                         {error && (
                             <div className="text-red-600">{error}</div>
                         )}
-                        {!loading && !error && items.length === 0 && (
+                        {!error && items.length === 0 && (
                             <div className="text-[#737373]">Your cart is empty.</div>
                         )}
                         {items.map(item => (

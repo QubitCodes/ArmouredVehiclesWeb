@@ -16,6 +16,7 @@ type Props = {
     currency?: string | null;
     condition?: string | null;
     stock?: number | null;
+    onAddToCart?: () => void;
 };
 
 export default function ProductPurchaseSection({
@@ -26,6 +27,7 @@ export default function ProductPurchaseSection({
     currency,
     condition,
     stock,
+    onAddToCart,
 }: Props) {
     const displayPrice = price != null && price !== '' ? String(price) : undefined;
     return (
@@ -180,6 +182,7 @@ export default function ProductPurchaseSection({
                     className="w-full h-11 bg-[#3D4A26] clip-path-supplier
                flex items-center justify-center
                hover:bg-[#2F3A1D] transition-colors"
+                    onClick={onAddToCart}
                 >
                     <span className="font-orbitron font-black text-[16px] uppercase text-white">
                         Add To Cart

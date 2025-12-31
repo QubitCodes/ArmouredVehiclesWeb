@@ -2,14 +2,17 @@
 
 import Image from 'next/image';
 import { useState } from 'react';
+import { useEffect } from 'react';
 import { Container } from '@/components/ui';
 import { ChevronRight, ExternalLink, Grid3x3, List, ChevronDown } from 'lucide-react';
 import ProductCard from '@/components/product/ProductCard';
 import SponsoredAd from '@/components/sponsored/SponsoredAd';
 import Link from 'next/link';
+import { useSearchParams } from 'next/navigation';
 import SeoText from '@/components/footer/SeoText';
 import { TopSellingProducts } from '@/components/home';
 import DescriptionSection from '@/components/all-products/DescriptionSection';
+import api from '@/lib/api';
 
 interface Product {
     id: string;
@@ -22,35 +25,47 @@ interface Product {
 }
 
 export default function ProductListingPage() {
-    const [products] = useState<Product[]>([
-        {
-            id: '1',
-            name: 'DFC® - 4000 HybriDynamic Hybrid Rear Brake Pads',
-            price: 679,
-            rating: 4.6,
-            reviews: 4.5,
-            image: ['/product/image.jpeg', '/product/image.jpeg'],
-            action: 'ADD TO CART',
-        },
-        {
-            id: '3',
-            name: 'DFC® - 4000 HybriDynamic Hybrid Rear Brake Pads',
-            price: 679,
-            rating: 4.6,
-            reviews: 4.5,
-            image: ['/product/Group 853.jpg', '/product/image.jpeg', '/product/rim1.png', '/product/image.png'],
-            action: 'ADD TO CART',
-        },
-        {
-            id: '2',
-            name: 'DFC® - 4000 HybriDynamic Hybrid Rear Brake Pads',
-            price: 16769,
-            rating: 4.6,
-            reviews: 4.5,
-            image: ['/product/rim1.png', '/product/rim1.png'],
-            action: 'SUBMIT AN INQUIRY',
-        },
-    ]);
+    const searchParams = useSearchParams();
+    const categoryIdParam = searchParams.get('categoryId');
+    const categoryNameParam = searchParams.get('name');
+
+    const [products, setProducts] = useState<Product[]>([]);
+    const [isLoading, setIsLoading] = useState<boolean>(true);
+    const [error, setError] = useState<string | null>(null);
+
+    useEffect(() => {
+        const fetchProducts = async () => {
+            try {
+                const filters = categoryIdParam && !isNaN(Number(categoryIdParam))
+                  ? { categoryId: Number(categoryIdParam) }
+                  : undefined;
+                const data = await api.products.getAll(filters);
+                const mapped: Product[] = Array.isArray(data)
+                    ? data.map((item: any) => ({
+                        id: String(item.id),
+                        name: item.name || 'Unknown Product',
+                        price: Number(item.price) || 0,
+                        rating: typeof item.rating === 'number' ? item.rating : Number(item.rating) || 4.5,
+                        reviews: typeof item.reviewCount === 'number' ? item.reviewCount : Number(item.reviews) || 0,
+                        image: item.gallery && item.gallery.length > 0
+                            ? item.gallery
+                            : [item.image || item.thumbnail || '/placeholder.png'],
+                        action: 'ADD TO CART',
+                    }))
+                    : [];
+
+                setProducts(mapped);
+                setError(null);
+            } catch (err: any) {
+                console.error('Failed to load products', err);
+                setError('Failed to load products. Please try again later.');
+            } finally {
+                setIsLoading(false);
+            }
+        };
+
+        fetchProducts();
+    }, [categoryIdParam]);
 
     // Filter states
     const [selectedBrands, setSelectedBrands] = useState<string[]>([]);
@@ -139,14 +154,14 @@ export default function ProductListingPage() {
                     
                     {/* Title */}
                     <h1 className="text-xl md:text-3xl font-[Orbitron] lg:text-4xl font-bold uppercase tracking-wide text-black mb-4">
-                        PERFORMANCE BRAKES
+                        {(categoryNameParam || 'Categories').toUpperCase()}
                     </h1>
 
                     {/* Results Count and Sort By - Mobile View */}
                     <div className="flex justify-between items-center mb-4">
                         <div className="flex-1 border border-gray-300 bg-[#F0EBE3] px-4 py-3">
                             <p className="text-black text-sm font-[Inter, sans-serif]">
-                                <span className="font-semibold">72471</span> Results for <span className="font-normal">"Performance Brakes"</span>
+                                <span className="font-semibold">{products.length}</span> Results for <span className="font-normal">"{categoryNameParam || 'All Products'}"</span>
                             </p>
                         </div>
                         <button className="ml-2 p-3 border border-gray-300 bg-[#F0EBE3]">
@@ -398,7 +413,7 @@ export default function ProductListingPage() {
                         <div className="hidden md:flex justify-between items-center mb-6">
                             {/* Result Count - Desktop */}
                             <p className="text-black text-[16px] font-semibold font-[Inter, sans-serif]">
-                                <span>72471</span> Results for <span className="font-normal">"Performance Brakes"</span>
+                                <span>{products.length}</span> Results for <span className="font-normal">"{categoryNameParam || 'All Products'}"</span>
                             </p>
 
                             <div className="flex items-center gap-4">
@@ -422,24 +437,29 @@ export default function ProductListingPage() {
                             </div>
                         </div>
 
-
-
-                        <div className="grid grid-cols-2 w-full lg:grid-cols-2 xl:grid-cols-3 gap-3 md:gap-6">
-                            {products.map(product => (
-                                // <Link key={product.id} href={`/product-details`} className="block">
-                                <ProductCard
-                                    key={product.id}
-                                    images={product.image}
-                                    name={product.name}
-                                    rating={product.rating}
-                                    reviews={`${product.reviews}k`}
-                                    price={product.price}
-                                    delivery="Standard Delivery by tomorrow"
-                                    action={product.action}
-                                />
-                                // </Link>
-                            ))}
-                        </div>
+                        {isLoading ? (
+                            <div className="w-full py-10 text-center text-black">Loading products...</div>
+                        ) : error ? (
+                            <div className="w-full py-10 text-center text-red-600">{error}</div>
+                        ) : (
+                            <div className="grid grid-cols-2 w-full lg:grid-cols-2 xl:grid-cols-3 gap-3 md:gap-6">
+                                {products.map(product => (
+                                    <Link key={product.id} href={`/product-details/${product.id}`} className="block">
+                                        <ProductCard
+                                            id={product.id}
+                                            key={product.id}
+                                            images={product.image}
+                                            name={product.name}
+                                            rating={product.rating}
+                                            reviews={`${product.reviews}`}
+                                            price={product.price}
+                                            delivery="Standard Delivery by tomorrow"
+                                            action={product.action}
+                                        />
+                                    </Link>
+                                ))}
+                            </div>
+                        )}
                     </main>
                 </div>
                 <TopSellingProducts title={"Recommended For You"} />

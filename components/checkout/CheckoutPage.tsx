@@ -109,19 +109,19 @@ export default function CheckoutPage() {
         <div className="space-y-8">
           {/* SHIPPING ADDRESS */}
           <div>
-            <h2 className="font-orbitron font-black text-[32px] uppercase tracking-wide mb-4">
+            <h2 className="font-orbitron font-black text-[32px] text-black uppercase tracking-wide mb-4">
               Shipping Address
             </h2>
             
             {/* ADDRESS BOX */}
             <div className="bg-[#EBE3D6] p-5 mb-4">
-              <p className="font-orbitron font-bold text-[16px] uppercase tracking-wider mb-3">Address</p>
+              <p className="font-orbitron font-bold text-[16px] uppercase tracking-wider mb-3 text-black">Address</p>
               {/* Inner address card */}
               <div className="bg-[#F0EBE3] p-4 flex items-center justify-between">
                 <div className="flex gap-3 items-start">
                   <MapPin className="w-5 h-5 text-[#39482C] flex-shrink-0 mt-0.5" />
                   <div>
-                    <p className="text-sm mb-1">
+                    <p className="text-sm mb-1 text-black">
                       Deliver to <span className="font-bold">Work</span>
                     </p>
                     <p className="text-[16px] text-[#6E6E6E] max-w-md leading-relaxed">
@@ -137,7 +137,7 @@ export default function CheckoutPage() {
             </div>
 
             {/* DELIVERY INSTRUCTIONS BOX */}
-            <div className="bg-[#EBE3D6] p-5 mb-4">
+            <div className="bg-[#EBE3D6] p-5 mb-4 text-black">
               <div className="flex items-center justify-between mb-3">
                 <p className="font-orbitron font-bold text-[16px] uppercase tracking-wider">Delivery Instructions</p>
                 <button className="hover:opacity-80 transition-opacity">
@@ -157,12 +157,12 @@ export default function CheckoutPage() {
                 >
                   {deliveryInstructions && <Check className="w-3 h-3 text-white" />}
                 </div>
-                <span className="text-sm">Get items together</span>
+                <span className="text-sm text-black">Get items together</span>
               </label>
             </div>
 
             {/* WHO WILL RECEIVE BOX */}
-            <div className="bg-[#EBE3D6] p-5">
+            <div className="bg-[#EBE3D6] p-5 text-black">
               <p className="font-orbitron font-bold text-[16px] uppercase tracking-wider mb-4">Who will receive this order?</p>
               <div className="flex gap-3">
                 {/* Self option */}
@@ -312,7 +312,7 @@ export default function CheckoutPage() {
 
           {/* PAYMENT */}
           <div>
-            <h2 className="font-orbitron font-black text-[32px] uppercase tracking-wide mb-4">
+            <h2 className="font-orbitron font-black text-[32px] uppercase tracking-wide mb-4 text-black">
               Payment
             </h2>
 
