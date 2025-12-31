@@ -148,7 +148,7 @@ export const FeaturedProducts = () => {
     const timer = setInterval(() => {
       setTransitionEnabled(true);
       setIndex((p) => p + 1);
-    }, 700000); // increased delay to slow autoplay (7s)
+    }, 7000); // increased delay to slow autoplay (7s)
     return () => clearInterval(timer);
   }, [baseSlides.length, isMobile]);
 
