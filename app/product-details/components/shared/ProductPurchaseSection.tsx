@@ -72,13 +72,13 @@ export default function ProductPurchaseSection({
                     </div>
 
                 </div>
-                <div className="flex justify-start">
+                {/* <div className="flex justify-start">
                     <span>Availability:</span>
                     {typeof stock === 'number' ? (
                         stock > 0 ? (
                             <span>
-                                <span className="text-[#3BAF7F]"> In Stock</span> 
-                                {/* ({stock}) */}
+                                <span className="text-[#3BAF7F]"> In Stock</span>
+                                ({stock})
                             </span>
                         ) : (
                             <span className="text-[#D35400]">Out of Stock</span>
@@ -86,7 +86,7 @@ export default function ProductPurchaseSection({
                     ) : (
                         <span>—</span>
                     )}
-                </div>
+                </div> */}
             </div>
 
             {/* QUANTITY */}
