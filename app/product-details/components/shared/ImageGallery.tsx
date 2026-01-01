@@ -28,7 +28,7 @@ export default function ImageGallery({
                 onClick={onOpenGallery}
             >
                 {/* INNER PADDING WRAPPER */}
-                <div className="absolute inset-0 p-6 md:p-8">
+                <div className="absolute inset-0 p-0 md:p-0">
                     <div className="relative w-full h-full">
                         <Image
                             src={images[selectedImage]}

@@ -37,7 +37,7 @@ export default function ProductPurchaseSection({
                 {displayPrice ? (
                     <>
                         <div className="flex items-center gap-1">
-                            <Image src="/icons/currency/dirham-white.svg" alt="Currency" width={16} height={16} className="opacity-60 md:w-5 md:h-5" />
+                            <Image src="/icons/currency/dirham.svg" alt="Currency" width={16} height={16} className="opacity-60 md:w-5 md:h-5" />
                             <span className="text-3xl font-bold font-[inter, sans-serif] text-black">
                                 {displayPrice}
                             </span>
@@ -77,7 +77,8 @@ export default function ProductPurchaseSection({
                     {typeof stock === 'number' ? (
                         stock > 0 ? (
                             <span>
-                                <span className="text-[#3BAF7F]">In Stock</span> ({stock})
+                                <span className="text-[#3BAF7F]"> In Stock</span> 
+                                {/* ({stock}) */}
                             </span>
                         ) : (
                             <span className="text-[#D35400]">Out of Stock</span>

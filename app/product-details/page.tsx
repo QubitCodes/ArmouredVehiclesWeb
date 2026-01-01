@@ -3,6 +3,8 @@
 import DesktopLayout from "./components/desktop/DesktopLayout";
 import MobileLayout from "./components/mobile/MobileLayout";
 
+
+
 export default function ProductDetailsPage() {
   return (
     <>

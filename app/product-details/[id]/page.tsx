@@ -1,10 +1,11 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useState } from "react";
 import { useParams, useSearchParams } from "next/navigation";
 import api from "@/lib/api";
 import DesktopLayout from "../components/desktop/DesktopLayout";
 import MobileLayout from "../components/mobile/MobileLayout";
+import { fetchProductReviews } from "@/app/services/reviews";
 
 type ProductDisplay = {
   id: number;
@@ -30,23 +31,37 @@ type ProductDisplay = {
 export default function ProductDetailsPage() {
   const [product, setProduct] = useState<ProductDisplay | null>(null);
   const [loading, setLoading] = useState(true);
+
+  const [rating, setRating] = useState<number>(0);
+  const [reviewCount, setReviewCount] = useState<number>(0);
+
   const searchParams = useSearchParams();
   const routeParams = useParams();
-  const idParam = (routeParams?.id as string | undefined) ?? searchParams.get("id");
-  const productId = idParam && /^\d+$/.test(String(idParam)) ? Number(idParam) : null;
 
+  const idParam =
+    (routeParams?.id as string | undefined) ?? searchParams.get("id");
+
+  const productId =
+    idParam && /^\d+$/.test(String(idParam)) ? Number(idParam) : null;
+
+  /* ---------------------------
+     1️⃣ FETCH PRODUCT DETAILS
+  ---------------------------- */
   useEffect(() => {
     let active = true;
+
     const fetchProduct = async () => {
       if (productId === null) {
         if (active) setLoading(false);
         return;
       }
+
       try {
         const data: any = await api.products.getById(productId);
         if (!active) return;
+
         const gallery = Array.isArray(data.gallery)
-          ? (data.gallery as string[])
+          ? data.gallery
           : data.image
           ? [data.image]
           : ["/product/product 1.png"];
@@ -63,72 +78,17 @@ export default function ProductDetailsPage() {
           description: data.description ?? data.technicalDescription ?? null,
           condition: data.condition ?? null,
           stock: typeof data.stock === "number" ? data.stock : null,
-          rating: data.rating ?? null,
-          reviewCount: data.reviewCount ?? 0,
           features: Array.isArray(data.features)
             ? data.features
             : typeof data.features === "string" && data.features
-            ? (data.features as string).split("| ").map((s: string) => s.trim()).filter(Boolean)
+            ? data.features.split("| ").map((s: string) => s.trim()).filter(Boolean)
             : null,
-          specifications: (() => {
-            // Build specifications from available fields
-            const specs: string[] = [];
-            
-            if (data.specifications) {
-              specs.push(data.specifications);
-            } else if (data.technicalDescription) {
-              specs.push(data.technicalDescription);
-            }
-            
-            // Add dimensions if available
-            if (data.dimensionLength || data.dimensionWidth || data.dimensionHeight) {
-              const dims = [
-                data.dimensionLength && `Length: ${data.dimensionLength}`,
-                data.dimensionWidth && `Width: ${data.dimensionWidth}`,
-                data.dimensionHeight && `Height: ${data.dimensionHeight}`
-              ].filter(Boolean).join(' x ');
-              if (dims) specs.push(`Dimensions: ${dims}${data.dimensionUnit ? ` ${data.dimensionUnit}` : ''}`);
-            }
-            
-            // Add weight if available
-            if (data.weightValue) {
-              specs.push(`Weight: ${data.weightValue}${data.weightUnit ? ` ${data.weightUnit}` : ''}`);
-            }
-            
-            // Add materials if available
-            if (Array.isArray(data.materials) && data.materials.length) {
-              specs.push(`Materials: ${data.materials.join(', ')}`);
-            }
-            
-            // Add performance if available
-            if (Array.isArray(data.performance) && data.performance.length) {
-              specs.push(`Performance: ${data.performance.join(', ')}`);
-            }
-            
-            // Add available variants
-            const variants: string[] = [];
-            if (Array.isArray(data.driveTypes) && data.driveTypes.length) {
-              variants.push(`Drive Types: ${data.driveTypes.join(', ')}`);
-            }
-            if (Array.isArray(data.sizes) && data.sizes.length) {
-              variants.push(`Sizes: ${data.sizes.join(', ')}`);
-            }
-            if (Array.isArray(data.thickness) && data.thickness.length) {
-              variants.push(`Thickness: ${data.thickness.join(', ')}`);
-            }
-            if (Array.isArray(data.colors) && data.colors.length) {
-              variants.push(`Colors: ${data.colors.join(', ')}`);
-            }
-            if (variants.length) {
-              specs.push('\nAvailable Variants:\n' + variants.join('\n'));
-            }
-            
-            return specs.length ? specs.join('\n\n') : null;
-          })(),
+          specifications: data.specifications ?? null,
           vehicleFitment: data.vehicleFitment ?? null,
           warranty:
             data.warranty ??
-            (data.hasWarranty && (data.warrantyTerms || data.warrantyDuration)
+            (data.hasWarranty &&
+            (data.warrantyTerms || data.warrantyDuration)
               ? [data.warrantyTerms, data.warrantyDuration, data.warrantyDurationUnit]
                   .filter(Boolean)
                   .join(" ")
@@ -141,12 +101,51 @@ export default function ProductDetailsPage() {
         if (active) setLoading(false);
       }
     };
+
     fetchProduct();
+
     return () => {
       active = false;
     };
   }, [productId]);
 
+  /* ---------------------------
+     2️⃣ FETCH REVIEWS (SEPARATE)
+  ---------------------------- */
+  useEffect(() => {
+    let active = true;
+
+    if (!productId) return;
+
+    fetchProductReviews(productId)
+      .then((reviews) => {
+        if (!active) return;
+
+        const count = reviews.length;
+        setReviewCount(count);
+
+        if (count > 0) {
+          const avg =
+            reviews.reduce((sum: number, r: any) => sum + r.rating, 0) / count;
+          setRating(avg);
+        } else {
+          setRating(0);
+        }
+      })
+      .catch(() => {
+        if (!active) return;
+        setReviewCount(0);
+        setRating(0);
+      });
+
+    return () => {
+      active = false;
+    };
+  }, [productId]);
+
+  /* ---------------------------
+     3️⃣ LOADING STATE
+  ---------------------------- */
   if (loading) {
     return (
       <section className="bg-[#F0EBE3] pt-12 md:pt-0">
@@ -165,6 +164,9 @@ export default function ProductDetailsPage() {
     );
   }
 
+  /* ---------------------------
+     4️⃣ NOT FOUND
+  ---------------------------- */
   if (!product) {
     return (
       <section className="bg-[#F0EBE3] pt-12 md:pt-0">
@@ -173,14 +175,29 @@ export default function ProductDetailsPage() {
     );
   }
 
+  /* ---------------------------
+     5️⃣ RENDER PAGE
+  ---------------------------- */
   return (
     <section className="bg-[#F0EBE3] pt-12 md:pt-0">
       <div className="md:hidden">
-        <MobileLayout product={product} />
+        <MobileLayout
+          product={{
+            ...product,
+            rating,
+            reviewCount,
+          }}
+        />
       </div>
 
       <div className="hidden md:block">
-        <DesktopLayout product={product} />
+        <DesktopLayout
+          product={{
+            ...product,
+            rating,
+            reviewCount,
+          }}
+        />
       </div>
     </section>
   );
