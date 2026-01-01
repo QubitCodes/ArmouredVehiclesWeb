@@ -14,7 +14,7 @@ const Footer = ({ disableMobileBottomSpace = false }: FooterProps) => {
   const [openSection, setOpenSection] = useState<string | null>(null);
 
   const usefulLinks = [
-    { title: "Careers", href: "/careers" },
+   
     { title: "FAQ", href: "/faq" },
     { title: "Terms & Conditions", href: "/terms-conditions" },
     { title: "Terms of Use", href: "/terms-of-use" },
@@ -48,6 +48,7 @@ const Footer = ({ disableMobileBottomSpace = false }: FooterProps) => {
     { title: "About Armored Mart", href: "/about" },
     { title: "Sell with Us", href: "/sell-with-us" },
     { title: "Consumer Rights", href: "/consumer-rights" },
+     { title: "Careers", href: "/https://linkedin.com/company/armoredmart" },
   ];
 
 
@@ -57,8 +58,8 @@ const Footer = ({ disableMobileBottomSpace = false }: FooterProps) => {
     { icon: "/icons/social/meta.svg", href: "https://facebook.com/armoredmart" },
     { icon: "/icons/social/x.svg", href: "https://twitter.com/armoredmart" },
     { icon: "/icons/social/youtube.svg", href: "https://youtube.com/armoredmart" },
-    { icon: "/icons/social/pinterest.svg", href: "https://pinterest.com/armoredmart" },
     { icon: "/icons/social/instagram.svg", href: "https://instagram.com/armoredmart" },
+    { icon: "/icons/social/linkedin.svg", href: "https://linkedin.com/company/armoredmart" },
   ];
 
   const paymentMethods = [
@@ -128,7 +129,7 @@ const Footer = ({ disableMobileBottomSpace = false }: FooterProps) => {
         <div className="hidden lg:grid grid-cols-5 gap-8 mb-5">
           <div>
             <Image src="/logofullwhite.svg" alt="logo" width={220} height={120} />
-            <div className="flex gap-4 mt-4">
+            <div className="flex gap-6 mt-4">
               {socialLinks.map((s) => (
                 <Link key={s.href} href={s.href} target="_blank">
                   <Image src={s.icon} alt="social" width={20} height={20} />
