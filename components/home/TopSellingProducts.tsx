@@ -4,7 +4,6 @@ import Image from "next/image";
 import { useState, useEffect } from "react";
 import api from '@/lib/api';
 import { useAuth } from "@/lib/auth-context";
-import { FaInfoCircle } from "react-icons/fa";
 // import type { Product } from '@/lib/types';
 
 // ---- INTERFACES ----
@@ -25,7 +24,7 @@ const fallbackProducts: Product[] = [
     id: 1,
     name: "Engines (diesel, petrol, hybrid)",
     price: 15000,
-    image: "/top-selling/image 1.png",
+    image: "/top-selling/image 7.jpg",
     images: [
       "/top-selling/big product/img1.jpg",
       "/top-selling/big product/img2.png",
@@ -232,12 +231,12 @@ export function TopSellingProducts({ title }: { title: string }) {
             <div
               key={product.id}
               onClick={() => selectProduct(product)}
-              className="min-w-[110px] bg-[#F0EBE3] border border-[#ccc] flex flex-col items-center p-3 snap-start active:scale-95 transition"
+              className="min-w-[110px] bg-[#F0EBE3] border border-[#ccc] flex flex-col items-center p-1 snap-start active:scale-95 transition"
             >
-              <div className="relative w-[70px] h-[70px] mx-auto">
+              <div className="relative w-[90px] h-[90px] mx-auto">
                 <Image src={product.image} alt={product.name} fill className="object-contain" />
               </div>
-              <p className="text-[11px] mt-1 leading-tight text-center">
+              <p className="text-[11px] mt-1 leading-tight text-center px-1">
                 {product.name.length > 20 ? product.name.slice(0, 20) + "..." : product.name}
               </p>
             </div>
@@ -259,22 +258,16 @@ export function TopSellingProducts({ title }: { title: string }) {
             </button>
           </div>
 
-          <div className="mt-4 text-lg font-semibold flex justify-center items-center gap-2 relative group">
-            <Image src="/icons/currency/dirham.svg" alt="Currency" width={20} height={20} /> 
+          <div className="mt-4 text-lg font-semibold flex justify-center items-center gap-2">
             {authLoading ? (
               <span className="opacity-70">...</span>
             ) : isAuthenticated ? (
-              <span>{selectedProduct.price.toLocaleString()}</span>
-            ) : (
-              <span className="blur-sm opacity-70">{selectedProduct.price.toLocaleString()}</span>
-            )}
-            {!isAuthenticated && !authLoading && (
               <>
-                <FaInfoCircle className="text-black opacity-90 text-sm cursor-pointer" />
-                <div className="absolute left-1/2 -translate-x-1/2 top-[35px] bg-black text-white text-xs px-3 py-2 rounded-md shadow-lg opacity-0 pointer-events-none group-hover:opacity-100 transition-all duration-300 whitespace-nowrap z-10">
-                  Login to view the price
-                </div>
+                <Image src="/icons/currency/dirham.svg" alt="Currency" width={20} height={20} /> 
+                <span>{selectedProduct.price.toLocaleString()}</span>
               </>
+            ) : (
+              <span className="text-black/70">Log in to access product pricing.</span>
             )}
           </div>
           <h3 className="text-sm font-bold mt-1 px-4">{selectedProduct.name}</h3>
@@ -308,7 +301,7 @@ export function TopSellingProducts({ title }: { title: string }) {
               <div
                 key={product.id}
                 onClick={() => selectProduct(product)}
-   className={`border cursor-pointer flex flex-col items-center justify-center text-center hover:shadow-md transition bg-[#EBE3D6] ${
+   className={`border cursor-pointer flex flex-col items-center justify-start text-center hover:shadow-md transition bg-[#EBE3D6] ${
   selectedProduct.id === product.id
     ? "border-[#D35400] border-3"
     : "border-[#CCCCCC]"
@@ -316,10 +309,10 @@ export function TopSellingProducts({ title }: { title: string }) {
 
                 style={{ width: "245px", height: "281px" }}
               >
-                <div className="relative w-[150px] h-[150px]">
-                  <Image src={product.image} alt={product.name} fill className="object-contain" />
+                <div className="relative w-[190px] h-[190px] mt-5">
+                  <Image src={product.image} alt={product.name} fill className="object-cover" />
                 </div>
-                <p className="text-black mt-2 text-[16px] leading-none p-4">{product.name}</p>
+                <p className="text-black mt-2 text-[16px] leading-none px-2 pb-2">{product.name}</p>
               </div>
             ))}
           </div>
@@ -344,22 +337,16 @@ export function TopSellingProducts({ title }: { title: string }) {
             </div>
           </div>
 
-          <div className="text-lg text-black font-semibold mt-6 flex justify-between items-center gap-2 relative group">
-            <Image src="/icons/currency/dirham.svg" alt="Currency" width={20} height={20} /> 
+          <div className="text-lg text-black font-semibold mt-6 flex justify-between items-center gap-2">
             {authLoading ? (
               <span className="opacity-70">...</span>
             ) : isAuthenticated ? (
-              <span>{selectedProduct.price.toLocaleString()}</span>
-            ) : (
-              <span className="blur-sm opacity-70">{selectedProduct.price.toLocaleString()}</span>
-            )}
-            {!isAuthenticated && !authLoading && (
               <>
-                <FaInfoCircle className="text-black opacity-90 text-sm ml-2 cursor-pointer" />
-                <div className="absolute left-1/2 -translate-x-1/2 top-[35px] bg-black text-white text-xs px-3 py-2 rounded-md shadow-lg opacity-0 pointer-events-none group-hover:opacity-100 transition-all duration-300 whitespace-nowrap z-10">
-                  Login to view the price
-                </div>
+                <Image src="/icons/currency/dirham.svg" alt="Currency" width={20} height={20} /> 
+                <span>{selectedProduct.price.toLocaleString()}</span>
               </>
+            ) : (
+              <span className="text-black/70">Log in to access product pricing.</span>
             )}
           </div>
 

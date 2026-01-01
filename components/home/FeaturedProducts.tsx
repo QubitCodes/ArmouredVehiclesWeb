@@ -4,7 +4,6 @@ import { useRouter } from "next/navigation";
 import api from "@/lib/api";
 import { useAuth } from "@/lib/auth-context";
 import { useState, useEffect, useRef } from "react";
-import { FaInfoCircle } from "react-icons/fa";
 
 interface Product {
   id: number;
@@ -149,7 +148,7 @@ export const FeaturedProducts = () => {
     const timer = setInterval(() => {
       setTransitionEnabled(true);
       setIndex((p) => p + 1);
-    }, 4000);
+    }, 7000); // increased delay to slow autoplay (7s)
     return () => clearInterval(timer);
   }, [baseSlides.length, isMobile]);
 
@@ -296,7 +295,7 @@ export const FeaturedProducts = () => {
           {/* TRACK */}
           <div
             ref={sliderRef}
-            className={`flex ${transitionEnabled && !isMobile ? "md:transition-transform md:duration-700 md:ease-in-out" : ""}`}
+            className={`flex ${transitionEnabled && !isMobile ? "md:transition-transform md:duration-1000 md:ease-in-out" : ""}`}
             style={{
               width: isMobile ? 'auto' : `${total * 100}%`,
               transform: isMobile ? 'none' : `translateX(-${index * (100 / total)}%)`,
@@ -346,7 +345,7 @@ export const FeaturedProducts = () => {
                           alt={product.name}
                           width={300}
                           height={300}
-                          className={`transition-all duration-300 ${isHovered ? "object-cover w-full h-full" : "object-contain w-[200px] h-[200px] md:w-[300px] md:h-[300px]"}`}
+                          className="object-cover w-full h-full"
                         />
                       </div>
 
@@ -358,26 +357,19 @@ export const FeaturedProducts = () => {
                       </div>
 
                       {/* PRICE */}
-                      <div className="w-full h-[42px] md:h-[60px] flex items-center px-3 md:px-6 relative group">
-                        <p className="text-white font-orbitron text-sm md:text-lg flex items-center gap-1 md:gap-2 select-none">
-                          <Image src="/icons/currency/dirham-white.svg" alt="Currency" width={16} height={16} className="opacity-60 md:w-5 md:h-5" />
+                      <div className="w-full h-[42px] md:h-[60px] flex items-center px-3 md:px-6">
+                        <p className="text-white font-orbitron flex items-center gap-1 md:gap-2 select-none">
                           {isLoading ? (
                             <span className="opacity-70">...</span>
                           ) : isAuthenticated ? (
-                            <span className="">{product.price.toLocaleString()}</span>
+                            <>
+                              <Image src="/icons/currency/dirham-white.svg" alt="Currency" width={16} height={16} className="opacity-60 md:w-5 md:h-5" />
+                              <span className="text-sm md:text-lg ">{product.price.toLocaleString()}</span>
+                            </>
                           ) : (
-                            <span className="blur-sm opacity-70">{product.price.toLocaleString()}</span>
-                          )}
-                          {!isAuthenticated && !isLoading && (
-                            <FaInfoCircle className="text-white opacity-90 text-xs md:text-sm ml-1 md:ml-2 cursor-pointer" />
+                            <span className="text-white/80 text-sm md:text-sm tracking-wider"><span className="font-bold">Login</span> to <span className="font-bold">access</span> product pricing.</span>
                           )}
                         </p>
-
-                        {!isAuthenticated && !isLoading && (
-                          <div className="absolute left-6 top-[55px] bg-black text-white text-xs px-3 py-2 rounded-md shadow-lg opacity-0 pointer-events-none group-hover:opacity-100 transition-all duration-300 whitespace-nowrap">
-                            Login to view the price
-                          </div>
-                        )}
                       </div>
 
                       {/* BUTTON */}
