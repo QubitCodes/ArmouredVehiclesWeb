@@ -6,6 +6,8 @@ import { Heart } from "lucide-react";
 import { Star, ShieldCheck } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useAuth } from "@/lib/auth-context";
+import ShippingSection from "./shipping/ShippingSection";
+
 
 
 
@@ -36,9 +38,23 @@ export default function ProductPurchaseSection({
     const router = useRouter();
     const { isAuthenticated, isLoading } = useAuth();
 
+
+    function getDeliveryRange(minDays: number, maxDays: number) {
+        const start = new Date();
+        const end = new Date();
+
+        start.setDate(start.getDate() + minDays);
+        end.setDate(end.getDate() + maxDays);
+
+        const format = (d: Date) =>
+            d.toLocaleDateString("en-US", { month: "short", day: "numeric" });
+
+        return `${format(start)} – ${format(end)}`;
+    }
+
+
     return (
         <div className="space-y-4">
-            {/* PRICE */}
             {/* PRICE */}
             <div>
                 {isLoading ? (
@@ -86,9 +102,9 @@ export default function ProductPurchaseSection({
                 ) : (
                     <span
                         onClick={() => router.push("/login")}
-                        className="text-sm md:text-base font-medium text-[#D35400] cursor-pointer hover:underline"
+                        className="text-[20px] font-medium text-[#D35400] cursor-pointer hover:underline"
                     >
-                        Please Login to access the price
+                        Please <span className="font-bold">Login to access</span> the price
                     </span>
                 )}
             </div>
@@ -183,7 +199,10 @@ export default function ProductPurchaseSection({
                         Standard Delivery
                     </div>
                     <div className="text-[13px] mt-1 text-black">
-                        Get it by <span className="font-semibold">Oct. 22</span>
+                        Guaranteed delivery by{" "}
+                        <span className="font-semibold">
+                            {getDeliveryRange(7, 10)}
+                        </span>
                     </div>
                 </div>
 
@@ -297,7 +316,7 @@ export default function ProductPurchaseSection({
             <div className="space-y-4 text-sm text-black">
 
                 {/* SHIPPING */}
-                <div className="grid grid-cols-[90px_1fr] gap-2">
+                {/* <div className="grid grid-cols-[90px_1fr] gap-2">
                     <span className="font-medium">Shipping:</span>
                     <div>
                         <div className="text-[#D35400] font-semibold">
@@ -313,7 +332,10 @@ export default function ProductPurchaseSection({
                             Located in: Jebel Ali, Dubai, United Arab Emirates
                         </div>
                     </div>
-                </div>
+                </div> */}
+                {/* SHIPPING */}
+                <ShippingSection />
+
 
                 {/* RETURNS */}
                 <div className="grid grid-cols-[90px_1fr] gap-2">
