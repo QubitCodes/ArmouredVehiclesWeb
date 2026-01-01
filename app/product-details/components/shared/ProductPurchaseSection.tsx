@@ -221,7 +221,7 @@ export default function ProductPurchaseSection({
 
 
             {/* SOCIAL PROOF */}
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-3 text-sm text-black">
+            {/* <div className="grid grid-cols-1 md:grid-cols-2 gap-3 text-sm text-black">
                 <div className="flex items-center gap-2 bg-[#F2F2F2] p-3">
                     <Image
                         src="/icons/lightning.svg"
@@ -247,7 +247,7 @@ export default function ProductPurchaseSection({
                         20 have already sold.
                     </p>
                 </div>
-            </div>
+            </div> */}
 
             {/* SHIPPING & RETURNS */}
             <div className="space-y-4 text-sm text-black">
@@ -294,8 +294,12 @@ export default function ProductPurchaseSection({
                             className="object-contain"
                             priority
                         />
+
                     </div>
+
                 </div>
+                                        <div>Every payment made on ArmoredMart is protected by advanced SSL encryption and safeguarded with globally recognized data security standards.</div>
+
 
 
             </div>
@@ -323,9 +327,9 @@ export default function ProductPurchaseSection({
                         <div className="font-semibold">Top Rated Plus</div>
                         <div className="text-[#6F6F6F] text-sm">
                             Top rated seller, fast shipping, and free returns.{" "}
-                            <span className="text-[#D35400] underline cursor-pointer">
+                            {/* <span className="text-[#D35400] underline cursor-pointer">
                                 See details
-                            </span>
+                            </span> */}
                         </div>
                     </div>
                 </div>
@@ -343,10 +347,8 @@ export default function ProductPurchaseSection({
                             Armored Mart Money Back Guarantee
                         </div>
                         <div className="text-[#6F6F6F] text-sm">
-                            Get the item you ordered or your money back.{" "}
-                            <span className="text-[#D35400] underline cursor-pointer">
-                                See details
-                            </span>
+                            Get a refund if your order doesn’t ship, arrives incomplete, or has product issues.
+
                         </div>
                     </div>
                 </div>
