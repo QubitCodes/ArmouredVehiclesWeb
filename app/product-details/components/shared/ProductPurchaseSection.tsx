@@ -4,6 +4,9 @@ import Image from "next/image";
 import { Check, Info } from "lucide-react";
 import { Heart } from "lucide-react";
 import { Star, ShieldCheck } from "lucide-react";
+import { useRouter } from "next/navigation";
+import { useAuth } from "@/lib/auth-context";
+
 
 
 
@@ -30,33 +33,66 @@ export default function ProductPurchaseSection({
     onAddToCart,
 }: Props) {
     const displayPrice = price != null && price !== '' ? String(price) : undefined;
+    const router = useRouter();
+    const { isAuthenticated, isLoading } = useAuth();
+
     return (
         <div className="space-y-4">
             {/* PRICE */}
+            {/* PRICE */}
             <div>
-                {displayPrice ? (
-                    <>
-                        <div className="flex items-center gap-1">
-                            <Image src="/icons/currency/dirham.svg" alt="Currency" width={16} height={16} className="opacity-60 md:w-5 md:h-5" />
-                            <span className="text-3xl font-bold font-[inter, sans-serif] text-black">
-                                {displayPrice}
-                            </span>
-                        </div>
-                        {originalPrice && (
-                            <div className="flex items-center gap-2 font-[inter, sans-serif]">
-                                <div className="flex items-center gap-1">
-                                    <Image src="/icons/currency/dirham.svg" alt="Currency" width={14} height={14} className="opacity-60" />
-                                    <span className="text-[#3D4A26] line-through opacity-70">
-                                        {originalPrice}
-                                    </span>
-                                </div>
+                {isLoading ? (
+                    <span className="text-3xl font-bold font-[inter, sans-serif] text-gray-400">
+                        —
+                    </span>
+                ) : isAuthenticated ? (
+                    displayPrice ? (
+                        <>
+                            <div className="flex items-center gap-1">
+                                <Image
+                                    src="/icons/currency/dirham.svg"
+                                    alt="Currency"
+                                    width={16}
+                                    height={16}
+                                    className="opacity-60 md:w-5 md:h-5"
+                                />
+                                <span className="text-3xl font-bold font-[inter, sans-serif] text-black">
+                                    {displayPrice}
+                                </span>
                             </div>
-                        )}
-                    </>
+
+                            {originalPrice && (
+                                <div className="flex items-center gap-2 font-[inter, sans-serif]">
+                                    <div className="flex items-center gap-1">
+                                        <Image
+                                            src="/icons/currency/dirham.svg"
+                                            alt="Currency"
+                                            width={14}
+                                            height={14}
+                                            className="opacity-60"
+                                        />
+                                        <span className="text-[#3D4A26] line-through opacity-70">
+                                            {originalPrice}
+                                        </span>
+                                    </div>
+                                </div>
+                            )}
+                        </>
+                    ) : (
+                        <span className="text-3xl font-bold font-[inter, sans-serif] text-black">
+                            —
+                        </span>
+                    )
                 ) : (
-                    <span className="text-3xl font-bold font-[inter, sans-serif] text-black">—</span>
+                    <span
+                        onClick={() => router.push("/login")}
+                        className="text-sm md:text-base font-medium text-[#D35400] cursor-pointer hover:underline"
+                    >
+                        Please Login to access the price
+                    </span>
                 )}
             </div>
+
 
             {/* CONDITION & AVAILABILITY */}
             <div className="space-y-2 text-black">
@@ -169,9 +205,17 @@ export default function ProductPurchaseSection({
 
                 {/* BUY IT NOW */}
                 <button
+                    onClick={() => {
+                        if (!isAuthenticated) {
+                            router.push(`/login?redirect=/checkout`);
+                            return;
+                        }
+
+                        // TODO: continue Buy It Now flow (checkout / direct purchase)
+                    }}
                     className="w-full h-11 bg-[#D35400] clip-path-supplier
-               flex items-center justify-center
-               hover:bg-[#A84300] transition-colors"
+    flex items-center justify-center
+    hover:bg-[#A84300] transition-colors"
                 >
                     <span className="font-orbitron font-black text-[16px] uppercase text-white">
                         Buy It Now
@@ -298,7 +342,7 @@ export default function ProductPurchaseSection({
                     </div>
 
                 </div>
-                                        <div>Every payment made on ArmoredMart is protected by advanced SSL encryption and safeguarded with globally recognized data security standards.</div>
+                <div>Every payment made on ArmoredMart is protected by advanced SSL encryption and safeguarded with globally recognized data security standards.</div>
 
 
 
