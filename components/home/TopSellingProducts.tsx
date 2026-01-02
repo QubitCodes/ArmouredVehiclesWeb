@@ -125,11 +125,16 @@ export function TopSellingProducts({ title }: { title: string }) {
               id: item.id,
               name: item.name || "Unknown Product",
               price: Number(item.price) || 0,
-              image: item.image || item.thumbnail || "/placeholder.png",
+              image:
+                Array.isArray(item.gallery) && item.gallery.length > 0
+                  ? item.gallery[0]
+                  : item.image || item.thumbnail || "/placeholder.png",
               images:
-                item.images && item.images.length > 0
+                (Array.isArray(item.gallery) && item.gallery.length > 0)
+                  ? item.gallery
+                  : (Array.isArray(item.images) && item.images.length > 0)
                   ? item.images
-                  : [item.image || "/placeholder.png"],
+                  : [item.image || item.thumbnail || "/placeholder.png"],
               description: item.description || "No description available.",
               rating: item.rating ?? null,
               reviewCount: item.reviewCount ?? 0,
@@ -247,13 +252,13 @@ export function TopSellingProducts({ title }: { title: string }) {
         <div className="bg-[#EBE3D6] w-full mt-4 pb-10 pt-4 text-center relative">
 
           <div className="relative w-[281px] mx-auto h-[310px]">
-            <button onClick={handlePreviousProduct} className="absolute -left-10 top-1/2 -translate-y-1/2 z-30">
+            <button onClick={handlePreviousImage} className="absolute -left-10 top-1/2 -translate-y-1/2 z-30">
               <Image src="/icons/circled arrow left.svg" width={28} height={28} alt="Prev" />
             </button>
 
             <Image src={previewImage} alt={selectedProduct.name} fill className="object-cover rounded" />
 
-            <button onClick={handleNextProduct} className="absolute -right-10 top-1/2 -translate-y-1/2 z-30">
+            <button onClick={handleNextImage} className="absolute -right-10 top-1/2 -translate-y-1/2 z-30">
               <Image src="/icons/circled arrow right.svg" width={28} height={28} alt="Next" />
             </button>
           </div>

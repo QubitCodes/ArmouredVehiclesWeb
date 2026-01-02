@@ -442,7 +442,7 @@ function CategoryContent() {
                         ) : error ? (
                             <div className="w-full py-10 text-center text-red-600">{error}</div>
                         ) : (
-                            <div className="grid grid-cols-2 w-full lg:grid-cols-2 xl:grid-cols-3 gap-3 md:gap-6">
+                            <div className="grid grid-cols-2 w-full lg:grid-cols-2 xl:grid-cols-4 gap-3 md:gap-6">
                                 {products.map(product => (
                                     <Link key={product.id} href={`/product-details/${product.id}`} className="block">
                                         <ProductCard
