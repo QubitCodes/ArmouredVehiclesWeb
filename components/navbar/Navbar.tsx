@@ -209,7 +209,7 @@ const Navbar = () => {
             {/* Logo */}
             <Link href="/" className="shrink-0">
               <Image
-                src="/logo.svg"
+                src="/final-logo (1).svg"
                 alt="ArmoredMart"
                 width={180}
                 height={40}
@@ -220,7 +220,7 @@ const Navbar = () => {
             {/* Supplier + Login/Profile + Hamburger */}
             <div className="flex items-center gap-3">
 
-              <Link href="/supplier">
+              <Link href="/supplier" className="hidden">
                 <div className="bg-[#39482C] text-white hover:bg-[#D35400] clip-path-supplier flex items-center justify-center px-4 h-[38px]">
                   <span className="font-black text-[13px] font-orbitron uppercase">
                     SUPPLIER
@@ -254,7 +254,7 @@ const Navbar = () => {
     </Link> */}
   </>
 ) : (
-  <Link href="/login">
+  <Link href="/login" className="hidden">
     <div className="bg-[#D35400] text-white hover:bg-[#39482C] clip-path-supplier flex items-center justify-center px-4 h-[38px]">
       <span className="font-black text-[13px] font-orbitron uppercase">
         LOGIN
