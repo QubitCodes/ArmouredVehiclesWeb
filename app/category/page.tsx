@@ -158,7 +158,7 @@ function CategoryContent() {
                     </h1>
 
                     {/* Results Count and Sort By - Mobile View */}
-                    <div className="flex justify-between items-center mb-4">
+                    {/* <div className="flex justify-between items-center mb-4">
                         <div className="flex-1 border border-gray-300 bg-[#F0EBE3] px-4 py-3">
                             <p className="text-black text-sm font-[Inter, sans-serif]">
                                 <span className="font-semibold">{products.length}</span> Results for <span className="font-normal">{categoryNameParam || 'All Products'}</span>
@@ -181,7 +181,7 @@ function CategoryContent() {
                                 </defs>
                             </svg>
                         </button>
-                    </div>
+                    </div> */}
 
                     {/* Filter Buttons - Mobile View */}
                     <div className="flex lg:hidden items-center gap-2 mb-4 text-black overflow-x-auto pb-2">
@@ -214,7 +214,7 @@ function CategoryContent() {
                 <div className="flex flex-col lg:flex-row gap-8 py-5">
                     {/* ---------------- FILTER SIDEBAR ---------------- */}
                     <aside className={`w-full lg:w-1/4 bg-[#F0EBE3] rounded-md lg:sticky lg:top-4 lg:self-start ${showFilters ? 'block' : 'hidden lg:block'}`}>
-                        <div className="p-5 space-y-8 max-h-[calc(100vh-8rem)] overflow-y-auto filter-scrollbar">
+                        <div className="p-5 space-y-8">
                             {/* BRAND FILTER */}
                             <div>
                                 {/* Heading */}

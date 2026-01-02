@@ -308,7 +308,7 @@ const Navbar = () => {
             </div>
 
             {/* Search */}
-            <div className="flex items-center space-x-10 flex-1 max-w-[470px] mx-8">
+            <div className="flex items-center space-x-10 flex-1 max-w-[550px] mx-8">
               <div className="relative h-[50px] max-w-[350px] flex-1">
                 <input
                   type="text"
