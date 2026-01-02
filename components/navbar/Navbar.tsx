@@ -292,15 +292,15 @@ const Navbar = () => {
           </div>
 
           {/* DESKTOP HEADER */}
-          <div className="hidden lg:flex items-center justify-between py-2.5">
+          <div className="hidden lg:flex items-center justify-between py-0">
 
             {/* Logo */}
             <div className="shrink-0">
               <Link href="/">
                 <Image
-                  src="/logo.svg"
+                  src="/final-logo (1).svg"
                   alt="ArmoredMart"
-                  width={280}
+                  width={300}
                   height={40}
                   priority
                 />
