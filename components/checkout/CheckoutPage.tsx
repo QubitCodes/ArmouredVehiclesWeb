@@ -104,6 +104,12 @@ export default function CheckoutPage() {
   const [showPaymentModal, setShowPaymentModal] = useState(false);
   const [isProcessing, setIsProcessing] = useState(false);
 
+
+  // api to get cart details need to pass auth token
+  // curl -X 'GET' \
+  // 'https://armored-api.qubyt.codes/api/cart' \
+  // -H 'accept: */*' 
+
   // Calculations
   const subtotal = mockShipments.reduce(
     (sum, shipment) => sum + shipment.products.reduce((s, p) => s + p.price, 0),
