@@ -14,8 +14,8 @@ interface Product {
   image: string; // thumbnail
   images: string[]; // multiple preview images
   description: string;
-  rating: number;
-  reviews: number;
+  rating: number | null;
+  reviewCount: number;
 }
 
 // Fallback products to use when API fails
@@ -32,7 +32,7 @@ const fallbackProducts: Product[] = [
     ],
     description: "High-performance engines designed for optimal power and efficiency.",
     rating: 4.8,
-    reviews: 1523,
+    reviewCount: 1523,
   },
   {
     id: 2,
@@ -45,7 +45,7 @@ const fallbackProducts: Product[] = [
     ],
     description: "Premium forced induction systems to boost your engine's performance.",
     rating: 4.7,
-    reviews: 2083,
+    reviewCount: 2083,
   },
   {
     id: 3,
@@ -58,7 +58,7 @@ const fallbackProducts: Product[] = [
     ],
     description: "Advanced cooling solutions for engine performance.",
     rating: 4.6,
-    reviews: 987,
+    reviewCount: 987,
   },
   {
     id: 4,
@@ -71,7 +71,7 @@ const fallbackProducts: Product[] = [
     ],
     description: "Precision-engineered fuel components for reliability.",
     rating: 4.9,
-    reviews: 1245,
+    reviewCount: 1245,
   },
   {
     id: 5,
@@ -84,7 +84,7 @@ const fallbackProducts: Product[] = [
     ],
     description: "Manual and automatic transmission systems.",
     rating: 4.5,
-    reviews: 856,
+    reviewCount: 856,
   },
   {
     id: 6,
@@ -97,7 +97,7 @@ const fallbackProducts: Product[] = [
     ],
     description: "Professional-grade brake parts cleaner.",
     rating: 4.8,
-    reviews: 3421,
+    reviewCount: 3421,
   },
 ];
 
@@ -131,8 +131,8 @@ export function TopSellingProducts({ title }: { title: string }) {
                   ? item.images
                   : [item.image || "/placeholder.png"],
               description: item.description || "No description available.",
-              rating: item.rating || 4.5,
-              reviews: item.reviews || 0,
+              rating: item.rating ?? null,
+              reviewCount: item.reviewCount ?? 0,
             }))
           : [];
 
@@ -267,18 +267,24 @@ export function TopSellingProducts({ title }: { title: string }) {
                 <span>{selectedProduct.price.toLocaleString()}</span>
               </>
             ) : (
-              <span className="text-black/70">Log in to access product pricing.</span>
+              <span className="text-black/70"> <strong>Login</strong> to <strong>access</strong> product pricing.</span>
             )}
           </div>
           <h3 className="text-sm font-bold mt-1 px-4">{selectedProduct.name}</h3>
 
           <div className="flex justify-center items-center text-[#FF5C00] mt-1 gap-1">
-            {[...Array(5)].map((_, i) => (
-              <span key={i}>{i < Math.floor(selectedProduct.rating) ? "★" : "☆"}</span>
-            ))}
-            <span className="text-black text-xs">
-              {selectedProduct.rating} ({selectedProduct.reviews})
-            </span>
+            {selectedProduct.rating != null && selectedProduct.reviewCount > 0 ? (
+              <>
+                {[...Array(5)].map((_, i) => (
+                  <span key={i}>{i < Math.floor(selectedProduct.rating as number) ? "★" : "☆"}</span>
+                ))}
+                <span className="text-black text-xs">
+                  {selectedProduct.rating} ({selectedProduct.reviewCount})
+                </span>
+              </>
+            ) : (
+              <span className="text-black text-xs">No reviews yet</span>
+            )}
           </div>
 
           <button className="text-[#D35400] font-orbitron font-black uppercase text-[18px] mt-3">
@@ -309,10 +315,10 @@ export function TopSellingProducts({ title }: { title: string }) {
 
                 style={{ width: "245px", height: "281px" }}
               >
-                <div className="relative w-[190px] h-[190px] mt-5">
+                <div className="relative w-[190px] h-[190px] mt-6">
                   <Image src={product.image} alt={product.name} fill className="object-cover" />
                 </div>
-                <p className="text-black mt-2 text-[16px] leading-none px-2 pb-2">{product.name}</p>
+                <p className="text-black mt-5 text-[16px] leading-none px-2 pb-2">{product.name}</p>
               </div>
             ))}
           </div>
@@ -346,7 +352,9 @@ export function TopSellingProducts({ title }: { title: string }) {
                 <span>{selectedProduct.price.toLocaleString()}</span>
               </>
             ) : (
-              <span className="text-black/70">Log in to access product pricing.</span>
+              <span className="text-black/70">
+                <strong>Login</strong> to <strong>access</strong> product pricing.
+              </span>
             )}
           </div>
 
@@ -355,12 +363,18 @@ export function TopSellingProducts({ title }: { title: string }) {
           </h3>
 
           <div className="flex items-center justify-center gap-1 text-[#FF5C00] mb-2">
-            {[...Array(5)].map((_, i) => (
-              <span key={i}>{i < Math.floor(selectedProduct.rating) ? "★" : "☆"}</span>
-            ))}
-            <span className="text-black text-sm">
-              {selectedProduct.rating} ({selectedProduct.reviews})
-            </span>
+            {selectedProduct.rating != null && selectedProduct.reviewCount > 0 ? (
+              <>
+                {[...Array(5)].map((_, i) => (
+                  <span key={i}>{i < Math.floor(selectedProduct.rating as number) ? "★" : "☆"}</span>
+                ))}
+                <span className="text-black text-sm">
+                  {selectedProduct.rating} ({selectedProduct.reviewCount})
+                </span>
+              </>
+            ) : (
+              <span className="text-black text-sm">No reviews yet</span>
+            )}
           </div>
 
           <button className="text-[#D35400] font-orbitron font-black uppercase text-[20px] mt-2">

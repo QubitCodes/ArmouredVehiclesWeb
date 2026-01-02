@@ -524,7 +524,7 @@ const Navbar = () => {
                 {navItems.slice(0, visibleCount).map((item) => (
                   <Link
                     key={item.name}
-                    href={item.href}
+                    href={`/category?name=${encodeURIComponent(item.name)}`}
                     className="flex items-center h-full px-4 text-[15.5px] font-medium whitespace-nowrap 
               transition-all duration-200 hover:bg-[#D35400] hover:text-white"
                   >

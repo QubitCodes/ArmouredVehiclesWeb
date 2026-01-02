@@ -261,8 +261,8 @@ export const api = {
     },
     getFeatured: () => fetchJson<Product[]>('/products/featured'),
     getTopSelling: () => fetchJson<Product[]>('/products/top-selling'),
-    getCategories: () => fetchJson<Category[]>('/categories'),
-    getSliderProduct: () => fetchJson<Product[]>('/products'),
+    getCategories:() => fetchJson<Product[]>('/api/categories'),
+        getSliderProduct:() => fetchJson<Product[]>('/api/products'),
 
     getById: (id: number) => fetchJson<Product>(`/products/${id}`),
     getSimilar: (id: number) => fetchJson<Product[]>(`/products/${id}/similar`),
