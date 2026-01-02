@@ -300,7 +300,7 @@ const Navbar = () => {
                 <Image
                   src="/final-logo (1).svg"
                   alt="ArmoredMart"
-                  width={300}
+                  width={250}
                   height={40}
                   priority
                 />
