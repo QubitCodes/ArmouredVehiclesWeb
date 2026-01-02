@@ -17,7 +17,8 @@ import type {
 } from './types';
 
 // 1. Safe Environment Variable Access
-const API_BASE = process.env.NEXT_PUBLIC_API_BASE_URL || 'https://armored-api.qubyt.codes/api';
+const API_BASE = process.env.NEXT_PUBLIC_API_BASE_URL ;
+// || 'https://armored-api.qubyt.codes/api';
 console.log("API_BASE", API_BASE);
 
 // ==================== Token Management (Client Side Only) ====================
@@ -259,9 +260,9 @@ export const api = {
       return fetchJson<Product[]>(`/products${queryString ? `?${queryString}` : ''}`);
     },
     getFeatured: () => fetchJson<Product[]>('/products/featured'),
-    getTopSelling: () => fetchJson<Product[]>('/api/products/top-selling'),
-    getCategories:() => fetchJson<Product[]>('/api/categories'),
-        getSliderProduct:() => fetchJson<Product[]>('/api/products'),
+    getTopSelling: () => fetchJson<Product[]>('/products/top-selling'),
+    getCategories: () => fetchJson<Category[]>('/categories'),
+    getSliderProduct: () => fetchJson<Product[]>('/products'),
 
     getById: (id: number) => fetchJson<Product>(`/products/${id}`),
     getSimilar: (id: number) => fetchJson<Product[]>(`/products/${id}/similar`),

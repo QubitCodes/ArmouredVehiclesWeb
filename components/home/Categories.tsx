@@ -1,8 +1,8 @@
 "use client";
-import Image from 'next/image';
-import Link from 'next/link';
-import api from '@/lib/api';
-import { useCallback, useEffect, useRef, useState } from 'react';
+import Image from "next/image";
+import Link from "next/link";
+import api from "@/lib/api";
+import { useCallback, useEffect, useRef, useState } from "react";
 
 interface Category {
   id?: number;
@@ -13,28 +13,28 @@ interface Category {
 const FALLBACK_CATEGORIES: Category[] = [
   {
     title: "CORE VEHICLE SYSTEMS",
-    image: "/category/Core vehicle.png"
+    image: "/category/Core vehicle.png",
   },
   {
     title: "ARMOR-SPECIFIC SYSTEMS",
-    image: "/category/ARMOR SPECIFIC SYSTEMS.png"
+    image: "/category/ARMOR SPECIFIC SYSTEMS.png",
   },
   {
     title: "COMMUNICATION & CONTROL SYSTEMS",
-    image: "/category/COMMUNICATION & CONTROL SYSTEMS.png"
+    image: "/category/COMMUNICATION & CONTROL SYSTEMS.png",
   },
   {
     title: "CLIMATE & INTERIOR",
-    image: "/category/CLIMATE & INTERIOR.png"
+    image: "/category/CLIMATE & INTERIOR.png",
   },
   {
     title: "EXTERIOR & UTILITY",
-    image: "/category/EXTERIOR & UTILITY.png"
+    image: "/category/EXTERIOR & UTILITY.png",
   },
   {
     title: "OEM / CUSTOM MFG",
-    image: "/category/OEM BASELINE CHASSIS SOURCING.png"
-  }
+    image: "/category/OEM BASELINE CHASSIS SOURCING.png",
+  },
 ];
 
 export const Categories = () => {
@@ -69,10 +69,10 @@ export const Categories = () => {
     const checkMobile = () => {
       setIsMobile(window.innerWidth < 768);
     };
-    
+
     checkMobile();
-    window.addEventListener('resize', checkMobile);
-    return () => window.removeEventListener('resize', checkMobile);
+    window.addEventListener("resize", checkMobile);
+    return () => window.removeEventListener("resize", checkMobile);
   }, []);
 
   // Measure container width for desktop slider calculations
@@ -83,28 +83,31 @@ export const Categories = () => {
       }
     };
     updateWidth();
-    window.addEventListener('resize', updateWidth);
-    return () => window.removeEventListener('resize', updateWidth);
+    window.addEventListener("resize", updateWidth);
+    return () => window.removeEventListener("resize", updateWidth);
   }, []);
 
   const handlePrevious = () => {
     if (containerRef.current) {
       const scrollAmount = isMobile ? 163 + 8 : 282; // card width + gap
-      containerRef.current.scrollBy({ left: -scrollAmount, behavior: 'smooth' });
+      containerRef.current.scrollBy({
+        left: -scrollAmount,
+        behavior: "smooth",
+      });
     }
   };
 
   const handleNext = () => {
     if (containerRef.current) {
       const scrollAmount = isMobile ? 163 + 8 : 282;
-      containerRef.current.scrollBy({ left: scrollAmount, behavior: 'smooth' });
+      containerRef.current.scrollBy({ left: scrollAmount, behavior: "smooth" });
     }
   };
 
   // Track scroll position for progress bar
   useEffect(() => {
     if (!isMobile || !containerRef.current) return;
-    
+
     const container = containerRef.current;
     const handleScroll = () => {
       const scrollLeft = container.scrollLeft;
@@ -112,16 +115,16 @@ export const Categories = () => {
       const newIndex = Math.round(scrollLeft / cardWidth);
       setCurrentIndex(newIndex);
     };
-    
-    container.addEventListener('scroll', handleScroll);
-    return () => container.removeEventListener('scroll', handleScroll);
+
+    container.addEventListener("scroll", handleScroll);
+    return () => container.removeEventListener("scroll", handleScroll);
   }, [isMobile]);
 
   // Mobile carousel view
   if (isMobile) {
     const cardWidth = 163; // Fixed card width in pixels
     const gap = 8; // Gap between cards
-    
+
     return (
       <section className="relative py-8">
         <div className="absolute inset-0 z-0 flex flex-col">
@@ -144,20 +147,27 @@ export const Categories = () => {
 
           <div className="relative">
             {/* Carousel Container */}
-            <div 
+            <div
               ref={containerRef}
               className="relative overflow-x-auto overflow-y-hidden rounded-none scrollbar-hide snap-x snap-mandatory"
-              style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}
-            >
+              style={{ scrollbarWidth: "none", msOverflowStyle: "none" }}>
               <div className="flex gap-3">
                 {categories.map((category, index) => (
-                  <div key={index} className="flex-shrink-0 snap-start" style={{ width: `${cardWidth}px` }}>
+                  <div
+                    key={index}
+                    className="flex-shrink-0 snap-start"
+                    style={{ width: `${cardWidth}px` }}>
                     <Link
-                      href={category.id !== undefined 
-                        ? `/category?categoryId=${category.id}&name=${encodeURIComponent(category.title)}` 
-                        : `/category?name=${encodeURIComponent(category.title)}`}
-                      className="block relative w-full h-[208px] overflow-hidden group"
-                    >
+                      href={
+                        category.id !== undefined
+                          ? `/category?categoryId=${
+                              category.id
+                            }&name=${encodeURIComponent(category.title)}`
+                          : `/category?name=${encodeURIComponent(
+                              category.title
+                            )}`
+                      }
+                      className="block relative w-full h-[208px] overflow-hidden group">
                       <Image
                         src={category.image}
                         alt={category.title}
@@ -166,7 +176,7 @@ export const Categories = () => {
                       />
                       {/* Gradient Overlay */}
                       <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-transparent to-transparent" />
-                      
+
                       {/* Category Title */}
                       <div className="absolute bottom-0 left-0 right-0 p-5 pb-4">
                         <h3 className="font-orbitron text-white text-[13px] font-bold uppercase leading-tight tracking-wide">
@@ -212,32 +222,55 @@ export const Categories = () => {
                 onClick={handlePrevious}
                 disabled={currentIndex === 0}
                 className={`transition-opacity ${
-                  currentIndex === 0 ? 'opacity-20 cursor-not-allowed' : 'opacity-60'
+                  currentIndex === 0
+                    ? "opacity-20 cursor-not-allowed"
+                    : "opacity-60"
                 }`}
-                aria-label="Previous"
-              >
-                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="white" className="w-5 h-5">
-                  <path strokeLinecap="round" strokeLinejoin="round" d="M15.75 19.5 8.25 12l7.5-7.5" />
+                aria-label="Previous">
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                  strokeWidth={2}
+                  stroke="white"
+                  className="w-5 h-5">
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    d="M15.75 19.5 8.25 12l7.5-7.5"
+                  />
                 </svg>
               </button>
-              
+
               <div className="flex-1 h-[2px] bg-white/20 relative overflow-hidden">
                 <div
                   className="absolute left-0 top-0 h-full bg-orange-500 transition-all duration-500 ease-out"
-                  style={{ width: `${((currentIndex + 1) / categories.length) * 100}%` }}
-                ></div>
+                  style={{
+                    width: `${((currentIndex + 1) / categories.length) * 100}%`,
+                  }}></div>
               </div>
 
               <button
                 onClick={handleNext}
                 disabled={currentIndex === categories.length - 1}
                 className={`transition-opacity ${
-                  currentIndex === categories.length - 1 ? 'opacity-20 cursor-not-allowed' : 'opacity-60'
+                  currentIndex === categories.length - 1
+                    ? "opacity-20 cursor-not-allowed"
+                    : "opacity-60"
                 }`}
-                aria-label="Next"
-              >
-                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="white" className="w-5 h-5">
-                  <path strokeLinecap="round" strokeLinejoin="round" d="m8.25 4.5 7.5 7.5-7.5 7.5" />
+                aria-label="Next">
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                  strokeWidth={2}
+                  stroke="white"
+                  className="w-5 h-5">
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    d="m8.25 4.5 7.5 7.5-7.5 7.5"
+                  />
                 </svg>
               </button>
             </div>
@@ -248,14 +281,17 @@ export const Categories = () => {
   }
 
   // Desktop view (original design)
-  const maxSlide = Math.max(0, categories.length - Math.floor((measuredWidth || 0) / 282));
-  
+  const maxSlide = Math.max(
+    0,
+    categories.length - Math.floor((measuredWidth || 0) / 282)
+  );
+
   const slideStyle = {
-    transform: `translateX(-${currentIndex * 282}px)`
+    transform: `translateX(-${currentIndex * 282}px)`,
   };
 
   const progressStyle = {
-    width: `${((currentIndex + 1) / (maxSlide + 1)) * 100}%`
+    width: `${((currentIndex + 1) / (maxSlide + 1)) * 100}%`,
   };
 
   return (
@@ -274,32 +310,43 @@ export const Categories = () => {
         ))}
       </div>
       <div className="container-figma mx-auto relative z-10">
-        <h2 className="font-orbitron text-[36px] font-extrabold text-white mb-10 leading-none uppercase" data-aos="fade-up">
+        <h2
+          className="font-orbitron text-[36px] font-extrabold text-white mb-10 leading-none uppercase"
+          data-aos="fade-up">
           CATEGORIES
         </h2>
 
         <div className="relative overflow-hidden" ref={containerRef}>
           <div
             className="flex gap-6 transition-transform duration-500 ease-out"
-            style={slideStyle}
-          >
+            style={slideStyle}>
             {categories.map((category, index) => (
               <div key={index} className="flex-none">
                 <Link
-                  href={category.id !== undefined 
-                    ? `/category?categoryId=${category.id}&name=${encodeURIComponent(category.title)}` 
-                    : `/category?name=${encodeURIComponent(category.title)}`}
+                  href={
+                    category.id !== undefined
+                      ? `/category?categoryId=${
+                          category.id
+                        }&name=${encodeURIComponent(category.title)}`
+                      : `/category?name=${encodeURIComponent(category.title)}`
+                  }
                   className="flex flex-col group w-[258px] no-underline"
                   data-aos="fade-up"
-                  data-aos-delay={index * 100}
-                >
+                  data-aos-delay={index * 100}>
                   <div className="relative w-[258px] h-[328px] bg-black/80 overflow-hidden">
-                    <Image
-                      src={category.image}
-                      alt={category.title}
-                      fill
-                      className="object-cover transform scale-100 transition-transform duration-500 group-hover:scale-110"
-                    />
+                    {category.image ? (
+                      <Image
+                        src={category.image.replace(/^["']|["']$/g, "")}
+                        alt={category.title}
+                        fill
+                        className="object-cover transform scale-100 transition-transform duration-500 group-hover:scale-110"
+                        onError={(e) => {
+                          // Fallback if image fails to load
+                          e.currentTarget.style.display = "none";
+                        }}
+                      />
+                    ) : null}
+                    <div className="absolute inset-0 bg-gradient-to-b from-black/20 to-black/60"></div>
                   </div>
                   <h3 className="relative font-orbitron text-white text-[14px] font-black mt-4 text-left leading-none uppercase min-h-10 after:block after:h-[2px] after:bg-white after:w-0 after:transition-all after:duration-500 after:mt-2 group-hover:after:w-full">
                     {category.title}
@@ -312,27 +359,48 @@ export const Categories = () => {
           {/* Slider Progress Bar with Navigation */}
           <div className="mt-8 flex items-center">
             <button
-              className={`text-white/60 hover:text-white transition-colors mr-4 ${currentIndex === 0 ? 'opacity-50 cursor-not-allowed' : ''}`}
+              className={`text-white/60 hover:text-white transition-colors mr-4 ${
+                currentIndex === 0 ? "opacity-50 cursor-not-allowed" : ""
+              }`}
               onClick={handlePrevious}
-              disabled={currentIndex === 0}
-            >
-              <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor" className="w-6 h-6">
-                <path strokeLinecap="round" strokeLinejoin="round" d="M15.75 19.5 8.25 12l7.5-7.5" />
+              disabled={currentIndex === 0}>
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                fill="none"
+                viewBox="0 0 24 24"
+                strokeWidth={2}
+                stroke="currentColor"
+                className="w-6 h-6">
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  d="M15.75 19.5 8.25 12l7.5-7.5"
+                />
               </svg>
             </button>
             <div className="flex-1 h-0.5 bg-white/10 relative">
               <div
                 className="absolute left-0 top-0 h-full bg-orange-500 rounded-full transition-all duration-500 ease-out"
-                style={progressStyle}
-              ></div>
+                style={progressStyle}></div>
             </div>
             <button
-              className={`text-white/60 hover:text-white transition-colors ml-4 ${currentIndex >= maxSlide ? 'opacity-50 cursor-not-allowed' : ''}`}
+              className={`text-white/60 hover:text-white transition-colors ml-4 ${
+                currentIndex >= maxSlide ? "opacity-50 cursor-not-allowed" : ""
+              }`}
               onClick={handleNext}
-              disabled={currentIndex >= maxSlide}
-            >
-              <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor" className="w-6 h-6">
-                <path strokeLinecap="round" strokeLinejoin="round" d="m8.25 4.5 7.5 7.5-7.5 7.5" />
+              disabled={currentIndex >= maxSlide}>
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                fill="none"
+                viewBox="0 0 24 24"
+                strokeWidth={2}
+                stroke="currentColor"
+                className="w-6 h-6">
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  d="m8.25 4.5 7.5 7.5-7.5 7.5"
+                />
               </svg>
             </button>
           </div>
