@@ -1,5 +1,9 @@
 "use client";
 
+import Image from "next/image";
+
+
+
 type Props = {
   onChange: () => void;
 };
@@ -28,9 +32,17 @@ export default function ShippingSummary({ onChange }: Props) {
             Logistics
           </div>
 
-          <div className="text-sm">
-            Shipping fee: ₹49,377.58 for 50 pieces
+          <div className="text-sm flex items-center gap-1">
+            Shipping fee:
+            <Image
+              src="/icons/currency/dirham.svg"
+              alt="AED"
+              width={14}
+              height={14}
+            />
+            <span className="font-medium">49,377.58</span> for 50 pieces
           </div>
+
 
           <div className="text-sm">
             Guaranteed delivery by{" "}

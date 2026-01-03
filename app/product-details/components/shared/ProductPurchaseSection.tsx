@@ -243,9 +243,9 @@ export default function ProductPurchaseSection({
 
                 {/* ADD TO CART */}
                 <button
-                    className="w-full h-11 bg-[#3D4A26] clip-path-supplier
+                    className="w-full h-11 bg-[#2F3A1D] clip-path-supplier
                flex items-center justify-center
-               hover:bg-[#2F3A1D] transition-colors"
+               hover:bg-[#3D4A26] transition-colors"
                     onClick={onAddToCart}
                 >
                     <span className="font-orbitron font-black text-[16px] uppercase text-white">
