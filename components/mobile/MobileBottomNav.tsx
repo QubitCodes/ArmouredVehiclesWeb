@@ -130,17 +130,23 @@ const MobileBottomNav = () => {
                     </p>
                   </div>
   
-                  <Link href="/login" onClick={() => setAccountOpen(false)}>
-                    <div className="w-full bg-[#D35400] text-white py-3 text-center font-bold rounded">
-                      Consumer Login
+                  <Link href="/login">
+                    <div className="bg-[#D35400] hover:bg-[#39482C] text-white clip-path-supplier flex items-center justify-center w-full h-12">
+                      <span className="font-black text-[20px] font-orbitron uppercase">
+                        LOGIN
+                      </span>
                     </div>
                   </Link>
-  
-                  <Link href="/seller/login" onClick={() => setAccountOpen(false)}>
-                    <div className="w-full border border-[#39482C] text-[#39482C] py-3 text-center font-bold rounded">
-                      Seller Login
-                    </div>
-                  </Link>
+
+
+
+                  <Link href="/supplier">
+                                  <div className="bg-[#39482C] hover:bg-[#D35400] text-white clip-path-supplier flex items-center justify-center w-full h-12">
+                                    <span className="font-black text-[20px] font-orbitron uppercase">
+                                      SUPPLIER ZONE
+                                    </span>
+                                  </div>
+                                </Link>
   
                   {/* FOOTER */}
                   

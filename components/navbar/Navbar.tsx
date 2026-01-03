@@ -209,7 +209,7 @@ const Navbar = () => {
             {/* Logo */}
             <Link href="/" className="shrink-0">
               <Image
-                src="/logo.svg"
+                src="/final-logo (1).svg"
                 alt="ArmoredMart"
                 width={180}
                 height={40}
@@ -220,7 +220,7 @@ const Navbar = () => {
             {/* Supplier + Login/Profile + Hamburger */}
             <div className="flex items-center gap-3">
 
-              <Link href="/supplier">
+              <Link href="/supplier" className="hidden">
                 <div className="bg-[#39482C] text-white hover:bg-[#D35400] clip-path-supplier flex items-center justify-center px-4 h-[38px]">
                   <span className="font-black text-[13px] font-orbitron uppercase">
                     SUPPLIER
@@ -254,7 +254,7 @@ const Navbar = () => {
     </Link> */}
   </>
 ) : (
-  <Link href="/login">
+  <Link href="/login" className="hidden">
     <div className="bg-[#D35400] text-white hover:bg-[#39482C] clip-path-supplier flex items-center justify-center px-4 h-[38px]">
       <span className="font-black text-[13px] font-orbitron uppercase">
         LOGIN
@@ -292,15 +292,15 @@ const Navbar = () => {
           </div>
 
           {/* DESKTOP HEADER */}
-          <div className="hidden lg:flex items-center justify-between py-2.5">
+          <div className="hidden lg:flex items-center justify-between py-0">
 
             {/* Logo */}
             <div className="shrink-0">
               <Link href="/">
                 <Image
-                  src="/logo.svg"
+                  src="/final-logo (1).svg"
                   alt="ArmoredMart"
-                  width={280}
+                  width={250}
                   height={40}
                   priority
                 />
@@ -308,7 +308,7 @@ const Navbar = () => {
             </div>
 
             {/* Search */}
-            <div className="flex items-center space-x-10 flex-1 max-w-[470px] mx-8">
+            <div className="flex items-center space-x-10 flex-1 max-w-[550px] mx-8">
               <div className="relative h-[50px] max-w-[350px] flex-1">
                 <input
                   type="text"
@@ -524,7 +524,7 @@ const Navbar = () => {
                 {navItems.slice(0, visibleCount).map((item) => (
                   <Link
                     key={item.name}
-                    href={item.href}
+                    href={`/category?name=${encodeURIComponent(item.name)}`}
                     className="flex items-center h-full px-4 text-[15.5px] font-medium whitespace-nowrap 
               transition-all duration-200 hover:bg-[#D35400] hover:text-white"
                   >

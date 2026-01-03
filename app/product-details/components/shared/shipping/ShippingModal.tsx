@@ -36,13 +36,13 @@ export default function ShippingModal({ open, onClose }: Props) {
           {[
             {
               id: "standard",
-              label: "Standard Alibaba.com Logistics",
+              label: "Standard armourdmart.com Logistics",
               date: "11 Feb",
               price: "₹49,377.58",
             },
             {
               id: "premium",
-              label: "Premium Alibaba.com Logistics",
+              label: "Premium armourdmart.com Logistics",
               date: "10 Feb",
               price: "₹53,879.52",
             },

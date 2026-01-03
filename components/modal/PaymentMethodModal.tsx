@@ -1,155 +1,216 @@
 "use client";
-import { useState } from "react";
-import { X, CreditCard, Info } from "lucide-react";
+import { useState, useEffect } from "react";
+import { X, Loader } from "lucide-react";
 import { useRouter } from "next/navigation";
+import { useMutation } from "@tanstack/react-query";
+import { api } from "@/lib/api";
 
-export default function PaymentMethodModal({ onClose }: { onClose: () => void }) {
+interface PaymentMethodModalProps {
+  onClose: () => void;
+  subtotal?: number;
+  onPaymentSuccess?: () => void;
+}
+
+export default function PaymentMethodModal({
+  onClose,
+  subtotal = 0,
+  onPaymentSuccess,
+}: PaymentMethodModalProps) {
   const router = useRouter();
-  const [cardNumber, setCardNumber] = useState("");
-  const [expiryMonth, setExpiryMonth] = useState("");
-  const [expiryYear, setExpiryYear] = useState("");
-  const [cvv, setCvv] = useState("");
-  const [rememberCard, setRememberCard] = useState(false);
+  const [isProcessing, setIsProcessing] = useState(false);
+  const [selectedPaymentMethod, setSelectedPaymentMethod] = useState("card");
+  const [error, setError] = useState<string | null>(null);
 
-  const formatCardNumber = (value: string) => {
-    const v = value.replace(/\s+/g, "").replace(/[^0-9]/gi, "");
-    const matches = v.match(/\d{4,16}/g);
-    const match = (matches && matches[0]) || "";
-    const parts = [];
-    for (let i = 0, len = match.length; i < len; i += 4) {
-      parts.push(match.substring(i, i + 4));
+  // Handle Stripe checkout
+  const createCheckoutSession = useMutation({
+    mutationFn: async () => {
+      return await api.checkout.createSession();
+    },
+    onSuccess: (data) => {
+      if (data.url) {
+        // Redirect to Stripe checkout
+        window.location.href = data.url;
+      } else if (data.testMode) {
+        // In test mode, show the order ID
+        setError(`Order created in test mode: ${data.orderId}`);
+        setIsProcessing(false);
+      } else {
+        throw new Error(data.error || "No checkout URL returned");
+      }
+    },
+    onError: (error: any) => {
+      setError(error.message || "Payment processing failed");
+      setIsProcessing(false);
+    },
+  });
+
+  const handleSubmit = async () => {
+    try {
+      setIsProcessing(true);
+      setError(null);
+
+      if (selectedPaymentMethod === "card") {
+        // For Stripe card payment, create a checkout session
+        await createCheckoutSession.mutateAsync();
+      } else {
+        // For other payment methods (coming soon)
+        setError(`${selectedPaymentMethod} payment is coming soon`);
+        setIsProcessing(false);
+      }
+    } catch (err: any) {
+      setError(err.message || "An error occurred");
+      setIsProcessing(false);
     }
-    return parts.length ? parts.join("   ") : value;
-  };
-
-  const handleSubmit = () => {
-    onClose();
-    // Navigate to order confirmation or process payment
-    router.push("/order-confirmation");
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center">
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
       {/* Overlay */}
-      <div
-        className="absolute inset-0 bg-black/50"
-        onClick={onClose}
-      ></div>
+      <div className="absolute inset-0 bg-black/50" onClick={onClose}></div>
 
       {/* Modal */}
-      <div className="relative bg-[#EBE3D6] w-full max-w-[450px] rounded-md border border-[#E2DACB] shadow-lg animate-fadeIn overflow-hidden">
+      <div className="relative bg-[#EBE3D6] w-full max-w-[500px] rounded-md border border-[#E2DACB] shadow-lg overflow-hidden">
         {/* Close Button */}
         <button
-          className="absolute top-4 right-4 text-[#666] hover:text-black transition-colors"
-          onClick={onClose}
-        >
+          className="absolute top-4 right-4 text-[#666] hover:text-black transition-colors z-10"
+          onClick={onClose}>
           <X size={24} />
         </button>
 
         {/* Header */}
         <div className="px-6 pt-6 pb-4">
           <h2 className="font-orbitron font-bold text-[22px] uppercase text-black">
-            Payment Method
+            Complete Payment
           </h2>
+          <p className="text-sm text-[#6E6E6E] mt-2">
+            Secure payment powered by Stripe
+          </p>
         </div>
 
         {/* Form */}
         <div className="px-6 pb-6 space-y-5">
-          {/* Card Number */}
+          {/* Error Message */}
+          {error && (
+            <div className="p-4 bg-red-100 border border-red-400 text-red-700 rounded-md text-sm">
+              {error}
+            </div>
+          )}
+
+          {/* Payment Method Selection */}
           <div>
-            <label className="block text-sm font-semibold text-black mb-2">
-              CARD NUMBER
+            <label className="block text-sm font-semibold text-black mb-3">
+              PAYMENT METHOD
             </label>
-            <div className="relative">
+
+            {/* Card Option */}
+            <label
+              className={`flex items-center gap-3 p-4 border-2 rounded-lg cursor-pointer transition-all mb-3 ${
+                selectedPaymentMethod === "card"
+                  ? "border-[#D35400] bg-[#FFF8F0]"
+                  : "border-[#C2B280] bg-white"
+              }`}>
               <input
-                type="text"
-                placeholder="***   ***   *****"
-                value={cardNumber}
-                onChange={(e) => setCardNumber(formatCardNumber(e.target.value))}
-                maxLength={22}
-                className="w-full bg-white border border-[#C2B280] px-4 py-3 text-[15px] outline-none focus:border-[#D35400] transition-colors"
+                type="radio"
+                name="payment-method"
+                value="card"
+                checked={selectedPaymentMethod === "card"}
+                onChange={(e) => setSelectedPaymentMethod(e.target.value)}
+                className="w-4 h-4 cursor-pointer"
               />
-            </div>
+              <div>
+                <p className="font-semibold text-black">Debit/Credit Card</p>
+                <p className="text-xs text-[#6E6E6E]">
+                  Visa, Mastercard, American Express
+                </p>
+              </div>
+            </label>
+
+            {/* Tabby Option (Coming Soon) */}
+            <label className="flex items-center gap-3 p-4 border-2 border-[#C2B280] rounded-lg cursor-not-allowed opacity-60 mb-3 bg-[#F5F5F5]">
+              <input
+                type="radio"
+                name="payment-method"
+                value="tabby"
+                disabled
+                className="w-4 h-4 cursor-not-allowed"
+              />
+              <div>
+                <p className="font-semibold text-black">Tabby</p>
+                <p className="text-xs text-[#6E6E6E]">
+                  Split into 4 payments (Coming Soon)
+                </p>
+              </div>
+            </label>
+
+            {/* Tamara Option (Coming Soon) */}
+            <label className="flex items-center gap-3 p-4 border-2 border-[#C2B280] rounded-lg cursor-not-allowed opacity-60 bg-[#F5F5F5]">
+              <input
+                type="radio"
+                name="payment-method"
+                value="tamara"
+                disabled
+                className="w-4 h-4 cursor-not-allowed"
+              />
+              <div>
+                <p className="font-semibold text-black">Tamara</p>
+                <p className="text-xs text-[#6E6E6E]">
+                  Pay in 4 intervals (Coming Soon)
+                </p>
+              </div>
+            </label>
           </div>
 
-          {/* Expiry Date & CVV */}
-          <div className="grid grid-cols-2 gap-4">
-            <div>
-              <label className="block text-sm font-semibold text-black mb-2">
-                EXPIRY DATE
-              </label>
-              <div className="flex gap-2">
-                <input
-                  type="text"
-                  placeholder="MM"
-                  value={expiryMonth}
-                  onChange={(e) => setExpiryMonth(e.target.value.replace(/\D/g, "").slice(0, 2))}
-                  maxLength={2}
-                  className="w-16 bg-white border border-[#C2B280] px-3 py-3 text-[15px] text-center outline-none focus:border-[#D35400] transition-colors"
-                />
-                <span className="flex items-center text-[#999]">/</span>
-                <input
-                  type="text"
-                  placeholder="YY"
-                  value={expiryYear}
-                  onChange={(e) => setExpiryYear(e.target.value.replace(/\D/g, "").slice(0, 2))}
-                  maxLength={2}
-                  className="w-16 bg-white border border-[#C2B280] px-3 py-3 text-[15px] text-center outline-none focus:border-[#D35400] transition-colors"
-                />
-              </div>
-            </div>
-
-            <div>
-              <label className="block text-sm font-semibold text-black mb-2 flex items-center gap-2">
-                CVV
-                <Info size={14} className="text-[#999]" />
-              </label>
-              <input
-                type="text"
-                placeholder="Code"
-                value={cvv}
-                onChange={(e) => setCvv(e.target.value.replace(/\D/g, "").slice(0, 4))}
-                maxLength={4}
-                className="w-full bg-white border border-[#C2B280] px-4 py-3 text-[15px] outline-none focus:border-[#D35400] transition-colors"
-              />
-            </div>
-          </div>
-
-          {/* Remember Card */}
-          <div className="space-y-1">
-            <label className="flex items-center gap-3 cursor-pointer">
-              <div
-                className={`w-5 h-5 border flex items-center justify-center transition-colors ${
-                  rememberCard
-                    ? "bg-[#39482C] border-[#39482C]"
-                    : "bg-white border-[#C2B280]"
-                }`}
-                onClick={() => setRememberCard(!rememberCard)}
-              >
-                {rememberCard && (
-                  <svg className="w-3 h-3 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M5 13l4 4L19 7" />
-                  </svg>
-                )}
-              </div>
-              <span className="text-sm text-black">Remember this card</span>
-            </label>
-            <p className="text-[11px] text-[#666] ml-8">
-              ArmoredMart will securely store this card for a faster payment experience. CVV number will not be stored.
+          {/* Security Info */}
+          <div className="p-4 bg-blue-50 border border-blue-200 rounded-lg">
+            <p className="text-xs text-blue-900">
+              <strong>🔒 Secure Payment:</strong> Your payment information is
+              encrypted and secured by Stripe. We never store your complete card
+              details.
             </p>
           </div>
+
+          {/* Amount Display */}
+          {subtotal > 0 && (
+            <div className="p-4 bg-[#F9F7F3] border border-[#DBD4C3] rounded-lg">
+              <div className="flex justify-between items-center">
+                <span className="text-sm font-semibold text-black">
+                  Total Amount
+                </span>
+                <span className="text-xl font-bold text-[#D35400]">
+                  AED {subtotal.toFixed(2)}
+                </span>
+              </div>
+            </div>
+          )}
 
           {/* Submit Button */}
           <button
             onClick={handleSubmit}
-            className="w-full bg-[#D35400] text-white font-orbitron font-bold text-[16px] uppercase py-4 hover:bg-[#B51E17] transition-colors"
-            style={{ clipPath: 'polygon(15px 0, calc(100% - 15px) 0, 100% 50%, calc(100% - 15px) 100%, 15px 100%, 0 50%)' }}
-          >
-            ADD MY CARD
+            disabled={isProcessing || createCheckoutSession.isPending}
+            className="w-full bg-[#D35400] text-white font-orbitron font-bold text-[16px] uppercase py-4 hover:bg-[#B84A00] transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+            style={{
+              clipPath:
+                "polygon(15px 0, calc(100% - 15px) 0, 100% 50%, calc(100% - 15px) 100%, 15px 100%, 0 50%)",
+            }}>
+            {isProcessing || createCheckoutSession.isPending ? (
+              <>
+                <Loader className="w-4 h-4 animate-spin" />
+                Processing...
+              </>
+            ) : (
+              "Proceed to Payment"
+            )}
+          </button>
+
+          {/* Cancel Button */}
+          <button
+            onClick={onClose}
+            disabled={isProcessing || createCheckoutSession.isPending}
+            className="w-full border-2 border-[#D35400] text-[#D35400] font-orbitron font-bold text-[14px] uppercase py-3 hover:bg-[#FFF8F0] transition-colors disabled:opacity-50 disabled:cursor-not-allowed">
+            Cancel
           </button>
         </div>
       </div>
     </div>
   );
 }
-

@@ -1,7 +1,7 @@
 "use client";
 
 import Image from "next/image";
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { Heart } from "lucide-react";
 import { useCartStore } from "@/lib/cart-store";
 import { syncAddToServer } from "@/lib/cart-sync";
@@ -29,20 +29,42 @@ export default function ProductCard({
 }: ProductCardProps) {
   const [liked, setLiked] = useState(false);
   const [slide, setSlide] = useState(0);
+  const intervalRef = useRef<number | null>(null);
   const addItem = useCartStore((s) => s.addItem);
-  const nextImage = () => {
-    setSlide((prev) => (prev + 1) % images.length);
+  const startHoverCycle = () => {
+    if (intervalRef.current != null || images.length <= 1) return;
+    intervalRef.current = window.setInterval(() => {
+      setSlide((prev) => (prev + 1) % images.length);
+    }, 700);
   };
 
-  const prevImage = () => {
-    setSlide((prev) => (prev === 0 ? images.length - 1 : prev - 1));
+  const stopHoverCycle = () => {
+    if (intervalRef.current != null) {
+      window.clearInterval(intervalRef.current);
+      intervalRef.current = null;
+    }
+    setSlide(0);
   };
+
+  useEffect(() => {
+    return () => {
+      // Cleanup on unmount
+      if (intervalRef.current != null) {
+        window.clearInterval(intervalRef.current);
+        intervalRef.current = null;
+      }
+    };
+  }, []);
 
   return (
     <div className="bg-white border border-[#E8E3D6] overflow-hidden hover:shadow-md transition-all duration-200 flex flex-col">
       {/* ---------- IMAGE SECTION ---------- */}
-      <div className="relative bg-[#EBE3D6] w-auto max-h-[375px] h-[200px] md:h-[350px] flex items-center justify-center group">
-        {/* Image slider */}
+      <div
+        className="relative bg-[#EBE3D6] w-auto max-h-[375px] h-[200px] md:h-[350px] flex items-center justify-center group"
+        onMouseEnter={startHoverCycle}
+        onMouseLeave={stopHoverCycle}
+      >
+        {/* Image display with hover cycling */}
         <Image
           src={images[slide]}
           alt={name}
@@ -51,22 +73,6 @@ export default function ProductCard({
           // fill
           className="object-contain max-h-[200px] md:max-h-[350px] transition-all duration-300"
         />
-
-        {/* Left Arrow */}
-        <button
-          onClick={prevImage}
-          className="absolute left-1 md:left-3 w-[25px] h-[25px] md:w-[35px] md:h-[35px] top-1/2 -translate-y-1/2 rounded-full p-1 shadow bg-white opacity-0 pointer-events-none group-hover:opacity-100 group-hover:pointer-events-auto transition-opacity duration-200"
-        >
-          <Image src="/icons/productCardLeft.svg" alt="previous" fill />
-        </button>
-
-        {/* Right Arrow */}
-        <button
-          onClick={nextImage}
-          className="absolute right-1 md:right-3 w-[25px] h-[25px] md:w-[35px] md:h-[35px] top-1/2 -translate-y-1/2 rounded-full p-1 bg-white shadow opacity-0 pointer-events-none group-hover:opacity-100 group-hover:pointer-events-auto transition-opacity duration-200"
-        >
-          <Image src="/icons/productCardRight.svg" alt="next" fill />
-        </button>
 
         {/* Wishlist Icon */}
         <button
@@ -81,17 +87,7 @@ export default function ProductCard({
           />
         </button>
 
-        {/* Slide indicators (dots) */}
-        <div className="absolute bottom-3 flex gap-2">
-          {images.map((_, idx) => (
-            <div
-              key={idx}
-              className={`h-[3px] rounded-full transition-all duration-300 ${
-                idx === slide ? "bg-[#D35400] w-[30px]" : "bg-gray-400 w-3"
-              }`}
-            />
-          ))}
-        </div>
+        {/* No slider controls or indicators; hover cycles images */}
       </div>
 
       {/* ---------- PRODUCT DETAILS ---------- */}

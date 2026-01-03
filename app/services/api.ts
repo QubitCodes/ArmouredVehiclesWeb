@@ -1,8 +1,7 @@
 import axios from "axios";
 
 const API = axios.create({
-  baseURL: "https://armored-api.qubyt.codes/api",
-  // baseURL: "http://localhost:5000/api",
+  baseURL: process.env.NEXT_PUBLIC_API_BASE_URL || "https://armored-api.qubyt.codes/api",
 
   headers: {
     "Content-Type": "application/json",
