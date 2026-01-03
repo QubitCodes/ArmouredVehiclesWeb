@@ -56,7 +56,7 @@ export default function OrderSummary({
         <input
           type="text"
           placeholder="Enter Promo Code"
-          className="flex-1 border border-[#C1BCA9] bg-[#FBFAF6] px-3 lg:px-4 text-[13px] lg:text-[14px] outline-none"
+          className="flex-1 border border-[#C1BCA9] bg-[#FBFAF6] px-3 lg:px-4 text-[13px] lg:text-[14px] outline-none text-black"
         />
         <button className="bg-[#3D4A26] text-white text-[13px] lg:text-[15px] font-bold uppercase px-6 lg:px-8 h-full hover:bg-[#4A6F36] transition-colors">
           APPLY
@@ -74,7 +74,7 @@ export default function OrderSummary({
               Total
             </p>
             <p className="text-[11px] lg:text-[12px] text-[#666]">
-              (Inclusive of VAT)
+              {/* (Inclusive of VAT) */}
             </p>
           </div>
           <span className="font-bold text-[20px] lg:text-[22px] text-black flex items-center gap-2">

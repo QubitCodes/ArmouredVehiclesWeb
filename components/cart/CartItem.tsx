@@ -113,7 +113,7 @@ export default function CartItem({ data, updateQty, removeItem }: any) {
 
       {/* Bottom Section */}
       <div className="flex flex-col lg:flex-row gap-4 text-xs text-[#6A6A6A]">
-        <span>This item cannot be exchanged or returned.</span>
+        {/* <span>This item cannot be exchanged or returned.</span> */}
 
         <div className="flex gap-3 lg:ml-auto">
           <button
@@ -129,10 +129,10 @@ export default function CartItem({ data, updateQty, removeItem }: any) {
             <span className="underline">Save for later</span>
           </button>
 
-          <button className="flex items-center gap-1 hover:text-black">
+          {/* <button className="flex items-center gap-1 hover:text-black">
             <img src="/icons/share.svg" width={12} />
             <span className="underline">Share</span>
-          </button>
+          </button> */}
         </div>
       </div>
     </div>
