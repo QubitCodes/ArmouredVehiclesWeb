@@ -223,18 +223,17 @@ const DesktopLayout = ({ id, product }: { id?: string; product?: any }) => {
                             />
 
 
-
-
                         </div>
                     </div>
                 </div>
             </Container>
-            <TopSellingProducts title="Recommended For Your Vehicle" />
-            <Container className="my-10">
+            <Container className="my-6 ">
                 {tabContent.length > 0 && (
                     <TabbedSection tabs={tabContent} defaultTab={tabContent[0]?.id} />
                 )}
             </Container>
+                        <TopSellingProducts title="Recommended For Your Vehicle" />
+
             {showGallery && (
                 <FullscreenGallery
                     images={images}
