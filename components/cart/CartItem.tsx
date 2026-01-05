@@ -1,5 +1,6 @@
 import QuantitySelector from "./QuantitySelector";
 import { Bookmark } from "lucide-react";
+import Image from "next/image";
 
 export default function CartItem({ data, updateQty, removeItem }: any) {
   return (
@@ -7,11 +8,14 @@ export default function CartItem({ data, updateQty, removeItem }: any) {
 
       <div className="flex flex-col sm:flex-row gap-5">
         {/* Product Image */}
-        <img
-          src="/cart/image1.png"
+        <Image
+          src={data.image ?? "/placeholder/product.png"}
           alt={data.title}
-          className="w-20 h-20 lg:w-28 lg:h-28 object-contain flex-shrink-0"
+          width={112}
+          height={112}
+          className="object-contain flex-shrink-0"
         />
+
 
         {/* Product Info */}
         <div className="flex-1 min-w-0">
@@ -20,9 +24,8 @@ export default function CartItem({ data, updateQty, removeItem }: any) {
           </h3>
 
           <p
-            className={`text-xs font-medium mb-1 ${
-              data.stock === "In Stock" ? "text-[#3BAF7F]" : "text-red-600"
-            }`}
+            className={`text-xs font-medium mb-1 ${data.stock === "In Stock" ? "text-[#3BAF7F]" : "text-red-600"
+              }`}
           >
             {data.stock}
           </p>

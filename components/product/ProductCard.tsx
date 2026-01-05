@@ -106,7 +106,7 @@ export default function ProductCard({
       </div>
 
       {/* ---------- PRODUCT DETAILS ---------- */}
-<div className="p-2 md:p-4 flex flex-col grow bg-[#F0EBE3]">
+      <div className="p-2 md:p-4 flex flex-col grow bg-[#F0EBE3]">
         <div>
           <div className="overflow-hidden">
             <h3
@@ -172,24 +172,26 @@ export default function ProductCard({
 
       {/* ---------- FULL-WIDTH BUTTON ---------- */}
       <button
-        className={`w-full py-2 md:py-3 font-black font-[Orbitron] uppercase text-sm md:text-[18px] tracking-wide transition bg-[#000000] text-white hover:bg-[#D35400]`}
+        className="w-full py-2 md:py-3 font-black font-[Orbitron] uppercase text-sm md:text-[18px] tracking-wide transition bg-[#000000] text-white hover:bg-[#D35400]"
         onClick={async () => {
-          if (action === "ADD TO CART") {
-            addItem({
-              id: String(id ?? name + "-" + price),
-              name,
-              price: Number(price) ?? 0,
-              image: images?.[0],
-            }, 1);
-            const pid = id ? Number(id) : NaN;
-            if (Number.isFinite(pid)) {
-              await syncAddToServer(pid, 1);
-            }
+          if (action === "ADD TO CART" && id) {
+            addItem(
+              {
+                id: String(id),
+                name,
+                price: Number(price) ?? 0,
+                image: images?.[0] ?? "/placeholder/product.png",
+              },
+              1
+            );
+
+            await syncAddToServer(Number(id), 1);
           }
         }}
       >
         {action}
       </button>
+
     </div>
   );
 }

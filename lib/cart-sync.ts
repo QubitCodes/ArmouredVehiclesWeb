@@ -58,7 +58,10 @@ export async function hydrateCartFromServer() {
       name: ci.product?.name ?? `Product #${ci.productId}`,
       price: Number(ci.product?.price ?? 0),
       qty: Number(ci.quantity ?? 1),
-      image: ci.product?.image,
+      image:
+        ci.product?.image ??
+        ci.product?.images?.[0] ??
+  "/placeholder/product.png",
       sku: ci.product?.sku,
       stock: ci.product?.stock,
     }));

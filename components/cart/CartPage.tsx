@@ -129,6 +129,12 @@ export default function CartPage() {
     [items]
   );
 
+  const itemCount = useMemo(
+    () => items.reduce((sum, item) => sum + item.qty, 0),
+    [items]
+  );
+
+
   // On mount: if logged in, hydrate from server. If server empty and local not, push local up.
   useEffect(() => {
     (async () => {
@@ -140,7 +146,7 @@ export default function CartPage() {
         // This is conservative; comment out if you don't want merging behavior
         // const current = useCartStore.getState().items;
         // if (!current.length && items.length) await pushLocalCartToServer();
-      } catch {}
+      } catch { }
     })();
   }, []);
 
@@ -181,7 +187,9 @@ export default function CartPage() {
                 lineHeight: "100%",
                 letterSpacing: "0%",
               }}>
-              ({items.length} items)
+              ({itemCount} {itemCount === 1 ? "item" : "items"})
+
+
             </div>
           </h1>
           <div className="space-y-5 p-5 bg-[#EBE3D6]">
@@ -200,7 +208,11 @@ export default function CartPage() {
           </div>
         </div>
         <div className="mt-10 lg:mt-24 lg:sticky lg:top-36 self-start bg-[#EBE3D6]">
-          <OrderSummary subtotal={subtotal} onCheckout={handleCheckout} />
+          <OrderSummary
+            subtotal={subtotal}
+            itemCount={itemCount}
+            onCheckout={handleCheckout}
+          />
         </div>
 
         <div className="hidden lg:block mt-8">

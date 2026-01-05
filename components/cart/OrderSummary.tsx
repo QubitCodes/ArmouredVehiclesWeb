@@ -1,14 +1,23 @@
 import { Loader } from "lucide-react";
 
+// type OrderSummaryProps = {
+//   subtotal: number;
+//   onCheckout?: () => void;
+//   buttonText?: string;
+//   isLoading?: boolean;
+// };
 type OrderSummaryProps = {
   subtotal: number;
+  itemCount: number;   // ✅ ADD THIS
   onCheckout?: () => void;
   buttonText?: string;
   isLoading?: boolean;
 };
 
+
 export default function OrderSummary({
   subtotal,
+  itemCount,
   onCheckout,
   buttonText = "CHECKOUT",
   isLoading = false,
@@ -25,8 +34,9 @@ export default function OrderSummary({
       {/* Subtotal */}
       <div className="flex justify-between items-center">
         <span className="text-[14px] lg:text-[15px] text-[#1C1C1C]">
-          Subtotal (3 items)
+          Subtotal ({itemCount} {itemCount === 1 ? "item" : "items"})
         </span>
+
         <span className="font-bold text-[16px] lg:text-[18px] flex items-center gap-2 text-black">
           <svg
             width="17"
@@ -108,7 +118,8 @@ export default function OrderSummary({
 
       {/* Checkout Button */}
       <button
-        disabled={isLoading}
+        disabled={itemCount === 0 || isLoading}
+
         className="
         checkout-button
         bg-[#D35400] text-white font-bold text-[16px] lg:text-[18px] uppercase
