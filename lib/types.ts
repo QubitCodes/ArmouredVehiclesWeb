@@ -218,5 +218,11 @@ export interface FilterOptions {
   productTypes: { name: string; image: string }[];
   surfaceTypes: string[];
   frictionalMaterials: string[];
+
+  priceRange?: {
+    min: number;
+    max: number;
+  };
 }
+
 

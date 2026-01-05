@@ -17,8 +17,9 @@ import type {
 } from './types';
 
 // 1. Safe Environment Variable Access
-const API_BASE = process.env.NEXT_PUBLIC_API_BASE_URL ;
-// || 'https://armored-api.qubyt.codes/api';
+const API_BASE =
+  process.env.NEXT_PUBLIC_API_BASE_URL ??
+  "https://armored-api.qubyt.codes/api";
 console.log("API_BASE", API_BASE);
 
 // ==================== Token Management (Client Side Only) ====================
@@ -328,9 +329,33 @@ export const api = {
   },
 
   // --- Filters ---
-  filters: {
-    get: () => fetchJson<FilterOptions>('/filters'),
+filters: {
+  get: (params?: {
+    categoryId?: number;
+    brand?: string[];
+    minPrice?: number;
+    maxPrice?: number;
+  }) => {
+    const search = new URLSearchParams();
+
+    if (params?.categoryId)
+      search.set("categoryId", params.categoryId.toString());
+
+    if (params?.minPrice !== undefined)
+      search.set("minPrice", params.minPrice.toString());
+
+    if (params?.maxPrice !== undefined)
+      search.set("maxPrice", params.maxPrice.toString());
+
+    if (params?.brand?.length)
+      params.brand.forEach((b) => search.append("brand", b));
+
+    return fetchJson<FilterOptions>(
+      `/filters${search.toString() ? `?${search.toString()}` : ""}`
+    );
   },
+},
+
 
   // --- User ---
   user: {

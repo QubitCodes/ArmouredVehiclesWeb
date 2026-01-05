@@ -55,11 +55,11 @@ const Footer = ({ disableMobileBottomSpace = false }: FooterProps) => {
 
 
   const socialLinks = [
-    { icon: "/icons/social/meta.svg", href: "https://facebook.com/armoredmart" },
-    { icon: "/icons/social/x.svg", href: "https://twitter.com/armoredmart" },
-    { icon: "/icons/social/youtube.svg", href: "https://youtube.com/armoredmart" },
-    { icon: "/icons/social/instagram.svg", href: "https://instagram.com/armoredmart" },
-    { icon: "/icons/social/linkedin.svg", href: "https://linkedin.com/company/armoredmart" },
+    { icon: "/icons/social/meta.svg", href: "https://facebook.com/" },
+    { icon: "/icons/social/x.svg", href: "https://twitter.com/" },
+    { icon: "/icons/social/youtube.svg", href: "https://youtube.com/" },
+    { icon: "/icons/social/instagram.svg", href: "https://instagram.com/" },
+    { icon: "/icons/social/linkedin.svg", href: "https://linkedin.com/company/" },
   ];
 
   const paymentMethods = [

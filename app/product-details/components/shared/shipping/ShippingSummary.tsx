@@ -45,7 +45,7 @@ export default function ShippingSummary({ onChange }: Props) {
 
 
           <div className="text-sm">
-            Guaranteed delivery by{" "}
+            Estimated delivery by{" "}
             <b>{getExpectedDeliveryDate(8)}</b>
           </div>
         </div>

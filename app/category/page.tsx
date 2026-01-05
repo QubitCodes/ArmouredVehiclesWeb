@@ -14,6 +14,7 @@ import { TopSellingProducts } from '@/components/home';
 import DescriptionSection from '@/components/all-products/DescriptionSection';
 import api from '@/lib/api';
 
+
 interface Product {
     id: string;
     name: string;
@@ -33,45 +34,59 @@ function CategoryContent() {
     const [isLoading, setIsLoading] = useState<boolean>(true);
     const [error, setError] = useState<string | null>(null);
 
-    useEffect(() => {
-        const fetchProducts = async () => {
-            try {
-                const filters = categoryIdParam && !isNaN(Number(categoryIdParam))
-                  ? { categoryId: Number(categoryIdParam) }
-                  : undefined;
-                const data = await api.products.getAll(filters);
-                const mapped: Product[] = Array.isArray(data)
-                    ? data.map((item: any) => ({
-                        id: String(item.id),
-                        name: item.name || 'Unknown Product',
-                        price: Number(item.price) || 0,
-                        rating: typeof item.rating === 'number' ? item.rating : Number(item.rating) || 4.5,
-                        reviews: typeof item.reviewCount === 'number' ? item.reviewCount : Number(item.reviews) || 0,
-                        image: item.gallery && item.gallery.length > 0
-                            ? item.gallery
-                            : [item.image || item.thumbnail || '/placeholder.png'],
-                        action: 'ADD TO CART',
-                    }))
-                    : [];
+   useEffect(() => {
+  const fetchProducts = async () => {
+    try {
+      const filters =
+        categoryIdParam && !isNaN(Number(categoryIdParam))
+          ? { categoryId: Number(categoryIdParam) }
+          : undefined;
 
-                setProducts(mapped);
-                setError(null);
-            } catch (err: any) {
-                console.error('Failed to load products', err);
-                setError('Failed to load products. Please try again later.');
-            } finally {
-                setIsLoading(false);
-            }
-        };
+      const data = await api.products.getAll(filters);
 
-        fetchProducts();
-    }, [categoryIdParam]);
+      const mapped: Product[] = Array.isArray(data)
+        ? data.map((item: any) => ({
+            id: String(item.id),
+            name: item.name || "Unknown Product",
+            price: Number(item.price) || 0,
+            rating:
+              typeof item.rating === "number"
+                ? item.rating
+                : Number(item.rating) || 0,
+            reviews:
+              typeof item.reviewCount === "number"
+                ? item.reviewCount
+                : Number(item.reviews) || 0,
+            image:
+              item.gallery && item.gallery.length > 0
+                ? item.gallery
+                : [item.image || item.thumbnail || "/placeholder.png"],
+            action: "ADD TO CART",
+          }))
+        : [];
+
+      setProducts(mapped);
+      setError(null);
+    } catch (err) {
+      console.error("Failed to load products", err);
+      setError("Failed to load products. Please try again later.");
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  fetchProducts();
+}, [categoryIdParam]);
+
 
     // Filter states
     const [selectedBrands, setSelectedBrands] = useState<string[]>([]);
     const [priceRange, setPriceRange] = useState({ min: 9, max: 10850 });
     const [selectedDepartments, setSelectedDepartments] = useState<string[]>([]);
     const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid');
+    // filters state
+    const [filterOptions, setFilterOptions] = useState<any>(null);
+
     const [showFilters, setShowFilters] = useState(false);
     const [openFilters, setOpenFilters] = useState({
         brand: true,
@@ -117,11 +132,31 @@ function CategoryContent() {
         );
     };
     const toggleFilter = (key: string) => {
-    setOpenFilters(prev => ({ 
-        ...prev, 
-        [key]: !(prev as any)[key] 
-    }));
-};
+        setOpenFilters(prev => ({
+            ...prev,
+            [key]: !(prev as any)[key]
+        }));
+
+    };
+
+    useEffect(() => {
+        if (!categoryIdParam) return;
+
+        api.filters
+            .get({ categoryId: Number(categoryIdParam) })
+            .then((data) => {
+                setFilterOptions(data);
+
+                if (data.priceRange) {
+                    setPriceRange({
+                        min: data.priceRange.min,
+                        max: data.priceRange.max,
+                    });
+                }
+            })
+            .catch((err) => console.error("Failed to load filters", err));
+    }, [categoryIdParam]);
+
 
     return (
         <section className='bg-[#F0EBE3] relative px-4'>
@@ -151,7 +186,7 @@ function CategoryContent() {
                             PERFORMANCE BRAKE KITS
                         </span>
                     </div>
-                    
+
                     {/* Title */}
                     <h1 className="text-xl md:text-3xl font-[Orbitron] lg:text-4xl font-bold uppercase tracking-wide text-black mb-4">
                         {(categoryNameParam || 'Categories').toUpperCase()}
@@ -185,21 +220,21 @@ function CategoryContent() {
 
                     {/* Filter Buttons - Mobile View */}
                     <div className="flex lg:hidden items-center gap-2 mb-4 text-black overflow-x-auto pb-2">
-                        <button 
+                        <button
                             onClick={() => setShowFilters(!showFilters)}
                             className="px-4 py-2.5 border border-gray-300 bg-[#EBE3D6] text-xs font-semibold whitespace-nowrap flex items-center gap-2 font-[Orbitron] uppercase"
                         >
                             BRAND
                             <ChevronDown size={14} />
                         </button>
-                        <button 
+                        <button
                             onClick={() => setShowFilters(!showFilters)}
                             className="px-4 py-2.5 border border-gray-300 bg-[#EBE3D6] text-xs font-semibold whitespace-nowrap flex items-center gap-2 font-[Orbitron] uppercase"
                         >
                             PRICE
                             <ChevronDown size={14} />
                         </button>
-                        <button 
+                        <button
                             onClick={() => setShowFilters(!showFilters)}
                             className="px-4 py-2.5 border border-gray-300 bg-[#EBE3D6] text-xs font-semibold whitespace-nowrap flex items-center gap-2 font-[Orbitron] uppercase"
                         >
@@ -334,7 +369,7 @@ function CategoryContent() {
                                 </div>
 
                                 {openFilters.type && (
-                                    <div className="space-y-2">
+                                    <div className="space-y-2 text-black">
                                         {productTypes.map(type => (
                                             <div
                                                 key={type.name}
@@ -444,28 +479,34 @@ function CategoryContent() {
                         ) : (
                             <div className="grid grid-cols-2 w-full lg:grid-cols-2 xl:grid-cols-4 gap-3 md:gap-6">
                                 {products.map(product => (
-                                    <Link key={product.id} href={`/product-details/${product.id}`} className="block">
-                                        <ProductCard
-                                            id={product.id}
-                                            key={product.id}
-                                            images={product.image}
-                                            name={product.name}
-                                            rating={product.rating}
-                                            reviews={`${product.reviews}`}
-                                            price={product.price}
-                                            delivery="Standard Delivery by tomorrow"
-                                            action={product.action}
-                                        />
-                                    </Link>
+                                    <div key={product.id} className="flex flex-col">
+                                        <div key={product.id} className="flex flex-col">
+                                            <Link href={`/product-details/${product.id}`} className="block">
+                                                <ProductCard
+                                                    id={product.id}
+                                                    images={product.image}
+                                                    name={product.name}
+                                                    rating={product.rating}
+                                                    reviews={`${product.reviews}`}
+                                                    price={product.price}
+                                                    delivery="Standard Delivery by tomorrow"
+                                                    action={product.action}
+                                                />
+                                            </Link>
+                                        </div>
+
+
+                                    </div>
+
                                 ))}
                             </div>
                         )}
                     </main>
                 </div>
-                <TopSellingProducts title={"Recommended For You"} />
+                {/* <TopSellingProducts title={"Recommended For You"} />
                 <div className="hidden lg:block">
                     <DescriptionSection />
-                </div>
+                </div> */}
             </Container>
             {/* <section className="w-full bg-[#31332C] text-white py-10">
                 <div className="max-w-[1720px] mx-auto px-4 sm:px-8 lg:px-[140px]">
@@ -545,7 +586,8 @@ function CategoryContent() {
                      <SeoText /> 
                 </div>
             </section> */}
-                    <SponsoredAd />
+             {/* <SponsoredAd /> */}
+            
         </section>
     );
 }

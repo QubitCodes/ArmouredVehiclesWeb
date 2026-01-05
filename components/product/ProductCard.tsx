@@ -5,6 +5,13 @@ import { useEffect, useRef, useState } from "react";
 import { Heart } from "lucide-react";
 import { useCartStore } from "@/lib/cart-store";
 import { syncAddToServer } from "@/lib/cart-sync";
+import ProductRating from "./ProductRating";
+import Link from "next/link";
+import { useAuth } from "@/lib/auth-context";
+import { useRouter } from "next/navigation";
+
+
+
 
 interface ProductCardProps {
   id?: string;
@@ -31,6 +38,12 @@ export default function ProductCard({
   const [slide, setSlide] = useState(0);
   const intervalRef = useRef<number | null>(null);
   const addItem = useCartStore((s) => s.addItem);
+  const { isAuthenticated, isLoading } = useAuth();
+  const router = useRouter();
+
+
+
+
   const startHoverCycle = () => {
     if (intervalRef.current != null || images.length <= 1) return;
     intervalRef.current = window.setInterval(() => {
@@ -56,6 +69,8 @@ export default function ProductCard({
     };
   }, []);
 
+
+
   return (
     <div className="bg-white border border-[#E8E3D6] overflow-hidden hover:shadow-md transition-all duration-200 flex flex-col">
       {/* ---------- IMAGE SECTION ---------- */}
@@ -69,7 +84,7 @@ export default function ProductCard({
           src={images[slide]}
           alt={name}
           width={375}
-          height={350}
+          height={390}
           // fill
           className="object-cover w-full h-full transition-all duration-300"
         />
@@ -91,33 +106,64 @@ export default function ProductCard({
       </div>
 
       {/* ---------- PRODUCT DETAILS ---------- */}
-      <div className="p-2 md:p-4 flex flex-col grow bg-[#F0EBE3] justify-between">
+<div className="p-2 md:p-4 flex flex-col grow bg-[#F0EBE3]">
         <div>
-          <div className="h-[42px] md:h-[48px] overflow-hidden">
-            <h3 className="text-[13px] md:text-[16px] font-semibold text-gray-900 leading-snug line-clamp-2">
+          <div className="overflow-hidden">
+            <h3
+              className="
+      text-[13px] md:text-[16px]
+      font-semibold text-gray-900
+      leading-[1.25]
+      line-clamp-2
+      min-h-[2.5em] md:min-h-[2.6em]
+    "
+            >
               {name}
             </h3>
           </div>
 
 
 
+
           <div className="flex items-center gap-1 mt-1 text-xs md:text-sm">
-            <span className="text-[#D35400]">★</span>
-            <span className="text-gray-900 font-medium">{rating}</span>
-            <span className="text-gray-500">({reviews})</span>
+            <ProductRating
+              rating={rating}
+              reviewCount={Number(reviews)}
+            />
+
+
           </div>
 
           <hr
             className="border-t border-[#CCCCCC] my-2 md:my-3"
             style={{ width: "calc(100% + 1rem)", marginLeft: "-0.5rem" }}
           />
-
-          <p className="mt-2 text-base md:text-lg font-semibold text-gray-900 flex justify-start items-center gap-1 md:gap-2"><Image src="/icons/currency/dirham.svg" alt="Currency" width={16} height={16} className="md:w-5 md:h-5" />  {price.toLocaleString()}</p>
+          {isLoading ? (
+            <span className="mt-2 text-sm text-gray-400">—</span>
+          ) : isAuthenticated ? (
+            <p className="mt-2 text-base md:text-lg font-semibold text-gray-900 flex items-center gap-1 md:gap-2">
+              <Image
+                src="/icons/currency/dirham.svg"
+                alt="Currency"
+                width={16}
+                height={16}
+                className="md:w-5 md:h-5"
+              />
+              {price.toLocaleString()}
+            </p>
+          ) : (
+            <span
+              onClick={() => router.push("/login")}
+              className="mt-2 text-sm md:text-base font-medium text-[#D35400] cursor-pointer hover:underline"
+            >
+              Login to view price
+            </span>
+          )}
 
           <div className="flex items-center gap-1 mt-2 text-xs md:text-sm">
             <Image src="/icons/delivery.svg" alt="delivery" width={14} height={14} className="md:w-[18px] md:h-[18px]" />
-            <p className="text-gray-600">
-              <span className="text-[#D35400] font-medium">Standard</span> Delivery by{" "}
+            <p className="text-gray-600 text-[12px] md:text-sm">
+              <span className="text-[#D35400] font-small text-[12px]">Standard</span> Delivery by{" "}
               <span className="font-medium">tomorrow</span>
             </p>
           </div>
@@ -126,7 +172,7 @@ export default function ProductCard({
 
       {/* ---------- FULL-WIDTH BUTTON ---------- */}
       <button
-        className={`w-full py-2 md:py-3 font-black font-[Orbitron] uppercase text-sm md:text-[18px] tracking-wide transition bg-[#D35400] text-white hover:bg-[#b44400]`}
+        className={`w-full py-2 md:py-3 font-black font-[Orbitron] uppercase text-sm md:text-[18px] tracking-wide transition bg-[#000000] text-white hover:bg-[#D35400]`}
         onClick={async () => {
           if (action === "ADD TO CART") {
             addItem({
