@@ -60,7 +60,7 @@ export default function ProductCard({
     <div className="bg-white border border-[#E8E3D6] overflow-hidden hover:shadow-md transition-all duration-200 flex flex-col">
       {/* ---------- IMAGE SECTION ---------- */}
       <div
-        className="relative bg-[#EBE3D6] w-auto max-h-[375px] h-[200px] md:h-[350px] flex items-center justify-center group"
+        className="relative bg-[#EBE3D6] w-auto max-h-[205px] h-[200px] md:h-[300px] flex items-center justify-center group"
         onMouseEnter={startHoverCycle}
         onMouseLeave={stopHoverCycle}
       >
@@ -71,7 +71,7 @@ export default function ProductCard({
           width={375}
           height={350}
           // fill
-          className="object-contain max-h-[200px] md:max-h-[350px] transition-all duration-300"
+          className="object-cover w-full h-full transition-all duration-300"
         />
 
         {/* Wishlist Icon */}
@@ -93,7 +93,13 @@ export default function ProductCard({
       {/* ---------- PRODUCT DETAILS ---------- */}
       <div className="p-2 md:p-4 flex flex-col grow bg-[#F0EBE3] justify-between">
         <div>
-          <h3 className="text-[13px] md:text-[16px] font-semibold text-gray-900 line-clamp-2">{name}</h3>
+          <div className="h-[42px] md:h-[48px] overflow-hidden">
+            <h3 className="text-[13px] md:text-[16px] font-semibold text-gray-900 leading-snug line-clamp-2">
+              {name}
+            </h3>
+          </div>
+
+
 
           <div className="flex items-center gap-1 mt-1 text-xs md:text-sm">
             <span className="text-[#D35400]">★</span>
