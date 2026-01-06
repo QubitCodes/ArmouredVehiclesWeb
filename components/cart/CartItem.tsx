@@ -9,7 +9,7 @@ export default function CartItem({ data, updateQty, removeItem }: any) {
       <div className="flex flex-col sm:flex-row gap-5">
         {/* Product Image */}
         <Image
-          src={data.image ?? "/placeholder/product.png"}
+          src={data.image ?? "/product/rim.png"}
           alt={data.title}
           width={112}
           height={112}

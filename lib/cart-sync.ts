@@ -61,7 +61,7 @@ export async function hydrateCartFromServer() {
       image:
         ci.product?.image ??
         ci.product?.images?.[0] ??
-  "/placeholder/product.png",
+  "/product/rim.png",
       sku: ci.product?.sku,
       stock: ci.product?.stock,
     }));

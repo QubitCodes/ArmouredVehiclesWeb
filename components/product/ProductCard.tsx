@@ -42,6 +42,28 @@ export default function ProductCard({
   const router = useRouter();
 
 
+  // delivery date
+  const getDeliveryRange = () => {
+    const today = new Date();
+
+    const from = new Date(today);
+    from.setDate(today.getDate() + 8);
+
+    const to = new Date(today);
+    to.setDate(today.getDate() + 8);
+
+    const format = (d: Date) =>
+      d.toLocaleDateString("en-GB", {
+        day: "numeric",
+        month: "short",
+      });
+
+      //  return `${format(from)} – ${format(to)}`;
+
+    return ` ${format(to)}`;
+  };
+
+
 
 
   const startHoverCycle = () => {
@@ -159,14 +181,23 @@ export default function ProductCard({
               Login to view price
             </span>
           )}
+          <div className="flex items-center gap-1 mt-2 whitespace-nowrap">
+            <Image
+              src="/icons/delivery.svg"
+              alt="delivery"
+              width={14}
+              height={14}
+              className="md:w-[14px] md:h-[14px] flex-shrink-0"
+            />
 
-          <div className="flex items-center gap-1 mt-2 text-xs md:text-sm">
-            <Image src="/icons/delivery.svg" alt="delivery" width={14} height={14} className="md:w-[18px] md:h-[18px]" />
-            <p className="text-gray-600 text-[12px] md:text-sm">
-              <span className="text-[#D35400] font-small text-[12px]">Standard</span> Delivery by{" "}
-              <span className="font-medium">tomorrow</span>
+            <p className="text-gray-500 text-[8px] sm:text-[7px] md:text-sm leading-tight whitespace-nowrap">
+              <span className="text-[#D35400]">Standard</span> Delivery by{" "}
+              <span className="font-medium font-[5px]">{getDeliveryRange()}</span>
             </p>
           </div>
+
+
+
         </div>
       </div>
 
@@ -177,15 +208,18 @@ export default function ProductCard({
           if (action === "ADD TO CART" && id) {
             addItem(
               {
-                id: String(id),
+                id: String(id ?? name + "-" + price),
                 name,
                 price: Number(price) ?? 0,
-                image: images?.[0] ?? "/placeholder/product.png",
+                image: images?.[0] ?? "/product/rim.png",
               },
               1
             );
 
-            await syncAddToServer(Number(id), 1);
+            const pid = id ? Number(id) : NaN;
+            if (Number.isFinite(pid)) {
+              await syncAddToServer(pid, 1);
+            }
           }
         }}
       >
