@@ -128,78 +128,58 @@ export default function ProductCard({
       </div>
 
       {/* ---------- PRODUCT DETAILS ---------- */}
-      <div className="p-2 md:p-4 flex flex-col grow bg-[#F0EBE3]">
-        <div>
-          <div className="overflow-hidden">
-            <h3
-              className="
-      text-[13px] md:text-[16px]
-      font-semibold text-gray-900
-      leading-[1.25]
-      line-clamp-2
-      min-h-[2.5em] md:min-h-[2.6em]
-    "
-            >
-              {name}
-            </h3>
-          </div>
+     <div className="p-2 md:p-4 flex flex-col bg-[#F0EBE3] flex-1">
+  {/* TOP CONTENT – natural height */}
+  <div>
+    {/* TITLE (NO min-h ❌) */}
+    <h3 className="text-[13px] md:text-[16px] font-semibold text-gray-900 leading-[1.25] line-clamp-2">
+      {name}
+    </h3>
 
+    {/* Rating */}
+    <div className="flex items-center gap-1 mt-1 text-xs md:text-sm">
+      <ProductRating rating={rating} reviewCount={Number(reviews)} />
+    </div>
 
+    <hr className="border-t border-[#CCCCCC] my-2 md:my-3" />
 
+    {/* Price */}
+    {isLoading ? (
+      <span className="text-sm text-gray-400">—</span>
+    ) : isAuthenticated ? (
+      <p className="text-base md:text-lg font-semibold text-gray-900 flex items-center gap-1">
+        <Image src="/icons/currency/dirham.svg" alt="Currency" width={16} height={16} />
+        {price.toLocaleString()}
+      </p>
+    ) : (
+      <span
+        onClick={() => router.push("/login")}
+        className="text-sm font-medium text-[#D35400] cursor-pointer hover:underline"
+      >
+        Login to view price
+      </span>
+    )}
 
-          <div className="flex items-center gap-1 mt-1 text-xs md:text-sm">
-            <ProductRating
-              rating={rating}
-              reviewCount={Number(reviews)}
-            />
+    {/* Delivery */}
+    <div className="flex items-center gap-1 mt-2 whitespace-nowrap">
+      <Image
+        src="/icons/delivery.svg"
+        alt="delivery"
+        width={14}
+        height={14}
+        className="flex-shrink-0"
+      />
+      <span className="text-[9px] sm:text-[10px] md:text-sm text-gray-600 leading-tight">
+        <span className="text-[#D35400]">Standard</span> Delivery by{" "}
+        <span className="font-medium">{getDeliveryRange()}</span>
+      </span>
+    </div>
+  </div>
 
+  {/* ✅ THIS PUSHES EMPTY SPACE BELOW DELIVERY */}
+  <div className="flex-grow" />
+</div>
 
-          </div>
-
-          <hr
-            className="border-t border-[#CCCCCC] my-2 md:my-3"
-            style={{ width: "calc(100% + 1rem)", marginLeft: "-0.5rem" }}
-          />
-          {isLoading ? (
-            <span className="mt-2 text-sm text-gray-400">—</span>
-          ) : isAuthenticated ? (
-            <p className="mt-2 text-base md:text-lg font-semibold text-gray-900 flex items-center gap-1 md:gap-2">
-              <Image
-                src="/icons/currency/dirham.svg"
-                alt="Currency"
-                width={16}
-                height={16}
-                className="md:w-5 md:h-5"
-              />
-              {price.toLocaleString()}
-            </p>
-          ) : (
-            <span
-              onClick={() => router.push("/login")}
-              className="mt-2 text-sm md:text-base font-medium text-[#D35400] cursor-pointer hover:underline"
-            >
-              Login to view price
-            </span>
-          )}
-          <div className="flex items-center gap-1 mt-2 whitespace-nowrap">
-            <Image
-              src="/icons/delivery.svg"
-              alt="delivery"
-              width={14}
-              height={14}
-              className="md:w-[14px] md:h-[14px] flex-shrink-0"
-            />
-
-            <p className="text-gray-500 text-[8px] sm:text-[7px] md:text-sm leading-tight whitespace-nowrap">
-              <span className="text-[#D35400]">Standard</span> Delivery by{" "}
-              <span className="font-medium font-[5px]">{getDeliveryRange()}</span>
-            </p>
-          </div>
-
-
-
-        </div>
-      </div>
 
       {/* ---------- FULL-WIDTH BUTTON ---------- */}
       <button

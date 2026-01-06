@@ -34,49 +34,49 @@ function CategoryContent() {
     const [isLoading, setIsLoading] = useState<boolean>(true);
     const [error, setError] = useState<string | null>(null);
 
-   useEffect(() => {
-  const fetchProducts = async () => {
-    try {
-      const filters =
-        categoryIdParam && !isNaN(Number(categoryIdParam))
-          ? { categoryId: Number(categoryIdParam) }
-          : undefined;
+    useEffect(() => {
+        const fetchProducts = async () => {
+            try {
+                const filters =
+                    categoryIdParam && !isNaN(Number(categoryIdParam))
+                        ? { categoryId: Number(categoryIdParam) }
+                        : undefined;
 
-      const data = await api.products.getAll(filters);
+                const data = await api.products.getAll(filters);
 
-      const mapped: Product[] = Array.isArray(data)
-        ? data.map((item: any) => ({
-            id: String(item.id),
-            name: item.name || "Unknown Product",
-            price: Number(item.price) || 0,
-            rating:
-              typeof item.rating === "number"
-                ? item.rating
-                : Number(item.rating) || 0,
-            reviews:
-              typeof item.reviewCount === "number"
-                ? item.reviewCount
-                : Number(item.reviews) || 0,
-            image:
-              item.gallery && item.gallery.length > 0
-                ? item.gallery
-                : [item.image || item.thumbnail || "/placeholder.png"],
-            action: "ADD TO CART",
-          }))
-        : [];
+                const mapped: Product[] = Array.isArray(data)
+                    ? data.map((item: any) => ({
+                        id: String(item.id),
+                        name: item.name || "Unknown Product",
+                        price: Number(item.price) || 0,
+                        rating:
+                            typeof item.rating === "number"
+                                ? item.rating
+                                : Number(item.rating) || 0,
+                        reviews:
+                            typeof item.reviewCount === "number"
+                                ? item.reviewCount
+                                : Number(item.reviews) || 0,
+                        image:
+                            item.gallery && item.gallery.length > 0
+                                ? item.gallery
+                                : [item.image || item.thumbnail || "/placeholder.png"],
+                        action: "ADD TO CART",
+                    }))
+                    : [];
 
-      setProducts(mapped);
-      setError(null);
-    } catch (err) {
-      console.error("Failed to load products", err);
-      setError("Failed to load products. Please try again later.");
-    } finally {
-      setIsLoading(false);
-    }
-  };
+                setProducts(mapped);
+                setError(null);
+            } catch (err) {
+                console.error("Failed to load products", err);
+                setError("Failed to load products. Please try again later.");
+            } finally {
+                setIsLoading(false);
+            }
+        };
 
-  fetchProducts();
-}, [categoryIdParam]);
+        fetchProducts();
+    }, [categoryIdParam]);
 
 
     // Filter states
@@ -477,28 +477,26 @@ function CategoryContent() {
                         ) : error ? (
                             <div className="w-full py-10 text-center text-red-600">{error}</div>
                         ) : (
-                            <div className="grid grid-cols-2 w-full lg:grid-cols-2 xl:grid-cols-4 gap-3 md:gap-6">
-                                {products.map(product => (
-                                    <div key={product.id} className="flex flex-col">
-                                        <div key={product.id} className="flex flex-col">
-                                            <Link href={`/product-details/${product.id}`} className="block">
-                                                <ProductCard
-                                                    id={product.id}
-                                                    images={product.image}
-                                                    name={product.name}
-                                                    rating={product.rating}
-                                                    reviews={`${product.reviews}`}
-                                                    price={product.price}
-                                                    delivery="Standard Delivery by tomorrow"
-                                                    action={product.action}
-                                                />
-                                            </Link>
-                                        </div>
-
-
-                                    </div>
-
+                            <div className="grid grid-cols-2 w-full lg:grid-cols-2 xl:grid-cols-4 gap-3 md:gap-6 items-stretch">
+                                {products.map((product) => (
+                                    <Link
+                                        key={product.id}
+                                        href={`/product-details/${product.id}`}
+                                        className="flex h-full"
+                                    >
+                                        <ProductCard
+                                            id={product.id}
+                                            images={product.image}
+                                            name={product.name}
+                                            rating={product.rating}
+                                            reviews={`${product.reviews}`}
+                                            price={product.price}
+                                            delivery="Standard Delivery"
+                                            action={product.action}
+                                        />
+                                    </Link>
                                 ))}
+
                             </div>
                         )}
                     </main>
@@ -586,8 +584,8 @@ function CategoryContent() {
                      <SeoText /> 
                 </div>
             </section> */}
-             {/* <SponsoredAd /> */}
-            
+            {/* <SponsoredAd /> */}
+
         </section>
     );
 }
