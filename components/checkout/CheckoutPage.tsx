@@ -119,6 +119,11 @@ export default function CheckoutPage() {
   const discount = -9.85;
   const estimatedVAT = subtotal * 0.05; // 5% VAT
   const total = subtotal + shippingFee + estimatedVAT + discount;
+  const itemCount = mockShipments.reduce(
+  (sum, shipment) => sum + shipment.items,
+  0
+);
+
 
   const handleCheckout = async () => {
     try {
@@ -519,6 +524,7 @@ export default function CheckoutPage() {
           <div className="bg-[#EBE3D6]">
             <OrderSummary
               subtotal={subtotal}
+              itemCount={itemCount}
               onCheckout={handleCheckout}
               buttonText="PLACE ORDER"
               isLoading={isProcessing}

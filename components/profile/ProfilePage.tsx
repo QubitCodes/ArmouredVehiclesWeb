@@ -2,6 +2,10 @@
 
 import { useState } from "react";
 import Image from "next/image";
+import { FileText, ShieldCheck } from "lucide-react";
+import { Pencil } from "lucide-react";
+import { CheckCircle } from "lucide-react";
+import { ShieldAlert } from "lucide-react";
 
 // Country codes data
 const countryCodes = [
@@ -35,12 +39,18 @@ const nationalities = [
   "Other",
 ];
 
+const regions = [
+  { name: "United Arab Emirates", code: "UAE", flag: "/icons/flags/uae.svg" },
+  { name: "Saudi Arabia", code: "KSA", flag: "/icons/flags/ksa.png" },
+  { name: "Qatar", code: "QAT", flag: "/icons/flags/qatar.png" },
+  { name: "Oman", code: "OMN", flag: "/icons/flags/oman.png" },
+];
+
 export default function ProfilePage() {
   // Contact Information
   const [email] = useState("info@john.martin.com");
   const [phoneCountryCode, setPhoneCountryCode] = useState("+971");
   const [phoneNumber, setPhoneNumber] = useState("58-234-6790");
-  const [showCountryDropdown, setShowCountryDropdown] = useState(false);
 
   // Personal Information
   const [fullName, setFullName] = useState("John Martin");
@@ -51,7 +61,6 @@ export default function ProfilePage() {
 
   // Edit states
   const [editingFullName, setEditingFullName] = useState(false);
-  const [editingPhone, setEditingPhone] = useState(false);
 
   // Validation errors
   const [errors, setErrors] = useState<{
@@ -73,12 +82,7 @@ export default function ProfilePage() {
       newErrors.fullName = "Full name must be at least 2 characters";
     }
 
-    // Validate Phone Number
-    if (!phoneNumber.trim()) {
-      newErrors.phoneNumber = "Phone number is required";
-    } else if (!/^[\d-]+$/.test(phoneNumber)) {
-      newErrors.phoneNumber = "Please enter a valid phone number";
-    }
+
 
     // Validate Nationality
     if (!nationality) {
@@ -135,88 +139,54 @@ export default function ProfilePage() {
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 lg:gap-6">
           {/* Email */}
           <div>
-            <label className="block font-inter font-semibold text-[16px] leading-[24px] text-black mb-2">Email</label>
-            <div className="bg-[#F0EBE3] border border-[#E8E3D9] px-4 py-3">
-              <span className="font-inter text-sm text-black">{email}</span>
-            </div>
-          </div>
+            <label className="block font-inter font-semibold text-[16px] leading-[24px] text-black mb-2">
+              Email
+            </label>
 
-          {/* Phone Number */}
-          <div>
-            <label className="block font-inter font-semibold text-[16px] leading-[24px] text-black mb-2">Phone Number</label>
-            <div className="flex items-center bg-[#F0EBE3] border border-[#E8E3D9]">
-              {/* Country Code Dropdown */}
-              <div className="relative">
-                <button
-                  onClick={() => setShowCountryDropdown(!showCountryDropdown)}
-                  className="flex items-center gap-2 px-3 py-3 border-r border-[#E8E3D9] hover:bg-[#F5F5F5]"
-                >
-                  <Image
-                    src="/icons/flags/uae.svg"
-                    alt="UAE"
-                    width={24}
-                    height={16}
-                    className="object-contain"
-                    onError={(e) => {
-                      const target = e.target as HTMLImageElement;
-                      target.style.display = 'none';
-                    }}
-                  />
-                  <span className="text-lg">{selectedCountry?.flag}</span>
-                  <svg width="10" height="6" viewBox="0 0 10 6" fill="none" xmlns="http://www.w3.org/2000/svg">
-                    <path d="M1 1L5 5L9 1" stroke="#666" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
-                  </svg>
-                </button>
-                {showCountryDropdown && (
-                  <div className="absolute top-full left-0 mt-1 w-48 bg-white border border-[#E8E3D9] shadow-lg z-10 max-h-48 overflow-y-auto">
-                    {countryCodes.map((country) => (
-                      <button
-                        key={country.code}
-                        onClick={() => {
-                          setPhoneCountryCode(country.code);
-                          setShowCountryDropdown(false);
-                        }}
-                        className="w-full flex items-center gap-2 px-3 py-2 hover:bg-[#F5F5F5] text-left"
-                      >
-                        <span className="text-lg">{country.flag}</span>
-                        <span className="font-inter text-sm text-black">{country.code}</span>
-                        <span className="font-inter text-xs text-[#666]">{country.country}</span>
-                      </button>
-                    ))}
-                  </div>
-                )}
-              </div>
+            <div className="flex items-center justify-between bg-[#F0EBE3] border border-[#E8E3D9] px-4 py-3">
+              <span className="font-inter text-sm text-black">
+                {email}
+              </span>
 
-              {/* Phone Input */}
-              <input
-                type="tel"
-                value={`${phoneCountryCode}-${phoneNumber}`}
-                onChange={(e) => setPhoneNumber(e.target.value.replace(phoneCountryCode + "-", ""))}
-                className="flex-1 px-3 py-3 font-inter text-sm text-black bg-transparent outline-none"
-                readOnly={!editingPhone}
-              />
-
-              {/* Edit Button */}
               <button
-                onClick={() => setEditingPhone(!editingPhone)}
-                className="px-3 py-3 hover:bg-[#F5F5F5]"
+                onClick={() => window.location.href = "/user-register?mode=change-email"}
+                className="p-1 rounded hover:bg-[#E6E0D6] transition"
+                aria-label="Change email"
+                title="Change email"
               >
-                <Image
-                  src="/order/pfsv1.svg"
-                  alt="Edit"
-                  width={16}
-                  height={16}
-                  className="object-contain"
-                />
+                <Pencil className="w-4 h-4 text-[#D35400]" />
               </button>
             </div>
-            {errors.phoneNumber && (
-              <p className="font-inter text-xs text-[#D35400] mt-1">{errors.phoneNumber}</p>
-            )}
+          </div>
+
+
+          {/* Phone Number */}
+          {/* Phone Number */}
+          <div>
+            <label className="block font-inter font-semibold text-[16px] leading-[24px] text-black mb-2">
+              Phone Number
+            </label>
+
+            <div className="flex items-center justify-between bg-[#F0EBE3] border border-[#E8E3D9] px-4 py-3">
+              <span className="font-inter text-sm text-black">
+                {phoneCountryCode} {phoneNumber}
+              </span>
+
+              <button
+                onClick={() => window.location.href = "/add-phone"}
+                className="p-1 rounded hover:bg-[#E6E0D6] transition"
+                aria-label="Edit phone number"
+              >
+                <Pencil className="w-4 h-4 text-[#D35400]" />
+              </button>
+
+            </div>
+
             <p className="font-inter text-xs text-[#666] mt-2">
-              This contact information can be used to log in across all Armored Mart platforms.
+              This contact information is used for login and verification.
             </p>
           </div>
+
         </div>
       </div>
 
@@ -272,7 +242,7 @@ export default function ProfilePage() {
                   {nationality || "Select Nationality"}
                 </span>
                 <svg width="10" height="6" viewBox="0 0 10 6" fill="none" xmlns="http://www.w3.org/2000/svg">
-                  <path d="M1 1L5 5L9 1" stroke="#666" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+                  <path d="M1 1L5 5L9 1" stroke="#666" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
                 </svg>
               </button>
               {showNationalityDropdown && (
@@ -299,82 +269,341 @@ export default function ProfilePage() {
           </div>
         </div>
 
-        {/* Birthday and Gender Row */}
+
+      </div>
+
+
+      {/* Organization / Buyer Information */}
+      <div className="bg-[#EBE3D6] p-5 lg:p-6 mb-6 text-black">
+        <div className="mb-3">
+          <p className="text-xs  text-green-600 mb-1">
+            Organization information is locked after onboarding verification.
+          </p>
+
+          <h2 className="font-orbitron font-black text-base lg:text-lg uppercase tracking-wide text-black">
+            Organization / Buyer Information
+          </h2>
+        </div>
+
+
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 lg:gap-6">
-          {/* Birthday */}
           <div>
-            <label className="block font-inter font-semibold text-[16px] leading-[24px] text-black mb-2">Birthday</label>
-            <div className="relative">
-              <input
-                type="date"
-                value={birthday}
-                onChange={(e) => {
-                  setBirthday(e.target.value);
-                  if (errors.birthday) setErrors(prev => ({ ...prev, birthday: undefined }));
-                }}
-                className={`w-full bg-[#F0EBE3] border ${errors.birthday ? 'border-[#D35400]' : 'border-[#E8E3D9]'} px-4 py-3 pr-10 font-inter text-sm text-black outline-none cursor-pointer [&::-webkit-calendar-picker-indicator]:opacity-0 [&::-webkit-calendar-picker-indicator]:absolute [&::-webkit-calendar-picker-indicator]:right-0 [&::-webkit-calendar-picker-indicator]:w-full [&::-webkit-calendar-picker-indicator]:h-full [&::-webkit-calendar-picker-indicator]:cursor-pointer`}
-                style={{ colorScheme: 'light' }}
-              />
-              {/* Calendar Icon */}
-              <div className="absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none">
-                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                  <path d="M8 2V5" stroke="#666" strokeWidth="1.5" strokeMiterlimit="10" strokeLinecap="round" strokeLinejoin="round"/>
-                  <path d="M16 2V5" stroke="#666" strokeWidth="1.5" strokeMiterlimit="10" strokeLinecap="round" strokeLinejoin="round"/>
-                  <path d="M3.5 9.09H20.5" stroke="#666" strokeWidth="1.5" strokeMiterlimit="10" strokeLinecap="round" strokeLinejoin="round"/>
-                  <path d="M21 8.5V17C21 20 19.5 22 16 22H8C4.5 22 3 20 3 17V8.5C3 5.5 4.5 3.5 8 3.5H16C19.5 3.5 21 5.5 21 8.5Z" stroke="#666" strokeWidth="1.5" strokeMiterlimit="10" strokeLinecap="round" strokeLinejoin="round"/>
-                  <path d="M15.6947 13.7H15.7037" stroke="#666" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-                  <path d="M15.6947 16.7H15.7037" stroke="#666" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-                  <path d="M11.9955 13.7H12.0045" stroke="#666" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-                  <path d="M11.9955 16.7H12.0045" stroke="#666" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-                  <path d="M8.29431 13.7H8.30329" stroke="#666" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-                  <path d="M8.29431 16.7H8.30329" stroke="#666" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-                </svg>
-              </div>
-            </div>
-            {errors.birthday ? (
-              <p className="font-inter text-xs text-[#D35400] mt-1">{errors.birthday}</p>
-            ) : (
-              <p className="font-inter text-xs text-[#666] mt-1">
-                This cannot be changed later.
-              </p>
-            )}
+            <label className="profile-label font-semibold">Type of Buyer</label>
+            <div className="profile-view">Government Entity</div>
           </div>
 
-          {/* Gender */}
           <div>
-            <label className="block font-inter font-semibold text-[16px] leading-[24px] text-black mb-2">Gender</label>
-            <div className="flex items-center gap-6 h-[46px]">
-              <label className="flex items-center gap-2 cursor-pointer">
-                <div
-                  onClick={() => setGender("male")}
-                  className={`w-5 h-5 rounded-full border-2 flex items-center justify-center ${
-                    gender === "male" ? "border-[#D35400]" : "border-[#C2B280]"
-                  }`}
-                >
-                  {gender === "male" && (
-                    <div className="w-2.5 h-2.5 rounded-full bg-[#D35400]"></div>
-                  )}
-                </div>
-                <span className="font-inter text-sm text-black">Male</span>
-              </label>
+            <label className="profile-label font-semibold">Company / Organization Name</label>
+            <div className="profile-view">Blueweb LLC</div>
+          </div>
 
-              <label className="flex items-center gap-2 cursor-pointer">
-                <div
-                  onClick={() => setGender("female")}
-                  className={`w-5 h-5 rounded-full border-2 flex items-center justify-center ${
-                    gender === "female" ? "border-[#D35400]" : "border-[#C2B280]"
-                  }`}
-                >
-                  {gender === "female" && (
-                    <div className="w-2.5 h-2.5 rounded-full bg-[#D35400]"></div>
-                  )}
-                </div>
-                <span className="font-inter text-sm text-black">Female</span>
-              </label>
+          <div>
+            <label className="profile-label font-semibold">Country & City of Registration</label>
+            <div className="profile-view">United Arab Emirates, Dubai</div>
+          </div>
+
+          <div>
+            <label className="profile-label font-semibold">Year of Establishment</label>
+            <div className="profile-view">2014</div>
+          </div>
+
+          <div className="lg:col-span-2">
+            <label className="profile-label font-semibold">Physical Address</label>
+            <div className="profile-view">
+              Warehouse No. 12, Al Qusais Industrial Area 3, Dubai
+            </div>
+          </div>
+
+          <div className="lg:col-span-2">
+            <label className="profile-label font-semibold">Website</label>
+            <div className="profile-view">www.blueweb2.com</div>
+          </div>
+        </div>
+
+        <div className="mt-4">
+          <label className="profile-label font-semibold">
+            Govt. / Compliance Registration Documents
+          </label>
+
+          <div className="mt-2 space-y-2">
+            {/* MOD License */}
+            <div className="flex items-center gap-3 bg-[#F0EBE3] border border-dashed border-[#E8E3D9] px-4 py-3 rounded-md">
+              <FileText className="w-5 h-5 text-[#D35400]" />
+              <div className="flex-1 text-sm">
+                <p className="font-medium text-black">MOD-License.pdf</p>
+                <p className="text-xs text-gray-500">Government approved document</p>
+              </div>
+              <ShieldCheck className="w-4 h-4 text-green-600" />
+            </div>
+
+            {/* ECON Certificate */}
+            <div className="flex items-center gap-3 bg-[#F0EBE3] border border-dashed border-[#E8E3D9] px-4 py-3 rounded-md">
+              <FileText className="w-5 h-5 text-[#D35400]" />
+              <div className="flex-1 text-sm">
+                <p className="font-medium text-black">ECON-Certificate.pdf</p>
+                <p className="text-xs text-gray-500">Compliance registration document</p>
+              </div>
+              <ShieldCheck className="w-4 h-4 text-green-600" />
             </div>
           </div>
         </div>
+
       </div>
+
+
+
+
+
+      {/* Authorized Buyer Contact */}
+      <div className="bg-[#EBE3D6] p-5 lg:p-6 mb-6 text-black">
+        {/* Status note */}
+        <p className="text-xs font-inter text-green-600 mb-1">
+          Authorized buyer contact details are verified and locked.
+        </p>
+
+        {/* Heading */}
+        <h2 className="font-orbitron font-black text-base lg:text-lg uppercase tracking-wide text-black mb-4">
+          Authorized Buyer Contact
+        </h2>
+
+        {/* Grid */}
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 lg:gap-6">
+          {/* Full Name */}
+          <div className="lg:col-span-2">
+            <label className="profile-label font-semibold">Full Name:</label>
+            <div className="profile-view">John Martin</div>
+
+          </div>
+
+          {/* Job Title */}
+          <div>
+            <label className="profile-label font-semibold">Job Title / Designation:</label>
+            <div className="profile-view">Procurement Manager</div>
+          </div>
+
+          {/* Official Email */}
+          <div>
+            <label className="profile-label font-semibold">Official Email Address:</label>
+            <div className="profile-view">john.martin@blueweb2.com</div>
+          </div>
+
+          {/* ID Document */}
+          <div>
+            <label className="profile-label font-semibold">
+              Passport Copy / Emirates ID:
+            </label>
+
+            <div className="flex items-center justify-between bg-[#F0EBE3] border border-dashed border-[#E8E3D9] px-4 py-3 rounded-md">
+              {/* Left: File info */}
+              <div className="flex items-center gap-3">
+                <FileText className="w-5 h-5 text-[#D35400]" />
+
+                <div className="text-sm">
+                  <p className="font-medium text-black">
+                    EmiratesID-JohnMartin.pdf
+                  </p>
+                  <p className="text-xs text-gray-500">
+                    Verified document
+                  </p>
+                </div>
+              </div>
+
+              {/* Right: Verification */}
+              <ShieldCheck className="w-4 h-4 text-green-600" />
+            </div>
+
+
+          </div>
+
+          {/* Mobile / WhatsApp */}
+          <div>
+            <label className="profile-label font-semibold">Mobile / WhatsApp Number:</label>
+            <div className="profile-view"> +971 58 234 6790</div>
+          </div>
+        </div>
+
+      </div>
+
+
+
+
+      {/* Compliance & End-Use Declaration */}
+      <div className="bg-[#EBE3D6] p-5 lg:p-6 mb-6 text-black">
+        {/* Status note */}
+        <p className="text-xs font-inter text-green-600 mb-1">
+          Compliance declaration is verified and legally binding.
+        </p>
+
+        {/* Heading */}
+        <h2 className="font-orbitron font-black text-base lg:text-lg uppercase tracking-wide text-black mb-4">
+          Compliance & End-Use Declaration
+        </h2>
+
+        {/* Purpose & End-User */}
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 lg:gap-6">
+          <div>
+            <label className="profile-label font-semibold">Purpose of Procurement</label>
+            <div className="profile-view">Internal Use</div>
+          </div>
+
+          <div>
+            <label className="profile-label font-semibold">End-User Type</label>
+            <div className="profile-view">Military</div>
+          </div>
+        </div>
+
+        {/* Countries */}
+        <div className="mt-5">
+          <label className="profile-label font-semibold">Countries of Use / Export</label>
+          <div className="bg-[#F0EBE3] border border-[#E8E3D9] p-4 mt-2 rounded-md">
+            <h4 className="text-sm font-semibold text-gray-800 mb-3">
+              Service Regions
+            </h4>
+
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+              {regions.map((region) => (
+                <div
+                  key={region.code}
+                  className="flex items-center gap-3 bg-white border border-[#E8E3D9] rounded-md px-3 py-2"
+                >
+                  <Image
+                    src={region.flag}
+                    alt={region.name}
+                    width={28}
+                    height={20}
+                    className="object-contain"
+                  />
+
+                  <div className="text-sm leading-tight">
+                    <p className="font-medium text-gray-900">
+                      {region.name}
+                    </p>
+                    <p className="text-xs text-gray-500">
+                      {region.code}
+                    </p>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+
+        {/* Controlled items */}
+        <div className="mt-5">
+          <label className="profile-label font-semibold">
+            Do you require controlled items?
+          </label>
+
+          <div className="flex gap-6 mt-2">
+            <div className="flex items-center gap-2">
+              <span className="w-4 h-4 rounded-full border-2 border-[#C2B280] flex items-center justify-center">
+                {/* empty */}
+              </span>
+              <span className="text-sm text-[#666]">Yes</span>
+            </div>
+
+            <div className="flex items-center gap-2">
+              <span className="w-4 h-4 rounded-full border-2 border-[#D35400] flex items-center justify-center">
+                <span className="w-2 h-2 rounded-full bg-[#D35400]" />
+              </span>
+              <span className="text-sm text-black font-medium">No</span>
+            </div>
+          </div>
+        </div>
+
+        {/* Compliance agreement */}
+        <div className="mt-5 bg-[#F0EBE3] border border-[#E8E3D9] p-4">
+          <p className="text-sm font-inter text-black">
+            ✓ I acknowledge that all transactions are subject to UAE and international
+            laws and may be screened, paused, or reported in accordance with ArmoredMart’s
+            regulatory obligations.
+          </p>
+        </div>
+
+
+      </div>
+
+
+
+
+      {/* Account Setup */}
+      <div className="bg-[#EBE3D6] p-5 lg:p-6 mb-6 text-black">
+        {/* Status note */}
+        <p className="text-xs font-inter text-green-600 mb-1">
+          Account preferences were finalized during onboarding.
+        </p>
+
+        {/* Heading */}
+        <h2 className="font-orbitron font-black text-base lg:text-lg uppercase tracking-wide text-black mb-4">
+          Account Setup
+        </h2>
+
+        {/* Categories */}
+        <div className="mb-5">
+          <label className="profile-label font-semibold">
+            Categories Selected for Purchase
+          </label>
+
+         <ul className="space-y-3 text-sm">
+  <li className="flex items-start gap-2">
+    <CheckCircle className="w-4 h-4 text-green-600 mt-0.5" />
+    <span>Engine Systems</span>
+  </li>
+
+  <li className="flex items-start gap-2">
+    <CheckCircle className="w-4 h-4 text-green-600 mt-0.5" />
+    <span>Braking Systems</span>
+  </li>
+
+  <li className="flex items-start gap-2">
+    <CheckCircle className="w-4 h-4 text-green-600 mt-0.5" />
+    <span>Runflat & Tire Systems</span>
+  </li>
+
+  <li className="flex items-start gap-2">
+    <ShieldAlert className="w-4 h-4 text-[#D35400] mt-0.5" />
+    <div>
+      <span>Turrets & Mounts</span>
+      <span className="block text-xs text-gray-500">
+        Controlled item – MOD / ECON
+      </span>
+    </div>
+  </li>
+
+  <li className="flex items-start gap-2">
+    <CheckCircle className="w-4 h-4 text-green-600 mt-0.5" />
+    <span>Countermeasures</span>
+  </li>
+</ul>
+
+
+        </div>
+
+        {/* Register As + Currency */}
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 lg:gap-6">
+          <div>
+            <label className="profile-label font-semibold">Registered As</label>
+            <div className="profile-view">Buyer / End User</div>
+          </div>
+
+          <div>
+            <label className="profile-label font-semibold">Preferred Currency</label>
+            <div className="profile-view">AED</div>
+          </div>
+        </div>
+
+        {/* Account status */}
+        <div className="mt-5">
+          <label className="profile-label font-semibold">Account Status</label>
+          <div className="profile-view text-green-700 font-semibold">
+            Approved
+          </div>
+        </div>
+      </div>
+
+
+
+
 
       {/* Update Profile Button */}
       <div className="flex justify-end">
