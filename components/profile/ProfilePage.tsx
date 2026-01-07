@@ -55,12 +55,14 @@ export default function ProfilePage() {
   // Personal Information
   const [fullName, setFullName] = useState("John Martin");
   const [nationality, setNationality] = useState("");
-  const [showNationalityDropdown, setShowNationalityDropdown] = useState(false);
+  const [username] = useState("john.martin");
   const [birthday, setBirthday] = useState("");
   const [gender, setGender] = useState("male");
 
   // Edit states
   const [editingFullName, setEditingFullName] = useState(false);
+
+  const [editOnboarding, setEditOnboarding] = useState(false);
 
   // Validation errors
   const [errors, setErrors] = useState<{
@@ -160,7 +162,7 @@ export default function ProfilePage() {
           </div>
 
 
-          {/* Phone Number */}
+
           {/* Phone Number */}
           <div>
             <label className="block font-inter font-semibold text-[16px] leading-[24px] text-black mb-2">
@@ -212,78 +214,78 @@ export default function ProfilePage() {
                 className="flex-1 px-4 py-3 font-inter text-sm text-black bg-transparent outline-none"
                 readOnly={!editingFullName}
               />
-              <button
-                onClick={() => setEditingFullName(!editingFullName)}
-                className="px-3 py-3 hover:bg-[#F5F5F5]"
-              >
-                <Image
-                  src="/order/pfsv1.svg"
-                  alt="Edit"
-                  width={16}
-                  height={16}
-                  className="object-contain"
-                />
-              </button>
+
             </div>
             {errors.fullName && (
               <p className="font-inter text-xs text-[#D35400] mt-1">{errors.fullName}</p>
             )}
           </div>
 
-          {/* Nationality - 4 columns */}
+          {/* username */}
           <div className="lg:col-span-4">
-            <label className="block font-inter font-semibold text-[16px] leading-[24px] text-black mb-2">Nationality</label>
-            <div className="relative">
+            <label className="block font-inter font-semibold text-[16px] leading-[24px] text-black mb-2">
+              Username
+            </label>
+
+            <div className="flex items-center bg-[#F0EBE3] border border-[#E8E3D9]">
+              <input
+                type="text"
+                value={username}
+                readOnly
+                className="flex-1 px-4 py-3 font-inter text-sm text-black bg-transparent outline-none cursor-not-allowed"
+              />
+
               <button
-                onClick={() => setShowNationalityDropdown(!showNationalityDropdown)}
-                className={`w-full flex items-center justify-between bg-[#F0EBE3] border ${errors.nationality ? 'border-[#D35400]' : 'border-[#E8E3D9]'} px-4 py-3`}
+                onClick={() => window.location.href = "/change-username"}
+                className="px-3 py-3 hover:bg-[#F5F5F5]"
+                title="Change username"
               >
-                <span className={`font-inter text-sm ${nationality ? "text-black" : "text-[#D35400]"}`}>
-                  {nationality || "Select Nationality"}
-                </span>
-                <svg width="10" height="6" viewBox="0 0 10 6" fill="none" xmlns="http://www.w3.org/2000/svg">
-                  <path d="M1 1L5 5L9 1" stroke="#666" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
-                </svg>
+                <Pencil className="w-4 h-4 text-[#D35400]" />
               </button>
-              {showNationalityDropdown && (
-                <div className="absolute top-full left-0 right-0 mt-1 bg-white border border-[#E8E3D9] shadow-lg z-10 max-h-48 overflow-y-auto">
-                  {nationalities.map((nat) => (
-                    <button
-                      key={nat}
-                      onClick={() => {
-                        setNationality(nat);
-                        setShowNationalityDropdown(false);
-                        if (errors.nationality) setErrors(prev => ({ ...prev, nationality: undefined }));
-                      }}
-                      className="w-full px-4 py-2 text-left font-inter text-sm text-black hover:bg-[#F5F5F5]"
-                    >
-                      {nat}
-                    </button>
-                  ))}
-                </div>
-              )}
             </div>
-            {errors.nationality && (
-              <p className="font-inter text-xs text-[#D35400] mt-1">{errors.nationality}</p>
-            )}
+
+            <p className="font-inter text-xs text-[#666] mt-1">
+              Username was set during registration and can be changed only once.
+            </p>
           </div>
+
+
         </div>
 
 
       </div>
 
 
+
+
       {/* Organization / Buyer Information */}
       <div className="bg-[#EBE3D6] p-5 lg:p-6 mb-6 text-black">
-        <div className="mb-3">
-          <p className="text-xs  text-green-600 mb-1">
-            Organization information is locked after onboarding verification.
-          </p>
+        <div className="mb-3 flex items-start justify-between">
+          <div>
+            <p className="text-xs text-green-600 mb-1">
+              Organization information is locked after onboarding verification.
+            </p>
 
-          <h2 className="font-orbitron font-black text-base lg:text-lg uppercase tracking-wide text-black">
-            Organization / Buyer Information
-          </h2>
+            <h2 className="font-orbitron font-black text-base lg:text-lg uppercase tracking-wide text-black">
+              Organization / Buyer Information
+            </h2>
+            {editOnboarding && (
+  <div className="bg-[#FFF4E5] border border-[#D35400] p-4 mb-4 text-sm text-black">
+    ⚠️ Editing onboarding details will require admin re-verification.
+    Your account may be temporarily restricted until approval.
+  </div>
+)}
+
+          </div>
+
+          <button
+            onClick={() => setEditOnboarding(true)}
+            className="text-sm text-[#D35400] hover:underline"
+          >
+            Request Edit
+          </button>
         </div>
+
 
 
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 lg:gap-6">
@@ -544,37 +546,37 @@ export default function ProfilePage() {
             Categories Selected for Purchase
           </label>
 
-         <ul className="space-y-3 text-sm">
-  <li className="flex items-start gap-2">
-    <CheckCircle className="w-4 h-4 text-green-600 mt-0.5" />
-    <span>Engine Systems</span>
-  </li>
+          <ul className="space-y-3 text-sm">
+            <li className="flex items-start gap-2">
+              <CheckCircle className="w-4 h-4 text-green-600 mt-0.5" />
+              <span>Engine Systems</span>
+            </li>
 
-  <li className="flex items-start gap-2">
-    <CheckCircle className="w-4 h-4 text-green-600 mt-0.5" />
-    <span>Braking Systems</span>
-  </li>
+            <li className="flex items-start gap-2">
+              <CheckCircle className="w-4 h-4 text-green-600 mt-0.5" />
+              <span>Braking Systems</span>
+            </li>
 
-  <li className="flex items-start gap-2">
-    <CheckCircle className="w-4 h-4 text-green-600 mt-0.5" />
-    <span>Runflat & Tire Systems</span>
-  </li>
+            <li className="flex items-start gap-2">
+              <CheckCircle className="w-4 h-4 text-green-600 mt-0.5" />
+              <span>Runflat & Tire Systems</span>
+            </li>
 
-  <li className="flex items-start gap-2">
-    <ShieldAlert className="w-4 h-4 text-[#D35400] mt-0.5" />
-    <div>
-      <span>Turrets & Mounts</span>
-      <span className="block text-xs text-gray-500">
-        Controlled item – MOD / ECON
-      </span>
-    </div>
-  </li>
+            <li className="flex items-start gap-2">
+              <ShieldAlert className="w-4 h-4 text-[#D35400] mt-0.5" />
+              <div>
+                <span>Turrets & Mounts</span>
+                <span className="block text-xs text-gray-500">
+                  Controlled item – MOD / ECON
+                </span>
+              </div>
+            </li>
 
-  <li className="flex items-start gap-2">
-    <CheckCircle className="w-4 h-4 text-green-600 mt-0.5" />
-    <span>Countermeasures</span>
-  </li>
-</ul>
+            <li className="flex items-start gap-2">
+              <CheckCircle className="w-4 h-4 text-green-600 mt-0.5" />
+              <span>Countermeasures</span>
+            </li>
+          </ul>
 
 
         </div>
