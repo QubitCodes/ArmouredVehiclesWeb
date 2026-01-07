@@ -175,14 +175,7 @@ export default function ProfilePage() {
                 {email}
               </span>
 
-              <button
-                onClick={() => window.location.href = "/user-register?mode=change-email"}
-                className="p-1 rounded hover:bg-[#E6E0D6] transition"
-                aria-label="Change email"
-                title="Change email"
-              >
-                <Pencil className="w-4 h-4 text-[#D35400]" />
-              </button>
+             
             </div>
           </div>
 
@@ -260,13 +253,13 @@ export default function ProfilePage() {
                 className="flex-1 px-4 py-3 font-inter text-sm text-black bg-transparent outline-none cursor-not-allowed"
               />
 
-              <button
+              {/* <button
                 onClick={() => window.location.href = "/change-username"}
                 className="px-3 py-3 hover:bg-[#F5F5F5]"
                 title="Change username"
               >
                 <Pencil className="w-4 h-4 text-[#D35400]" />
-              </button>
+              </button> */}
             </div>
 
             <p className="font-inter text-xs text-[#666] mt-1">
@@ -371,7 +364,7 @@ export default function ProfilePage() {
                     : "text-[#D35400] cursor-pointer hover:underline"
                   }`}
               >
-                Replace
+                edit
                 <input
                   type="file"
                   accept=".pdf"
@@ -413,7 +406,7 @@ export default function ProfilePage() {
                   : "text-[#D35400] cursor-pointer hover:underline"
                   }`}
               >
-                Replace
+                edit
                 <input
                   type="file"
                   accept=".pdf"
@@ -516,7 +509,7 @@ export default function ProfilePage() {
                       : "text-[#D35400] cursor-pointer hover:underline"
                     }`}
                 >
-                  Replace
+                  edit
                   <input
                     type="file"
                     accept=".pdf,.jpg,.png"
