@@ -54,15 +54,12 @@ export default function ProfilePage() {
 
   // Personal Information
   const [fullName, setFullName] = useState("John Martin");
-  const [nationality, setNationality] = useState("");
   const [username] = useState("john.martin");
-  const [birthday, setBirthday] = useState("");
-  const [gender, setGender] = useState("male");
+
 
   // Edit states
   const [editingFullName, setEditingFullName] = useState(false);
 
-  const [editOnboarding, setEditOnboarding] = useState(false);
 
   // Validation errors
   const [errors, setErrors] = useState<{
@@ -72,7 +69,18 @@ export default function ProfilePage() {
     birthday?: string;
   }>({});
 
-  const selectedCountry = countryCodes.find((c) => c.code === phoneCountryCode);
+
+  const [modStatus, setModStatus] = useState<"APPROVED" | "PENDING">("APPROVED");
+  const [econStatus, setEconStatus] = useState<"APPROVED" | "PENDING">("APPROVED");
+
+  const [modFileName, setModFileName] = useState("MOD-License.pdf");
+  const [econFileName, setEconFileName] = useState("ECON-Certificate.pdf");
+  ;
+
+  const [idStatus, setIdStatus] = useState<"APPROVED" | "PENDING">("APPROVED");
+  const [idFileName, setIdFileName] = useState("EmiratesID-JohnMartin.pdf");
+
+
 
   const validateForm = () => {
     const newErrors: typeof errors = {};
@@ -87,14 +95,7 @@ export default function ProfilePage() {
 
 
     // Validate Nationality
-    if (!nationality) {
-      newErrors.nationality = "Please select your nationality";
-    }
-
-    // Validate Birthday
-    if (!birthday) {
-      newErrors.birthday = "Please select your birthday";
-    }
+  
 
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
@@ -111,14 +112,38 @@ export default function ProfilePage() {
       phoneCountryCode,
       phoneNumber,
       fullName,
-      nationality,
-      birthday,
-      gender,
+   
     });
 
     // Show success message or redirect
     alert("Profile updated successfully!");
   };
+
+  const handleModReplace = (file: File) => {
+    setModFileName(file.name);
+    setModStatus("PENDING");
+
+    // later → API call
+    // uploadDocument({ type: "MOD", file });
+  };
+
+  const handleEconReplace = (file: File) => {
+    setEconFileName(file.name);
+    setEconStatus("PENDING");
+
+    // later → API call
+    // uploadDocument({ type: "ECON", file });
+  };
+
+
+  const handleIdReplace = (file: File) => {
+    setIdFileName(file.name);
+    setIdStatus("PENDING");
+
+    // Later → backend
+    // uploadDocument({ type: "ID", file });
+  };
+
 
   return (
     <main className="flex-1">
@@ -269,21 +294,11 @@ export default function ProfilePage() {
             <h2 className="font-orbitron font-black text-base lg:text-lg uppercase tracking-wide text-black">
               Organization / Buyer Information
             </h2>
-            {editOnboarding && (
-  <div className="bg-[#FFF4E5] border border-[#D35400] p-4 mb-4 text-sm text-black">
-    ⚠️ Editing onboarding details will require admin re-verification.
-    Your account may be temporarily restricted until approval.
-  </div>
-)}
+
 
           </div>
 
-          <button
-            onClick={() => setEditOnboarding(true)}
-            className="text-sm text-[#D35400] hover:underline"
-          >
-            Request Edit
-          </button>
+
         </div>
 
 
@@ -326,28 +341,103 @@ export default function ProfilePage() {
           <label className="profile-label font-semibold">
             Govt. / Compliance Registration Documents
           </label>
-
           <div className="mt-2 space-y-2">
             {/* MOD License */}
             <div className="flex items-center gap-3 bg-[#F0EBE3] border border-dashed border-[#E8E3D9] px-4 py-3 rounded-md">
               <FileText className="w-5 h-5 text-[#D35400]" />
+
               <div className="flex-1 text-sm">
-                <p className="font-medium text-black">MOD-License.pdf</p>
-                <p className="text-xs text-gray-500">Government approved document</p>
+                <p className="font-medium text-black">{modFileName}</p>
+                <p className="text-xs text-gray-500">
+                  {modStatus === "APPROVED"
+                    ? "Government approved document"
+                    : "New document submitted — awaiting admin verification"}
+                </p>
               </div>
-              <ShieldCheck className="w-4 h-4 text-green-600" />
+
+              {/* Status */}
+              {modStatus === "APPROVED" ? (
+                <ShieldCheck className="w-4 h-4 text-green-600" />
+              ) : (
+                <span className="text-xs font-semibold text-yellow-700 bg-yellow-100 px-2 py-1 rounded">
+                  Under Review
+                </span>
+              )}
+
+              {/* Replace (disabled when pending) */}
+              <label
+                className={`ml-3 text-sm ${modStatus === "PENDING"
+                    ? "text-gray-400 cursor-not-allowed"
+                    : "text-[#D35400] cursor-pointer hover:underline"
+                  }`}
+              >
+                Replace
+                <input
+                  type="file"
+                  accept=".pdf"
+                  disabled={modStatus === "PENDING"}
+                  className="hidden"
+                  onChange={(e) => {
+                    const file = e.target.files?.[0];
+                    if (file) handleModReplace(file);
+                  }}
+                />
+              </label>
             </div>
+
 
             {/* ECON Certificate */}
             <div className="flex items-center gap-3 bg-[#F0EBE3] border border-dashed border-[#E8E3D9] px-4 py-3 rounded-md">
               <FileText className="w-5 h-5 text-[#D35400]" />
+
               <div className="flex-1 text-sm">
-                <p className="font-medium text-black">ECON-Certificate.pdf</p>
-                <p className="text-xs text-gray-500">Compliance registration document</p>
+                <p className="font-medium text-black">{econFileName}</p>
+                <p className="text-xs text-gray-500">
+                  {econStatus === "APPROVED"
+                    ? "Compliance registration document"
+                    : "New document submitted — awaiting admin verification"}
+                </p>
               </div>
-              <ShieldCheck className="w-4 h-4 text-green-600" />
+
+              {econStatus === "APPROVED" ? (
+                <ShieldCheck className="w-4 h-4 text-green-600" />
+              ) : (
+                <span className="text-xs font-semibold text-yellow-700 bg-yellow-100 px-2 py-1 rounded">
+                  Under Review
+                </span>
+              )}
+
+              <label
+                className={`ml-3 text-sm ${econStatus === "PENDING"
+                  ? "text-gray-400 cursor-not-allowed"
+                  : "text-[#D35400] cursor-pointer hover:underline"
+                  }`}
+              >
+                Replace
+                <input
+                  type="file"
+                  accept=".pdf"
+                  disabled={econStatus === "PENDING"}
+                  className="hidden"
+                  onChange={(e) => {
+                    const file = e.target.files?.[0];
+                    if (file) handleEconReplace(file);
+                  }}
+                />
+              </label>
             </div>
+
           </div>
+
+          {/* Section-level note */}
+          <p className="text-xs text-[#666] mt-2">
+            Uploading a new document requires admin verification.
+            The currently verified document remains active until approval.
+          </p>
+
+
+
+
         </div>
 
       </div>
@@ -401,21 +491,54 @@ export default function ProfilePage() {
                 <FileText className="w-5 h-5 text-[#D35400]" />
 
                 <div className="text-sm">
-                  <p className="font-medium text-black">
-                    EmiratesID-JohnMartin.pdf
-                  </p>
+                  <p className="font-medium text-black">{idFileName}</p>
                   <p className="text-xs text-gray-500">
-                    Verified document
+                    {idStatus === "APPROVED"
+                      ? "Verified document"
+                      : "New document submitted — awaiting admin verification"}
                   </p>
                 </div>
               </div>
 
-              {/* Right: Verification */}
-              <ShieldCheck className="w-4 h-4 text-green-600" />
+              {/* Right: Status + Replace */}
+              <div className="flex items-center gap-3">
+                {idStatus === "APPROVED" ? (
+                  <ShieldCheck className="w-4 h-4 text-green-600" />
+                ) : (
+                  <span className="text-xs font-semibold text-yellow-700 bg-yellow-100 px-2 py-1 rounded">
+                    Under Review
+                  </span>
+                )}
+
+                <label
+                  className={`text-sm ${idStatus === "PENDING"
+                      ? "text-gray-400 cursor-not-allowed"
+                      : "text-[#D35400] cursor-pointer hover:underline"
+                    }`}
+                >
+                  Replace
+                  <input
+                    type="file"
+                    accept=".pdf,.jpg,.png"
+                    disabled={idStatus === "PENDING"}
+                    className="hidden"
+                    onChange={(e) => {
+                      const file = e.target.files?.[0];
+                      if (file) handleIdReplace(file);
+                    }}
+                  />
+                </label>
+              </div>
             </div>
 
 
+            {/* Section-level note (optional, if not already shown above) */}
+            <p className="text-xs text-[#666] mt-2">
+              Uploading a new ID document requires admin verification.
+              The currently verified document remains active until approval.
+            </p>
           </div>
+
 
           {/* Mobile / WhatsApp */}
           <div>
