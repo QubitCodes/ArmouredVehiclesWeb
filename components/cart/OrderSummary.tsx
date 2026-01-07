@@ -8,7 +8,7 @@ import { Loader } from "lucide-react";
 // };
 type OrderSummaryProps = {
   subtotal: number;
-  itemCount: number;   // ✅ ADD THIS
+  itemCount?: number;
   onCheckout?: () => void;
   buttonText?: string;
   isLoading?: boolean;
@@ -17,6 +17,7 @@ type OrderSummaryProps = {
 
 export default function OrderSummary({
   subtotal,
+  itemCount,
   itemCount,
   onCheckout,
   buttonText = "CHECKOUT",
@@ -34,7 +35,7 @@ export default function OrderSummary({
       {/* Subtotal */}
       <div className="flex justify-between items-center">
         <span className="text-[14px] lg:text-[15px] text-[#1C1C1C]">
-          Subtotal ({itemCount} {itemCount === 1 ? "item" : "items"})
+          Subtotal {typeof itemCount === "number" ? `(${itemCount} items)` : ""}
         </span>
 
         <span className="font-bold text-[16px] lg:text-[18px] flex items-center gap-2 text-black">
