@@ -120,7 +120,7 @@ export default function ProfileSidebar() {
               <p className="text-sm text-black/70">{userData.email}</p>
             </div>
           </div>
-          <div className="space-y-2">
+          {/* <div className="space-y-2">
             <div className="flex items-center gap-2 text-sm">
               <span>Profile Completion</span>
               <span className="bg-[#D35400] px-2 py-0.5 rounded text-xs font-semibold text-white">
@@ -133,7 +133,7 @@ export default function ProfileSidebar() {
                 style={{ width: `${userData.profileCompletion}%` }}
               />
             </div>
-          </div>
+          </div> */}
         </div>
 
         {/* Orders & Activity */}
