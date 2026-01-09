@@ -84,7 +84,7 @@ const Footer = ({ disableMobileBottomSpace = false }: FooterProps) => {
 
         {/* ========== MOBILE FOOTER ========== */}
         <div className="lg:hidden mb-6">
-          <Image src="/logofullwhite.svg" alt="ArmoredMart" width={260} height={140} className="mb-4" />
+          <Image src="/final-logo.svg" alt="ArmoredMart" width={260} height={140} className="mb-4" />
 
           <div className="flex gap-8 mb-6">
             {socialLinks.map((s) => (
@@ -128,7 +128,7 @@ const Footer = ({ disableMobileBottomSpace = false }: FooterProps) => {
         {/* ========== DESKTOP FOOTER ========== */}
         <div className="hidden lg:grid grid-cols-5 gap-8 mb-5">
           <div>
-            <Image src="/logofullwhite.svg" alt="logo" width={220} height={120} />
+            <Image src="/final-logo.svg" alt="logo" width={220} height={120} />
             <div className="flex gap-6 mt-4">
               {socialLinks.map((s) => (
                 <Link key={s.href} href={s.href} target="_blank">
