@@ -2,6 +2,7 @@
 
 import Image from "next/image";
 import { useState } from "react";
+import API from "../services/api";
 
 
 export default function AccountSetup({
@@ -55,9 +56,74 @@ export default function AccountSetup({
                 : [...prev, cat]
         );
     };
+    const [error, setError] = useState<string | null>(null);
+  const [submitting, setSubmitting] = useState(false);
 
     /* ---------------- Radios ---------------- */
     const [currency, setCurrency] = useState("AED");
+    // ✅ ADDED: password states
+const [password, setPassword] = useState("");
+const [confirmPassword, setConfirmPassword] = useState("");
+const [passwordError, setPasswordError] = useState("");
+// ✅ ADDED: validation before submit
+const handleSubmit = async () => {
+  setError(null);
+
+  // ✅ ONLY REQUIRED VALIDATION
+  if (!password || !confirmPassword) {
+    setError("Please fill the required fields");
+    return;
+  }
+
+  if (password !== confirmPassword) {
+    setError("Passwords do not match");
+    return;
+  }
+
+  try {
+    setSubmitting(true);
+
+    // const formData = new FormData();
+
+    // // REQUIRED
+    // formData.append("password", password);
+    // formData.append("isDraft", "false");
+
+    // // OPTIONAL / ARRAY FIELDS
+    // selectedCategories.forEach((cat) =>
+    //   formData.append("sellingCategories", cat)
+    // );
+
+    // if (currency)
+    //   formData.append("preferredCurrency", currency);
+
+    // formData.append("registerAs", "Buyer / End User");
+    // formData.append("sponsorContent", "true");
+     const payload = {
+    sellingCategories: selectedCategories, // ✅ ARRAY
+    registerAs: "Buyer / End User",
+    preferredCurrency: currency,
+    sponsorContent: true,
+    password: password,
+    isDraft: false,
+  };
+
+    await API.post("/vendor/onboarding/step4", payload);
+
+    onSubmit();
+  } catch (err: any) {
+    setError(
+      err?.response?.data?.message ||
+      err?.message ||
+      "Submission failed"
+    );
+  } finally {
+    setSubmitting(false);
+  }
+};
+
+
+
 
     return (
         <div className="max-w-[1200px] mx-auto bg-[#EBE3D6] p-8 mt-8 text-black">
@@ -166,6 +232,8 @@ export default function AccountSetup({
                     </label>
                     <input
                         type="password"
+                         value={password}                // ✅ ADDED
+  onChange={(e) => setPassword(e.target.value)} // ✅ ADDED
                         className="w-full px-4 py-3 border border-[#C7B88A] bg-[#EBE3D6]"
                     />
                 </div>
@@ -176,9 +244,16 @@ export default function AccountSetup({
                     </label>
                     <input
                         type="password"
+                         value={confirmPassword}                // ✅ ADDED
+  onChange={(e) => setConfirmPassword(e.target.value)} // ✅ ADDED
                         className="w-full px-4 py-3 border border-[#C7B88A] bg-[#EBE3D6]"
                     />
                 </div>
+                 {passwordError && (
+  <p className="text-red-600 text-xs mt-1">
+    {passwordError}
+  </p>
+)}
             </div>
 
             {/* ---------------- CAPTCHA ---------------- */}
@@ -234,7 +309,7 @@ export default function AccountSetup({
                 </button>
 
                 <button
-                    onClick={onSubmit}
+                   onClick={handleSubmit} 
                     disabled={!captchaChecked}
                     className={`w-[300px] h-[48px] font-orbitron font-bold clip-path-supplier
     ${captchaChecked
@@ -246,6 +321,7 @@ export default function AccountSetup({
                 </button>
 
             </div>
+           
         </div>
     );
 }
