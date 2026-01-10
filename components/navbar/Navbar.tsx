@@ -106,31 +106,9 @@ const Navbar = () => {
   const router = useRouter();
 
   // Handle search
-  const handleSearch = async () => {
+  const handleSearch = () => {
     if (!searchQuery.trim()) return;
-    
-    // Check if user is authenticated
-    if (!isAuthenticated) {
-      // Redirect to login with return URL
-      router.push(`/login?redirect=/search?q=${encodeURIComponent(searchQuery)}`);
-      return;
-    }
-    
-    setIsSearching(true);
-    try {
-      const response = await searchProducts({ 
-        q: searchQuery,
-        page: 1,
-        limit: 10 
-      });
-      console.log('Search results:', response.data);
-      // Navigate to search results page with query
-      router.push(`/search?q=${encodeURIComponent(searchQuery)}`);
-    } catch (error) {
-      console.error('Search error:', error);
-    } finally {
-      setIsSearching(false);
-    }
+    router.push(`/category?search=${encodeURIComponent(searchQuery)}`);
   };
 
   // Handle search on Enter key press

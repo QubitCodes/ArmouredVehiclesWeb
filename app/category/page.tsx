@@ -29,6 +29,7 @@ function CategoryContent() {
     const searchParams = useSearchParams();
     const categoryIdParam = searchParams.get('categoryId') || searchParams.get('category_id');
     const categoryNameParam = searchParams.get('name');
+    const searchQueryParam = searchParams.get('search') || searchParams.get('q');
 
     const [products, setProducts] = useState<Product[]>([]);
     const [isLoading, setIsLoading] = useState<boolean>(true);
@@ -37,12 +38,15 @@ function CategoryContent() {
     useEffect(() => {
         const fetchProducts = async () => {
             try {
-                const filters =
-                    categoryIdParam && !isNaN(Number(categoryIdParam))
-                        ? { categoryId: Number(categoryIdParam) }
-                        : undefined;
+                const filters: any = {};
+                if (categoryIdParam && !isNaN(Number(categoryIdParam))) {
+                    filters.categoryId = Number(categoryIdParam);
+                }
+                if (searchQueryParam && searchQueryParam.trim()) {
+                    filters.search = searchQueryParam.trim();
+                }
 
-                const data = await api.products.getAll(filters);
+                const data = await api.products.getAll(Object.keys(filters).length ? filters : undefined);
 
                 const mapped: Product[] = Array.isArray(data)
                     ? data.map((item: any) => {
@@ -80,7 +84,7 @@ function CategoryContent() {
         };
 
         fetchProducts();
-    }, [categoryIdParam]);
+    }, [categoryIdParam, searchQueryParam]);
 
 
     // Filter states
@@ -452,7 +456,7 @@ function CategoryContent() {
                         <div className="hidden md:flex justify-between items-center mb-6">
                             {/* Result Count - Desktop */}
                             <p className="text-black text-[16px] font-semibold font-[Inter, sans-serif]">
-                                <span>{products.length}</span> Results for <span className="font-normal">{categoryNameParam || 'All Products'}</span>
+                                <span>{products.length}</span> Results for <span className="font-normal">{(searchQueryParam && searchQueryParam.trim()) ? searchQueryParam : (categoryNameParam || 'All Products')}</span>
                             </p>
 
                             <div className="flex items-center gap-4">

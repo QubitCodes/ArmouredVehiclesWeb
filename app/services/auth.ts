@@ -94,6 +94,9 @@ export const resendPhoneOtp = (payload: {
 export interface SearchProductsParams {
   page?: number | null;
   limit?: number | null;
+  // Preferred param name for API: "search"
+  search?: string | null;
+  // Back-compat for callers using "q"
   q?: string | null;
   category_id?: number | null;
   min_price?: number | null;
@@ -109,9 +112,13 @@ export const searchProducts = (params: SearchProductsParams = {}) => {
   if (params.limit != null) {
     queryParams.limit = params.limit;
   }
-  if (params.q != null && params.q.trim() !== "") {
-    queryParams.q = params.q;
+
+  // Use "search" param expected by products listing endpoint
+  const query = (params.search ?? params.q ?? "").toString().trim();
+  if (query) {
+    queryParams.search = query;
   }
+
   if (params.category_id != null) {
     queryParams.category_id = params.category_id;
   }
@@ -122,5 +129,6 @@ export const searchProducts = (params: SearchProductsParams = {}) => {
     queryParams.max_price = params.max_price;
   }
 
-  return API.get("/products/search", { params: queryParams });
+  // API supports search via GET /products with query params
+  return API.get("/products", { params: queryParams });
 };
