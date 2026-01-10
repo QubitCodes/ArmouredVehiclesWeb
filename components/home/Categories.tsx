@@ -160,10 +160,10 @@ export const Categories = () => {
                     <Link
                       href={
                         category.id !== undefined
-                          ? `/category?categoryId=${
+                          ? `/products?categoryId=${
                               category.id
                             }&name=${encodeURIComponent(category.title)}`
-                          : `/category?name=${encodeURIComponent(
+                          : `/products?name=${encodeURIComponent(
                               category.title
                             )}`
                       }
@@ -325,10 +325,10 @@ export const Categories = () => {
                 <Link
                   href={
                     category.id !== undefined
-                      ? `/category?categoryId=${
+                      ? `/products?categoryId=${
                           category.id
                         }&name=${encodeURIComponent(category.title)}`
-                      : `/category?name=${encodeURIComponent(category.title)}`
+                      : `/products?name=${encodeURIComponent(category.title)}`
                   }
                   className="flex flex-col group w-[258px] no-underline"
                   data-aos="fade-up"
