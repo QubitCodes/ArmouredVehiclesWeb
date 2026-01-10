@@ -140,7 +140,7 @@ const MobileBottomNav = () => {
 
 
 
-                  <Link href="/supplier">
+                  <Link href="https://amadmin.vercel.app/vendor/login/">
                                   <div className="bg-[#39482C] hover:bg-[#D35400] text-white clip-path-supplier flex items-center justify-center w-full h-12">
                                     <span className="font-black text-[20px] font-orbitron uppercase">
                                       SUPPLIER ZONE
