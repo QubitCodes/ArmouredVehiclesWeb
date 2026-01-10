@@ -148,32 +148,24 @@ const Navbar = () => {
   // Profile dropdown menu items - using icons from icons/profile folder (pf0-pf9)
 
 
-  const navItems = useMemo(
-    () => [
-      { name: 'Core Systems', href: '/core-systems' },
-      { name: 'Armor Systems', href: '/armor-systems' },
-      { name: 'Comms & Control', href: '/comms-control' },
-      { name: 'Climate & Interior', href: '/climate-interior' },
-      { name: 'Exterior & Utility', href: '/exterior-utility' },
-      { name: 'OEM / Custom Support', href: '/oem-custom' },
-      { name: 'Chassis & Platforms', href: '/chassis-platforms' },
-      { name: 'OEM Sourcing', href: '/oem-sourcing' },
-      { name: 'Tactical Hardware', href: '/tactical-hardware' },
-      { name: 'Powertrain', href: '/powertrain-driveline' },
-      { name: 'Electronics & Avionics', href: '/electronics-avionics' },
-      { name: 'Weapon Integration', href: '/weapon-integration' },
-      { name: 'Sensor Suites', href: '/sensor-suites' },
-      { name: 'Countermeasures', href: '/countermeasures' },
-      { name: 'Autonomy & AI', href: '/autonomy-ai' },
-      { name: 'Logistics & Sustainment', href: '/logistics-sustainment' },
-      { name: 'Training Systems', href: '/training-systems' },
-      { name: 'Rugged Computing', href: '/rugged-computing' },
-      { name: 'Maritime Solutions', href: '/maritime-solutions' },
-      { name: 'Aerospace Components', href: '/aerospace-components' },
-      { name: 'Export Compliance', href: '/export-compliance' },
-    ],
-    []
-  );
+
+  const [navItems, setNavItems] = useState<{ id: number; name: string }[]>([]);
+
+  useEffect(() => {
+    async function fetchCategories() {
+      try {
+        const categories = await import("@/lib/api").then((m) => m.default.categories.getAll());
+        // Map to expected structure if needed, or just use data
+        // We only need id and name for the navbar
+        if (Array.isArray(categories)) {
+           setNavItems(categories.map((c: any) => ({ id: c.id, name: c.name })));
+        }
+      } catch (error) {
+        console.error("Failed to load navbar categories", error);
+      }
+    }
+    fetchCategories();
+  }, []);
 
   // Auto-resize menu calculation
   useEffect(() => {
@@ -210,8 +202,9 @@ const Navbar = () => {
 
       setShowMenuButton(visible < navItems.length || window.innerWidth < 1024);
     };
-
-    calc();
+    
+    // Initial calculation with a small delay to ensure DOM is ready/fonts loaded
+    requestAnimationFrame(calc);
 
     const ro = new ResizeObserver(() => calc());
     if (containerRef.current) ro.observe(containerRef.current);
@@ -562,20 +555,6 @@ const Navbar = () => {
         <div className="container-figma">
           <div className="flex items-center h-[50px]" ref={containerRef}>
 
-            {/* {showMenuButton && (
-              // <button
-              //   className="p-2 hover:bg-[#2C3922]"
-              //   onClick={() => setMenuOpen(!menuOpen)}
-              //   ref={menuButtonRef}
-              / >
-                <span className="sr-only">Menu</span>
-                <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2}
-                    d="M4 6h16M4 12h16M4 18h16" />
-                </svg>
-              </button>
-            )} */}
-
             {visibleCount > 0 && (
               <div
                 ref={desktopMenuRef}
@@ -583,8 +562,8 @@ const Navbar = () => {
               >
                 {navItems.slice(0, visibleCount).map((item) => (
                   <Link
-                    key={item.name}
-                    href={`/products?name=${encodeURIComponent(item.name)}`}
+                    key={item.id}
+                    href={`/products?category_id=${item.id}`}
                     className="flex items-center h-full px-4 text-[15.5px] font-medium whitespace-nowrap 
               transition-all duration-200 hover:bg-[#D35400] hover:text-white"
                   >
@@ -613,25 +592,6 @@ const Navbar = () => {
           </div>
         </div>
 
-        {/* Dropdown */}
-        {/* <div
-          className={`absolute left-0 top-full w-full bg-[#39482C] border-b shadow-lg overflow-hidden transition-all duration-300 ease-in-out ${menuOpen ? 'max-h-[400px] opacity-100' : 'max-h-0 opacity-0'
-            }`}
-        >
-          <div className="container-figma py-8">
-            <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-x-6 gap-y-4">
-              {navItems.slice(visibleCount).map((item) => (
-                <Link
-                  key={item.name}
-                  href={item.href}
-                  className="block py-3 px-4 text-sm font-medium text-white hover:text-[#D35400] rounded transition-all"
-                >
-                  {item.name}
-                </Link>
-              ))}
-            </div>
-          </div>
-        </div> */}
       </div>
 
     </nav>

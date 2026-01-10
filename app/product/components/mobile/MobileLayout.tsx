@@ -25,6 +25,10 @@ export default function MobileLayout({ id, product }: { id?: string; product?: a
         ? product.gallery
         : [product?.image || "/product/product 1.png"];
     const tabContent: TabContent[] = [];
+    // -------------------------------------------------------------
+    // DYNAMIC SECTIONS - If data exists, tabs will be displayed.
+    // If data is missing/null, the section is automatically hidden (not pushed to tabContent).
+    // -------------------------------------------------------------
     if (product?.vehicleFitment) {
         tabContent.push({
             id: "vehicle-fitment",
@@ -88,32 +92,8 @@ export default function MobileLayout({ id, product }: { id?: string; product?: a
             ),
         });
     }
-    const similarProducts = [
-        {
-            id: 1,
-            name: "Extended Life Engine Oil Filter",
-            rating: 4.7,
-            reviews: 2083,
-            price: 99.99,
-            image: "/product/similar/image.png",
-        },
-        {
-            id: 2,
-            name: "Extended Life Engine Oil Filter",
-            rating: 4.7,
-            reviews: 2083,
-            price: 99.99,
-            image: "/product/similar/image 2.png",
-        },
-        {
-            id: 3,
-            name: "Extended Life Engine Oil Filter",
-            rating: 4.7,
-            reviews: 2083,
-            price: 99.99,
-            image: "/product/similar/image 3.png",
-        },
-    ];
+    // Use dynamic similar products if available, otherwise empty or fallback
+    const similarProducts = Array.isArray(product?.similarProducts) ? product.similarProducts : [];
 
 
     const [selectedImage, setSelectedImage] = useState(0);
@@ -121,7 +101,7 @@ export default function MobileLayout({ id, product }: { id?: string; product?: a
     const [showGallery, setShowGallery] = useState(false);
 
 
-    // `id` is available when rendering via `/product-details/[id]`.
+    // `id` is available when rendering via `/product/[id]`.
     // Currently not used inside this component, but provided so it can be
     // used to fetch product-specific data later.
     return (
@@ -171,8 +151,10 @@ export default function MobileLayout({ id, product }: { id?: string; product?: a
                     }}
                 />
 
-                {/* 4️⃣ SIMILAR ITEMS */}
-                <SimilarItemsSection products={similarProducts} />
+                {/* 4️⃣ SIMILAR ITEMS - Only show if data exists */}
+                {similarProducts.length > 0 && (
+                    <SimilarItemsSection products={similarProducts} />
+                )}
 
             </div>
             <TopSellingProducts title="Recommended For Your Vehicle" />

@@ -273,7 +273,7 @@ export const FeaturedProducts = () => {
                       data-aos="fade-up"
                       onMouseEnter={() => setHoveredKey(uniqueKey)}
                       onMouseLeave={() => setHoveredKey(null)}
-                      onClick={() => router.push(`/product-details/${product.id}`)}
+                      onClick={() => router.push(`/product/${product.id}`)}
                       className={`
     bg-transparent border border-b-0 border-white 
     w-[221px] md:w-[368px] h-[363px] md:h-[519px] flex flex-col flex-shrink-0
@@ -332,7 +332,7 @@ export const FeaturedProducts = () => {
                         <button
                           onClick={(e) => {
                             e.stopPropagation();
-                            router.push(`/product-details/${product.id}`);
+                            router.push(`/product/${product.id}`);
                           }}
                           className={`w-full h-full text-[14px] md:text-[18px] font-orbitron font-extrabold uppercase transition-all ${isHovered ? "bg-[#FF5C00] text-white" : "bg-white text-[#FF5C00]"}`}
                         >

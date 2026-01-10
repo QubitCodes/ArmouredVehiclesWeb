@@ -283,13 +283,22 @@ export const api = {
         getSliderProduct:() => fetchJson<Product[]>('/api/products'),
 
     getById: (id: number) => fetchJson<Product>(`/products/${id}`),
+    
+    // Fetch related products by category
+    getRelated: async (categoryId: number) => {
+      const res = await fetchJson<any>(`/products?category_id=${categoryId}&limit=4`);
+      return Array.isArray(res) ? res : res?.data ?? [];
+    },
     getSimilar: (id: number) => fetchJson<Product[]>(`/products/${id}/similar`),
     getRecommended: (id: number) => fetchJson<Product[]>(`/products/${id}/recommended`),
   },
 
   // --- Categories ---
   categories: {
-    getAll: () => fetchJson<Category[]>('/categories'),
+    getAll: async () => {
+      const res = await fetchJson<any>('/categories');
+      return Array.isArray(res) ? res : res?.data ?? [];
+    },
   },
 
   // --- Reviews ---

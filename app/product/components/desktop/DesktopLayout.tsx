@@ -47,35 +47,15 @@ const DesktopLayout = ({ id, product }: { id?: string; product?: any }) => {
         ? product.gallery
         : [product?.image || "/product/product 1.png"];
 
-    const similarProducts = [
-        {
-            id: 1,
-            name: "Extended Life Engine Oil Filter",
-            rating: 4.7,
-            reviews: 2083,
-            price: 99.99,
-            image: "/product/similar/image.png",
-        },
-        {
-            id: 2,
-            name: "Extended Life Engine Oil Filter",
-            rating: 4.7,
-            reviews: 2083,
-            price: 99.99,
-            image: "/product/similar/image 2.png",
-        },
-        {
-            id: 3,
-            name: "Extended Life Engine Oil Filter",
-            rating: 4.7,
-            reviews: 2083,
-            price: 99.99,
-            image: "/product/similar/image 3.png",
-        },
-    ];
+    // Use dynamic similar products if available, otherwise empty or fallback
+    const similarProducts = Array.isArray(product?.similarProducts) ? product.similarProducts : [];
 
     const tabContent: TabContent[] = [];
 
+    // -------------------------------------------------------------
+    // DYNAMIC SECTIONS - If data exists, tabs will be displayed.
+    // If data is missing/null, the section is automatically hidden (not pushed to tabContent).
+    // -------------------------------------------------------------
     if (product?.vehicleFitment) {
         tabContent.push({
             id: "vehicle-fitment",
@@ -83,23 +63,6 @@ const DesktopLayout = ({ id, product }: { id?: string; product?: any }) => {
             content: (
                 <div className="space-y-4 text-black">
                     <div className="whitespace-pre-line">{product.vehicleFitment}</div>
-                </div>
-            ),
-        });
-    }
-
-    if (product?.specifications || product?.sku) {
-        tabContent.push({
-            id: "specifications",
-            label: "Specifications",
-            content: (
-                <div className="space-y-4">
-                    {product.sku && (
-                        <div className="text-sm"><span className="text-gray-600 font-medium">SKU #</span> <span className="text-black">{product.sku}</span></div>
-                    )}
-                    {product.specifications && (
-                        <div className="text-sm text-black whitespace-pre-line">{product.specifications}</div>
-                    )}
                 </div>
             ),
         });
@@ -144,7 +107,7 @@ const DesktopLayout = ({ id, product }: { id?: string; product?: any }) => {
         });
     }
 
-    // `id` is available when rendering via `/product-details/[id]`.
+    // `id` is available when rendering via `/product/[id]`.
     // Currently not used inside this component, but provided so it can be
     // used to fetch product-specific data later.
     return (
@@ -152,9 +115,10 @@ const DesktopLayout = ({ id, product }: { id?: string; product?: any }) => {
             <Container className="mb-10">
                 <div className="py-8">
                     {/* Breadcrumb */}
+                    {/* Breadcrumb - Dynamic */}
                     <div className="text-sm mb-6 mt-4">
-                        <span className="text-black">
-                            AUTO PARTS / BRAKES AND TRACTION CONTROL / DISC BRAKE SYSTEM / BRAKE PADS
+                        <span className="text-black uppercase">
+                            AUTO PARTS / {product?.category?.name ? product.category.name : "PRODUCTS"} / {product?.name || "DETAILS"}
                         </span>
                     </div>
 
@@ -170,7 +134,10 @@ const DesktopLayout = ({ id, product }: { id?: string; product?: any }) => {
 
 
                             {/* Similar Items */}
-                           <SimilarItemsSection products={similarProducts} />
+                            {/* Similar Items - Only show if data exists */}
+                            {similarProducts.length > 0 && (
+                               <SimilarItemsSection products={similarProducts} />
+                            )}
 
                         </div>
 

@@ -162,16 +162,7 @@ export const Categories = () => {
                     key={index}
                     className="shrink-0 snap-start"
                     style={{ width: `${cardWidth}px` }}>
-                    <Link
-                      href={
-                        category.id !== undefined
-                          ? `/products?categoryId=${
-                              category.id
-                            }&name=${encodeURIComponent(category.title)}`
-                          : `/products?name=${encodeURIComponent(
-                              category.title
-                            )}`
-                      }
+                    <Link href={`/products?category_id=${category.id}`}
                       className="block relative w-full h-52 overflow-hidden group bg-black/60">
                       {category.image ? (
                         <Image
@@ -329,14 +320,7 @@ export const Categories = () => {
             style={slideStyle}>
             {categories.map((category, index) => (
               <div key={index} className="flex-none">
-                <Link
-                  href={
-                    category.id !== undefined
-                      ? `/products?categoryId=${
-                          category.id
-                        }&name=${encodeURIComponent(category.title)}`
-                      : `/products?name=${encodeURIComponent(category.title)}`
-                  }
+                <Link href={`/products?category_id=${category.id}`}
                   className="flex flex-col group w-[258px] no-underline"
                   data-aos="fade-up"
                   data-aos-delay={index * 100}>

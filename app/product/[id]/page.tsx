@@ -26,11 +26,14 @@ type ProductDisplay = {
   vehicleFitment?: string | null;
   warranty?: string | null;
   actionType?: string | null;
+  category?: { id: number; name: string } | null;
+  similarProducts?: any[];
 };
 
 export default function ProductDetailsPage() {
   const [product, setProduct] = useState<ProductDisplay | null>(null);
   const [loading, setLoading] = useState(true);
+  const [similarProducts, setSimilarProducts] = useState<any[]>([]);
 
   const [rating, setRating] = useState<number>(0);
   const [reviewCount, setReviewCount] = useState<number>(0);
@@ -58,43 +61,71 @@ export default function ProductDetailsPage() {
 
       try {
         const data: any = await api.products.getById(productId);
+        console.log("Fetched Product Data:", data); // DEBUG
         if (!active) return;
+        
+        // Unwrap if necessary (safety check)
+        const productData = data.data || data; 
+        console.log("Unwrapped Product Data:", productData); // DEBUG
 
-        const gallery = Array.isArray(data.gallery)
-          ? data.gallery
-          : data.image
-          ? [data.image]
+        const gallery = Array.isArray(productData.gallery)
+          ? productData.gallery
+          : productData.image
+          ? [productData.image]
           : ["/product/product 1.png"];
 
         setProduct({
-          id: data.id,
-          name: data.name ?? null,
-          sku: data.sku ?? null,
-          price: data.price ?? null,
-          originalPrice: data.originalPrice ?? null,
-          currency: data.currency ?? null,
-          image: data.image || "/product/product 1.png",
+          id: productData.id,
+          name: productData.name ?? null,
+          sku: productData.sku ?? null,
+          price: productData.price ?? null,
+          originalPrice: productData.originalPrice ?? null,
+          currency: productData.currency ?? null,
+          image: productData.image || "/product/product 1.png",
           gallery,
-          description: data.description ?? data.technicalDescription ?? null,
-          condition: data.condition ?? null,
-          stock: typeof data.stock === "number" ? data.stock : null,
-          features: Array.isArray(data.features)
-            ? data.features
-            : typeof data.features === "string" && data.features
-            ? data.features.split("| ").map((s: string) => s.trim()).filter(Boolean)
+          description: productData.description ?? productData.technicalDescription ?? null,
+          condition: productData.condition ?? null,
+          stock: typeof productData.stock === "number" ? productData.stock : null,
+          features: Array.isArray(productData.features)
+            ? productData.features
+            : typeof productData.features === "string" && productData.features
+            ? productData.features.split("| ").map((s: string) => s.trim()).filter(Boolean)
             : null,
-          specifications: data.specifications ?? null,
-          vehicleFitment: data.vehicleFitment ?? null,
+          specifications: productData.specifications ?? null,
+          vehicleFitment: productData.vehicleFitment ?? null,
           warranty:
-            data.warranty ??
-            (data.hasWarranty &&
-            (data.warrantyTerms || data.warrantyDuration)
-              ? [data.warrantyTerms, data.warrantyDuration, data.warrantyDurationUnit]
+            productData.warranty ??
+            (productData.hasWarranty &&
+            (productData.warrantyTerms || productData.warrantyDuration)
+              ? [productData.warrantyTerms, productData.warrantyDuration, productData.warrantyDurationUnit]
                   .filter(Boolean)
                   .join(" ")
               : null),
-          actionType: data.actionType ?? null,
+          actionType: productData.actionType ?? null,
+          category: productData.category ?? null,
         });
+
+        // 1.1 Fetch Similar Products if category exists
+        console.log("Checking Category for Similar items:", productData.category); // DEBUG
+        if (productData.category?.id) {
+          console.log("Fetching similar items for category:", productData.category.id); // DEBUG
+          try {
+            const similar = await api.products.getRelated(productData.category.id);
+            console.log("Similar items fetched:", similar); // DEBUG
+            // Filter out current product
+            const filtered = similar.filter((p: any) => p.id !== productData.id).map((item: any) => ({
+                 id: item.id,
+                 name: item.name,
+                 rating: item.rating ?? 0,
+                 reviews: item.reviewCount ?? 0,
+                 price: Number(item.price) || 0,
+                 image: item.image || (item.media && item.media.length > 0 ? item.media[0].url : "/placeholder.png"),
+            }));
+            setSimilarProducts(filtered);
+          } catch (e) {
+            console.error("Failed to fetch similar products", e);
+          }
+        }
       } catch (err) {
         console.error("Failed to load product", err);
       } finally {
@@ -186,6 +217,7 @@ export default function ProductDetailsPage() {
             ...product,
             rating,
             reviewCount,
+            similarProducts,
           }}
         />
       </div>
@@ -196,6 +228,7 @@ export default function ProductDetailsPage() {
             ...product,
             rating,
             reviewCount,
+            similarProducts,
           }}
         />
       </div>

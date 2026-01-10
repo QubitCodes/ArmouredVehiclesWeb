@@ -18,88 +18,7 @@ interface Product {
   reviewCount: number;
 }
 
-// Fallback products to use when API fails
-const fallbackProducts: Product[] = [
-  {
-    id: 1,
-    name: "Engines (diesel, petrol, hybrid)",
-    price: 15000,
-    image: "/top-selling/image 7.jpg",
-    images: [
-      "/top-selling/big product/img1.jpg",
-      "/top-selling/big product/img2.png",
-      "/top-selling/big product/img1-3.jpg",
-    ],
-    description: "High-performance engines designed for optimal power and efficiency.",
-    rating: 4.8,
-    reviewCount: 1523,
-  },
-  {
-    id: 2,
-    name: "Turbochargers & Superchargers",
-    price: 600,
-    image: "/top-selling/image 2.png",
-    images: [
-      "/top-selling/big product/img2.png",
-      "/top-selling/big product/img2-2.png",
-    ],
-    description: "Premium forced induction systems to boost your engine's performance.",
-    rating: 4.7,
-    reviewCount: 2083,
-  },
-  {
-    id: 3,
-    name: "Radiators & Intercoolers SYSTEMS",
-    price: 450,
-    image: "/top-selling/image 3.png",
-    images: [
-      "/top-selling/big product/img3.jpg",
-      "/top-selling/big product/img3-2.jpg",
-    ],
-    description: "Advanced cooling solutions for engine performance.",
-    rating: 4.6,
-    reviewCount: 987,
-  },
-  {
-    id: 4,
-    name: "Fuel Pumps, Injectors & Fuel Rails",
-    price: 300,
-    image: "/top-selling/image 4.png",
-    images: [
-      "/top-selling/big product/img4.jpg",
-      "/top-selling/big product/img4-2.jpg",
-    ],
-    description: "Precision-engineered fuel components for reliability.",
-    rating: 4.9,
-    reviewCount: 1245,
-  },
-  {
-    id: 5,
-    name: "Car Transmissions (manual/automatic)",
-    price: 2500,
-    image: "/top-selling/image 5.png",
-    images: [
-      "/top-selling/big product/img5.jpg",
-      "/top-selling/big product/img5-2.jpg",
-    ],
-    description: "Manual and automatic transmission systems.",
-    rating: 4.5,
-    reviewCount: 856,
-  },
-  {
-    id: 6,
-    name: "ShopPro Non-VOC Brake Cleaner 14oz",
-    price: 25,
-    image: "/top-selling/image 6.png",
-    images: [
-      "/top-selling/big product/img6.jpg",
-      "/top-selling/big product/img6-2.jpg",
-    ],
-    description: "Professional-grade brake parts cleaner.",
-    rating: 4.8,
-    reviewCount: 3421,
-  },
-];
+
 
 export function TopSellingProducts({ title }: { title: string }) {
   // 1. State for data and loading status
@@ -141,23 +60,21 @@ export function TopSellingProducts({ title }: { title: string }) {
             }))
           : [];
 
-        // Use mapped products when available, otherwise fall back
+        // Use mapped products when available
         if (mappedProducts.length > 0) {
           setProducts(mappedProducts);
           setSelectedProduct(mappedProducts[0]);
         } else {
-          console.warn('Top selling API returned no products, using fallbackProducts.');
-          setProducts(fallbackProducts);
-          setSelectedProduct(fallbackProducts[0]);
-          setError(null);
+          // No products found
+          setProducts([]);
+          setSelectedProduct(null);
+          setError("No top selling products found.");
         }
       } catch (err) {
         console.error(err);
-        // Use fallback products when API call fails
-        console.warn('Top selling API failed, using fallbackProducts.');
-        setProducts(fallbackProducts);
-        setSelectedProduct(fallbackProducts[0]);
-        setError(null);
+        setProducts([]);
+        setSelectedProduct(null);
+        setError("Failed to load top selling products.");
       } finally {
         setIsLoading(false);
       }
