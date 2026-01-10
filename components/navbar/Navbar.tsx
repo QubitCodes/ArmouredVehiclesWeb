@@ -108,7 +108,7 @@ const Navbar = () => {
   // Handle search
   const handleSearch = () => {
     if (!searchQuery.trim()) return;
-    router.push(`/category?search=${encodeURIComponent(searchQuery)}`);
+    router.push(`/products?search=${encodeURIComponent(searchQuery)}`);
   };
 
   // Handle search on Enter key press
@@ -584,7 +584,7 @@ const Navbar = () => {
                 {navItems.slice(0, visibleCount).map((item) => (
                   <Link
                     key={item.name}
-                    href={`/category?name=${encodeURIComponent(item.name)}`}
+                    href={`/products?name=${encodeURIComponent(item.name)}`}
                     className="flex items-center h-full px-4 text-[15.5px] font-medium whitespace-nowrap 
               transition-all duration-200 hover:bg-[#D35400] hover:text-white"
                   >
