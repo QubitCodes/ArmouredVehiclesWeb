@@ -211,7 +211,7 @@ export default function ProductCard({
                 id: String(id ?? name + "-" + price),
                 name,
                 price: Number(price) ?? 0,
-                image: images?.[0] ?? "/product/rim.png",
+                image: (images && images.length > 0 ? images[0] : "/product/rim.png"),
               },
               1
             );

@@ -54,13 +54,14 @@ function CategoryContent() {
                     ? data.map((item: any) => {
                         const priceNum = Number(item.price);
                         const normalizedPrice = Number.isFinite(priceNum) && priceNum > 0 ? priceNum : 0;
-                        const images: string[] = Array.isArray(item.media) && item.media.length
+                        const rawImages: string[] = Array.isArray(item.media) && item.media.length
                             ? item.media
                                 .filter((m: any) => !!m?.url)
                                 .sort((a: any, b: any) => (b?.is_cover === true ? 1 : 0) - (a?.is_cover === true ? 1 : 0))
                                 .map((m: any) => String(m.url))
-                                .map((m: any) => String(m.url))
-                            : ["/placeholder.svg"];
+                            : [];
+                        
+                         const images = rawImages.length > 0 ? rawImages : ["/placeholder.svg"];
                         const ratingNum = typeof item.rating === 'number' ? item.rating : Number(item.rating) || 0;
                         const reviewCount = typeof item.review_count === 'number' ? item.review_count : Number(item.review_count) || 0;
 

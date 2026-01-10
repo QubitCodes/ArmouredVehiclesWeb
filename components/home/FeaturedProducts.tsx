@@ -51,7 +51,7 @@ export const FeaturedProducts = () => {
           name: item.name,
           price: Number(item.price),
           image: item.image || "/placeholder.png",
-          gallery: item.gallery && item.gallery.length > 0 ? item.gallery : [item.image || "/placeholder.png"],
+          gallery: (item.gallery && item.gallery.length > 0) ? item.gallery : [(item.image || "/placeholder.png")],
           action:
             item.actionType === "buy_now"
               ? "BUY NOW"
