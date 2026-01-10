@@ -7,7 +7,7 @@ import { useCallback, useEffect, useRef, useState } from "react";
 interface Category {
   id?: number;
   title: string;
-  image: string;
+  image?: string;
 }
 
 const FALLBACK_CATEGORIES: Category[] = [
@@ -37,8 +37,9 @@ const FALLBACK_CATEGORIES: Category[] = [
   },
 ];
 
+
 export const Categories = () => {
-  const [categories, setCategories] = useState<Category[]>(FALLBACK_CATEGORIES);
+  const [categories, setCategories] = useState<Category[]>([]);
   const [currentIndex, setCurrentIndex] = useState(0);
   const [isMobile, setIsMobile] = useState(false);
   const containerRef = useRef<HTMLDivElement>(null);
@@ -47,18 +48,22 @@ export const Categories = () => {
   useEffect(() => {
     const fetchCategories = async () => {
       try {
-        const data = await api.products.getCategories();
+        const res = await api.products.getCategories();
+        const data = Array.isArray(res) ? res : res?.data ?? [];
         if (data && data.length > 0) {
           const mapped = data.map((item: any) => ({
             id: item.id,
             title: item.name || "Unknown Category",
-            image: item.image || "/placeholder.png",
+            image: item.image ? String(item.image) : undefined,
           }));
           setCategories(mapped);
+        } else {
+          setCategories([]);
         }
       } catch (err) {
         console.error("Failed to fetch categories:", err);
-        // Keep fallback data on error
+        // On error, show nothing
+        setCategories([]);
       }
     };
 
@@ -155,7 +160,7 @@ export const Categories = () => {
                 {categories.map((category, index) => (
                   <div
                     key={index}
-                    className="flex-shrink-0 snap-start"
+                    className="shrink-0 snap-start"
                     style={{ width: `${cardWidth}px` }}>
                     <Link
                       href={
@@ -167,13 +172,15 @@ export const Categories = () => {
                               category.title
                             )}`
                       }
-                      className="block relative w-full h-[208px] overflow-hidden group">
-                      <Image
-                        src={category.image}
-                        alt={category.title}
-                        fill
-                        className="object-cover"
-                      />
+                      className="block relative w-full h-52 overflow-hidden group bg-black/60">
+                      {category.image ? (
+                        <Image
+                          src={category.image}
+                          alt={category.title}
+                          fill
+                          className="object-cover"
+                        />
+                      ) : null}
                       {/* Gradient Overlay */}
                       <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-transparent to-transparent" />
 
@@ -246,7 +253,7 @@ export const Categories = () => {
                 <div
                   className="absolute left-0 top-0 h-full bg-orange-500 transition-all duration-500 ease-out"
                   style={{
-                    width: `${((currentIndex + 1) / categories.length) * 100}%`,
+                    width: `${categories.length ? (((currentIndex + 1) / categories.length) * 100) : 0}%`,
                   }}></div>
               </div>
 

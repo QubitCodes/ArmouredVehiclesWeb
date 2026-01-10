@@ -46,7 +46,7 @@ export const FeaturedProducts = () => {
       try {
         const data = await api.products.getFeatured();
         console.log("Fetched featured products:", data);
-        const mappedProducts: Product[] = data.map((item: any) => ({
+        const mappedProducts: Product[] = data?.map((item: any) => ({
           id: item.id,
           name: item.name,
           price: Number(item.price),
