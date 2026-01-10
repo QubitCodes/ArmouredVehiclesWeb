@@ -1,12 +1,12 @@
 "use client";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import CartItem from "./CartItem";
 import OrderSummary from "./OrderSummary";
 import { useEffect, useMemo, useState } from "react";
 import { Typography } from "../ui";
 import SimilarProductCard from "../product/SimilarProductCard";
 import { Container } from "../ui";
-import RecommendedForYouCard from "../product/RecommendedForYouCard";
 import SelectAddressModal from "../modal/SelectAddressModal";
 import api from "@/lib/api";
 import { useCartStore } from "@/lib/cart-store";
@@ -21,56 +21,15 @@ import { getAccessToken } from "@/lib/api";
 type UiCartItem = {
   id: number;
   title: string;
+  image?: string;
   part?: string;
   price: number;
   oldPrice?: number;
   discount?: string;
   qty: number;
-  stock: string;
+  stock?: string;
 };
 
-const similarProducts = [
-  {
-    id: 1,
-    name: "Extended Life Engine Oil Filter",
-    rating: 4.7,
-    reviews: 2083,
-    price: 99.99,
-    image: "/product/similar/image.png",
-  },
-  {
-    id: 2,
-    name: "Extended Life Engine Oil Filter",
-    rating: 4.7,
-    reviews: 2083,
-    price: 99.99,
-    image: "/product/similar/image 2.png",
-  },
-  {
-    id: 3,
-    name: "Extended Life Engine Oil Filter",
-    rating: 4.7,
-    reviews: 2083,
-    price: 99.99,
-    image: "/product/similar/image 3.png",
-  },
-  {
-    id: 3,
-    name: "Extended Life Engine Oil Filter",
-    rating: 4.7,
-    reviews: 2083,
-    price: 99.99,
-    image: "/product/similar/image 3.png",
-  },
-  {
-    id: 3,
-    name: "Extended Life Engine Oil Filter",
-    rating: 4.7,
-    reviews: 2083,
-    price: 99.99,
-    image: "/product/similar/image 3.png",
-  },
-];
 export default function CartPage() {
   const [showAddressModal, setShowAddressModal] = useState(false);
   // Using persisted store; no async loading needed
@@ -78,6 +37,7 @@ export default function CartPage() {
   const storeItems = useCartStore((s) => s.items);
   const updateQtyStore = useCartStore((s) => s.updateQty);
   const removeItemStore = useCartStore((s) => s.removeItem);
+  const router = useRouter();
 
   // No loading effect required; store hydrates client-side
 
@@ -85,6 +45,7 @@ export default function CartPage() {
     return (storeItems || []).map((i) => ({
       id: i.id as any,
       title: i.name,
+      image: i.image,
       part: i.sku ? `#${i.sku}` : undefined,
       price: Number(i.price ?? 0),
       qty: Number(i.qty ?? 1),
@@ -93,7 +54,7 @@ export default function CartPage() {
           ? i.stock > 0
             ? "In Stock"
             : "Out of Stock"
-          : "In Stock",
+          : undefined,
     }));
   }, [storeItems]);
 
@@ -149,6 +110,8 @@ export default function CartPage() {
       } catch { }
     })();
   }, []);
+
+  const isLoggedIn = Boolean(getAccessToken());
 
   return (
     <section className="bg-[#F0EBE3]">
@@ -207,36 +170,20 @@ export default function CartPage() {
             ))}
           </div>
         </div>
-        <div className="mt-10 lg:mt-24 lg:sticky lg:top-36 self-start bg-[#EBE3D6]">
-          <OrderSummary
-            subtotal={subtotal}
-            itemCount={itemCount}
-            onCheckout={handleCheckout}
-          />
-        </div>
-
-        <div className="hidden lg:block mt-8">
-          <div className="flex justify-between items-center mb-4">
-            <div>
-              <h2 className="text-[20px] font-orbitron font-bold text-black uppercase">
-                RECOMMENDED FOR YOU
-              </h2>
-              <span className="text-[11px] text-gray-600">Sponsored</span>
-            </div>
-            <button className="text-[#D35400] text-[12px] uppercase font-bold tracking-wide">
-              View All
-            </button>
+        {items.length > 0 && (
+          <div className="mt-10 lg:mt-24 lg:sticky lg:top-36 self-start bg-[#EBE3D6]">
+            <OrderSummary
+              subtotal={subtotal}
+              itemCount={itemCount}
+              onCheckout={
+                isLoggedIn ? handleCheckout : () => router.push("/login")
+              }
+              buttonText={isLoggedIn ? "CHECKOUT" : "LOGIN TO CONTINUE"}
+            />
           </div>
+        )}
 
-          <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-4 mt-6">
-            {similarProducts.map((product, index) => (
-              <RecommendedForYouCard
-                key={`${product.id}-${index}`}
-                {...product}
-              />
-            ))}
-          </div>
-        </div>
+        {/* Removed dummy Recommended section to avoid hardcoded data */}
       </div>
 
       {showAddressModal && (

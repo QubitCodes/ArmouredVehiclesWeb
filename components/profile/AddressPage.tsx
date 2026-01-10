@@ -79,7 +79,7 @@ export default function AddressPage() {
       {/* Add New Address */}
       <div className="mb-8">
         <Link href="/address/new">
-          <button className="bg-[#D35400] hover:bg-[#39482C] text-white h-[40px] px-6">
+          <button className="bg-[#D35400] hover:bg-[#39482C] text-white h-10 px-6">
             <span className="font-black text-[13px] font-orbitron uppercase">
               Add New Address
             </span>

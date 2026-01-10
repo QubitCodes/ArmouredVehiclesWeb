@@ -18,7 +18,6 @@ type OrderSummaryProps = {
 export default function OrderSummary({
   subtotal,
   itemCount,
-  itemCount,
   onCheckout,
   buttonText = "CHECKOUT",
   isLoading = false,

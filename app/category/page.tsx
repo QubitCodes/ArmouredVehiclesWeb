@@ -27,7 +27,7 @@ interface Product {
 
 function CategoryContent() {
     const searchParams = useSearchParams();
-    const categoryIdParam = searchParams.get('categoryId');
+    const categoryIdParam = searchParams.get('categoryId') || searchParams.get('category_id');
     const categoryNameParam = searchParams.get('name');
 
     const [products, setProducts] = useState<Product[]>([]);
@@ -45,24 +45,28 @@ function CategoryContent() {
                 const data = await api.products.getAll(filters);
 
                 const mapped: Product[] = Array.isArray(data)
-                    ? data.map((item: any) => ({
-                        id: String(item.id),
-                        name: item.name || "Unknown Product",
-                        price: Number(item.price) || 0,
-                        rating:
-                            typeof item.rating === "number"
-                                ? item.rating
-                                : Number(item.rating) || 0,
-                        reviews:
-                            typeof item.reviewCount === "number"
-                                ? item.reviewCount
-                                : Number(item.reviews) || 0,
-                        image:
-                            item.gallery && item.gallery.length > 0
-                                ? item.gallery
-                                : [item.image || item.thumbnail || "/placeholder.png"],
-                        action: "ADD TO CART",
-                    }))
+                    ? data.map((item: any) => {
+                        const priceNum = Number(item.price);
+                        const normalizedPrice = Number.isFinite(priceNum) && priceNum > 0 ? priceNum : 0;
+                        const images: string[] = Array.isArray(item.media) && item.media.length
+                            ? item.media
+                                .filter((m: any) => !!m?.url)
+                                .sort((a: any, b: any) => (b?.is_cover === true ? 1 : 0) - (a?.is_cover === true ? 1 : 0))
+                                .map((m: any) => String(m.url))
+                            : ["/placeholder.png"];
+                        const ratingNum = typeof item.rating === 'number' ? item.rating : Number(item.rating) || 0;
+                        const reviewCount = typeof item.review_count === 'number' ? item.review_count : Number(item.review_count) || 0;
+
+                        return {
+                            id: String(item.id),
+                            name: item.name || 'Unknown Product',
+                            price: normalizedPrice,
+                            rating: ratingNum,
+                            reviews: reviewCount,
+                            image: images,
+                            action: normalizedPrice > 0 ? 'ADD TO CART' : 'SUBMIT AN INQUIRY',
+                        } as Product;
+                    })
                     : [];
 
                 setProducts(mapped);

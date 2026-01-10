@@ -163,7 +163,7 @@ export default function AddressDetailsPage() {
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
           {/* Map Preview */}
           <div className="flex gap-4">
-            <div className="w-[80px] h-[80px] bg-[#E8E3D9] flex-shrink-0 overflow-hidden">
+            <div className="w-20 h-20 bg-[#E8E3D9] shrink-0 overflow-hidden">
               <Image
                 src="/order/mapreview.svg"
                 alt="Map Preview"
@@ -329,7 +329,7 @@ export default function AddressDetailsPage() {
       <div className="flex justify-end">
         <button
           onClick={handleSave}
-          className="bg-[#D35400] hover:bg-[#39482C] text-white clip-path-supplier flex items-center justify-center h-[44px] px-8 cursor-pointer transition-colors"
+          className="bg-[#D35400] hover:bg-[#39482C] text-white clip-path-supplier flex items-center justify-center h-11 px-8 cursor-pointer transition-colors"
         >
           <span className="font-black text-[14px] font-orbitron uppercase">Save Address</span>
         </button>

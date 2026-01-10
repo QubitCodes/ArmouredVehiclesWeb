@@ -7,15 +7,12 @@ import { ArrowLeft, Check, Phone } from "lucide-react";
 import OrderSummary from "@/components/cart/OrderSummary";
 import PaymentMethodModal from "@/components/modal/PaymentMethodModal";
 import { getAccessToken } from "@/lib/api";
+import { Address } from "@/lib/types";
+import { getAddresses } from "@/app/services/address";
 import { useCartStore } from "@/lib/cart-store";
 import { hydrateCartFromServer } from "@/lib/cart-sync";
 
-// Address placeholder (future: fetch default from addresses)
-const mockAddress = {
-  label: "Deliver to: Work",
-  address:
-    "2 23rd St, Al Khayl - Dubai Dubai Dubai, D - SW 0, Al Khayl - Dubai - Dubai, United Arab Emirates",
-};
+// Load selected/default address
 
 type PaymentMethod = "card" | "tabby" | "tamara" | "apple" | "paypal";
 
@@ -31,11 +28,34 @@ export default function CheckoutPage() {
   const [selectedPayment, setSelectedPayment] = useState<PaymentMethod>("card");
   const [showPaymentModal, setShowPaymentModal] = useState(false);
   const [isProcessing, setIsProcessing] = useState(false);
+  const [address, setAddress] = useState<Address | null>(null);
 
   useEffect(() => {
     if (getAccessToken()) {
       hydrateCartFromServer();
     }
+  }, []);
+
+  useEffect(() => {
+    (async () => {
+      try {
+        const token = getAccessToken();
+        if (!token) return;
+        const res = await getAddresses();
+        const list = res.data as Address[];
+        let selId: number | null = null;
+        try {
+          if (typeof window !== "undefined") {
+            const stored = localStorage.getItem("selectedAddressId");
+            selId = stored ? Number(stored) : null;
+          }
+        } catch {}
+        const selected = selId ? list.find((a) => a.id === selId) : list.find((a) => a.isDefault) || list[0] || null;
+        setAddress(selected || null);
+      } catch (e) {
+        // ignore
+      }
+    })();
   }, []);
 
   const uiItems = useMemo(
@@ -81,8 +101,17 @@ export default function CheckoutPage() {
               Address
             </h2>
             <div className="bg-[#EBE3D6] p-5 text-black">
-              <p className="text-sm font-semibold">{mockAddress.label}</p>
-              <p className="text-[14px] text-[#6E6E6E] mt-1">{mockAddress.address}</p>
+              {address ? (
+                <>
+                  <p className="text-sm font-semibold">Deliver to: {address.label}</p>
+                  <p className="text-[14px] text-[#6E6E6E] mt-1">
+                    {address.addressLine1}
+                    {address.addressLine2 ? `, ${address.addressLine2}` : ""}, {address.city}, {address.state} - {address.postalCode}, {address.country}
+                  </p>
+                </>
+              ) : (
+                <p className="text-[14px] text-[#6E6E6E] mt-1">No address selected. Please select an address in cart.</p>
+              )}
             </div>
           </div>
 

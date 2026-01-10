@@ -8,13 +8,15 @@ export default function CartItem({ data, updateQty, removeItem }: any) {
 
       <div className="flex flex-col sm:flex-row gap-5">
         {/* Product Image */}
-        <Image
-          src={data.image ?? "/product/rim.png"}
-          alt={data.title}
-          width={112}
-          height={112}
-          className="object-contain flex-shrink-0"
-        />
+        {data.image && (
+          <Image
+            src={data.image}
+            alt={data.title}
+            width={112}
+            height={112}
+            className="object-contain flex-shrink-0"
+          />
+        )}
 
 
         {/* Product Info */}
@@ -23,16 +25,19 @@ export default function CartItem({ data, updateQty, removeItem }: any) {
             {data.title}
           </h3>
 
-          <p
-            className={`text-xs font-medium mb-1 ${data.stock === "In Stock" ? "text-[#3BAF7F]" : "text-red-600"
-              }`}
-          >
-            {data.stock}
-          </p>
+          {data.stock && (
+            <p
+              className={`text-xs font-medium mb-1 ${data.stock === "In Stock" ? "text-[#3BAF7F]" : "text-red-600"}`}
+            >
+              {data.stock}
+            </p>
+          )}
 
-          <p className="text-xs lg:text-sm text-[#737373] mb-1">
-            Part <span className="font-medium">{data.part}</span>
-          </p>
+          {data.part && (
+            <p className="text-xs lg:text-sm text-[#737373] mb-1">
+              Part <span className="font-medium">{data.part}</span>
+            </p>
+          )}
 
           <p className="text-xs lg:text-sm text-[#6A6A6A] mb-1">
             Standard Delivery | Estimated delivery{" "}

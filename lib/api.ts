@@ -249,16 +249,23 @@ export const api = {
 
   // --- Products ---
   products: {
-    getAll: (filters?: ProductFilters) => {
+    getAll: async (filters?: ProductFilters) => {
       const params = new URLSearchParams();
-      if (filters?.categoryId) params.set('categoryId', filters.categoryId.toString());
+      // Backend expects snake_case: category_id
+      if (filters?.categoryId)
+        params.set('category_id', filters.categoryId.toString());
+      // Keep generic search/min/max if backend supports; harmless if ignored
       if (filters?.search) params.set('search', filters.search);
-      if (filters?.minPrice) params.set('minPrice', filters.minPrice.toString());
-      if (filters?.maxPrice) params.set('maxPrice', filters.maxPrice.toString());
-      if (filters?.vendorId) params.set('vendorId', filters.vendorId);
-      
+      if (typeof filters?.minPrice === 'number')
+        params.set('min_price', String(filters.minPrice));
+      if (typeof filters?.maxPrice === 'number')
+        params.set('max_price', String(filters.maxPrice));
+      if (filters?.vendorId) params.set('vendor_id', filters.vendorId);
+
       const queryString = params.toString();
-      return fetchJson<Product[]>(`/products${queryString ? `?${queryString}` : ''}`);
+      const res = await fetchJson<any>(`/products${queryString ? `?${queryString}` : ''}`);
+      // Many endpoints wrap payload in { data: [...] }
+      return Array.isArray(res) ? res : res?.data ?? [];
     },
     getFeatured: () => fetchJson<Product[]>('/products/featured'),
     getTopSelling: () => fetchJson<Product[]>('/products/top-selling'),
