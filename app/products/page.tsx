@@ -57,7 +57,8 @@ function CategoryContent() {
                                 .filter((m: any) => !!m?.url)
                                 .sort((a: any, b: any) => (b?.is_cover === true ? 1 : 0) - (a?.is_cover === true ? 1 : 0))
                                 .map((m: any) => String(m.url))
-                            : ["/placeholder.png"];
+                                .map((m: any) => String(m.url))
+                            : ["/placeholder.svg"];
                         const ratingNum = typeof item.rating === 'number' ? item.rating : Number(item.rating) || 0;
                         const reviewCount = typeof item.review_count === 'number' ? item.review_count : Number(item.review_count) || 0;
 
