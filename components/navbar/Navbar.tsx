@@ -7,6 +7,8 @@ import { Search } from 'lucide-react';
 import { useState, useEffect, useRef, useMemo } from 'react';
 import { useAuth } from '@/lib/auth-context';
 import { profileMenuItems } from '@/lib/constants/profileMenu';
+import { searchProducts } from '@/app/services/auth';
+import { useRouter } from 'next/navigation';
 
 
 // Profile Menu Icon Component
@@ -99,6 +101,44 @@ const Navbar = () => {
   const [currencyOpen, setCurrencyOpen] = useState(false);
   const [profileDropdownOpen, setProfileDropdownOpen] = useState(false);
   const [selectedCurrency, setSelectedCurrency] = useState('د.إ');
+  const [searchQuery, setSearchQuery] = useState('');
+  const [isSearching, setIsSearching] = useState(false);
+  const router = useRouter();
+
+  // Handle search
+  const handleSearch = async () => {
+    if (!searchQuery.trim()) return;
+    
+    // Check if user is authenticated
+    if (!isAuthenticated) {
+      // Redirect to login with return URL
+      router.push(`/login?redirect=/search?q=${encodeURIComponent(searchQuery)}`);
+      return;
+    }
+    
+    setIsSearching(true);
+    try {
+      const response = await searchProducts({ 
+        q: searchQuery,
+        page: 1,
+        limit: 10 
+      });
+      console.log('Search results:', response.data);
+      // Navigate to search results page with query
+      router.push(`/search?q=${encodeURIComponent(searchQuery)}`);
+    } catch (error) {
+      console.error('Search error:', error);
+    } finally {
+      setIsSearching(false);
+    }
+  };
+
+  // Handle search on Enter key press
+  const handleSearchKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
+    if (e.key === 'Enter') {
+      handleSearch();
+    }
+  };
 
   // secondary navbar scroll state hide
   const [showSecondaryNav, setShowSecondaryNav] = useState(true);
@@ -307,9 +347,16 @@ const Navbar = () => {
               <input
                 type="text"
                 placeholder="Search Products"
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                onKeyDown={handleSearchKeyDown}
                 className="w-full h-full px-4 border border-[#000000] focus:outline-none placeholder-[#6E6E6E] text-black"
               />
-              <button className="absolute right-0 top-0 h-full w-[50px] flex items-center justify-center bg-[#D35400] text-white">
+              <button 
+                onClick={handleSearch}
+                disabled={isSearching}
+                className="absolute right-0 top-0 h-full w-[50px] flex items-center justify-center bg-[#D35400] text-white disabled:opacity-50"
+              >
                 <Search className="w-5 h-5" />
               </button>
             </div>
@@ -337,9 +384,16 @@ const Navbar = () => {
                 <input
                   type="text"
                   placeholder="Search Products"
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                  onKeyDown={handleSearchKeyDown}
                   className="w-full h-full px-4 border border-[#000000] focus:outline-none placeholder-[#6E6E6E] text-black"
                 />
-                <button className="absolute right-0 top-0 h-full w-[50px] flex items-center justify-center bg-[#D35400] text-white hover:bg-black">
+                <button 
+                  onClick={handleSearch}
+                  disabled={isSearching}
+                  className="absolute right-0 top-0 h-full w-[50px] flex items-center justify-center bg-[#D35400] text-white hover:bg-black disabled:opacity-50"
+                >
                   <Search className="w-6 h-6" />
                 </button>
               </div>

@@ -122,7 +122,8 @@ export default function LoginPage() {
         try {
             setLoading(true);
             const res = await verifyOtpLogin(email, code);
-            const { user, accessToken, refreshToken, expiresIn } = res.data;
+            // API response is nested: res.data = { status, message, code, data: { user, accessToken, ... } }
+            const { user, accessToken, refreshToken, expiresIn } = res.data.data;
             // Store tokens (both legacy and lib/api.ts keys)
             localStorage.setItem("accessToken", accessToken);
             localStorage.setItem("refreshToken", refreshToken);

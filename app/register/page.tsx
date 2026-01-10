@@ -94,11 +94,11 @@ export default function RegisterPage() {
       setLoading(true);
       const res = await verifyEmailOtp({ userId, email: form.email.trim(), code });
       const data = res.data;
-      if (data.nextStep === 'phone_number') {
+      // if (data.nextStep === 'phone_number') {
         setStage('set_phone');
-      } else {
-        alert('Unexpected next step: ' + data.nextStep);
-      }
+      // } else {
+      //   alert('Unexpected next step: ' + data.nextStep);
+      // }
     } catch (err: any) {
       const msg = err?.response?.data?.message || err?.message || "Failed to verify email";
       alert(msg);
