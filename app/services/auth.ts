@@ -101,6 +101,8 @@ export interface SearchProductsParams {
   category_id?: number | null;
   min_price?: number | null;
   max_price?: number | null;
+  // When true, API returns filter options in misc
+  need_filters?: boolean | null;
 }
 
 export const searchProducts = (params: SearchProductsParams = {}) => {
@@ -127,6 +129,9 @@ export const searchProducts = (params: SearchProductsParams = {}) => {
   }
   if (params.max_price != null) {
     queryParams.max_price = params.max_price;
+  }
+  if (params.need_filters != null) {
+    queryParams.need_filters = params.need_filters ? 1 : 0;
   }
 
   // API supports search via GET /products with query params
