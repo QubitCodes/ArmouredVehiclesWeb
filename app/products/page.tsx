@@ -12,7 +12,7 @@ import { useSearchParams } from 'next/navigation';
 import SeoText from '@/components/footer/SeoText';
 import { TopSellingProducts } from '@/components/home';
 import DescriptionSection from '@/components/all-products/DescriptionSection';
-import api from '@/lib/api';
+import { searchProducts } from '@/app/services/auth';
 
 
 interface Product {
@@ -38,15 +38,17 @@ function CategoryContent() {
     useEffect(() => {
         const fetchProducts = async () => {
             try {
-                const filters: any = {};
+                const params: any = { need_filters: true };
                 if (categoryIdParam && !isNaN(Number(categoryIdParam))) {
-                    filters.categoryId = Number(categoryIdParam);
+                    params.category_id = Number(categoryIdParam);
                 }
                 if (searchQueryParam && searchQueryParam.trim()) {
-                    filters.search = searchQueryParam.trim();
+                    params.search = searchQueryParam.trim();
                 }
 
-                const data = await api.products.getAll(Object.keys(filters).length ? filters : undefined);
+                const response = await searchProducts(params);
+                const payload: any = response?.data;
+                const data = Array.isArray(payload) ? payload : payload?.data ?? [];
 
                 const mapped: Product[] = Array.isArray(data)
                     ? data.map((item: any) => {
@@ -75,6 +77,20 @@ function CategoryContent() {
                     : [];
 
                 setProducts(mapped);
+                // Set dynamic filters if available
+                const filtersFromApi = payload?.misc?.filters;
+                if (filtersFromApi) {
+                    setFilterOptions(filtersFromApi);
+                    if (filtersFromApi.price && filtersFromApi.price.min != null && filtersFromApi.price.max != null) {
+                        const min = Number(filtersFromApi.price.min);
+                        const max = Number(filtersFromApi.price.max);
+                        if (Number.isFinite(min) && Number.isFinite(max)) {
+                            setPriceRange({ min, max });
+                        }
+                    }
+                } else {
+                    setFilterOptions(null);
+                }
                 setError(null);
             } catch (err) {
                 console.error("Failed to load products", err);
@@ -98,36 +114,18 @@ function CategoryContent() {
 
     const [showFilters, setShowFilters] = useState(false);
     const [openFilters, setOpenFilters] = useState({
+        categories: true,
         brand: true,
         price: true,
         type: true,
         department: true,
     });
 
-    const brands = [
-        { name: 'Brembo', count: 7 },
-        { name: 'EBC Brakes', count: 12975 },
-        { name: 'PowerStop', count: 18200 },
-        { name: 'R1 Concepts', count: 39935 },
-    ];
+    const brands = filterOptions?.brands ?? [];
 
-    const productTypes = [
-        { name: 'Brake Rotors', image: '/filter/Rectangle 260.svg' },
-        { name: 'Disc Brake Pads', image: '/filter/Rectangle 260.svg' },
-        { name: 'Brake Hardware', image: '/filter/Rectangle 260.svg' },
-        { name: 'Brake Fluids & Lubricants', image: '/filter/Rectangle 260.svg' },
-    ];
+    const productTypes: any[] = [];
 
-    const departments = [
-        {
-            name: 'Performance',
-            desc: 'High-performance upgrades for maximum power',
-        },
-        {
-            name: 'Replacement',
-            desc: 'OEM-quality replacement components',
-        },
-    ];
+    const departments: any[] = [];
 
     const toggleBrand = (brand: string) => {
         setSelectedBrands(prev =>
@@ -148,23 +146,7 @@ function CategoryContent() {
 
     };
 
-    useEffect(() => {
-        if (!categoryIdParam) return;
-
-        api.filters
-            .get({ categoryId: Number(categoryIdParam) })
-            .then((data) => {
-                setFilterOptions(data);
-
-                if (data.priceRange) {
-                    setPriceRange({
-                        min: data.priceRange.min,
-                        max: data.priceRange.max,
-                    });
-                }
-            })
-            .catch((err) => console.error("Failed to load filters", err));
-    }, [categoryIdParam]);
+    // Filters now come via products endpoint when need_filters is true
 
 
     return (
@@ -259,8 +241,37 @@ function CategoryContent() {
                     {/* ---------------- FILTER SIDEBAR ---------------- */}
                     <aside className={`w-full lg:w-1/4 bg-[#F0EBE3] rounded-md lg:sticky lg:top-4 lg:self-start ${showFilters ? 'block' : 'hidden lg:block'}`}>
                         <div className="p-5 space-y-8">
+                            {/* CATEGORIES FILTER */}
+                            {filterOptions?.categories?.length ? (
+                                <div>
+                                    <div
+                                        className="flex justify-between items-center cursor-pointer text-black"
+                                        onClick={() => toggleFilter("categories")}
+                                    >
+                                        <h3 className="text-sm font-bold font-[Orbitron] uppercase text-black mb-3">
+                                            Categories
+                                        </h3>
+
+                                        <ChevronDown
+                                            size={18}
+                                            className={`transition-transform duration-300 ${openFilters.categories ? "rotate-180" : ""}`}
+                                        />
+                                    </div>
+
+                                    {openFilters.categories && (
+                                        <div className="space-y-2">
+                                            {filterOptions.categories.map((c: any) => (
+                                                <div key={c.id} className="flex items-center justify-between text-sm text-black">
+                                                    <span>{c.name}</span>
+                                                    <span className="text-gray-600">{c.count}</span>
+                                                </div>
+                                            ))}
+                                        </div>
+                                    )}
+                                </div>
+                            ) : null}
                             {/* BRAND FILTER */}
-                            <div>
+                            {brands?.length ? (<div>
                                 {/* Heading */}
                                 <div
                                     className="flex justify-between items-center cursor-pointer text-black"
@@ -280,33 +291,29 @@ function CategoryContent() {
                                 {/* Content */}
                                 {openFilters.brand && (
                                     <div className="space-y-2">
-                                        {brands.map(b => (
+                                        {brands.map((b: any) => (
                                             <label
-                                                key={b.name}
+                                                key={b.name || b}
                                                 className="flex items-center justify-between text-black cursor-pointer text-sm"
                                             >
                                                 <div className="flex items-center space-x-2">
                                                     <input
                                                         type="checkbox"
-                                                        checked={selectedBrands.includes(b.name)}
-                                                        onChange={() => toggleBrand(b.name)}
+                                                        checked={selectedBrands.includes(b.name || b)}
+                                                        onChange={() => toggleBrand(b.name || b)}
                                                         className="w-4 h-4 border border-gray-400 rounded-sm accent-[#D35400]"
                                                     />
-                                                    <span>{b.name} ({b.count})</span>
+                                                    <span>{b.name || b} {b.count != null ? `(${b.count})` : ""}</span>
                                                 </div>
                                             </label>
                                         ))}
-
-                                        <p className="text-[#D35400] text-sm font-medium cursor-pointer">
-                                            Show More
-                                        </p>
                                     </div>
                                 )}
-                            </div>
+                            </div>) : null}
 
 
                             {/* PRICE FILTER */}
-                            <div>
+                            {filterOptions?.price?.min != null && filterOptions?.price?.max != null ? (<div>
                                 <div
                                     className="flex justify-between items-center cursor-pointer text-black"
                                     onClick={() => toggleFilter("price")}
@@ -357,11 +364,11 @@ function CategoryContent() {
                                         </div>
                                     </div>
                                 )}
-                            </div>
+                            </div>) : null}
 
 
                             {/* PRODUCT TYPE FILTER */}
-                            <div>
+                            {productTypes.length ? (<div>
                                 <div
                                     className="flex justify-between items-center cursor-pointer text-black"
                                     onClick={() => toggleFilter("type")}
@@ -402,11 +409,11 @@ function CategoryContent() {
                                         ))}
                                     </div>
                                 )}
-                            </div>
+                            </div>) : null}
 
 
                             {/* DEPARTMENT FILTER */}
-                            <div>
+                            {departments.length ? (<div>
                                 <div
                                     className="flex justify-between items-center cursor-pointer text-black"
                                     onClick={() => toggleFilter("department")}
@@ -440,7 +447,7 @@ function CategoryContent() {
                                         ))}
                                     </div>
                                 )}
-                            </div>
+                            </div>) : null}
 
                         </div>
                         {/* Sponsored Ad Section */}

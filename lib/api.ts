@@ -267,9 +267,19 @@ export const api = {
       // Many endpoints wrap payload in { data: [...] }
       return Array.isArray(res) ? res : res?.data ?? [];
     },
-    getFeatured: () => fetchJson<Product[]>('/products/featured'),
-    getTopSelling: () => fetchJson<Product[]>('/products/top-selling'),
-    getCategories:() => fetchJson<Product[]>('/api/categories'),
+    getFeatured: async () => {
+      const res = await fetchJson<any>('/products/featured');
+      return Array.isArray(res) ? res : res?.data ?? [];
+    },
+    getTopSelling: async () => {
+      const res = await fetchJson<any>('/products/top-selling');
+      return Array.isArray(res) ? res : res?.data ?? [];
+    },
+    getCategories: async () => {
+      const res = await fetchJson<any>('/categories');
+      // Unwrap common API envelope { status, message, code, data }
+      return Array.isArray(res) ? res : res?.data ?? [];
+    },
         getSliderProduct:() => fetchJson<Product[]>('/api/products'),
 
     getById: (id: number) => fetchJson<Product>(`/products/${id}`),

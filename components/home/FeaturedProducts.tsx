@@ -14,57 +14,7 @@ interface Product {
   action: "BUY NOW" | "SUBMIT AN INQUIRY";
 }
 
-// Fallback dummy products used when the API call fails or returns no items
-const defaultProducts: Product[] = [
-  {
-    id: 1,
-    name: "Tubeless Runflat Solutions",
-    price: 3499,
-    image: "/featured products/9bf0d8ceacd81abb0ef5d6b2928417f9604f3e30.png",
-    gallery: ["/featured products/9bf0d8ceacd81abb0ef5d6b2928417f9604f3e30.png"],
-    action: "BUY NOW",
-  },
-  {
-    id: 2,
-    name: "Headlights (LED, HID, Halogen)",
-    price: 499,
-    image: "/featured products/702ce9381c45cff389ec92314fa6d77761919ed6.jpg",
-    gallery: ["/featured products/702ce9381c45cff389ec92314fa6d77761919ed6.jpg"],
-    action: "BUY NOW",
-  },
-  {
-    id: 3,
-    name: "Reinforced Suspension Kits",
-    price: 14990,
-    image: "/featured products/be2442a365db6898a8061f3a839a2a08a5aa7ee1.png",
-    gallery: ["/featured products/be2442a365db6898a8061f3a839a2a08a5aa7ee1.png"],
-    action: "SUBMIT AN INQUIRY",
-  },
-  {
-    id: 4,
-    name: "Tubeless Runflat Solutions",
-    price: 3499,
-    image: "/featured products/9bf0d8ceacd81abb0ef5d6b2928417f9604f3e30.png",
-    gallery: ["/featured products/9bf0d8ceacd81abb0ef5d6b2928417f9604f3e30.png"],
-    action: "BUY NOW",
-  },
-  {
-    id: 5,
-    name: "Headlights (LED, HID, Halogen)",
-    price: 499,
-    image: "/featured products/702ce9381c45cff389ec92314fa6d77761919ed6.jpg",
-    gallery: ["/featured products/702ce9381c45cff389ec92314fa6d77761919ed6.jpg"],
-    action: "BUY NOW",
-  },
-  {
-    id: 6,
-    name: "Reinforced Suspension Kits",
-    price: 14990,
-    image: "/featured products/be2442a365db6898a8061f3a839a2a08a5aa7ee1.png",
-    gallery: ["/featured products/be2442a365db6898a8061f3a839a2a08a5aa7ee1.png"],
-    action: "SUBMIT AN INQUIRY",
-  },
-];
+// No dummy fallback: show an empty-state badge when no products
 
 export const FeaturedProducts = () => {
   const router = useRouter();
@@ -96,7 +46,7 @@ export const FeaturedProducts = () => {
       try {
         const data = await api.products.getFeatured();
         console.log("Fetched featured products:", data);
-        const mappedProducts: Product[] = data.map((item: any) => ({
+        const mappedProducts: Product[] = data?.map((item: any) => ({
           id: item.id,
           name: item.name,
           price: Number(item.price),
@@ -109,16 +59,16 @@ export const FeaturedProducts = () => {
                 ? "SUBMIT AN INQUIRY"
                 : "BUY NOW",
         }));
-        // If API returned no items, fall back to default products
+        // If API returned no items, show empty state (no products)
         if (!mappedProducts || mappedProducts.length === 0) {
-          setProducts(defaultProducts);
+          setProducts([]);
         } else {
           setProducts(mappedProducts);
         }
       } catch (err) {
         console.error("Failed to fetch featured products:", err);
-        // Use fallback products when fetch fails
-        setProducts(defaultProducts);
+        // On fetch failure, show empty state instead of dummy products
+        setProducts([]);
       } finally {
         setIsLoadingProducts(false);
       }
@@ -206,9 +156,7 @@ export const FeaturedProducts = () => {
     return () => clearInterval(interval);
   }, [hoveredKey, extendedSlides]);
 
-  if (baseSlides.length === 0 && !isLoadingProducts) {
-    return null;
-  }
+  // Do not early-return null; we'll render an empty-state badge below when no products
 
   return (
     <section
@@ -286,6 +234,13 @@ export const FeaturedProducts = () => {
                   </div>
                 </div>
               ))}
+            </div>
+          </div>
+        ) : baseSlides.length === 0 ? (
+          // EMPTY-STATE BADGE WHEN THERE ARE NO PRODUCTS
+          <div className="flex justify-center items-center py-8">
+            <div className="px-4 py-2 rounded-full border border-white/30 bg-white/10 text-white/80 font-orbitron text-sm md:text-base">
+              No featured products available right now
             </div>
           </div>
         ) : (
