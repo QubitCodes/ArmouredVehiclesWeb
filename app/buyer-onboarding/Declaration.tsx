@@ -82,7 +82,11 @@ export default function Declaration({ onNext, onPrev }: { onNext: () => void; on
       formData.append("endUserType", endUserType);
 
       // Files
-      formData.append("businessLicenseFile", businessLicenseFile);
+      if (businessLicenseFile) {
+        formData.append("businessLicenseFile", businessLicenseFile);
+      } else {
+        formData.append("businessLicenseFile", "");
+      }
       // other files optional, skipped for now
       formData.append("defenseApprovalFile", "");
       formData.append("companyProfileFile", "");

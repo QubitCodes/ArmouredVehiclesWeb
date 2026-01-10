@@ -14,7 +14,7 @@ export default function CartItem({ data, updateQty, removeItem }: any) {
             alt={data.title}
             width={112}
             height={112}
-            className="object-contain flex-shrink-0"
+            className="object-contain shrink-0"
           />
         )}
 
@@ -80,7 +80,7 @@ export default function CartItem({ data, updateQty, removeItem }: any) {
         </div>
 
         {/* Price + Qty */}
-        <div className="order-3 sm:order-none mt-3 sm:mt-0 text-center sm:text-right flex flex-col items-center sm:items-end">
+        <div className="order-3 sm:order-0 mt-3 sm:mt-0 text-center sm:text-right flex flex-col items-center sm:items-end">
           <div className="font-extrabold flex items-center justify-end gap-2 text-xl text-[#1A1A1A]">
             <svg width="17" height="15" viewBox="0 0 17 15" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
               <g clipPath="url(#clip0_260_315)">
@@ -128,7 +128,7 @@ export default function CartItem({ data, updateQty, removeItem }: any) {
             onClick={() => removeItem(data.id)}
             className="flex items-center gap-1 hover:text-red-600"
           >
-            <img src="/icons/delete.svg" width={12} />
+            <Image src="/icons/delete.svg" width={12} height={12} alt="Delete" />
             <span className="underline">Remove</span>
           </button>
 
