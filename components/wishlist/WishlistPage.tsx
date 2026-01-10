@@ -1,72 +1,92 @@
 "use client";
 
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import Image from "next/image";
 import { Trash2, ChevronLeft, ChevronRight, Truck, Star } from "lucide-react";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { useAuth } from "@/lib/auth-context";
+import { useRouter } from "next/navigation";
+import {
+  getWishlist,
+  removeWishlistItem,
+  type WishlistItem,
+  type WishlistResponse,
+} from "@/app/services/wishlist";
 
-// Mock wishlist data
-const mockWishlistItems = [
-  {
-    id: "1",
-    name: "DFC® - 4000 HybriDynamic Hybrid Rear Brake Pads",
-    price: 679,
-    images: ["/order/wishlist2.svg", "/order/wishlist3.svg", "/order/wishlist4.svg"],
-    rating: 4.6,
-    reviews: "4.5k",
-    deliveryText: "Delivery by tomorrow",
-    isHighValue: false,
-  },
-  {
-    id: "2",
-    name: "DFC® - 4000 HybriDynamic Hybrid Rear Brake Pads",
-    price: 16769,
-    images: ["/order/wishlist3.svg", "/order/wishlist2.svg", "/order/wishlist4.svg"],
-    rating: 4.6,
-    reviews: "4.5k",
-    deliveryText: "Delivery by tomorrow",
-    isHighValue: true,
-  },
-  {
-    id: "3",
-    name: "DFC® - 4000 HybriDynamic Hybrid Rear Brake Pads",
-    price: 679,
-    images: ["/order/wishlist4.svg", "/order/wishlist2.svg", "/order/wishlist3.svg"],
-    rating: 4.6,
-    reviews: "4.5k",
-    deliveryText: "Delivery by tomorrow",
-    isHighValue: false,
-  },
-];
+type UiWishlistItem = {
+  id: number; // wishlist item id
+  name: string;
+  price?: number;
+  images: string[];
+  rating?: number;
+  reviews?: string;
+  deliveryText: string;
+  isHighValue: boolean;
+};
 
 export default function WishlistPage() {
-  const [wishlistItems, setWishlistItems] = useState(mockWishlistItems);
-  const [currentImageIndex, setCurrentImageIndex] = useState<Record<string, number>>({});
+  const queryClient = useQueryClient();
+  const [currentImageIndex, setCurrentImageIndex] = useState<Record<number, number>>({});
+  const { isAuthenticated, isLoading } = useAuth();
+  const router = useRouter();
 
-  const handleRemoveItem = (id: string) => {
-    setWishlistItems(wishlistItems.filter(item => item.id !== id));
+  const { data, isLoading: isListLoading, isError } = useQuery<WishlistResponse>({
+    queryKey: ["wishlist"],
+    queryFn: () => getWishlist(),
+    enabled: isAuthenticated,
+  });
+
+  const items: UiWishlistItem[] = useMemo(() => {
+    // Normalize API response into UI-friendly structure
+    const rawItems: WishlistItem[] = Array.isArray(data)
+      ? data
+      : data?.items ?? [];
+
+    return rawItems.map((wi) => {
+      const p = wi.product;
+      const priceNum = typeof p?.price === "string" ? Number(p.price) : p?.price;
+      const images = p?.gallery?.length ? p.gallery : p?.image ? [p.image] : ["/product/rim.png"];
+      return {
+        id: wi.id,
+        name: p?.name ?? `Product #${wi.productId}`,
+        price: priceNum,
+        images,
+        rating: p?.rating ?? 0,
+        reviews: p?.reviewCount ? String(p.reviewCount) : undefined,
+        deliveryText: "Delivery by tomorrow",
+        isHighValue: false,
+      } as UiWishlistItem;
+    });
+  }, [data]);
+
+  const { mutate: deleteItem, isPending: isRemoving } = useMutation({
+    mutationFn: async (itemId: number) => removeWishlistItem(itemId),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["wishlist"] });
+    },
+  });
+
+  const handleEmptyWishlist = async () => {
+    const rawItems: WishlistItem[] = Array.isArray(data) ? data : data?.items ?? [];
+    await Promise.allSettled(rawItems.map((wi) => removeWishlistItem(wi.id)));
+    queryClient.invalidateQueries({ queryKey: ["wishlist"] });
   };
 
-  const handleEmptyWishlist = () => {
-    setWishlistItems([]);
-  };
-
-  const handlePrevImage = (itemId: string, totalImages: number) => {
-    setCurrentImageIndex(prev => ({
+  const handlePrevImage = (itemId: number, totalImages: number) => {
+    setCurrentImageIndex((prev) => ({
       ...prev,
-      [itemId]: ((prev[itemId] || 0) - 1 + totalImages) % totalImages
+      [itemId]: ((prev[itemId] || 0) - 1 + totalImages) % totalImages,
     }));
   };
 
-  const handleNextImage = (itemId: string, totalImages: number) => {
-    setCurrentImageIndex(prev => ({
+  const handleNextImage = (itemId: number, totalImages: number) => {
+    setCurrentImageIndex((prev) => ({
       ...prev,
-      [itemId]: ((prev[itemId] || 0) + 1) % totalImages
+      [itemId]: ((prev[itemId] || 0) + 1) % totalImages,
     }));
   };
 
-  const getCurrentImageIndex = (itemId: string) => {
-    return currentImageIndex[itemId] || 0;
-  };
+  const getCurrentImageIndex = (itemId: number) => currentImageIndex[itemId] || 0;
 
   return (
     <main className="flex-1">
@@ -77,7 +97,7 @@ export default function WishlistPage() {
             Wishlist
           </h1>
         </div>
-        {wishlistItems.length > 0 && (
+        {items.length > 0 && (
           <div className="flex items-center gap-2">
             <button className="flex items-center gap-1.5 px-3 py-2 border border-[#C2B280] text-[#666] text-xs hover:bg-[#F0EBE3] transition-colors">
               <Image src="/order/wishlist7.svg" alt="Share" width={14} height={14} />
@@ -100,7 +120,7 @@ export default function WishlistPage() {
           Wishlist
         </h1>
         <div className="flex items-center gap-3">
-          {wishlistItems.length > 0 && (
+          {items.length > 0 && (
             <>
               <button className="flex items-center gap-2 px-4 py-2.5 border border-[#C2B280] text-[#666] text-sm hover:bg-[#F0EBE3] transition-colors">
                 <Image src="/order/wishlist8.svg" alt="Share" width={16} height={16} />
@@ -124,7 +144,28 @@ export default function WishlistPage() {
       </div>
 
       {/* Content */}
-      {wishlistItems.length === 0 ? (
+      {!isAuthenticated && !isLoading ? (
+        <div className="flex flex-col items-center justify-center text-center py-16 lg:py-24">
+          <Image src="/order/whishlist1.svg" alt="Login Required" width={200} height={180} className="mb-8" />
+          <h2 className="font-orbitron font-bold text-lg lg:text-xl uppercase tracking-wide text-black mb-3">
+            Login to view wishlist
+          </h2>
+          <button
+            onClick={() => router.push("/login")}
+            className="bg-[#39482C] hover:bg-[#2D3A1A] text-white font-orbitron font-bold text-[11px] uppercase tracking-wide px-6 py-3 transition-colors"
+          >
+            Go to Login
+          </button>
+        </div>
+      ) : isListLoading ? (
+        <div className="flex items-center justify-center py-16 lg:py-24">
+          <span className="text-[#666]">Loading wishlist…</span>
+        </div>
+      ) : isError ? (
+        <div className="flex items-center justify-center py-16 lg:py-24">
+          <span className="text-[#D35400]">Failed to load wishlist.</span>
+        </div>
+      ) : items.length === 0 ? (
         /* Empty State */
         <div className="flex flex-col items-center justify-center text-center py-16 lg:py-24">
           <Image
@@ -144,7 +185,7 @@ export default function WishlistPage() {
       ) : (
         /* Wishlist Items Grid */
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 lg:gap-5">
-          {wishlistItems.map((item) => (
+          {items.map((item) => (
             <div key={item.id} className="bg-[#F0EBE3] border border-[#CCCCCC] overflow-hidden">
               {/* Product Image with Navigation */}
               <div className="relative p-4 aspect-square flex items-center justify-center group bg-[#EBE3D6]">
@@ -210,7 +251,7 @@ export default function WishlistPage() {
                 <div className="flex items-center gap-1 mb-3">
                   <span className="text-sm text-black">{item.rating}</span>
                   <Star size={14} className="fill-[#F5A623] text-[#F5A623]" />
-                  <span className="text-xs text-[#999]">({item.reviews})</span>
+                  {item.reviews && <span className="text-xs text-[#999]">({item.reviews})</span>}
                 </div>
 
                 {/* Product Price */}
@@ -223,7 +264,7 @@ export default function WishlistPage() {
                     className="flex-shrink-0 w-[18px] h-[16px] lg:w-[20px] lg:h-[18px]"
                   />
                   <span className="font-inter font-bold text-lg text-black">
-                    {item.price.toLocaleString()}
+                    {typeof item.price === "number" ? item.price.toLocaleString() : "—"}
                   </span>
                 </div>
 
@@ -249,7 +290,7 @@ export default function WishlistPage() {
                     </button>
                   )}
                   <button
-                    onClick={() => handleRemoveItem(item.id)}
+                    onClick={() => deleteItem(item.id)}
                     className="flex items-center gap-1 text-[#666] hover:text-[#E74C3C] text-xs transition-colors underline"
                   >
                     <Trash2 size={14} />

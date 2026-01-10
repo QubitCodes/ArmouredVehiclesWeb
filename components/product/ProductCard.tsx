@@ -9,6 +9,7 @@ import ProductRating from "./ProductRating";
 import Link from "next/link";
 import { useAuth } from "@/lib/auth-context";
 import { useRouter } from "next/navigation";
+import { addWishlistItem } from "@/app/services/wishlist";
 
 
 
@@ -113,7 +114,26 @@ export default function ProductCard({
 
         {/* Wishlist Icon */}
         <button
-          onClick={() => setLiked(!liked)}
+          onClick={async () => {
+            // Require auth to add to wishlist
+            if (!isAuthenticated) {
+              router.push("/login");
+              return;
+            }
+            if (liked) {
+              // No API to remove by product here; ignore toggle off
+              return;
+            }
+            const pid = id ? Number(id) : NaN;
+            if (Number.isFinite(pid)) {
+              try {
+                await addWishlistItem(pid);
+                setLiked(true);
+              } catch (e) {
+                // noop: keep UI unchanged on error
+              }
+            }
+          }}
           className="absolute top-2 md:top-3 right-2 md:right-3 bg-[#F0EBE3] rounded-full p-1 shadow-md hover:scale-105 transition"
         >
           <Heart
