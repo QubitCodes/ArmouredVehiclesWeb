@@ -4,12 +4,11 @@ import React from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
 import { Search } from 'lucide-react';
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useRef, useMemo } from 'react';
 import { useAuth } from '@/lib/auth-context';
 import { profileMenuItems } from '@/lib/constants/profileMenu';
 import { searchProducts } from '@/app/services/auth';
 import { useRouter } from 'next/navigation';
-import api from '@/lib/api';
 
 
 // Profile Menu Icon Component
@@ -149,25 +148,32 @@ const Navbar = () => {
   // Profile dropdown menu items - using icons from icons/profile folder (pf0-pf9)
 
 
-  type NavItem = { id?: number; name: string };
-  const [navItems, setNavItems] = useState<NavItem[]>([]);
-
-  useEffect(() => {
-    const fetchCategories = async () => {
-      try {
-        const res = await api.products.getCategories();
-        const data = Array.isArray(res) ? res : res?.data ?? [];
-        const mapped: NavItem[] = Array.isArray(data)
-          ? data.map((item: any) => ({ id: item.id, name: item.name || 'Unknown Category' }))
-          : [];
-        setNavItems(mapped);
-      } catch (e) {
-        console.error('Failed to load navbar categories', e);
-        setNavItems([]);
-      }
-    };
-    fetchCategories();
-  }, []);
+  const navItems = useMemo(
+    () => [
+      { name: 'Core Systems', href: '/core-systems' },
+      { name: 'Armor Systems', href: '/armor-systems' },
+      { name: 'Comms & Control', href: '/comms-control' },
+      { name: 'Climate & Interior', href: '/climate-interior' },
+      { name: 'Exterior & Utility', href: '/exterior-utility' },
+      { name: 'OEM / Custom Support', href: '/oem-custom' },
+      { name: 'Chassis & Platforms', href: '/chassis-platforms' },
+      { name: 'OEM Sourcing', href: '/oem-sourcing' },
+      { name: 'Tactical Hardware', href: '/tactical-hardware' },
+      { name: 'Powertrain', href: '/powertrain-driveline' },
+      { name: 'Electronics & Avionics', href: '/electronics-avionics' },
+      { name: 'Weapon Integration', href: '/weapon-integration' },
+      { name: 'Sensor Suites', href: '/sensor-suites' },
+      { name: 'Countermeasures', href: '/countermeasures' },
+      { name: 'Autonomy & AI', href: '/autonomy-ai' },
+      { name: 'Logistics & Sustainment', href: '/logistics-sustainment' },
+      { name: 'Training Systems', href: '/training-systems' },
+      { name: 'Rugged Computing', href: '/rugged-computing' },
+      { name: 'Maritime Solutions', href: '/maritime-solutions' },
+      { name: 'Aerospace Components', href: '/aerospace-components' },
+      { name: 'Export Compliance', href: '/export-compliance' },
+    ],
+    []
+  );
 
   // Auto-resize menu calculation
   useEffect(() => {
@@ -578,7 +584,7 @@ const Navbar = () => {
                 {navItems.slice(0, visibleCount).map((item) => (
                   <Link
                     key={item.name}
-                    href={item.id !== undefined ? `/products?category_id=${item.id}` : `/products`}
+                    href={`/products?name=${encodeURIComponent(item.name)}`}
                     className="flex items-center h-full px-4 text-[15.5px] font-medium whitespace-nowrap 
               transition-all duration-200 hover:bg-[#D35400] hover:text-white"
                   >

@@ -165,8 +165,12 @@ export const Categories = () => {
                     <Link
                       href={
                         category.id !== undefined
-                          ? `/products?category_id=${category.id}`
-                          : `/products`
+                          ? `/products?categoryId=${
+                              category.id
+                            }&name=${encodeURIComponent(category.title)}`
+                          : `/products?name=${encodeURIComponent(
+                              category.title
+                            )}`
                       }
                       className="block relative w-full h-52 overflow-hidden group bg-black/60">
                       {category.image ? (
@@ -328,8 +332,10 @@ export const Categories = () => {
                 <Link
                   href={
                     category.id !== undefined
-                      ? `/products?category_id=${category.id}`
-                      : `/products`
+                      ? `/products?categoryId=${
+                          category.id
+                        }&name=${encodeURIComponent(category.title)}`
+                      : `/products?name=${encodeURIComponent(category.title)}`
                   }
                   className="flex flex-col group w-[258px] no-underline"
                   data-aos="fade-up"
