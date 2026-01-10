@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, Suspense } from "react";
 import { useSearchParams } from "next/navigation";
 import { Container } from "@/components/ui";
 import ProductCard from "@/components/product/ProductCard";
@@ -16,7 +16,7 @@ interface UiProduct {
   action: "ADD TO CART" | "SUBMIT AN INQUIRY";
 }
 
-export default function SearchPage() {
+function SearchContent() {
   const params = useSearchParams();
   const q = params.get("q") || params.get("search") || "";
 
@@ -119,5 +119,13 @@ export default function SearchPage() {
         </div>
       </Container>
     </div>
+  );
+}
+
+export default function SearchPage() {
+  return (
+    <Suspense fallback={<div className="pt-[100px] text-center">Loading search...</div>}>
+      <SearchContent />
+    </Suspense>
   );
 }
