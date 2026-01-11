@@ -197,11 +197,14 @@ const DesktopLayout = ({ id, product }: { id?: string; product?: any }) => {
                     </div>
                 </div>
             </Container>
+             {/* product specifications starts here */}
+
             <Container className="my-6 ">
                 {tabContent.length > 0 && (
                     <TabbedSection tabs={tabContent} defaultTab={tabContent[0]?.id} />
                 )}
             </Container>
+                {/* product specifications ends here */}
                         <TopSellingProducts title="Recommended For Your Vehicle" />
 
             {showGallery && (

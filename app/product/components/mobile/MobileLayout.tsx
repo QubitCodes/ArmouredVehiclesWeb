@@ -158,11 +158,13 @@ export default function MobileLayout({ id, product }: { id?: string; product?: a
 
             </div>
             <TopSellingProducts title="Recommended For Your Vehicle" />
+             {/* product specifications starts here */}
             <Container className="my-10">
                 {tabContent.length > 0 && (
                     <TabbedSection tabs={tabContent} defaultTab={tabContent[0]?.id} />
                 )}
             </Container>
+             {/* product specifications ends here */}
 
             {/* FULLSCREEN GALLERY */}
             {showGallery && (
