@@ -14,6 +14,12 @@ import { ChevronDown } from "lucide-react";
 import { useCartStore } from "@/lib/cart-store";
 import { syncAddToServer } from "@/lib/cart-sync";
 import { useRouter } from "next/navigation";
+import VehicleFitmentTab from "@/components/product/tabs/VehicleFitmentTab";
+import SpecificationsTab from "@/components/product/tabs/SpecificationsTab";
+import FeaturesTab from "@/components/product/tabs/FeaturesTab";
+import ProductDetailsTab from "@/components/product/tabs/ProductDetailsTab";
+import WarrantyTab from "@/components/product/tabs/WarrantyTab";
+import ReviewsTab from "@/components/product/tabs/ReviewsTab";
 
 
 export default function MobileLayout({ id, product }: { id?: string; product?: any }) {
@@ -29,69 +35,45 @@ export default function MobileLayout({ id, product }: { id?: string; product?: a
     // DYNAMIC SECTIONS - If data exists, tabs will be displayed.
     // If data is missing/null, the section is automatically hidden (not pushed to tabContent).
     // -------------------------------------------------------------
-    if (product?.vehicleFitment) {
-        tabContent.push({
-            id: "vehicle-fitment",
-            label: "Vehicle Fitment",
-            content: (
-                <div className="space-y-4 text-black">
-                    <div className="whitespace-pre-line">{product.vehicleFitment}</div>
-                </div>
-            ),
-        });
-    }
-    if (product?.specifications || product?.sku) {
-        tabContent.push({
-            id: "specifications",
-            label: "Specifications",
-            content: (
-                <div className="space-y-4">
-                    {product.sku && (
-                        <div className="text-sm"><span className="text-gray-600 font-medium">SKU #</span> <span className="text-black">{product.sku}</span></div>
-                    )}
-                    {product.specifications && (
-                        <div className="text-sm text-black whitespace-pre-line">{product.specifications}</div>
-                    )}
-                </div>
-            ),
-        });
-    }
-    if (Array.isArray(product?.features) && product.features.length) {
-        tabContent.push({
-            id: "features",
-            label: "Features",
-            content: (
-                <div className="space-y-3">
-                    {product.features.map((f: string, idx: number) => (
-                        <div key={idx} className="flex gap-2 text-black">
-                            <svg width="7" height="10" viewBox="0 0 7 10" fill="none" xmlns="http://www.w3.org/2000/svg" className="shrink-0 mt-1">
-                                <path d="M0 0V10L7 5.28302L0 0Z" fill="black" />
-                            </svg>
-                            <span>{f}</span>
-                        </div>
-                    ))}
-                </div>
-            ),
-        });
-    }
-    if (product?.description) {
-        tabContent.push({
-            id: "product-details",
-            label: "Product Details",
-            content: (
-                <div className="space-y-4 text-black whitespace-pre-line">{product.description}</div>
-            ),
-        });
-    }
-    if (product?.warranty) {
-        tabContent.push({
-            id: "warranty",
-            label: "Warranty",
-            content: (
-                <div className="space-y-4 text-black whitespace-pre-line">{product.warranty}</div>
-            ),
-        });
-    }
+    // -------------------------------------------------------------
+    // STATIC SECTIONS - Tabs are always displayed.
+    // -------------------------------------------------------------
+
+    tabContent.push({
+        id: "vehicle-fitment",
+        label: "Vehicle Fitment",
+        content: <VehicleFitmentTab fitment={product?.vehicleFitment || undefined} />
+    });
+
+    tabContent.push({
+        id: "specifications",
+        label: "Specifications",
+        content: <SpecificationsTab product={product} />
+    });
+
+    tabContent.push({
+        id: "features",
+        label: "Features",
+        content: <FeaturesTab features={product?.features || []} />
+    });
+
+    tabContent.push({
+        id: "product-details",
+        label: "Product Details",
+        content: <ProductDetailsTab product={product} />
+    });
+
+    tabContent.push({
+        id: "warranty",
+        label: "Warranty",
+        content: <WarrantyTab warranty={product?.warranty || undefined} />
+    });
+     
+    tabContent.push({
+        id: "reviews",
+        label: `Reviews (${product?.reviewCount || 0})`,
+        content: <ReviewsTab reviews={product?.reviews || []} rating={product?.rating || 0} reviewCount={product?.reviewCount || 0} />
+    });
     // Use dynamic similar products if available, otherwise empty or fallback
     const similarProducts = Array.isArray(product?.similarProducts) ? product.similarProducts : [];
 

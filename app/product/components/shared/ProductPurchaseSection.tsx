@@ -101,10 +101,13 @@ export default function ProductPurchaseSection({
                     )
                 ) : (
                     <span
-                        onClick={() => router.push("/login")}
+                        onClick={() => {
+                            const currentPath = window.location.pathname;
+                            router.push(`/login?redirect=${encodeURIComponent(currentPath)}`);
+                        }}
                         className="text-[20px] font-medium text-[#D35400] cursor-pointer hover:underline"
                     >
-                        Please <span className="font-bold">Login to access</span> the price
+                        Login to Purchase
                     </span>
                 )}
             </div>
@@ -142,6 +145,7 @@ export default function ProductPurchaseSection({
             </div>
 
             {/* QUANTITY */}
+            {isAuthenticated && (
             <div className="relative w-full">
                 <select
                     id="quantity"
@@ -181,8 +185,10 @@ export default function ProductPurchaseSection({
                     </svg>
                 </div>
             </div>
+            )}
 
             {/* DELIVERY OPTIONS */}
+            {isAuthenticated && (
             <div className="grid grid-cols-2 gap-4">
 
                 {/* STANDARD DELIVERY */}
@@ -217,9 +223,11 @@ export default function ProductPurchaseSection({
                 </div>
 
             </div>
+            )}
 
 
             {/* ACTION BUTTONS – RESPONSIVE */}
+            {isAuthenticated && (
             <div className="flex flex-col gap-3 md:grid md:grid-cols-3 md:gap-4">
 
                 {/* BUY IT NOW */}
@@ -281,6 +289,7 @@ export default function ProductPurchaseSection({
                 </button>
 
             </div>
+            )}
 
 
             {/* SOCIAL PROOF */}

@@ -28,6 +28,7 @@ type ProductDisplay = {
   actionType?: string | null;
   category?: { id: number; name: string } | null;
   similarProducts?: any[];
+  misc?: any;
 };
 
 export default function ProductDetailsPage() {
@@ -72,7 +73,7 @@ export default function ProductDetailsPage() {
           ? productData.gallery
           : productData.image
           ? [productData.image]
-          : ["/product/product 1.png"];
+          : [data.misc?.placeholder_image || "/product/product 1.png"];
 
         setProduct({
           id: productData.id,
@@ -81,7 +82,7 @@ export default function ProductDetailsPage() {
           price: productData.price ?? null,
           originalPrice: productData.originalPrice ?? null,
           currency: productData.currency ?? null,
-          image: productData.image || "/product/product 1.png",
+          image: productData.image || data.misc?.placeholder_image || "/product/product 1.png",
           gallery,
           description: productData.description ?? productData.technicalDescription ?? null,
           condition: productData.condition ?? null,
@@ -103,6 +104,7 @@ export default function ProductDetailsPage() {
               : null),
           actionType: productData.actionType ?? null,
           category: productData.category ?? null,
+          misc: data.misc,
         });
 
         // 1.1 Fetch Similar Products if category exists
@@ -159,8 +161,10 @@ export default function ProductDetailsPage() {
           const avg =
             reviews.reduce((sum: number, r: any) => sum + r.rating, 0) / count;
           setRating(avg);
+          setProduct((prev) => prev ? ({ ...prev, reviews }) : null);
         } else {
           setRating(0);
+          setProduct((prev) => prev ? ({ ...prev, reviews: [] }) : null);
         }
       })
       .catch(() => {

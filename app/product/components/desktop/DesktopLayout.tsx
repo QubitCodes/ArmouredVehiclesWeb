@@ -19,6 +19,12 @@ import ImageGallery from "../shared/ImageGallery";
 import SimilarItemsSection from "../shared/SimilarItemsSection";
 import { syncAddToServer } from "@/lib/cart-sync";
 import { useRouter } from "next/navigation";
+import VehicleFitmentTab from "@/components/product/tabs/VehicleFitmentTab";
+import SpecificationsTab from "@/components/product/tabs/SpecificationsTab";
+import FeaturesTab from "@/components/product/tabs/FeaturesTab";
+import ProductDetailsTab from "@/components/product/tabs/ProductDetailsTab";
+import WarrantyTab from "@/components/product/tabs/WarrantyTab";
+import ReviewsTab from "@/components/product/tabs/ReviewsTab";
 
 
 
@@ -45,7 +51,7 @@ const DesktopLayout = ({ id, product }: { id?: string; product?: any }) => {
 
     const images = Array.isArray(product?.gallery) && product.gallery.length > 0
         ? product.gallery
-        : [product?.image || "/product/product 1.png"];
+        : [product?.image || product?.misc?.placeholder_image];
     
     console.log('[DesktopLayout] Product Images:', images);
 
@@ -59,56 +65,45 @@ const DesktopLayout = ({ id, product }: { id?: string; product?: any }) => {
     // DYNAMIC SECTIONS - If data exists, tabs will be displayed.
     // If data is missing/null, the section is automatically hidden (not pushed to tabContent).
     // -------------------------------------------------------------
-    if (product?.vehicleFitment) {
-        tabContent.push({
-            id: "vehicle-fitment",
-            label: "Vehicle Fitment",
-            content: (
-                <div className="space-y-4 text-black">
-                    <div className="whitespace-pre-line">{product.vehicleFitment}</div>
-                </div>
-            ),
-        });
-    }
+    // -------------------------------------------------------------
+    // STATIC SECTIONS - Tabs are always displayed.
+    // -------------------------------------------------------------
+    
+    tabContent.push({
+        id: "vehicle-fitment",
+        label: "Vehicle Fitment",
+        content: <VehicleFitmentTab fitment={product?.vehicle_fitment || product?.vehicleFitment || undefined} />
+    });
 
-    if (Array.isArray(product?.features) && product.features.length) {
-        tabContent.push({
-            id: "features",
-            label: "Features",
-            content: (
-                <div className="space-y-3">
-                    {product.features.map((f: string, idx: number) => (
-                        <div key={idx} className="flex gap-2 text-black">
-                            <svg width="7" height="10" viewBox="0 0 7 10" fill="none" xmlns="http://www.w3.org/2000/svg" className="shrink-0 mt-1">
-                                <path d="M0 0V10L7 5.28302L0 0Z" fill="black" />
-                            </svg>
-                            <span>{f}</span>
-                        </div>
-                    ))}
-                </div>
-            ),
-        });
-    }
+    tabContent.push({
+        id: "specifications",
+        label: "Specifications",
+        content: <SpecificationsTab product={product} />
+    });
 
-    if (product?.description) {
-        tabContent.push({
-            id: "product-details",
-            label: "Product Details",
-            content: (
-                <div className="space-y-4 text-black whitespace-pre-line">{product.description}</div>
-            ),
-        });
-    }
+    tabContent.push({
+        id: "features",
+        label: "Features",
+        content: <FeaturesTab features={product?.features || []} />
+    });
 
-    if (product?.warranty) {
-        tabContent.push({
-            id: "warranty",
-            label: "Warranty",
-            content: (
-                <div className="space-y-4 text-black whitespace-pre-line">{product.warranty}</div>
-            ),
-        });
-    }
+    tabContent.push({
+        id: "product-details",
+        label: "Product Details",
+        content: <ProductDetailsTab product={product} />
+    });
+
+    tabContent.push({
+        id: "warranty",
+        label: "Warranty",
+        content: <WarrantyTab warranty={product?.warranty || undefined} />
+    });
+    
+    tabContent.push({
+        id: "reviews",
+        label: `Reviews (${product?.reviewCount || 0})`,
+        content: <ReviewsTab reviews={product?.reviews || []} rating={product?.rating || 0} reviewCount={product?.reviewCount || 0} />
+    });
 
     // `id` is available when rendering via `/product/[id]`.
     // Currently not used inside this component, but provided so it can be
@@ -133,34 +128,15 @@ const DesktopLayout = ({ id, product }: { id?: string; product?: any }) => {
                                 selectedImage={selectedImage}
                                 setSelectedImage={setSelectedImage}
                                 onOpenGallery={() => setShowGallery(true)}
+                                placeholderImage={product?.misc?.placeholder_image}
                             />
 
 
-                            {/* Similar Items */}
-                            {/* Similar Items - Only show if data exists */}
-                            {similarProducts.length > 0 && (
-                               <SimilarItemsSection products={similarProducts} />
-                            )}
 
                         </div>
 
                         {/* Product Info */}
                         <div className="space-y-6">
-                            {/* <div>
-                <Typography variant="h1" className=" text-black text-[24px] font-bold mb-2">
-                  DFC® - 4000 HybriDynamic Hybrid Rear Brake Pads
-                </Typography>
-                <div className="flex items-center gap-2">
-                  <div className="flex text-[#D35400]">
-                    {"★★★★★".split("").map((star, i) => (
-                      <span key={i}>{star}</span>
-                    ))}
-                  </div>
-                  <span className="text-sm text-[#D35400]">0 Review</span>
-                  <span className="text-sm text-gray-500">Part #54GD94DL</span>
-                  <span className="text-sm text-gray-500">SKU #374155</span>
-                </div>
-              </div> */}
                             <ProductHeader
                                 name={product?.name}
                                 rating={product?.rating}
@@ -197,15 +173,20 @@ const DesktopLayout = ({ id, product }: { id?: string; product?: any }) => {
                     </div>
                 </div>
             </Container>
-             {/* product specifications starts here */}
 
-            <Container className="my-6 ">
-                {tabContent.length > 0 && (
-                    <TabbedSection tabs={tabContent} defaultTab={tabContent[0]?.id} />
+            <Container className="my-8">
+                {similarProducts.length > 0 && (
+                    <SimilarItemsSection products={similarProducts} />
                 )}
             </Container>
-                {/* product specifications ends here */}
-                        <TopSellingProducts title="Recommended For Your Vehicle" />
+
+            <TopSellingProducts title="Recommended For Your Vehicle" />
+
+            {/* product specifications starts here */}
+            <div className="my-6">
+                <TabbedSection tabs={tabContent} defaultTab={tabContent[0]?.id} />
+            </div>
+            {/* product specifications ends here */}
 
             {showGallery && (
                 <FullscreenGallery

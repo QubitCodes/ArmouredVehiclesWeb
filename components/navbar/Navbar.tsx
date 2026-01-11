@@ -528,16 +528,6 @@ const Navbar = () => {
                       </span>
                     </div>
                   </Link>
-
-                  <Link href="/cart">
-                    <Image
-                      src="/cart.svg"
-                      alt="Shopping Cart"
-                      width={30}
-                      height={30}
-                      className="hover:opacity-80 transition-opacity"
-                    />
-                  </Link>
                 </>
               )}
             </div>

@@ -229,25 +229,24 @@ export function TopSellingProducts({ title }: { title: string }) {
               <div
                 key={product.id}
                 onClick={() => selectProduct(product)}
-   className={`border cursor-pointer flex flex-col items-center justify-start text-center hover:shadow-md transition bg-[#EBE3D6] ${
-  selectedProduct.id === product.id
-    ? "border-[#D35400] border-3"
-    : "border-[#CCCCCC]"
-}`}
-
+                className={`border cursor-pointer flex flex-col items-center justify-start text-center hover:shadow-md transition bg-[#EBE3D6] ${
+                  selectedProduct.id === product.id
+                    ? "border-[#D35400] ring-2 ring-[#D35400] ring-inset relative z-10"
+                    : "border-[#CCCCCC]"
+                }`}
                 style={{ width: "245px", height: "281px" }}
               >
                 <div className="relative w-[190px] h-[190px] mt-6">
                   <Image src={product.image} alt={product.name} fill className="object-cover" />
                 </div>
-                <p className="text-black mt-5 text-[16px] leading-none px-2 pb-2">{product.name}</p>
+                <p className="text-black mt-4 text-[14px] leading-tight px-3 pb-2 line-clamp-2 w-full">{product.name}</p>
               </div>
             ))}
           </div>
         </div>
 
         {/* RIGHT PREVIEW SECTION */}
-        <div className="flex-1 bg-[#EBE3D6] flex flex-col items-center pt-0 lg:h-[900px]">
+        <div className="flex-1 bg-[#EBE3D6] flex flex-col items-center pt-0 lg:h-[900px] xl:pr-[140px]">
 
           <div className="relative w-full flex justify-center items-start pt-[123px]">
             <div className="relative w-[467px] h-[514px]">

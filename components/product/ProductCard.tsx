@@ -34,13 +34,39 @@ export default function ProductCard({
   price,
   delivery,
   action,
-}: ProductCardProps) {
+  placeholderImage = "/placeholder.svg",
+}: ProductCardProps & { placeholderImage?: string }) {
   const [liked, setLiked] = useState(false);
   const [slide, setSlide] = useState(0);
+  const [imgSrc, setImgSrc] = useState<string | null>(null);
+  
   const intervalRef = useRef<number | null>(null);
   const addItem = useCartStore((s) => s.addItem);
   const { isAuthenticated, isLoading } = useAuth();
   const router = useRouter();
+
+  // Reset image source when images change
+  useEffect(() => {
+    setImgSrc(null);
+  }, [images]);
+
+  // displayImage logic:
+  // 1. If we have a state override (imgSrc), use it (unless it's null). 
+  //    Actually simpler: derive display URL.
+  //    If images[slide] exists, try that. If it fails, fallback.
+  
+  // Better approach for NextJS Image:
+  // Use state to track if current slide failed.
+  // But we have cycling slides. 
+  // Let's keep it simple: If any image fails, we can show placeholder for that slot? Or just stop cycling?
+  // Let's just track if the *current* displayed URL failed.
+  const [imageError, setImageError] = useState(false);
+
+  useEffect(() => {
+     setImageError(false);
+  }, [slide, images]);
+
+  const currentImage = (images && images.length > 0) ? images[slide] : placeholderImage;
 
 
   // delivery date
@@ -104,17 +130,20 @@ export default function ProductCard({
       >
         {/* Image display with hover cycling */}
         <Image
-          src={images[slide]}
+          src={imageError ? placeholderImage : currentImage}
           alt={name}
           width={375}
           height={390}
           // fill
           className="object-cover w-full h-full transition-all duration-300"
+          onError={() => setImageError(true)}
         />
 
-        {/* Wishlist Icon */}
+      {/* Wishlist Icon */}
+      {isAuthenticated && (
         <button
-          onClick={async () => {
+          onClick={async (e) => {
+            e.preventDefault(); // Prevent link navigation
             // Require auth to add to wishlist
             if (!isAuthenticated) {
               router.push("/login");
@@ -134,7 +163,7 @@ export default function ProductCard({
               }
             }
           }}
-          className="absolute top-2 md:top-3 right-2 md:right-3 bg-[#F0EBE3] rounded-full p-1 shadow-md hover:scale-105 transition"
+          className="absolute top-2 md:top-3 right-2 md:right-3 bg-[#F0EBE3] rounded-full p-1 shadow-md hover:scale-105 transition z-10"
         >
           <Heart
             size={16}
@@ -143,6 +172,7 @@ export default function ProductCard({
             }
           />
         </button>
+      )}
 
         {/* No slider controls or indicators; hover cycles images */}
       </div>
@@ -173,10 +203,14 @@ export default function ProductCard({
       </p>
     ) : (
       <span
-        onClick={() => router.push("/login")}
+        onClick={(e) => {
+            e.preventDefault();
+            const currentPath = window.location.pathname;
+            router.push(`/login?redirect=${encodeURIComponent(currentPath)}`);
+        }}
         className="text-sm font-medium text-[#D35400] cursor-pointer hover:underline"
       >
-        Login to view price
+        Login to Purchase
       </span>
     )}
 
@@ -202,9 +236,12 @@ export default function ProductCard({
 
 
       {/* ---------- FULL-WIDTH BUTTON ---------- */}
+      {/* Hide button if user is not authenticated OR if action is inquire */}
+      {isAuthenticated && action === "ADD TO CART" && (
       <button
         className="w-full py-2 md:py-3 font-black font-[Orbitron] uppercase text-sm md:text-[18px] tracking-wide transition bg-[#000000] text-white hover:bg-[#D35400]"
-        onClick={async () => {
+        onClick={async (e) => {
+          e.preventDefault();
           if (action === "ADD TO CART" && id) {
             addItem(
               {
@@ -225,6 +262,7 @@ export default function ProductCard({
       >
         {action}
       </button>
+      )}
 
     </div>
   );

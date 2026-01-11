@@ -27,7 +27,7 @@ export default function ShippingSummary({ onChange }: Props) {
           <div className="font-semibold">
             Standard{" "}
             <span className="text-[#FF6A00]">
-              armoured-vehicles-web.vercel.app
+              FedEx
             </span>{" "}
             Logistics
           </div>

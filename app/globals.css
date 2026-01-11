@@ -45,7 +45,7 @@
     padding-right: 1rem;
   }
 
-  @media (min-width: 1728px) {
+  @media (min-width: 1280px) {
     .container-figma {
       padding-left: 140px;
       padding-right: 140px;

@@ -20,7 +20,6 @@ import type {
 const API_BASE =
   process.env.NEXT_PUBLIC_API_BASE_URL ??
   "https://armored-api.qubyt.codes/api";
-console.log("API_BASE", API_BASE);
 
 // ==================== Token Management (Client Side Only) ====================
 
@@ -112,6 +111,20 @@ async function refreshAccessToken(): Promise<boolean> {
   return refreshPromise;
 }
 
+// ==================== Session Management ====================
+
+const SESSION_ID_KEY = 'session_id';
+
+export function getSessionId(): string {
+  if (typeof window === 'undefined') return '';
+  let sessionId = localStorage.getItem(SESSION_ID_KEY);
+  if (!sessionId) {
+    sessionId = crypto.randomUUID();
+    localStorage.setItem(SESSION_ID_KEY, sessionId);
+  }
+  return sessionId;
+}
+
 // ==================== HTTP Client (The Core) ====================
 
 function getAuthHeaders(): HeadersInit {
@@ -130,6 +143,7 @@ async function fetchJson<T>(endpoint: string, options: RequestInit = {}, retry =
   
   const headers: HeadersInit = {
     'Content-Type': 'application/json',
+    'x-session-id': getSessionId(), // Always send session ID
     ...getAuthHeaders(),
     ...options.headers,
   };
@@ -241,10 +255,21 @@ export const api = {
     },
 
     logoutAll: () => fetchJson<{ message: string }>('/auth/logout-all', { method: 'POST' }),
-    me: () => fetchJson<User>('/auth/me'),
+    
+    me: async () => {
+        const res = await fetchJson<any>('/profile');
+        // Profile endpoint returns { data: { user, profile } }
+        // We return just the user to match expected interface
+        return res?.data?.user || res?.user;
+    },
+    
     getSessions: () => fetchJson<Session[]>('/auth/sessions'),
     revokeSession: (sessionId: string) => fetchJson<{ message: string }>(`/auth/sessions/${sessionId}`, { method: 'DELETE' }),
-    updateProfile: (data: { name?: string; email?: string }) => fetchJson<User>('/auth/profile', { method: 'PUT', body: JSON.stringify(data) }),
+    
+    updateProfile: async (data: { name?: string; email?: string }) => {
+         const res = await fetchJson<any>('/profile', { method: 'PUT', body: JSON.stringify(data) });
+         return res?.data?.user || res?.user;
+    },
   },
 
   // --- Products ---

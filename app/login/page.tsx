@@ -5,15 +5,16 @@ import Link from "next/link";
 import Navbar from "@/components/navbar/Navbar";
 import Footer from "@/components/footer/Footer";
 import { useEffect, useRef, useState } from "react";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { startOtpLogin, verifyOtpLogin } from "../services/auth";
 import { useAuth } from "@/lib/auth-context";
 
 
-export default function LoginPage() {
+import { Suspense } from 'react';
 
-
+function LoginForm() {
     const router = useRouter();
+    const searchParams = useSearchParams();
     const [identifier, setIdentifier] = useState("");
     const [stage, setStage] = useState<"start" | "verify">("start");
         const { refreshUser } = useAuth();
@@ -35,13 +36,10 @@ export default function LoginPage() {
     const handleContinue = async () => {
         const email = identifier.trim();
         if (!email) {
-            alert("Please enter your email address");
+            alert("Please enter your email or phone number");
             return;
         }
-        if (!isEmail(email)) {
-            alert("OTP login currently supports email only.");
-            return;
-        }
+        
         try {
             setLoading(true);
             const res = await startOtpLogin(email);
@@ -134,7 +132,13 @@ export default function LoginPage() {
             localStorage.setItem("token_expiry", String(Date.now() + expiresIn * 1000));
             // Update auth context immediately so Navbar reflects logged-in state
             await refreshUser();
-            router.push('/');
+            
+            const redirect = searchParams.get('redirect');
+            if (redirect) {
+                router.push(redirect);
+            } else {
+                router.push('/');
+            }
         } catch (err: any) {
             alert(err?.response?.data?.message || err?.message || "Failed to verify OTP");
         } finally {
@@ -183,7 +187,7 @@ export default function LoginPage() {
                         {/* Email or Phone */}
                         <input
                             type="text"
-                            placeholder="Please Enter Email or Mobile Number"
+                            placeholder="Email, Username or Phone"
                             value={identifier}
                             onChange={(e) => setIdentifier(e.target.value)}
                             className="w-full mb-3 px-4 py-3 border border-[#C7B88A] bg-transparent text-sm text-black placeholder:text-[#9D9A95] focus:outline-none"
@@ -256,5 +260,13 @@ export default function LoginPage() {
 
             </section>
         </>
+    );
+}
+
+export default function LoginPage() {
+    return (
+        <Suspense fallback={<div className="min-h-screen flex items-center justify-center">Loading...</div>}>
+            <LoginForm />
+        </Suspense>
     );
 }

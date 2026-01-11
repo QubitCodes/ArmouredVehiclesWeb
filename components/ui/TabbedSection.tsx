@@ -25,6 +25,7 @@ const TabbedSection = ({
     new Set([defaultTab || tabs[0]?.id])
   );
 
+  // Mobile Accordion Toggle
   const toggleSection = (tabId: string) => {
     setExpandedSections((prev) => {
       const newSet = new Set(prev);
@@ -35,40 +36,65 @@ const TabbedSection = ({
       }
       return newSet;
     });
-    setActiveTab(tabId);
   };
 
-  const activeTabContent = tabs.find((tab) => tab.id === activeTab);
+  // Desktop Scroll functionality
+  const scrollToSection = (id: string) => {
+    const element = document.getElementById(id);
+    if (element) {
+      const offset = 100; // Adjusted for sticky header + spacing
+      const elementPosition = element.getBoundingClientRect().top;
+      const offsetPosition = elementPosition + window.pageYOffset - offset;
+      
+      window.scrollTo({
+        top: offsetPosition,
+        behavior: "smooth"
+      });
+      setActiveTab(id);
+      
+      // Optional: Update URL without jumping
+      // window.history.pushState(null, "", `#${id}`);
+    }
+  };
 
   return (
     <div className={`bg-[#EBE3D6] ${className}`}>
-      {/* Tab Headers - Desktop */}
-      <div className="hidden md:flex border-b border-gray-300">
-        {tabs.map((tab) => (
-          <button
-            key={tab.id}
-            onClick={() => setActiveTab(tab.id)}
-            className={`flex-1 px-6 py-4 font-bold text-sm font-[Orbitron] uppercase tracking-wider transition-colors ${activeTab === tab.id
-                ? "text-black border-b-2 border-black bg-[#EBE3D6]"
-                : "text-gray-600 hover:text-black bg-[#F0EBE3]"
-              }`}
-          >
-            {tab.label}
-          </button>
-        ))}
+      
+      {/* ---------------- DESKTOP: STICKY TABS + STACKED CONTENT ---------------- */}
+      <div className="hidden md:block">
+        {/* Sticky Header */}
+        <div className="sticky top-0 z-40 bg-[#EBE3D6] border-b border-gray-300 shadow-sm">
+           <div className="flex container-figma">
+            {tabs.map((tab) => (
+              <a
+                key={tab.id}
+                href={`#${tab.id}`}
+                onClick={(e) => {
+                    e.preventDefault();
+                    scrollToSection(tab.id);
+                }}
+                className={`flex-1 px-6 py-4 font-bold text-sm font-[Orbitron] uppercase tracking-wider transition-colors text-center flex items-center justify-center ${activeTab === tab.id
+                    ? "text-black border-b-2 border-black bg-[#EBE3D6]"
+                    : "text-gray-600 hover:text-black bg-[#F0EBE3]"
+                  }`}
+              >
+                {tab.label}
+              </a>
+            ))}
+           </div>
+        </div>
+
+        {/* Stacked Content */}
+        <div className="container-figma p-4 pb-12">
+            {tabs.map((tab) => (
+                <div key={tab.id} id={tab.id} className="mb-4 last:mb-0 border-b border-gray-300 pb-4 last:border-0 last:pb-0 scroll-mt-24">
+                    {tab.content}
+                </div>
+            ))}
+        </div>
       </div>
 
-      {/* Tab Content - Desktop */}
-      <div className="hidden md:block p-8">
-        {activeTabContent && (
-          <div className="space-y-4">
-            {activeTabContent.content}
-          </div>
-        )}
-      </div>
-
-      {/* Accordion - Mobile */}
-      {/* Accordion - Mobile */}
+      {/* ---------------- MOBILE: ACCORDION ---------------- */}
       <div className="md:hidden">
         {tabs.map((tab) => {
           const isOpen = expandedSections.has(tab.id);
