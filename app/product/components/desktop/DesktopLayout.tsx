@@ -46,6 +46,9 @@ const DesktopLayout = ({ id, product }: { id?: string; product?: any }) => {
     const images = Array.isArray(product?.gallery) && product.gallery.length > 0
         ? product.gallery
         : [product?.image || "/product/product 1.png"];
+    
+    console.log('[DesktopLayout] Product Images:', images);
+
 
     // Use dynamic similar products if available, otherwise empty or fallback
     const similarProducts = Array.isArray(product?.similarProducts) ? product.similarProducts : [];
