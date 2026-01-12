@@ -263,7 +263,7 @@ function LoginForm() {
                         )}
 
                         {/* Quick Login Buttons (Dev Only) */}
-                        <div className="mt-4 grid grid-cols-2 gap-2">
+                        {/* <div className="mt-4 grid grid-cols-2 gap-2">
                              <button
                                 type="button"
                                 onClick={async () => {
@@ -306,7 +306,7 @@ function LoginForm() {
                             >
                                 Dev: 8281300882
                             </button>
-                        </div>
+                        </div> */}
 
                     </div>
                 </div>
