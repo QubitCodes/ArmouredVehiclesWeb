@@ -86,17 +86,14 @@ export default function AddressDetailsPage() {
   };
 
   const handleSave = () => {
-    console.log("handleSave called");
-    console.log("fullAddress:", fullAddress);
-    console.log("fullName:", fullName);
-    console.log("phoneNumber:", phoneNumber);
+
     
     if (!validateForm()) {
       console.log("Validation failed");
       return;
     }
 
-    console.log("Validation passed, saving...");
+
 
     // Save the complete address
     const completeAddress = {
@@ -112,9 +109,9 @@ export default function AddressDetailsPage() {
       timestamp: Date.now(),
     };
 
-    console.log("Saving to localStorage:", completeAddress);
+
     localStorage.setItem("newAddress", JSON.stringify(completeAddress));
-    console.log("Saved, redirecting...");
+
     router.push("/address?new=true");
   };
 

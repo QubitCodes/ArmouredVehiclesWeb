@@ -4,17 +4,21 @@ import { ReactNode, useEffect } from "react";
 import { useRouter, usePathname } from "next/navigation";
 import { useAuth } from "@/lib/auth-context";
 
-export default function ProtectedRoute({ children }: { children: ReactNode }) {
+export default function ProtectedRoute({ children, redirectTo }: { children: ReactNode; redirectTo?: string }) {
   const { isAuthenticated, isLoading } = useAuth();
   const router = useRouter();
   const pathname = usePathname();
 
   useEffect(() => {
     if (!isLoading && !isAuthenticated) {
-      const next = encodeURIComponent(pathname || "/");
-      router.replace(`/login?next=${next}`);
+      if (redirectTo) {
+        router.replace(redirectTo);
+      } else {
+        const next = encodeURIComponent(pathname || "/");
+        router.replace(`/login?next=${next}`);
+      }
     }
-  }, [isAuthenticated, isLoading, pathname, router]);
+  }, [isAuthenticated, isLoading, pathname, router, redirectTo]);
 
   if (isLoading) {
     return (

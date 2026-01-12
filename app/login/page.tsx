@@ -110,9 +110,10 @@ function LoginForm() {
         }
     }, [stage]);
 
-    const handleVerify = async () => {
-        const email = identifier.trim();
-        const code = otp.join("");
+    const handleVerify = async (manualEmail?: string, manualCode?: string) => {
+        const email = manualEmail || identifier.trim();
+        const code = manualCode || otp.join("");
+        
         if (code.length !== 6) {
             alert("Please enter the 6-digit OTP");
             return;
@@ -130,8 +131,14 @@ function LoginForm() {
             localStorage.setItem("access_token", accessToken);
             localStorage.setItem("refresh_token", refreshToken);
             localStorage.setItem("token_expiry", String(Date.now() + expiresIn * 1000));
+            
+            console.log(`[CHECKOUT DEBUG] LOGIN SUCCESS. Token: ${accessToken.substring(0, 20)}...`);
+
             // Update auth context immediately so Navbar reflects logged-in state
             await refreshUser();
+            
+            // Merge guest cart
+            // await api.cart.merge();
             
             const redirect = searchParams.get('redirect');
             if (redirect) {
@@ -247,13 +254,59 @@ function LoginForm() {
                             </button>
                         ) : (
                             <button
-                                onClick={handleVerify}
+                                onClick={() => handleVerify()}
                                 disabled={loading}
                                 className="w-full h-[52px] bg-[#D35400] text-white font-black font-orbitron clip-path-supplier text-[16px] hover:bg-[#39482C] transition-colors uppercase disabled:opacity-60"
                             >
                                 {loading ? "Verifying..." : "Verify & Login"}
                             </button>
                         )}
+
+                        {/* Quick Login Buttons (Dev Only) */}
+                        <div className="mt-4 grid grid-cols-2 gap-2">
+                             <button
+                                type="button"
+                                onClick={async () => {
+                                    const phone = "9400143527";
+                                    setIdentifier(phone);
+                                    try {
+                                        setLoading(true);
+                                        await startOtpLogin(phone);
+                                        setStage("verify");
+                                        setOtp(['1','2','3','4','5','6']);
+                                        // Auto Verify
+                                        await handleVerify(phone, '123456');
+                                    } catch (err: any) {
+                                        alert(err?.response?.data?.message || err?.message || "Failed");
+                                        setLoading(false);
+                                    }
+                                }}
+                                className="text-xs bg-gray-200 text-gray-700 py-1 px-2 rounded hover:bg-gray-300"
+                            >
+                                Dev: 9400143527
+                            </button>
+                            <button
+                                type="button"
+                                onClick={async () => {
+                                    const phone = "8281300882";
+                                    setIdentifier(phone);
+                                    try {
+                                        setLoading(true);
+                                        await startOtpLogin(phone);
+                                        setStage("verify");
+                                        setOtp(['1','2','3','4','5','6']);
+                                        // Auto Verify
+                                        await handleVerify(phone, '123456');
+                                    } catch (err: any) {
+                                        alert(err?.response?.data?.message || err?.message || "Failed");
+                                        setLoading(false);
+                                    }
+                                }}
+                                className="text-xs bg-gray-200 text-gray-700 py-1 px-2 rounded hover:bg-gray-300"
+                            >
+                                Dev: 8281300882
+                            </button>
+                        </div>
 
                     </div>
                 </div>

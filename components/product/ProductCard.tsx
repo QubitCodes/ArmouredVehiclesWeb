@@ -9,14 +9,13 @@ import ProductRating from "./ProductRating";
 import Link from "next/link";
 import { useAuth } from "@/lib/auth-context";
 import { useRouter } from "next/navigation";
-import { addWishlistItem } from "@/app/services/wishlist";
+import { api } from "@/lib/api";
 
-
-
+import { useWishlist } from "@/hooks/use-wishlist";
 
 interface ProductCardProps {
   id?: string;
-  images: string[]; // <<--------- updated
+  images: string[];
   name: string;
   rating: number;
   reviews: string;
@@ -36,7 +35,6 @@ export default function ProductCard({
   action,
   placeholderImage = "/placeholder.svg",
 }: ProductCardProps & { placeholderImage?: string }) {
-  const [liked, setLiked] = useState(false);
   const [slide, setSlide] = useState(0);
   const [imgSrc, setImgSrc] = useState<string | null>(null);
   
@@ -44,6 +42,10 @@ export default function ProductCard({
   const addItem = useCartStore((s) => s.addItem);
   const { isAuthenticated, isLoading } = useAuth();
   const router = useRouter();
+  
+  // Wishlist Hook
+  const { isInWishlist, toggleWishlist } = useWishlist();
+  const isLiked = isInWishlist(id);
 
   // Reset image source when images change
   useEffect(() => {
@@ -149,18 +151,10 @@ export default function ProductCard({
               router.push("/login");
               return;
             }
-            if (liked) {
-              // No API to remove by product here; ignore toggle off
-              return;
-            }
-            const pid = id ? Number(id) : NaN;
-            if (Number.isFinite(pid)) {
-              try {
-                await addWishlistItem(pid);
-                setLiked(true);
-              } catch (e) {
-                // noop: keep UI unchanged on error
-              }
+            try {
+              await toggleWishlist(id);
+            } catch (e) {
+              // noop
             }
           }}
           className="absolute top-2 md:top-3 right-2 md:right-3 bg-[#F0EBE3] rounded-full p-1 shadow-md hover:scale-105 transition z-10"
@@ -168,7 +162,7 @@ export default function ProductCard({
           <Heart
             size={16}
             className={
-              liked ? "fill-[#D35400] text-[#D35400] md:w-5 md:h-5" : "text-[#3D4A26] md:w-5 md:h-5"
+              isLiked ? "fill-[#D35400] text-[#D35400] md:w-5 md:h-5" : "text-[#3D4A26] md:w-5 md:h-5"
             }
           />
         </button>

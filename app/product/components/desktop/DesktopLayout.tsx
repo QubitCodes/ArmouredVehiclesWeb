@@ -53,7 +53,7 @@ const DesktopLayout = ({ id, product }: { id?: string; product?: any }) => {
         ? product.gallery
         : [product?.image || product?.misc?.placeholder_image];
     
-    console.log('[DesktopLayout] Product Images:', images);
+
 
 
     // Use dynamic similar products if available, otherwise empty or fallback
@@ -151,6 +151,7 @@ const DesktopLayout = ({ id, product }: { id?: string; product?: any }) => {
                                 currency={product?.currency}
                                 condition={product?.condition}
                                 stock={product?.stock}
+                                productId={product?.id}
                                 onAddToCart={async () => {
                                     if (!product) return;
                                     addItem({

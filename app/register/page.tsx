@@ -5,6 +5,7 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { startOtpRegister, verifyEmailOtp, setPhone, verifyPhoneOtp, resendPhoneOtp } from "@/app/services/auth";
 import { useAuth } from "@/lib/auth-context";
+// import { api } from "@/lib/api";
 import { useEffect, useRef, useState } from "react";
 
 export default function RegisterPage() {
@@ -172,8 +173,10 @@ export default function RegisterPage() {
       localStorage.setItem("expiresIn", String(ttl));
       localStorage.setItem("access_token", accessToken);
       localStorage.setItem("refresh_token", refreshToken);
+
       localStorage.setItem("token_expiry", String(Date.now() + ttl * 1000));
       await refreshUser();
+      // await api.cart.merge(); 
       router.push('/create-account');
     } catch (err: any) {
       const msg = err?.response?.data?.message || err?.message || "Failed to verify phone";

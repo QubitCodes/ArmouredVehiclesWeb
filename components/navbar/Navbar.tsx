@@ -1,6 +1,6 @@
 'use client';
 
-import React from 'react';
+import { useCartStore } from '@/lib/cart-store';
 import Link from 'next/link';
 import Image from 'next/image';
 import { Search } from 'lucide-react';
@@ -9,6 +9,7 @@ import { useAuth } from '@/lib/auth-context';
 import { profileMenuItems } from '@/lib/constants/profileMenu';
 import { searchProducts } from '@/app/services/auth';
 import { useRouter } from 'next/navigation';
+
 
 
 // Profile Menu Icon Component
@@ -104,6 +105,7 @@ const Navbar = () => {
   const [searchQuery, setSearchQuery] = useState('');
   const [isSearching, setIsSearching] = useState(false);
   const router = useRouter();
+  const cartCount = useCartStore((s) => s.count());
 
   // Handle search
   const handleSearch = () => {
@@ -512,9 +514,9 @@ const Navbar = () => {
                       height={30}
                       className="hover:opacity-80 transition-opacity"
                     />
-                    {0 > 0 && (
+                    {cartCount > 0 && (
                       <span className="absolute -top-1 -right-1 w-5 h-5 bg-[#D35400] text-white text-[11px] font-bold rounded-full flex items-center justify-center">
-                        {0}
+                        {cartCount}
                       </span>
                     )}
                   </Link>

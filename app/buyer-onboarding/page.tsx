@@ -42,7 +42,7 @@ export default function BuyerOnboardingPage() {
   <AccountSetup
     onPrev={() => setStep(3)}
     onSubmit={() => {
-      console.log("Submitted");
+
       router.push("/");
       // later: API call / redirect
     }}

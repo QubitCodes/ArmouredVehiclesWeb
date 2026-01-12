@@ -3,15 +3,10 @@
 import { useMemo, useState } from "react";
 import Image from "next/image";
 import { Trash2, ChevronLeft, ChevronRight, Truck, Star } from "lucide-react";
-import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { useAuth } from "@/lib/auth-context";
 import { useRouter } from "next/navigation";
-import {
-  getWishlist,
-  removeWishlistItem,
-  type WishlistItem,
-  type WishlistResponse,
-} from "@/app/services/wishlist";
+import { type WishlistItem } from "@/app/services/wishlist";
+import { useWishlist } from "@/hooks/use-wishlist";
 
 type UiWishlistItem = {
   id: number; // wishlist item id
@@ -25,29 +20,21 @@ type UiWishlistItem = {
 };
 
 export default function WishlistPage() {
-  const queryClient = useQueryClient();
   const [currentImageIndex, setCurrentImageIndex] = useState<Record<number, number>>({});
   const { isAuthenticated, isLoading } = useAuth();
   const router = useRouter();
 
-  const { data, isLoading: isListLoading, isError } = useQuery<WishlistResponse>({
-    queryKey: ["wishlist"],
-    queryFn: () => getWishlist(),
-    enabled: isAuthenticated,
-  });
+  // Use centralized hook
+  const { wishlistItems: rawItems, removeItem, isLoading: isListLoading, isError } = useWishlist();
 
   const items: UiWishlistItem[] = useMemo(() => {
-    // Normalize API response into UI-friendly structure
-    const rawItems: WishlistItem[] = Array.isArray(data)
-      ? data
-      : data?.items ?? [];
-
-    return rawItems.map((wi) => {
+    return (rawItems as WishlistItem[]).map((wi) => {
       const p = wi.product;
-      const priceNum = typeof p?.price === "string" ? Number(p.price) : p?.price;
-      const images = p?.gallery?.length ? p.gallery : p?.image ? [p.image] : ["/product/rim.png"];
+      const rawPrice = p?.price ?? p?.base_price;
+      const priceNum = typeof rawPrice === "string" ? Number(rawPrice) : rawPrice;
+      const images = p?.gallery?.length ? p.gallery : p?.image ? [p.image] : ["/placeholder.svg"];
       return {
-        id: wi.id,
+        id: wi.id, // This is the Wishlist Item ID needed for delete
         name: p?.name ?? `Product #${wi.productId}`,
         price: priceNum,
         images,
@@ -57,19 +44,10 @@ export default function WishlistPage() {
         isHighValue: false,
       } as UiWishlistItem;
     });
-  }, [data]);
-
-  const { mutate: deleteItem, isPending: isRemoving } = useMutation({
-    mutationFn: async (itemId: number) => removeWishlistItem(itemId),
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["wishlist"] });
-    },
-  });
+  }, [rawItems]);
 
   const handleEmptyWishlist = async () => {
-    const rawItems: WishlistItem[] = Array.isArray(data) ? data : data?.items ?? [];
-    await Promise.allSettled(rawItems.map((wi) => removeWishlistItem(wi.id)));
-    queryClient.invalidateQueries({ queryKey: ["wishlist"] });
+    await Promise.allSettled((rawItems as WishlistItem[]).map((wi) => removeItem(wi.id)));
   };
 
   const handlePrevImage = (itemId: number, totalImages: number) => {
@@ -99,10 +77,7 @@ export default function WishlistPage() {
         </div>
         {items.length > 0 && (
           <div className="flex items-center gap-2">
-            <button className="flex items-center gap-1.5 px-3 py-2 border border-[#C2B280] text-[#666] text-xs hover:bg-[#F0EBE3] transition-colors">
-              <Image src="/order/wishlist7.svg" alt="Share" width={14} height={14} />
-              Share
-            </button>
+
             <button
               onClick={handleEmptyWishlist}
               className="flex items-center gap-1.5 px-3 py-2 border border-[#C2B280] text-[#666] text-xs hover:bg-[#F0EBE3] transition-colors"
@@ -122,10 +97,7 @@ export default function WishlistPage() {
         <div className="flex items-center gap-3">
           {items.length > 0 && (
             <>
-              <button className="flex items-center gap-2 px-4 py-2.5 border border-[#C2B280] text-[#666] text-sm hover:bg-[#F0EBE3] transition-colors">
-                <Image src="/order/wishlist8.svg" alt="Share" width={16} height={16} />
-                Share
-              </button>
+
               <button
                 onClick={handleEmptyWishlist}
                 className="flex items-center gap-2 px-4 py-2.5 border border-[#C2B280] text-[#666] text-sm hover:bg-[#F0EBE3] transition-colors"
@@ -135,9 +107,9 @@ export default function WishlistPage() {
               </button>
             </>
           )}
-          <a href="/supplier">
+          <a href="/products">
             <div className="bg-[#39482C] hover:bg-[#2D3A1A] text-white clip-path-supplier flex items-center justify-center px-6 h-[42px]">
-              <span className="font-bold text-[12px] font-orbitron uppercase tracking-wide">Create New Wishlist</span>
+              <span className="font-bold text-[12px] font-orbitron uppercase tracking-wide">Browse Products</span>
             </div>
           </a>
         </div>
@@ -209,7 +181,7 @@ export default function WishlistPage() {
                           alt={`${item.name} - Image ${idx + 1}`}
                           width={280}
                           height={280}
-                          className="max-w-full max-h-full object-contain"
+                          className="w-full h-full object-cover"
                         />
                       </div>
                     ))}
@@ -226,7 +198,7 @@ export default function WishlistPage() {
 
               </div>
               <div className="px-4">
-                <div className="relative w-full h-0.5 bg-[#E8E3D9] ">
+                <div className="relative w-full h-0.5 bg-[#E8E3D6] ">
                   <div
                     className="absolute top-0 left-0 h-full bg-[#C2B280] transition-all duration-300"
                     style={{
@@ -243,12 +215,12 @@ export default function WishlistPage() {
 
 
                 {/* Product Name */}
-                <h3 className="font-inter text-sm font-medium text-black mb-2 line-clamp-2 min-h-[40px]">
+                <h3 className="font-inter text-sm font-medium text-black mb-0 leading-[1.25] line-clamp-2">
                   {item.name}
                 </h3>
 
                 {/* Rating */}
-                <div className="flex items-center gap-1 mb-3">
+                <div className="flex items-center gap-1 mb-1">
                   <span className="text-sm text-black">{item.rating}</span>
                   <Star size={14} className="fill-[#F5A623] text-[#F5A623]" />
                   {item.reviews && <span className="text-xs text-[#999]">({item.reviews})</span>}
@@ -290,7 +262,7 @@ export default function WishlistPage() {
                     </button>
                   )}
                   <button
-                    onClick={() => deleteItem(item.id)}
+                    onClick={() => removeItem(item.id)}
                     className="flex items-center gap-1 text-[#666] hover:text-[#E74C3C] text-xs transition-colors underline"
                   >
                     <Trash2 size={14} />

@@ -62,12 +62,12 @@ export default function ProductDetailsPage() {
 
       try {
         const data: any = await api.products.getById(productId);
-        console.log("Fetched Product Data:", data); // DEBUG
+
         if (!active) return;
         
         // Unwrap if necessary (safety check)
         const productData = data.data || data; 
-        console.log("Unwrapped Product Data:", productData); // DEBUG
+
 
         const gallery = Array.isArray(productData.gallery)
           ? productData.gallery
@@ -108,12 +108,12 @@ export default function ProductDetailsPage() {
         });
 
         // 1.1 Fetch Similar Products if category exists
-        console.log("Checking Category for Similar items:", productData.category); // DEBUG
+
         if (productData.category?.id) {
-          console.log("Fetching similar items for category:", productData.category.id); // DEBUG
+
           try {
             const similar = await api.products.getRelated(productData.category.id);
-            console.log("Similar items fetched:", similar); // DEBUG
+
             // Filter out current product
             const filtered = similar.filter((p: any) => p.id !== productData.id).map((item: any) => ({
                  id: item.id,

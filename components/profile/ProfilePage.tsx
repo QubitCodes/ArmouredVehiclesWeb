@@ -107,13 +107,7 @@ export default function ProfilePage() {
     }
 
     // Handle profile update
-    console.log("Profile updated:", {
-      email,
-      phoneCountryCode,
-      phoneNumber,
-      fullName,
-   
-    });
+
 
     // Show success message or redirect
     alert("Profile updated successfully!");

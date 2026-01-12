@@ -139,7 +139,7 @@ export default function BuyerInfo({ onNext }: Props) {
   const handleSubmitStep0 = async () => {
     setSubmitError(null);
     // Basic validation for required fields
-    console.log("Submitting:", { typeOfBuyer, companyName, country, companyEmail, companyPhone, companyPhoneCountryCode });
+
     if (!typeOfBuyer || !companyName || !country || !companyEmail || !companyPhone || !companyPhoneCountryCode) {
       setSubmitError("Please complete all required fields.");
       return;

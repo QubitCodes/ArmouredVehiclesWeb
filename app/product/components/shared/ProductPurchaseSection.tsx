@@ -13,6 +13,8 @@ import ShippingSection from "./shipping/ShippingSection";
 
 
 
+import { useWishlist } from "@/hooks/use-wishlist";
+
 type Props = {
     quantity: number;
     setQuantity: (qty: number) => void;
@@ -21,6 +23,7 @@ type Props = {
     currency?: string | null;
     condition?: string | null;
     stock?: number | null;
+    productId?: string | number;
     onAddToCart?: () => void;
 };
 
@@ -32,12 +35,15 @@ export default function ProductPurchaseSection({
     currency,
     condition,
     stock,
+    productId,
     onAddToCart,
 }: Props) {
     const displayPrice = price != null && price !== '' ? String(price) : undefined;
     const router = useRouter();
     const { isAuthenticated, isLoading } = useAuth();
-
+    
+    const { isInWishlist, toggleWishlist } = useWishlist();
+    const isLiked = isInWishlist(productId);
 
     function getDeliveryRange(minDays: number, maxDays: number) {
         const start = new Date();
@@ -231,7 +237,7 @@ export default function ProductPurchaseSection({
             <div className="flex flex-col gap-3 md:grid md:grid-cols-3 md:gap-4">
 
                 {/* BUY IT NOW */}
-                <button
+                {/* <button
                     onClick={() => {
                         if (!isAuthenticated) {
                             router.push(`/login?redirect=/checkout`);
@@ -240,14 +246,12 @@ export default function ProductPurchaseSection({
 
                         // TODO: continue Buy It Now flow (checkout / direct purchase)
                     }}
-                    className="w-full h-11 bg-[#D35400] clip-path-supplier
-    flex items-center justify-center
-    hover:bg-[#A84300] transition-colors"
+                    className="w-full h-11 bg-[#D35400] clip-path-supplier flex items-center justify-center hover:bg-[#A84300] transition-colors"
                 >
                     <span className="font-orbitron font-black text-[16px] uppercase text-white">
                         Buy It Now
                     </span>
-                </button>
+                </button> */}
 
                 {/* ADD TO CART */}
                 <button
@@ -262,7 +266,12 @@ export default function ProductPurchaseSection({
                 </button>
 
                 {/* ADD TO WISHLIST */}
-                <button className="relative w-full h-11 bg-transparent">
+                <button 
+                  className="relative w-full h-11 bg-transparent"
+                  onClick={async () => {
+                    await toggleWishlist(productId);
+                  }}
+                >
 
                     {/* BORDER */}
                     <span
@@ -282,8 +291,8 @@ export default function ProductPurchaseSection({
                  h-full w-full font-orbitron font-black
                  text-[14px] uppercase text-[#3D4A26]"
                     >
-                        <Heart size={16} strokeWidth={2} />
-                        Add To Wishlist
+                        <Heart size={16} strokeWidth={2} className={isLiked ? "fill-[#3D4A26] text-[#3D4A26]" : ""} />
+                        {isLiked ? "Saved" : "Add To Wishlist"}
                     </span>
 
                 </button>

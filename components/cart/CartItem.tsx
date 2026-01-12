@@ -80,7 +80,7 @@ export default function CartItem({ data, updateQty, removeItem }: any) {
         </div>
 
         {/* Price + Qty */}
-        <div className="order-3 sm:order-0 mt-3 sm:mt-0 text-center sm:text-right flex flex-col items-center sm:items-end">
+        <div className="hidden lg:flex order-3 sm:order-0 mt-3 sm:mt-0 text-center sm:text-right flex-col items-center sm:items-end">
           <div className="font-extrabold flex items-center justify-end gap-2 text-xl text-[#1A1A1A]">
             <svg width="17" height="15" viewBox="0 0 17 15" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
               <g clipPath="url(#clip0_260_315)">

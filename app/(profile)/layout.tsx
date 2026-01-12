@@ -1,6 +1,7 @@
 "use client";
 
 import ProfileSidebar from "@/components/layout/ProfileSidebar";
+import ProtectedRoute from "@/components/auth/ProtectedRoute";
 
 export default function ProfileLayout({
   children,
@@ -8,6 +9,7 @@ export default function ProfileLayout({
   children: React.ReactNode;
 }) {
   return (
+    <ProtectedRoute redirectTo="/">
     <div className="min-h-screen bg-[#F0EBE3]">
       <div className="container-figma py-10">
         {/* Mobile Layout: Stack vertically */}
@@ -31,5 +33,6 @@ export default function ProfileLayout({
         </div>
       </div>
     </div>
+    </ProtectedRoute>
   );
 }

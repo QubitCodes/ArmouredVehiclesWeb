@@ -41,8 +41,7 @@ export default function CheckoutPage() {
       try {
         const token = getAccessToken();
         if (!token) return;
-        const res = await getAddresses();
-        const list = res.data as Address[];
+        const list = await getAddresses();
         let selId: number | null = null;
         try {
           if (typeof window !== "undefined") {

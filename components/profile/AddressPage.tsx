@@ -20,7 +20,7 @@ export default function AddressPage() {
     const loadAddresses = async () => {
       try {
         const res = await getAddresses();
-        setAddresses(res.data);
+        setAddresses(res);
       } catch (err) {
         console.error("Failed to fetch addresses", err);
       } finally {

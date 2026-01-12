@@ -11,8 +11,7 @@ async function findServerCartItemId(productId: number) {
 }
 
 export async function syncAddToServer(productId: number, quantity: number) {
-  const token = getAccessToken();
-  if (!token) return; // Not logged in: local-only
+  // if (!token) return; // Allow guests to sync via session ID
   try {
     await api.cart.add(productId, quantity);
   } catch (e) {
@@ -22,8 +21,7 @@ export async function syncAddToServer(productId: number, quantity: number) {
 }
 
 export async function syncUpdateQtyToServer(productId: number, quantity: number) {
-  const token = getAccessToken();
-  if (!token) return;
+  // if (!token) return;
   try {
     const cartItemId = await findServerCartItemId(productId);
     if (cartItemId) {
@@ -38,8 +36,7 @@ export async function syncUpdateQtyToServer(productId: number, quantity: number)
 }
 
 export async function syncRemoveFromServer(productId: number) {
-  const token = getAccessToken();
-  if (!token) return;
+  // if (!token) return;
   try {
     const cartItemId = await findServerCartItemId(productId);
     if (cartItemId) await api.cart.remove(cartItemId);
@@ -49,8 +46,7 @@ export async function syncRemoveFromServer(productId: number) {
 }
 
 export async function hydrateCartFromServer() {
-  const token = getAccessToken();
-  if (!token) return; // Not logged in
+  // if (!token) return;
   try {
     const serverItems = await api.cart.get();
     const mapped: CartItemLocal[] = (serverItems || []).map((ci: any) => ({
@@ -73,8 +69,7 @@ export async function hydrateCartFromServer() {
 }
 
 export async function pushLocalCartToServer() {
-  const token = getAccessToken();
-  if (!token) return;
+  // if (!token) return;
   try {
     const items = useCartStore.getState().items;
     for (const i of items) {

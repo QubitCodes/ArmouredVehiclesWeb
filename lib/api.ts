@@ -140,11 +140,16 @@ async function fetchJson<T>(endpoint: string, options: RequestInit = {}, retry =
   }
 
   const url = `${API_BASE}${endpoint}`;
+  const authHeaders = getAuthHeaders();
+  console.log(`[CHECKOUT DEBUG] CLIENT REQUEST: ${endpoint}`, {
+    token: (authHeaders as any).Authorization ? (authHeaders as any).Authorization.substring(0, 20) + '...' : 'NONE',
+    fullToken: (authHeaders as any).Authorization
+  });
   
   const headers: HeadersInit = {
     'Content-Type': 'application/json',
     'x-session-id': getSessionId(), // Always send session ID
-    ...getAuthHeaders(),
+    ...authHeaders,
     ...options.headers,
   };
 
@@ -333,50 +338,63 @@ export const api = {
       fetchJson<Review>(`/products/${productId}/reviews`, { method: 'POST', body: JSON.stringify(data) }),
   },
 
+  // --- Wishlist ---
+  wishlist: {
+    get: () => fetchJson<any>('/wishlist'), // Type as any for now or WishlistResponse
+    add: (productId: number) => 
+        fetchJson<any>('/wishlist/items', { method: 'POST', body: JSON.stringify({ productId }) }),
+    remove: (itemId: number) => 
+        fetchJson<{ success: boolean }>(`/wishlist/items/${itemId}`, { method: 'DELETE' }),
+  },
+
   // --- Cart ---
   cart: {
     get: () => fetchJson<CartItem[]>('/cart'),
     add: (productId: number, quantity = 1) =>
-      fetchJson<CartItem>('/cart', { method: 'POST', body: JSON.stringify({ productId, quantity }) }),
+      fetchJson<CartItem>('/cart/items', { method: 'POST', body: JSON.stringify({ productId, quantity }) }),
     update: (id: number, quantity: number) =>
-      fetchJson<CartItem>(`/cart/${id}`, { method: 'PATCH', body: JSON.stringify({ quantity }) }),
+      fetchJson<CartItem>(`/cart/items/${id}`, { method: 'PUT', body: JSON.stringify({ quantity }) }),
     // Updated to use fetchJson for consistency
-    remove: (id: number) => fetchJson<{ success: boolean }>(`/cart/${id}`, { method: 'DELETE' }),
+    remove: (id: number) => fetchJson<{ success: boolean }>(`/cart/items/${id}`, { method: 'DELETE' }),
+    merge: () => fetchJson<{ message: string }>('/cart/merge', { method: 'POST' }),
   },
 
   // --- Checkout ---
   checkout: {
-    createSession: () => fetchJson<{ url?: string; testMode?: boolean; orderId?: string; error?: string }>('/checkout/create-session', { method: 'POST' }),
+    createSession: () => fetchJson<{ url?: string; testMode?: boolean; orderId?: string; error?: string; requiresApproval?: boolean; type?: string; paymentUrl?: string }>('/checkout/create', { method: 'POST' }),
   },
 
   // --- Orders ---
   orders: {
-    getAll: () => fetchJson<Order[]>('/orders'),
-    getById: (id: string) => fetchJson<Order>(`/orders/${id}`),
+    getAll: () => fetchJson<Order[]>('/profile/orders'),
+    getById: (id: string) => fetchJson<Order>(`/profile/orders/${id}`),
     create: (items: any[]) => fetchJson<Order>('/orders', { method: 'POST', body: JSON.stringify({ items }) }),
   },
 
   // --- Refunds ---
   refunds: {
-    getAll: () => fetchJson<Refund[]>('/refunds'),
-    getById: (id: string) => fetchJson<Refund>(`/refunds/${id}`),
+    getAll: () => fetchJson<Refund[]>('/profile/refunds'),
+    getById: (id: string) => fetchJson<Refund>(`/profile/refunds/${id}`),
   },
 
   // --- Addresses ---
   addresses: {
-    getAll: () => fetchJson<Address[]>('/addresses'),
-    create: (data: any) => fetchJson<Address>('/addresses', { method: 'POST', body: JSON.stringify(data) }),
-    update: (id: number, data: any) => fetchJson<Address>(`/addresses/${id}`, { method: 'PUT', body: JSON.stringify(data) }),
-    delete: (id: number) => fetchJson<{ success: boolean }>(`/addresses/${id}`, { method: 'DELETE' }),
-    setDefault: (id: number) => fetchJson<{ success: boolean }>(`/addresses/${id}/default`, { method: 'POST' }),
+    getAll: async () => {
+        const res = await fetchJson<any>('/profile/addresses');
+        return res?.data?.addresses || res?.addresses || [];
+    },
+    create: (data: any) => fetchJson<Address>('/profile/addresses', { method: 'POST', body: JSON.stringify(data) }),
+    update: (id: number, data: any) => fetchJson<Address>(`/profile/addresses/${id}`, { method: 'PUT', body: JSON.stringify(data) }),
+    delete: (id: number) => fetchJson<{ success: boolean }>(`/profile/addresses/${id}`, { method: 'DELETE' }),
+    setDefault: (id: number) => fetchJson<{ success: boolean }>(`/profile/addresses/${id}/default`, { method: 'POST' }),
   },
 
   // --- Payments ---
   payments: {
-    getAll: () => fetchJson<SavedPaymentMethod[]>('/payments'),
-    create: (data: any) => fetchJson<SavedPaymentMethod>('/payments', { method: 'POST', body: JSON.stringify(data) }),
-    delete: (id: number) => fetchJson<{ success: boolean }>(`/payments/${id}`, { method: 'DELETE' }),
-    setDefault: (id: number) => fetchJson<{ success: boolean }>(`/payments/${id}/default`, { method: 'POST' }),
+    getAll: () => fetchJson<SavedPaymentMethod[]>('/profile/payments'),
+    create: (data: any) => fetchJson<SavedPaymentMethod>('/profile/payments', { method: 'POST', body: JSON.stringify(data) }),
+    delete: (id: number) => fetchJson<{ success: boolean }>(`/profile/payments/${id}`, { method: 'DELETE' }),
+    setDefault: (id: number) => fetchJson<{ success: boolean }>(`/profile/payments/${id}/default`, { method: 'POST' }),
   },
 
   // --- Filters ---

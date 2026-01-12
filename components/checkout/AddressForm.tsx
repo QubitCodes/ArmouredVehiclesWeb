@@ -1,24 +1,40 @@
 "use client";
 
 import { useState } from "react";
-import { createAddress } from "@/app/services/address";
+import { createAddress, updateAddress } from "@/app/services/address";
 import { Address } from "@/lib/types";
 
-type NewAddress = Omit<Address, "id" | "userId" | "createdAt" | "isVerified">;
+type NewAddress = Omit<Address, "id" | "userId" | "isVerified" | "createdAt">;
 
-export default function AddressForm({ onCreated, onCancel }: { onCreated: (addr: Address) => void; onCancel?: () => void }) {
+export default function AddressForm({ 
+  onCreated, 
+  onCancel, 
+  initialData, 
+  formId, 
+  hideActions, 
+  onSubmitting,
+  className
+}: { 
+  onCreated: (addr: Address) => void; 
+  onCancel?: () => void; 
+  initialData?: Address;
+  formId?: string;
+  hideActions?: boolean;
+  onSubmitting?: (loading: boolean) => void;
+  className?: string;
+}) {
   const [form, setForm] = useState<NewAddress>({
-    label: "",
-    addressType: "home",
-    fullName: "",
-    phone: "",
-    addressLine1: "",
-    addressLine2: "",
-    city: "",
-    state: "",
-    postalCode: "",
-    country: "United Arab Emirates",
-    isDefault: false,
+    label: initialData?.label || "",
+    addressType: initialData?.addressType || "home",
+    fullName: initialData?.fullName || "",
+    phone: initialData?.phone || "",
+    addressLine1: initialData?.addressLine1 || "",
+    addressLine2: initialData?.addressLine2 || "",
+    city: initialData?.city || "",
+    state: initialData?.state || "",
+    postalCode: initialData?.postalCode || "",
+    country: initialData?.country || "United Arab Emirates",
+    isDefault: initialData?.isDefault || false,
   });
 
   const [submitting, setSubmitting] = useState(false);
@@ -32,18 +48,27 @@ export default function AddressForm({ onCreated, onCancel }: { onCreated: (addr:
     e.preventDefault();
     setError(null);
     setSubmitting(true);
+    onSubmitting?.(true);
     try {
-      const res = await createAddress(form);
-      onCreated(res.data as Address);
+      let resAddress: Address;
+      if (initialData?.id) {
+         await updateAddress(initialData.id, form);
+         // Manually merge since update might not return full object or we want to reflect local changes immediately
+         resAddress = { ...initialData, ...form } as Address;
+      } else {
+         resAddress = await createAddress(form);
+      }
+      onCreated(resAddress);
     } catch (err: any) {
-      setError(err?.response?.data?.message || "Failed to create address");
+      setError(err?.response?.data?.message || "Failed to save address");
     } finally {
       setSubmitting(false);
+      onSubmitting?.(false);
     }
   };
 
   return (
-    <form onSubmit={handleSubmit} className="p-4 bg-white border border-[#E2DACB] space-y-3">
+    <form id={formId} onSubmit={handleSubmit} className={className || "p-4 bg-white border border-[#E2DACB] space-y-3"}>
       {error && <p className="text-[#D35400] text-sm">{error}</p>}
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
@@ -171,20 +196,22 @@ export default function AddressForm({ onCreated, onCancel }: { onCreated: (addr:
         <span className="text-sm text-black">Set as default</span>
       </div>
 
-      <div className="flex justify-end gap-3">
-        {onCancel && (
-          <button type="button" onClick={onCancel} className="px-4 py-2 bg-[#C8C0A8] text-black font-semibold">
-            Cancel
+      {!hideActions && (
+        <div className="flex justify-end gap-3">
+          {onCancel && (
+            <button type="button" onClick={onCancel} className="px-4 py-2 bg-[#C8C0A8] text-black font-semibold">
+              Cancel
+            </button>
+          )}
+          <button
+            type="submit"
+            disabled={submitting}
+            className="px-6 py-2 bg-[#D34D24] text-white font-orbitron font-bold uppercase"
+          >
+            {submitting ? "Saving..." : "Save Address"}
           </button>
-        )}
-        <button
-          type="submit"
-          disabled={submitting}
-          className="px-6 py-2 bg-[#D34D24] text-white font-orbitron font-bold uppercase"
-        >
-          {submitting ? "Saving..." : "Save Address"}
-        </button>
-      </div>
+        </div>
+      )}
     </form>
   );
 }
