@@ -47,6 +47,7 @@ export const verifyOtpLogin = (identifier: string, code: string) => {
 
 // OTP Registration Flow (Customer)
 export const startOtpRegister = (payload: {
+  identifier?: string;
   email: string;
   username: string;
   name: string;
@@ -80,7 +81,7 @@ export const verifyPhoneOtp = (payload: {
   code: string;
   firebaseUid?: string;
 }) => {
-  return API.post("/auth/otp/verify-phone", payload);
+  return API.post("/auth/otp/phone/register/verify", payload);
 };
 
 export const resendPhoneOtp = (payload: {

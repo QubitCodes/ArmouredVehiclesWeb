@@ -36,12 +36,14 @@
 }
 
 @layer utilities {
+
   /* Figma container – 140px margin on each side at 1728px */
   .container-figma {
     margin-left: auto;
     margin-right: auto;
     max-width: 100%;
-    padding-left: 1rem; /* responsive fallback */
+    padding-left: 1rem;
+    /* responsive fallback */
     padding-right: 1rem;
   }
 
@@ -56,7 +58,7 @@
   .scrollbar-hide::-webkit-scrollbar {
     display: none;
   }
-  
+
   .scrollbar-hide {
     -ms-overflow-style: none;
     scrollbar-width: none;
@@ -69,7 +71,8 @@
 
 
 /* Apply background to html and body and ensure full height so background covers the viewport */
-html, body {
+html,
+body {
   background-color: var(--background);
   min-height: 100%;
 }
@@ -83,22 +86,27 @@ body {
 .clip-path-supplier {
   clip-path: polygon(8% 0, 92% 0, 100% 50%, 92% 100%, 8% 100%, 0% 50%);
 }
+
 .clip-path-supplier-refund {
   clip-path: polygon(3% 0, 97% 0, 100% 50%, 97% 100%, 3% 100%, 0% 50%);
 }
+
 /* Search input placeholder styling to match design specs */
 .search-input::placeholder {
   /* Requested font and typographic settings */
   font-family: Inter, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, "Noto Sans", "Liberation Sans", sans-serif;
   font-weight: 400;
-  font-style: normal; /* 'Regular' maps to normal */
+  font-style: normal;
+  /* 'Regular' maps to normal */
   font-size: 14px;
   line-height: 100%;
   /* leading-trim is not supported universally but include as requested */
   leading-trim: cap-height;
   letter-spacing: 0%;
-  color: #000000; /* ensure placeholder is black */
-  opacity: 1; /* override browsers that apply lower opacity to placeholders */
+  color: #000000;
+  /* ensure placeholder is black */
+  opacity: 1;
+  /* override browsers that apply lower opacity to placeholders */
 }
 
 /* Fallback for WebKit browsers if needed */
@@ -113,6 +121,7 @@ body {
     opacity: 0;
     transform: translateY(20px);
   }
+
   to {
     opacity: 1;
     transform: translateY(0);
@@ -150,17 +159,19 @@ body {
 
 /* Hide scrollbar utility */
 .scrollbar-hide {
-  -ms-overflow-style: none;  /* IE and Edge */
-  scrollbar-width: none;  /* Firefox */
+  -ms-overflow-style: none;
+  /* IE and Edge */
+  scrollbar-width: none;
+  /* Firefox */
 }
 
 .scrollbar-hide::-webkit-scrollbar {
-  display: none;  /* Chrome, Safari and Opera */
+  display: none;
+  /* Chrome, Safari and Opera */
 }
 
 .filter-orange {
-  filter: invert(41%) sepia(91%) saturate(694%) hue-rotate(357deg)
-    brightness(96%) contrast(95%);
+  filter: invert(41%) sepia(91%) saturate(694%) hue-rotate(357deg) brightness(96%) contrast(95%);
 }
 
 
@@ -223,11 +234,7 @@ body {
 }
 
 .input {
-  @apply w-full h-[40px] px-3
-         bg-[#EFE8DC]
-         border border-[#C7B88A]
-         text-sm text-black
-         focus:outline-none;
+  @apply w-full h-[40px] px-3 bg-[#EFE8DC] border border-[#C7B88A] text-sm text-black focus:outline-none;
 }
 
 /* ===== Cart Styles ===== */
@@ -241,4 +248,35 @@ body {
     clip-path: polygon(30px 0, calc(100% - 30px) 0, 100% 50%, calc(100% - 30px) 100%, 30px 100%, 0 50%);
     border-radius: 0;
   }
+}
+
+/* React Phone Input 2 Overrides */
+.react-tel-input .flag-dropdown:hover,
+.react-tel-input .selected-flag:hover,
+.react-tel-input .encoded-flag:hover {
+  background-color: #F3EDE3 !important;
+}
+
+.react-tel-input .flag-dropdown.open,
+.react-tel-input .selected-flag.open,
+.react-tel-input .encoded-flag.open {
+  background-color: #E5DDD1 !important;
+}
+
+.react-tel-input .country-list,
+.react-tel-input .country-list .search {
+  background-color: #F3EDE3 !important;
+}
+
+.react-tel-input .country-list .country:hover {
+  background-color: #E5DDD1 !important;
+}
+
+.react-tel-input .country-list .country.highlight {
+  background-color: #E5DDD1 !important;
+}
+
+.react-tel-input .country-list li.country {
+  padding: 7px 12px !important;
+  text-align: left !important;
 }

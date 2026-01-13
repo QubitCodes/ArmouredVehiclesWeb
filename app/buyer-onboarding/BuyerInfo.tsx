@@ -4,6 +4,8 @@ import Image from "next/image";
 import Stepper from "./Stepper";
 import { useEffect, useState, useRef } from "react";
 import API from "../services/api";
+import PhoneInput from 'react-phone-input-2';
+import 'react-phone-input-2/lib/style.css';
 
 type BuyerTypeOption = {
   value: string;
@@ -17,9 +19,10 @@ type CountryOption = {
 
 type Props = {
   onNext: () => void;
+  initialData?: any;
 };
 
-export default function BuyerInfo({ onNext }: Props) {
+export default function BuyerInfo({ onNext, initialData }: Props) {
   const [buyerTypes, setBuyerTypes] = useState<BuyerTypeOption[]>([]);
   const [buyerTypesLoading, setBuyerTypesLoading] = useState<boolean>(false);
   const [buyerTypesError, setBuyerTypesError] = useState<string | null>(null);
@@ -39,14 +42,51 @@ export default function BuyerInfo({ onNext }: Props) {
   const [submitting, setSubmitting] = useState<boolean>(false);
   const [submitError, setSubmitError] = useState<string | null>(null);
 
+  // Pre-fill effect
+  useEffect(() => {
+    if (initialData) {
+        if (initialData.type_of_buyer) setTypeOfBuyer(initialData.type_of_buyer);
+        
+        // Fallback to user.name if company_name not set (though user.name might be person name, it's better than empty)
+        if (initialData.company_name) setCompanyName(initialData.company_name);
+        
+        if (initialData.country) setCountry(initialData.country);
+        
+        // Map user.email if company_email is missing
+        if (initialData.company_email) {
+            setCompanyEmail(initialData.company_email);
+        } else if (initialData.email) {
+            setCompanyEmail(initialData.email);
+        }
+        
+        // Map user.phone if company_phone is missing
+        if (initialData.company_phone) {
+             if (initialData.company_phone_country_code) {
+                  setCompanyPhoneCountryCode(initialData.company_phone_country_code);
+                  setCompanyPhone(initialData.company_phone); 
+             } else {
+                 setCompanyPhone(initialData.company_phone);
+             }
+        } else if (initialData.phone) {
+             // user.phone might include code or not. Assuming it does or we just put it in.
+             // user.countryCode might exist
+             if (initialData.countryCode) {
+                 setCompanyPhoneCountryCode(initialData.countryCode);
+             }
+             setCompanyPhone(initialData.phone);
+        }
+    }
+  }, [initialData]);
+
   useEffect(() => {
     let mounted = true;
     const fetchBuyerTypes = async () => {
       try {
         setBuyerTypesLoading(true);
         setBuyerTypesError(null);
-        const res = await API.get("/reference/type-of-buyer");
-        const data = res?.data;
+        const res = await API.get("/references/type-of-buyer");
+        // API returns { status: true, data: [...] }
+        const data = res?.data?.data;
 
         let options: BuyerTypeOption[] = [];
         if (Array.isArray(data)) {
@@ -70,8 +110,8 @@ export default function BuyerInfo({ onNext }: Props) {
 
         if (mounted) {
           setBuyerTypes(options);
-          // Preselect first option if none chosen
-          if (!typeOfBuyer && options.length > 0) {
+          // Preselect first option if none chosen AND not already set by initial data
+          if (!typeOfBuyer && options.length > 0 && !initialData?.type_of_buyer) {
             setTypeOfBuyer(options[0].value);
           }
         }
@@ -86,7 +126,7 @@ export default function BuyerInfo({ onNext }: Props) {
     return () => {
       mounted = false;
     };
-  }, []);
+  }, [initialData]);
 
     useEffect(() => {
       let mounted = true;
@@ -94,40 +134,32 @@ export default function BuyerInfo({ onNext }: Props) {
         try {
           setCountriesLoading(true);
           setCountriesError(null);
-          const res = await API.get("/reference/countries");
-          const data = res?.data;
+          
+          // Use external API for countries
+          const response = await fetch("https://restcountries.com/v3.1/all?fields=name,cca2,flag");
+          const data = await response.json();
 
-          let options: CountryOption[] = [];
-          if (Array.isArray(data)) {
-            options = data
-              .map((item: any): CountryOption | null => {
-                if (typeof item === "string") {
-                  return { value: item, label: item };
-                }
-                if (item && typeof item === "object") {
-                  const label = (item.name ?? item.label ?? item.country ?? "").toString();
-                  const valueRaw = (item.code ?? item.id ?? item.value ?? label);
-                  const value = valueRaw != null ? String(valueRaw) : label;
-                  if (label || value) {
-                    return { value, label: label || value };
-                  }
-                }
-                return null;
-              })
-              .filter(Boolean) as CountryOption[];
-          }
+          if (mounted && Array.isArray(data)) {
+             const options = data
+              .map((c: any) => ({
+                value: c.name.common, 
+                label: c.name.common,
+                flag: c.flag
+              }))
+              .sort((a: any, b: any) => a.label.localeCompare(b.label));
 
-          if (mounted) {
             setCountries(options);
-            // Preselect first country if none chosen
-            if (!country && options.length > 0) {
-              setCountry(options[0].value);
+            
+            // Preselect 'United Arab Emirates' or first option IF NOT PREFILLED
+            if (!country && options.length > 0 && !initialData?.country) {
+              const ae = options.find((o: any) => o.value === 'United Arab Emirates');
+              setCountry(ae ? ae.value : options[0].value);
             }
           }
         } catch (err: any) {
-          if (mounted) setCountriesError(err?.message ?? "Failed to load countries");
+             if (mounted) setCountriesError(err?.message ?? "Failed to load countries");
         } finally {
-          if (mounted) setCountriesLoading(false);
+             if (mounted) setCountriesLoading(false);
         }
       };
 
@@ -135,7 +167,7 @@ export default function BuyerInfo({ onNext }: Props) {
       return () => {
         mounted = false;
       };
-    }, []);
+    }, [initialData]);
   const handleSubmitStep0 = async () => {
     setSubmitError(null);
     // Basic validation for required fields
@@ -146,15 +178,26 @@ export default function BuyerInfo({ onNext }: Props) {
     }
     try {
       setSubmitting(true);
+      // Prepare split phone number
+      let dialCode = companyPhoneCountryCode ? companyPhoneCountryCode.replace('+', '') : '';
+      let fullPhone = companyPhone.replace('+', '');
+      let localPhone = fullPhone;
+
+      if (dialCode && fullPhone.startsWith(dialCode)) {
+          localPhone = fullPhone.substring(dialCode.length);
+      }
+      localPhone = localPhone.replace(/^0+/, '');
+
       const payload = {
-        country,
-        companyName,
-        companyEmail,
-        companyPhone,
-        companyPhoneCountryCode,
-        typeOfBuyer,
+          country,
+          companyName,
+          companyEmail,
+          typeOfBuyer,
+          companyPhone: localPhone,
+          companyPhoneCountryCode: dialCode ? `+${dialCode}` : '+1', // Default or from input
       };
-      await API.post("/vendor/onboarding/step0", payload);
+
+      await API.post("/onboarding/step0", payload);
       onNext();
     } catch (err: any) {
       const message = err?.response?.data?.message || err?.message || "Failed to submit";
@@ -261,25 +304,50 @@ export default function BuyerInfo({ onNext }: Props) {
             </div>
 
             {/* Company Phone */}
-            <div className="grid grid-cols-3 gap-2">
-              <div className="col-span-1">
-                <label className="font-semibold mb-1 block">Country Code:</label>
-                <input
-                  type="text"
-                  value={companyPhoneCountryCode}
-                  onChange={(e) => setCompanyPhoneCountryCode(e.target.value)}
-                  className="w-full border border-[#C7B88A] bg-transparent px-3 py-2 focus:outline-none"
-                />
-              </div>
-              <div className="col-span-2">
-                <label className="font-semibold mb-1 block">Company Phone:</label>
-                <input
-                  type="tel"
-                  value={companyPhone}
-                  onChange={(e) => setCompanyPhone(e.target.value)}
-                  className="w-full border border-[#C7B88A] bg-transparent px-3 py-2 focus:outline-none"
-                />
-              </div>
+            <div className="col-span-1 md:col-span-1">
+                 <label className="font-semibold mb-1 block">Company Phone:</label>
+                 <PhoneInput
+                    country={'ae'}
+                    value={companyPhone}
+                    onChange={(phone, data: any) => {
+                      setCompanyPhone(`+${phone}`);
+                      setCompanyPhoneCountryCode(data.dialCode); 
+                    }}
+                    enableSearch={true}
+                    disableSearchIcon={true}
+                    searchPlaceholder="Search Country..."
+                    searchStyle={{
+                        width: '94%',
+                        height: '36px',
+                        margin: '4px auto',
+                        backgroundColor: '#F3EDE3',
+                        border: '1px solid #C7B88A',
+                        borderRadius: '2px',
+                        padding: '8px',
+                        color: 'black'
+                    }}
+                    inputStyle={{
+                        width: '100%',
+                        height: '42px',
+                        backgroundColor: '#F3EDE3',
+                        border: '1px solid #C7B88A',
+                        color: '#000000',
+                        fontFamily: 'inherit',
+                        paddingLeft: '65px'
+                    }}
+                    buttonStyle={{
+                        border: '1px solid #C7B88A',
+                        backgroundColor: '#C7B88A',
+                        // width: '70px',
+                        justifyContent: 'flex-start',
+                        padding: '8px'
+                    }}
+                    dropdownStyle={{
+                        backgroundColor: '#F3EDE3',
+                        color: 'black',
+                        width: '300px'
+                    }}
+                 />
             </div>
 
             {/* Year */}

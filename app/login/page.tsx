@@ -140,8 +140,17 @@ function LoginForm() {
             // Merge guest cart
             // await api.cart.merge();
             
+            // Redirection Logic
             const redirect = searchParams.get('redirect');
-            if (redirect) {
+            
+            // Check for incomplete onboarding
+            // Note: user object from API now includes onboardingStep
+            const onboardingStep = (user as any).onboardingStep;
+            
+            if (onboardingStep && onboardingStep > 0) {
+                 // Force redirect to onboarding if step is tracked (and not 0/null which implies done)
+                 router.push('/buyer-onboarding');
+            } else if (redirect) {
                 router.push(redirect);
             } else {
                 router.push('/');

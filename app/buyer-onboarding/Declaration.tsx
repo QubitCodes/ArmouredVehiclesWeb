@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useState, useRef } from "react";
+import { useMemo, useState, useRef, useEffect } from "react";
 import API from "@/app/services/api";
 
 type Country = {
@@ -22,7 +22,7 @@ const ALL_COUNTRIES: Country[] = [
   { name: "United States", code: "US", flag: "/icons/flags/usa.png" },
 ];
 
-export default function Declaration({ onNext, onPrev }: { onNext: () => void; onPrev: () => void }) {
+export default function Declaration({ onNext, onPrev, initialData }: { onNext: () => void; onPrev: () => void; initialData?: any }) {
   const [search, setSearch] = useState("");
   const [selected, setSelected] = useState<Country[]>([
     { name: "United Arab Emirates (UAE)", code: "AE", flag: "/icons/flags/uae.svg" },
@@ -40,6 +40,32 @@ export default function Declaration({ onNext, onPrev }: { onNext: () => void; on
 
   const [error, setError] = useState<string | null>(null);
   const [submitting, setSubmitting] = useState(false);
+
+  // Pre-fill effect
+  useEffect(() => {
+    if (initialData) {
+        if (initialData.procurement_purpose) setProcurementPurpose(initialData.procurement_purpose);
+        if (initialData.end_user_type) setEndUserType(initialData.end_user_type);
+        if (initialData.controlled_dual_use_items) {
+             setControlledDualUseItems(initialData.controlled_dual_use_items); // string match "Yes"/"No" or boolean?
+             // Backend stores as string usually if mapped from frontend "Yes"/"No". 
+             // If boolean, map it.
+             if (initialData.controlled_dual_use_items === true) setControlledDualUseItems("Yes");
+             else if (initialData.controlled_dual_use_items === false) setControlledDualUseItems("No");
+             else setControlledDualUseItems(initialData.controlled_dual_use_items as "Yes" | "No");
+        }
+        
+        if (initialData.compliance_terms_accepted) setAgreed(true);
+
+        if (initialData.end_use_markets && Array.isArray(initialData.end_use_markets)) {
+             // Map strings to Country objects
+             const mapped = initialData.end_use_markets.map((name: string) => {
+                 return ALL_COUNTRIES.find(c => c.name === name);
+             }).filter(Boolean) as Country[];
+             if (mapped.length > 0) setSelected(mapped);
+        }
+    }
+  }, [initialData]);
 
   const filteredCountries = useMemo(() => {
     const term = search.trim().toLowerCase();
@@ -99,7 +125,7 @@ export default function Declaration({ onNext, onPrev }: { onNext: () => void; on
       formData.append("isOnSanctionsList", "false");
       formData.append("complianceTermsAccepted", "true");
 
-      await API.post("/vendor/onboarding/step3", formData, {
+      await API.post("/onboarding/step3", formData, {
         headers: { "Content-Type": "multipart/form-data" },
       });
 

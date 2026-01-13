@@ -1,6 +1,7 @@
 'use client';
 
 import React, { createContext, useContext, useState, useEffect, useCallback, ReactNode } from 'react';
+import { usePathname, useRouter } from 'next/navigation';
 import { api, getStoredUser, clearTokens, getAccessToken } from './api';
 import type { User } from './types';
 
@@ -16,9 +17,25 @@ interface AuthContextType {
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
+// Routes that can be accessed without auth or during restricted onboarding
+const PUBLIC_ROUTES = [
+    '/login', 
+    '/register', 
+    '/otp-login', 
+    '/verify-email', 
+    '/verify-phone', 
+    '/', 
+    '/contact', 
+    '/privacy-policy',
+    '/product', // allow viewing products?
+    '/products'
+];
+
 export function AuthProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<User | null>(null);
   const [isLoading, setIsLoading] = useState(true);
+  const pathname = usePathname();
+  const router = useRouter();
 
   // Initialize auth state from localStorage
   useEffect(() => {
@@ -47,6 +64,39 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
     initAuth();
   }, []);
+  
+  // Persistent Onboarding Redirection Middleware
+  useEffect(() => {
+      if (isLoading) return; // Wait for auth to load
+
+      if (user) {
+          // Check if onboarding is incomplete
+           // Note: API returns onboardingStep via user object if it was added. 
+           // Need to make sure User type has it or we cast it.
+           // Assuming onboarding_step is the DB field name, api.ts maps it?
+           // Let's check 'user' object structure. Usually it matches API response.
+           
+           const onboardingStep = (user as any).onboarding_step ?? (user as any).onboardingStep;
+           
+           if (onboardingStep && onboardingStep > 0 && onboardingStep < 5) {
+               // User needs to complete onboarding
+               
+               // Allowed paths for incomplete users:
+               // 1. /buyer-onboarding (and its subpaths if any)
+               // 2. /logout (handled via button usually)
+               // 3. /login (to switch account)
+               
+               if (!pathname.startsWith('/buyer-onboarding') && 
+                   !pathname.startsWith('/login') && 
+                   !pathname.startsWith('/register') &&
+                   !pathname.startsWith('/contact')) {  
+                   
+                   console.log(`[AuthMiddleware] Redirecting incomplete user from ${pathname} to /buyer-onboarding`);
+                   router.replace(`/buyer-onboarding/step/${onboardingStep}`);
+               }
+           }
+      }
+  }, [user, isLoading, pathname, router]);
 
   const login = useCallback(async (email: string, password: string) => {
     setIsLoading(true);
