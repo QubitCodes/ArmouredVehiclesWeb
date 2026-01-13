@@ -8,8 +8,18 @@ interface VehicleFitmentTabProps {
 }
 
 export default function VehicleFitmentTab({ fitment }: VehicleFitmentTabProps) {
-    // Mock accordion structure since data is currently flat string
-    // In real implementation, this should parse JSON or structured data
+    // Parse fitment if it's a JSON string
+    let parsedFitment = fitment;
+    if (typeof fitment === 'string') {
+        try {
+            const parsed = JSON.parse(fitment);
+            if (Array.isArray(parsed)) {
+                parsedFitment = parsed;
+            }
+        } catch (e) {
+            // Not JSON, keep as string
+        }
+    }
     const [openSections, setOpenSections] = useState<Record<string, boolean>>({
         "Genesis": true,
         "Hyundai": false,
@@ -20,7 +30,7 @@ export default function VehicleFitmentTab({ fitment }: VehicleFitmentTabProps) {
         setOpenSections(prev => ({ ...prev, [key]: !prev[key] }));
     };
 
-    if (!fitment || (Array.isArray(fitment) && fitment.length === 0)) {
+    if (!parsedFitment || (Array.isArray(parsedFitment) && parsedFitment.length === 0)) {
         return (
             <div className="bg-[#EBE3D6] p-4 space-y-2 font-sans text-black">
                  <h3 className="font-orbitron font-bold text-lg mb-4 uppercase">VEHICLE FITMENT</h3>
@@ -30,12 +40,12 @@ export default function VehicleFitmentTab({ fitment }: VehicleFitmentTabProps) {
     }
 
     // Handle Array (New Format)
-    if (Array.isArray(fitment)) {
+    if (Array.isArray(parsedFitment)) {
         return (
             <div className="bg-[#EBE3D6] p-4 space-y-2 font-sans text-black">
                 <h3 className="font-orbitron font-bold text-lg mb-4 uppercase">VEHICLE FITMENT</h3>
                 <ul className="list-disc pl-5 space-y-1 marker:text-black">
-                    {fitment.map((item, index) => (
+                    {parsedFitment.map((item, index) => (
                         <li key={index} className="text-sm">{item}</li>
                     ))}
                 </ul>
@@ -52,7 +62,7 @@ export default function VehicleFitmentTab({ fitment }: VehicleFitmentTabProps) {
              <h3 className="font-orbitron font-bold text-lg mb-4 uppercase">VEHICLE FITMENT</h3>
              
              {/* Legacy/String Support: If string contains keys, show mock accordion, else raw */}
-             {["Genesis", "Hyundai", "Kia"].some(b => fitment.includes(b)) ? (
+             {["Genesis", "Hyundai", "Kia"].some(b => (parsedFitment as string).includes(b)) ? (
                  ["Genesis", "Hyundai", "Kia"].map(brand => (
                     <div key={brand} className="border border-[#D8D0C0] bg-[#F0EBE3]">
                         <button 
@@ -82,7 +92,7 @@ export default function VehicleFitmentTab({ fitment }: VehicleFitmentTabProps) {
                     </div>
                  ))
              ) : (
-                 <div className="whitespace-pre-wrap text-sm">{fitment}</div>
+                 <div className="whitespace-pre-wrap text-sm">{parsedFitment as string}</div>
              )}
         </div>
     );

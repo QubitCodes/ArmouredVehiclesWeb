@@ -64,7 +64,7 @@ export const verifyEmailOtp = (payload: {
   email: string;
   code: string;
 }) => {
-  return API.post("/auth/otp/register/verify ", payload);
+  return API.post("/auth/otp/register/verify", payload);
 };
 
 export const setPhone = (payload: {
