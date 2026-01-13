@@ -226,10 +226,10 @@ export default function Declaration({ onNext, onPrev, initialData }: { onNext: (
       </div>
 
       {/* Business License Upload */}
-      {/* <div className="bg-[#F0EBE3] py-2 px-5 mb-4">
+      <div className="bg-[#F0EBE3] py-2 px-5 mb-4">
         <label className="text-xs font-semibold mb-2 block">Upload Business License *</label>
         <input type="file" onChange={(e) => setBusinessLicenseFile(e.target.files?.[0] || null)} />
-      </div> */}
+      </div>
 
       {/* Compliance Checkbox */}
       <div className="bg-[#F0EBE3] py-2 px-5 mb-4">

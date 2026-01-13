@@ -39,6 +39,12 @@ export default function BuyerInfo({ onNext, initialData }: Props) {
   const [companyEmail, setCompanyEmail] = useState<string>("");
   const [companyPhone, setCompanyPhone] = useState<string>("");
   const [companyPhoneCountryCode, setCompanyPhoneCountryCode] = useState<string>("+971");
+  
+  // New States
+  const [yearOfEstablishment, setYearOfEstablishment] = useState<string>("");
+  const [cityOfficeAddress, setCityOfficeAddress] = useState<string>("");
+  const [officialWebsite, setOfficialWebsite] = useState<string>("");
+
   const [submitting, setSubmitting] = useState<boolean>(false);
   const [submitError, setSubmitError] = useState<string | null>(null);
 
@@ -46,20 +52,15 @@ export default function BuyerInfo({ onNext, initialData }: Props) {
   useEffect(() => {
     if (initialData) {
         if (initialData.type_of_buyer) setTypeOfBuyer(initialData.type_of_buyer);
-        
-        // Fallback to user.name if company_name not set (though user.name might be person name, it's better than empty)
         if (initialData.company_name) setCompanyName(initialData.company_name);
-        
         if (initialData.country) setCountry(initialData.country);
-        
-        // Map user.email if company_email is missing
+       
         if (initialData.company_email) {
             setCompanyEmail(initialData.company_email);
         } else if (initialData.email) {
             setCompanyEmail(initialData.email);
         }
         
-        // Map user.phone if company_phone is missing
         if (initialData.company_phone) {
              if (initialData.company_phone_country_code) {
                   setCompanyPhoneCountryCode(initialData.company_phone_country_code);
@@ -68,13 +69,16 @@ export default function BuyerInfo({ onNext, initialData }: Props) {
                  setCompanyPhone(initialData.company_phone);
              }
         } else if (initialData.phone) {
-             // user.phone might include code or not. Assuming it does or we just put it in.
-             // user.countryCode might exist
              if (initialData.countryCode) {
                  setCompanyPhoneCountryCode(initialData.countryCode);
              }
              setCompanyPhone(initialData.phone);
         }
+
+        // New fields
+        if (initialData.year_of_establishment) setYearOfEstablishment(String(initialData.year_of_establishment));
+        if (initialData.city_office_address) setCityOfficeAddress(initialData.city_office_address);
+        if (initialData.official_website) setOfficialWebsite(initialData.official_website);
     }
   }, [initialData]);
 
@@ -168,14 +172,15 @@ export default function BuyerInfo({ onNext, initialData }: Props) {
         mounted = false;
       };
     }, [initialData]);
+
   const handleSubmitStep0 = async () => {
     setSubmitError(null);
     // Basic validation for required fields
-
     if (!typeOfBuyer || !companyName || !country || !companyEmail || !companyPhone || !companyPhoneCountryCode) {
       setSubmitError("Please complete all required fields.");
       return;
     }
+    
     try {
       setSubmitting(true);
       // Prepare split phone number
@@ -188,16 +193,29 @@ export default function BuyerInfo({ onNext, initialData }: Props) {
       }
       localPhone = localPhone.replace(/^0+/, '');
 
-      const payload = {
-          country,
-          companyName,
-          companyEmail,
-          typeOfBuyer,
-          companyPhone: localPhone,
-          companyPhoneCountryCode: dialCode ? `+${dialCode}` : '+1', // Default or from input
-      };
+      const formattedDialCode = dialCode ? `+${dialCode}` : '+1';
 
-      await API.post("/onboarding/step0", payload);
+      const formData = new FormData();
+      formData.append('country', country);
+      formData.append('companyName', companyName);
+      formData.append('companyEmail', companyEmail);
+      formData.append('typeOfBuyer', typeOfBuyer);
+      formData.append('companyPhone', localPhone);
+      formData.append('companyPhoneCountryCode', formattedDialCode);
+      
+      // New Fields
+      if (yearOfEstablishment) formData.append('yearOfEstablishment', yearOfEstablishment);
+      if (cityOfficeAddress) formData.append('cityOfficeAddress', cityOfficeAddress);
+      if (officialWebsite) formData.append('officialWebsite', officialWebsite);
+
+      // File
+      if (selectedFile) {
+        formData.append('registrationFile', selectedFile);
+      }
+
+      await API.post("/onboarding/step0", formData, {
+          headers: { "Content-Type": "multipart/form-data" }
+      });
       onNext();
     } catch (err: any) {
       const message = err?.response?.data?.message || err?.message || "Failed to submit";
@@ -298,8 +316,8 @@ export default function BuyerInfo({ onNext, initialData }: Props) {
               <input
                 type="email"
                 value={companyEmail}
-                onChange={(e) => setCompanyEmail(e.target.value)}
-                className="w-full border border-[#C7B88A] bg-transparent px-3 py-2 focus:outline-none"
+                readOnly
+                className="w-full border border-[#C7B88A] bg-[#EBE3D6] text-gray-600 px-3 py-2 focus:outline-none cursor-not-allowed"
               />
             </div>
 
@@ -357,7 +375,9 @@ export default function BuyerInfo({ onNext, initialData }: Props) {
               </label>
               <input
                 type="text"
-                placeholder="Office Address / Address Line"
+                placeholder="YYYY"
+                value={yearOfEstablishment}
+                onChange={(e) => setYearOfEstablishment(e.target.value)}
                 className="w-full border border-[#C7B88A] bg-transparent px-3 py-2 focus:outline-none"
               />
             </div>
@@ -370,6 +390,8 @@ export default function BuyerInfo({ onNext, initialData }: Props) {
               <input
                 type="text"
                 placeholder="eg : Warehouse No. 12, Al Quasis Industrial Area 3, Dubai, United Arab Emirates"
+                value={cityOfficeAddress}
+                onChange={(e) => setCityOfficeAddress(e.target.value)}
                 className="w-full border border-[#C7B88A] bg-transparent px-3 py-2 focus:outline-none"
               />
             </div>
@@ -382,6 +404,8 @@ export default function BuyerInfo({ onNext, initialData }: Props) {
               <input
                 type="text"
                 placeholder="eg: www.blueweb2.com"
+                value={officialWebsite}
+                onChange={(e) => setOfficialWebsite(e.target.value)}
                 className="w-full border border-[#C7B88A] bg-transparent px-3 py-2 focus:outline-none"
               />
             </div>

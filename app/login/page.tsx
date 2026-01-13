@@ -203,7 +203,7 @@ function LoginForm() {
                         {/* Email or Phone */}
                         <input
                             type="text"
-                            placeholder="Email, Username or Phone"
+                            placeholder="Email or Phone"
                             value={identifier}
                             onChange={(e) => setIdentifier(e.target.value)}
                             className="w-full mb-3 px-4 py-3 border border-[#C7B88A] bg-transparent text-sm text-black placeholder:text-[#9D9A95] focus:outline-none"

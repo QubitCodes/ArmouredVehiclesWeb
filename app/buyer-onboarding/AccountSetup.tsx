@@ -95,6 +95,11 @@ const handleSubmit = async () => {
 
     await API.post("/onboarding/step4", payload);
 
+    // Auto-trigger verification for buyers to complete flow
+    await API.post("/onboarding/submit-verification", {
+        verificationMethod: "manual" // Default method
+    });
+
     onSubmit();
   } catch (err: any) {
     setError(

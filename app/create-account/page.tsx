@@ -37,7 +37,7 @@ export default function CreateAccountPage() {
   // Prefill name and email from auth context once available
   useEffect(() => {
     if (user) {
-      setName(user.name ?? "");
+      setName(user.username ?? user.name ?? "");
       setEmail(user.email ?? "");
     }
   }, [user]);
@@ -70,8 +70,8 @@ export default function CreateAccountPage() {
           <input
             type="text"
             value={name}
-            onChange={(e) => setName(e.target.value)}
-            className="w-full mb-4 px-4 py-3 border border-[#C7B88A] bg-transparent text-sm focus:outline-none"
+            readOnly
+            className="w-full mb-4 px-4 py-3 border border-[#C7B88A] bg-[#EBE3D6] text-gray-600 text-sm focus:outline-none cursor-not-allowed"
           />
 
           {/* EMAIL */}
@@ -81,8 +81,8 @@ export default function CreateAccountPage() {
           <input
             type="email"
             value={email}
-            onChange={(e) => setEmail(e.target.value)}
-            className="w-full mb-4 px-4 py-3 border border-[#C7B88A] bg-transparent text-sm focus:outline-none"
+            readOnly
+            className="w-full mb-4 px-4 py-3 border border-[#C7B88A] bg-[#EBE3D6] text-gray-600 text-sm focus:outline-none cursor-not-allowed"
           />
 
           {/* <label className="text-xs font-semibold mb-1 block">
