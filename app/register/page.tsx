@@ -86,27 +86,44 @@ export default function RegisterPage() {
   };
 
   const handleVerifyEmail = async () => {
-    const code = emailOtp.join("");
-    if (code.length !== 6) {
-      alert("Please enter the 6-digit email OTP");
-      return;
+  const code = emailOtp.join("");
+  if (code.length !== 6) {
+    alert("Please enter the 6-digit email OTP");
+    return;
+  }
+
+  try {
+    setLoading(true);
+    const res = await verifyEmailOtp({ userId, email: form.email.trim(), code });
+    const { user, accessToken, refreshToken, expiresIn, nextStep } = res.data?.data;
+    console.log("data: ", res.data);
+
+    const ttl = typeof expiresIn === "number" ? expiresIn : 900;
+
+    // Store tokens immediately after email verification
+    localStorage.setItem("accessToken", accessToken);
+    localStorage.setItem("refreshToken", refreshToken);
+    localStorage.setItem("user", JSON.stringify(user));
+    localStorage.setItem("expiresIn", String(ttl));
+    localStorage.setItem("token_expiry", String(Date.now() + ttl * 1000));
+
+    // Also keep legacy keys if your app uses both
+    localStorage.setItem("access_token", accessToken);
+    localStorage.setItem("refresh_token", refreshToken);
+
+    if (nextStep == "mobile_verification") {
+      setStage("set_phone");
+    } else {
+      alert("Unexpected next step: " + nextStep);
     }
-    try {
-      setLoading(true);
-      const res = await verifyEmailOtp({ userId, email: form.email.trim(), code });
-      const data = res.data;
-      // if (data.nextStep === 'phone_number') {
-        setStage('set_phone');
-      // } else {
-      //   alert('Unexpected next step: ' + data.nextStep);
-      // }
-    } catch (err: any) {
-      const msg = err?.response?.data?.message || err?.message || "Failed to verify email";
-      alert(msg);
-    } finally {
-      setLoading(false);
-    }
-  };
+  } catch (err: any) {
+    const msg = err?.response?.data?.message || err?.message || "Failed to verify email";
+    alert(msg);
+  } finally {
+    setLoading(false);
+  }
+};
+
 
   const handleSetPhone = async () => {
     if (!form.phone || !form.countryCode) {
