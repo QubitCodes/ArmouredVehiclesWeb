@@ -14,7 +14,33 @@ interface Product {
   action: "BUY NOW" | "SUBMIT AN INQUIRY";
 }
 
-// No dummy fallback: show an empty-state badge when no products
+// Fallback products when API returns empty or fails
+const FALLBACK_PRODUCTS: Product[] = [
+  {
+    id: 1,
+    name: "Armoured Vehicle Component",
+    price: 15000,
+    image: "/featured products/product1.png",
+    gallery: ["/featured products/product1.png"],
+    action: "BUY NOW",
+  },
+  {
+    id: 2,
+    name: "Tactical Communication System",
+    price: 25000,
+    image: "/featured products/product2.png",
+    gallery: ["/featured products/product2.png"],
+    action: "BUY NOW",
+  },
+  {
+    id: 3,
+    name: "Ballistic Protection Kit",
+    price: 35000,
+    image: "/featured products/product3.png",
+    gallery: ["/featured products/product3.png"],
+    action: "SUBMIT AN INQUIRY",
+  },
+];
 
 export const FeaturedProducts = () => {
   const router = useRouter();
@@ -59,16 +85,16 @@ export const FeaturedProducts = () => {
                 ? "SUBMIT AN INQUIRY"
                 : "BUY NOW",
         }));
-        // If API returned no items, show empty state (no products)
+        // If API returned no items, use fallback products
         if (!mappedProducts || mappedProducts.length === 0) {
-          setProducts([]);
+          setProducts(FALLBACK_PRODUCTS);
         } else {
           setProducts(mappedProducts);
         }
       } catch (err) {
         console.error("Failed to fetch featured products:", err);
-        // On fetch failure, show empty state instead of dummy products
-        setProducts([]);
+        // On fetch failure, use fallback products
+        setProducts(FALLBACK_PRODUCTS);
       } finally {
         setIsLoadingProducts(false);
       }
@@ -76,8 +102,8 @@ export const FeaturedProducts = () => {
     fetchFeatured();
   }, []);
 
-  // Group products into slides (3 per slide)
-  const GROUP_SIZE = 3;
+  // Group products into slides (3 per slide on desktop, 1 per slide on mobile)
+  const GROUP_SIZE = isMobile ? 1 : 3;
   const baseSlides: Product[][] = [];
   for (let i = 0; i < products.length; i += GROUP_SIZE) {
     baseSlides.push(products.slice(i, i + GROUP_SIZE));
@@ -92,13 +118,13 @@ export const FeaturedProducts = () => {
 
   const total = extendedSlides.length;
 
-  // AUTO slide: always increment index → moves left (translateX negative) - DESKTOP ONLY
+  // AUTO slide: always increment index → moves left (translateX negative) - BOTH MOBILE AND DESKTOP
   useEffect(() => {
-    if (baseSlides.length <= 1 || isMobile) return;
+    if (baseSlides.length <= 1) return;
     const timer = setInterval(() => {
       setTransitionEnabled(true);
       setIndex((p) => p + 1);
-    }, 7000); // increased delay to slow autoplay (7s)
+    }, isMobile ? 4000 : 7000); // 4s on mobile, 7s on desktop
     return () => clearInterval(timer);
   }, [baseSlides.length, isMobile]);
 
@@ -201,21 +227,21 @@ export const FeaturedProducts = () => {
 
         {isLoadingProducts ? (
           // SHIMMER SKELETON LOADER
-          <div className="overflow-x-auto md:overflow-hidden relative w-full scrollbar-hide">
-            <div className="flex flex-row gap-4 md:flex-col md:flex-row md:justify-between md:items-center 2xl:gap-[140px] md:gap-8 w-full px-4 md:px-0">
-              {[0, 1, 2].map((idx) => (
+          <div className="overflow-hidden relative w-full">
+            <div className="flex flex-row justify-center items-center gap-4 md:gap-1 lg:gap-2 xl:gap-4 2xl:gap-[60px] w-full">
+              {(isMobile ? [0] : [0, 1, 2]).map((idx) => (
                 <div
                   key={idx}
                   className={`
                     bg-transparent border border-b-0 border-white/30 
-                    w-[221px] md:w-[368px] h-[363px] md:h-[519px] flex flex-col flex-shrink-0
+                    w-[221px] md:w-[260px] lg:w-[300px] xl:w-[340px] 2xl:w-[368px] h-[363px] md:h-[460px] lg:h-[480px] xl:h-[500px] 2xl:h-[519px] flex flex-col flex-shrink-0
                     shadow-[0_0_15px_rgba(255,255,255,0.1)]
                     overflow-hidden
                     ${idx === 1 ? "md:mt-16" : ""}
                   `}
                 >
                   {/* IMAGE SKELETON */}
-                  <div className="w-full h-[244px] md:h-[349px] flex items-center justify-center border-b border-white/30 shimmer bg-white/5">
+                  <div className="w-full h-[244px] md:h-[290px] lg:h-[310px] xl:h-[330px] 2xl:h-[349px] flex items-center justify-center border-b border-white/30 shimmer bg-white/5">
                   </div>
 
                   {/* NAME SKELETON */}
@@ -245,22 +271,22 @@ export const FeaturedProducts = () => {
           </div>
         ) : (
           <>
-            {/* SLIDER WRAPPER - Desktop: auto-slide, Mobile: horizontal scroll */}
-            <div className="overflow-x-auto md:overflow-hidden relative w-full scrollbar-hide" >
+            {/* SLIDER WRAPPER - Auto-slide on both mobile and desktop */}
+            <div className="overflow-hidden relative w-full" >
           {/* TRACK */}
           <div
             ref={sliderRef}
-            className={`flex ${transitionEnabled && !isMobile ? "md:transition-transform md:duration-1000 md:ease-in-out" : ""}`}
+            className={`flex ${transitionEnabled ? "transition-transform duration-700 ease-in-out" : ""}`}
             style={{
-              width: isMobile ? 'auto' : `${total * 100}%`,
-              transform: isMobile ? 'none' : `translateX(-${index * (100 / total)}%)`,
+              width: `${total * 100}%`,
+              transform: `translateX(-${index * (100 / total)}%)`,
             }}
           >
             {extendedSlides.map((group, slideIndex) => (
               <div
                 key={slideIndex}
-                className="flex flex-row gap-4 md:flex-col md:flex-row md:justify-between md:items-center 2xl:gap-[140px] md:gap-8 w-full flex-shrink-0 px-4 md:px-0"
-                style={{ width: isMobile ? 'auto' : `${100 / total}%` }}
+                className="flex flex-row justify-center items-center gap-4 md:gap-1 lg:gap-2 xl:gap-4 2xl:gap-[60px] flex-shrink-0"
+                style={{ width: `${100 / total}%` }}
               >
                 {group.map((product, idx) => {
                   const uniqueKey = `${slideIndex}-${idx}`;
@@ -276,7 +302,7 @@ export const FeaturedProducts = () => {
                       onClick={() => router.push(`/product/${product.id}`)}
                       className={`
     bg-transparent border border-b-0 border-white 
-    w-[221px] md:w-[368px] h-[363px] md:h-[519px] flex flex-col flex-shrink-0
+    w-[221px] md:w-[260px] lg:w-[300px] xl:w-[340px] 2xl:w-[368px] h-[363px] md:h-[460px] lg:h-[480px] xl:h-[500px] 2xl:h-[519px] flex flex-col flex-shrink-0
     shadow-[0_0_15px_rgba(255,255,255,0.1)]
     transition-all duration-700 ease-in-out
     animate-[slideIn_0.5s_ease-out]
@@ -290,7 +316,7 @@ export const FeaturedProducts = () => {
 
 
                       {/* IMAGE */}
-                      <div className="w-full h-[244px] md:h-[349px] flex items-center justify-center border-b border-white relative overflow-hidden" >
+                      <div className="w-full h-[244px] md:h-[290px] lg:h-[310px] xl:h-[330px] 2xl:h-[349px] flex items-center justify-center border-b border-white relative overflow-hidden" >
                         <Image
                           src={
                             isHovered && product.gallery && product.gallery.length > 0
@@ -347,27 +373,16 @@ export const FeaturedProducts = () => {
           </div>
         </div>
 
-        {/* Dots (keeps original behavior but maps to real slides) */}
-        <div className="flex justify-center gap-4 mt-8">
+        {/* Dots (pagination for slides) */}
+        <div className="flex justify-center gap-2 md:gap-4 mt-8">
           {baseSlides.map((_, dotIdx) => (
             <button
               key={dotIdx}
               onClick={() => {
-                if (isMobile && sliderRef.current) {
-                  // On mobile, scroll to the group
-                  const scrollContainer = sliderRef.current.parentElement;
-                  if (scrollContainer) {
-                    const cardWidth = 221 + 16; // card width + gap
-                    const scrollPosition = dotIdx * cardWidth * GROUP_SIZE;
-                    scrollContainer.scrollTo({ left: scrollPosition, behavior: 'smooth' });
-                  }
-                } else {
-                  // On desktop, use the index-based slide
-                  setTransitionEnabled(true);
-                  setIndex(dotIdx + 1);
-                }
+                setTransitionEnabled(true);
+                setIndex(dotIdx + 1);
               }}
-              className={`h-1 w-[50px] transition-all ${index === dotIdx + 1 ? "bg-[#FF5C00]" : "bg-white/30"}`}
+              className={`h-1 w-[30px] md:w-[50px] transition-all ${index === dotIdx + 1 ? "bg-[#FF5C00]" : "bg-white/30"}`}
             />
           ))}
         </div>
