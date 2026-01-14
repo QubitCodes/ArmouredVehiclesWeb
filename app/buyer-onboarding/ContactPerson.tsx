@@ -1,15 +1,17 @@
 "use client";
 
 import Image from "next/image";
-import { useRef, useState } from "react";
+import { useRef, useState, useEffect } from "react";
 import API from "@/app/services/api";
 
 export default function ContactPerson({
   onNext,
   onPrev,
+  initialData,
 }: {
   onNext: () => void;
   onPrev: () => void;
+  initialData?: any;
 }) {
   const fileInputRef = useRef<HTMLInputElement | null>(null);
 
@@ -61,7 +63,7 @@ export default function ContactPerson({
         formData.append("contactIdDocumentFile", idFile);
       }
 
-      await API.post("/vendor/onboarding/step2", formData, {
+      await API.post("/onboarding/step2", formData, {
         headers: { "Content-Type": "multipart/form-data" },
       });
 
@@ -72,10 +74,26 @@ export default function ContactPerson({
         err?.message ||
         "Submission failed"
       );
-    } finally {
       setSubmitting(false);
     }
   };
+
+  useEffect(() => {
+    if (initialData) {
+        if (initialData.contact_full_name) setContactFullName(initialData.contact_full_name);
+        if (initialData.contact_job_title) setContactJobTitle(initialData.contact_job_title);
+        if (initialData.contact_work_email) setContactWorkEmail(initialData.contact_work_email);
+        
+        // Handle contact mobile if available. Similar to step 0, might conflict with hardcoded +91 in UI.
+        // If data has contact_mobile, set it. Country code might be separate.
+        if (initialData.contact_mobile) {
+            setContactMobile(initialData.contact_mobile);
+        }
+        
+        // If terms were accepted previously
+        if (initialData.terms_accepted) setTermsAccepted(true);
+    }
+  }, [initialData]);
 
   return (
     <div className="max-w-[1200px] mx-auto bg-[#EBE3D6] p-8 mt-8 text-black">

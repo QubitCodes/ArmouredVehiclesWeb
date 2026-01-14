@@ -140,8 +140,17 @@ function LoginForm() {
             // Merge guest cart
             // await api.cart.merge();
             
+            // Redirection Logic
             const redirect = searchParams.get('redirect');
-            if (redirect) {
+            
+            // Check for incomplete onboarding
+            // Note: user object from API now includes onboardingStep
+            const onboardingStep = (user as any).onboardingStep;
+            
+            if (onboardingStep && onboardingStep > 0) {
+                 // Force redirect to onboarding if step is tracked (and not 0/null which implies done)
+                 router.push('/buyer-onboarding');
+            } else if (redirect) {
                 router.push(redirect);
             } else {
                 router.push('/');
@@ -194,7 +203,7 @@ function LoginForm() {
                         {/* Email or Phone */}
                         <input
                             type="text"
-                            placeholder="Email, Username or Phone"
+                            placeholder="Email or Phone"
                             value={identifier}
                             onChange={(e) => setIdentifier(e.target.value)}
                             className="w-full mb-3 px-4 py-3 border border-[#C7B88A] bg-transparent text-sm text-black placeholder:text-[#9D9A95] focus:outline-none"

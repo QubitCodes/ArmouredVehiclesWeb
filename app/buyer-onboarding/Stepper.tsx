@@ -1,12 +1,14 @@
 "use client";
 
+import Link from "next/link";
 import { Check } from "lucide-react";
 
 const steps = [
   "Buyer Information",
   "Contact Person",
   "Declaration",
-  "Account Preferences",
+  "Account Setup",
+  "Verification",
 ];
 
 export default function Stepper({ currentStep }: { currentStep: number }) {
@@ -30,9 +32,10 @@ export default function Stepper({ currentStep }: { currentStep: number }) {
           const active = stepNumber === currentStep;
 
           return (
-            <div
+            <Link
+              href={`/buyer-onboarding/step/${stepNumber}`}
               key={index}
-              className="relative z-10 flex flex-col items-center"
+              className="relative z-10 flex flex-col items-center cursor-pointer"
             >
               {/* Circle */}
               <div
@@ -55,7 +58,7 @@ export default function Stepper({ currentStep }: { currentStep: number }) {
                   </span>
                 )}
               </div>
-            </div>
+            </Link>
           );
         })}
       </div>

@@ -13,6 +13,7 @@ interface SimilarProductProps {
   reviews?: number | string;
   price?: number | string;
   id?: number | string;
+  isControlled?: boolean;
 }
 
 const SimilarProductCard = ({
@@ -22,6 +23,7 @@ const SimilarProductCard = ({
   reviews,
   price,
   id,
+  isControlled = false,
 }: SimilarProductProps) => {
   const router = useRouter();
   const { isAuthenticated, isLoading } = useAuth();
@@ -72,7 +74,14 @@ const SimilarProductCard = ({
         {isLoading ? (
              <span className="text-sm text-gray-400 font-semibold">—</span>
           ) : isAuthenticated ? (
-             <div className="text-[20px] font-semibold text-black">AED {Number(displayPrice).toLocaleString()}</div>
+             <div className="flex items-center justify-between w-full">
+                 <div className="text-[20px] font-semibold text-black">AED {Number(displayPrice).toLocaleString()}</div>
+                 {isControlled && (
+                    <div className="inline-block bg-red-100 text-red-600 text-[10px] px-2 py-0.5 font-bold uppercase tracking-wider border border-red-200">
+                        Controlled
+                    </div>
+                )}
+             </div>
           ) : (
              <span
                 onClick={() => router.push("/login")}
@@ -82,6 +91,8 @@ const SimilarProductCard = ({
              </span>
           )}
       </div>
+
+
 
       {/* Title */}
       <p 

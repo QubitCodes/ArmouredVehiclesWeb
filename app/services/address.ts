@@ -22,33 +22,18 @@ const toCamelCase = (data: any): Address => {
   };
 };
 
-// Map Frontend (camelCase) -> Backend (snake_case)
+// Map Frontend (camelCase) -> Backend (no change needed as Controller expects camelCase)
 const toSnakeCase = (data: Partial<Address>) => {
+  // Pass through without renaming keys. Controller expects camelCase (fullName, addressLine1, etc.)
+  // Remove fields that shouldn't be sent if necessary, but spreading is usually fine.
   const payload: any = { ...data };
-  if (data.fullName) {
-    payload.full_name = data.fullName;
-    delete payload.fullName;
-  }
-  if (data.addressLine1) {
-    payload.address_line1 = data.addressLine1;
-    delete payload.addressLine1;
-  }
-  if (data.addressLine2) {
-    payload.address_line2 = data.addressLine2;
-    delete payload.addressLine2;
-  }
-  if (data.postalCode) {
-    payload.postal_code = data.postalCode;
-    delete payload.postalCode;
-  }
-  if (data.isDefault !== undefined) {
-    payload.is_default = data.isDefault;
-    delete payload.isDefault;
-  }
-  if (data.userId) {
-      payload.user_id = data.userId;
-      delete payload.userId;
-  }
+  
+  // We don't need to send userId as it's handled by token
+  if (payload.userId) delete payload.userId;
+  
+  // We don't need to send createdAt or isVerified usually
+  if (payload.createdAt) delete payload.createdAt;
+  
   return payload;
 };
 

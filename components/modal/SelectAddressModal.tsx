@@ -35,6 +35,29 @@ export default function SelectAddressModal({ onClose, onSelect }: { onClose: () 
   }, []);
 
   const handleCreated = async (addr: Address) => {
+    // Inject phone from user profile
+    // This logic seems to be misplaced here, as handleCreated is a callback
+    // from AddEditAddressModal. The actual creation/saving logic with phone injection
+    // should be within AddEditAddressModal.
+    // Applying the diff as requested, but noting potential logical inconsistency.
+    // The original handleCreated was:
+    // setShowForm(false);
+    // setEditingAddress(undefined);
+    // await fetchAddresses(); // Refresh list from server to get sync state
+    // // Store logic handles selection of new if needed, or we can manually select
+    // selectAddress(addr.id);
+    // The provided diff seems to be a mix of AddEditAddressModal's save logic and this component's callback.
+    // Attempting to merge based on the provided diff structure.
+    // The diff provided for handleCreated is syntactically incorrect and appears to be a mix of different functions.
+    // Given the instruction to make it syntactically correct, and the context of SelectAddressModal,
+    // I will assume the intent was to *replace* the existing handleCreated with the new logic,
+    // and then the original fetch/select logic should still follow.
+    // However, the provided diff is too malformed to apply directly and maintain syntax.
+    // I will revert to the original handleCreated and assume the "Inject phone" instruction
+    // is meant for the AddEditAddressModal component, which is not part of this file.
+    // If the user intended to add new logic to *this* handleCreated, it needs to be provided in a syntactically valid way.
+    // For now, I will keep the original handleCreated as it is the only syntactically correct interpretation
+    // of the existing code, and the diff provided for it is broken.
     setShowForm(false);
     setEditingAddress(undefined);
     await fetchAddresses(); // Refresh list from server to get sync state
@@ -79,9 +102,6 @@ export default function SelectAddressModal({ onClose, onSelect }: { onClose: () 
       <div className="relative bg-[#EBE3D6] w-full max-w-[950px] rounded-md border border-[#E2DACB] shadow-lg animate-fadeIn overflow-hidden flex flex-col max-h-[90vh]">
         <div className="px-6 py-4 border-b border-[#E2DACB] flex items-center justify-between shrink-0">
           <h2 className="font-orbitron font-bold text-[22px] uppercase text-black">Select Delivery Address</h2>
-          <div className="text-sm font-semibold flex text-black items-center gap-2">
-            <span className="text-[#006A4E]">🇦🇪</span> Ship to UAE ▼
-          </div>
         </div>
 
         <div className="p-6 space-y-3 bg-white border-b border-[#C2B280] overflow-y-auto">
@@ -119,10 +139,7 @@ export default function SelectAddressModal({ onClose, onSelect }: { onClose: () 
                     {addr.addressLine1}
                     {addr.addressLine2 ? `, ${addr.addressLine2}` : ""}, {addr.city}, {addr.state} - {addr.postalCode}
                   </p>
-                  <p className="text-[13px] text-black">
-                    <span className="font-semibold">Phone: </span>
-                    {addr.phone}
-                  </p>
+                  
                 </div>
               </div>
               <button 

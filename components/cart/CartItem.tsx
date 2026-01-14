@@ -1,29 +1,36 @@
 import QuantitySelector from "./QuantitySelector";
+import Link from 'next/link';
 import { Bookmark } from "lucide-react";
 import Image from "next/image";
 
-export default function CartItem({ data, updateQty, removeItem }: any) {
+export default function CartItem({ data, updateQty, removeItem, saveForLater }: any) {
   return (
     <div className="bg-[#F4F0E7] p-5">
 
       <div className="flex flex-col sm:flex-row gap-5">
         {/* Product Image */}
         {data.image && (
+          <Link href={`/products/${data.id}`} className="shrink-0">
           <Image
             src={data.image}
             alt={data.title}
             width={112}
             height={112}
-            className="object-contain shrink-0"
+            className="object-contain"
           />
+          </Link>
         )}
 
 
         {/* Product Info */}
         <div className="flex-1 min-w-0">
-          <h3 className="font-semibold text-[14px] lg:text-[16px] text-[#1A1A1A] mb-1">
+          <Link href={`/products/${data.id}`}>
+          <h3 className="font-semibold text-[14px] lg:text-[16px] text-[#1A1A1A] mb-1 hover:text-[#D35400] transition-colors">
             {data.title}
           </h3>
+          </Link>
+
+
 
           {data.stock && (
             <p
@@ -39,7 +46,7 @@ export default function CartItem({ data, updateQty, removeItem }: any) {
             </p>
           )}
 
-          <p className="text-xs lg:text-sm text-[#6A6A6A] mb-1">
+{/*           <p className="text-xs lg:text-sm text-[#6A6A6A] mb-1">
             Standard Delivery | Estimated delivery{" "}
             <span className="font-semibold">tomorrow</span>
           </p>
@@ -47,12 +54,12 @@ export default function CartItem({ data, updateQty, removeItem }: any) {
           <p className="text-xs lg:text-sm text-black mb-2">
             12 months/12,000 Miles Limited{" "}
             <span className="underline font-semibold">Warranty</span>
-          </p>
+          </p> */}
 
           {/* Mobile Price + Qty */}
           <div className="lg:hidden">
             <div className="flex justify-between items-center mb-3">
-              <div className="font-extrabold text-lg text-[#1A1A1A]">
+              <div className="font-extrabold text-lg text-[#1A1A1A] flex items-center gap-2">
                 ₹{data.price.toFixed(2)}
               </div>
 
@@ -123,6 +130,12 @@ export default function CartItem({ data, updateQty, removeItem }: any) {
       <div className="flex flex-col lg:flex-row gap-4 text-xs text-[#6A6A6A]">
         {/* <span>This item cannot be exchanged or returned.</span> */}
 
+        {data.isControlled && (
+          <div className="inline-block bg-red-100 text-red-600 text-[10px] px-2 py-0.5 mb-2 font-bold uppercase tracking-wider border border-red-200">
+              Controlled
+          </div>
+        )}
+
         <div className="flex gap-3 lg:ml-auto">
           <button
             onClick={() => removeItem(data.id)}
@@ -132,7 +145,10 @@ export default function CartItem({ data, updateQty, removeItem }: any) {
             <span className="underline">Remove</span>
           </button>
 
-          <button className="flex items-center gap-1 hover:text-black">
+          <button 
+            onClick={() => saveForLater && saveForLater(data.id)}
+            className="flex items-center gap-1 hover:text-black"
+          >
             <Bookmark size={14} />
             <span className="underline">Save for later</span>
           </button>

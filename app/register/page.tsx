@@ -1,5 +1,7 @@
 "use client";
 
+import PhoneInput from 'react-phone-input-2';
+import 'react-phone-input-2/lib/style.css';
 import Image from "next/image";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
@@ -7,6 +9,8 @@ import { startOtpRegister, verifyEmailOtp, setPhone, verifyPhoneOtp, resendPhone
 import { useAuth } from "@/lib/auth-context";
 // import { api } from "@/lib/api";
 import { useEffect, useRef, useState } from "react";
+
+import { toast } from "sonner";
 
 export default function RegisterPage() {
   const router = useRouter();
@@ -34,29 +38,64 @@ export default function RegisterPage() {
     setForm({ ...form, [e.target.name]: e.target.value });
   };
 
+  const showError = (msg: string) => {
+    toast.error(msg, {
+        style: { background: '#EF4444', color: 'white', border: 'none' } // Explicit red styling
+    });
+  };
+
+  // Helper to save auth data
+  const saveAuthToLocal = (data: any) => {
+    if (data.user) localStorage.setItem("user", JSON.stringify(data.user));
+    if (data.accessToken) {
+        localStorage.setItem("accessToken", data.accessToken);
+        localStorage.setItem("access_token", data.accessToken);
+    }
+    if (data.refreshToken) {
+        localStorage.setItem("refreshToken", data.refreshToken);
+        localStorage.setItem("refresh_token", data.refreshToken);
+    }
+    if (data.expiresIn) {
+        const ttl = typeof data.expiresIn === 'number' ? data.expiresIn : 3600;
+        localStorage.setItem("expiresIn", String(ttl));
+        localStorage.setItem("token_expiry", String(Date.now() + ttl * 1000));
+    }
+    if (data.nextStep) {
+        localStorage.setItem("nextStep", data.nextStep);
+    }
+  };
+
   // Start registration: send email OTP
   const handleStart = async () => {
     if (!form.email || !form.name || !form.username) {
-      alert("Name, username and email are required");
+      showError("Name, username and email are required");
       return;
     }
     try {
       setLoading(true);
       const res = await startOtpRegister({
+        identifier: form.email.trim(),
         email: form.email.trim(),
         username: form.username.trim(),
         name: form.name.trim(),
         userType: 'customer',
       });
-      const data = res.data;
+      const data = res.data.data || res.data; // Handle potentially unwrapped or wrapped
+      
       setUserId(data.userId);
       setDebugOtp(data.debugOtp || "");
+      
+      // Persist partial state
+      localStorage.setItem("registration_userId", data.userId);
+      localStorage.setItem("registration_email", form.email.trim());
+      localStorage.setItem("registration_stage", "verify_email");
+      
       setStage("verify_email");
       // Focus first OTP box
       setTimeout(() => emailRefs.current[0]?.focus(), 0);
     } catch (err: any) {
       const msg = err?.response?.data?.message || err?.message || "Failed to start OTP registration";
-      alert(msg);
+      showError(msg);
     } finally {
       setLoading(false);
     }
@@ -86,62 +125,69 @@ export default function RegisterPage() {
   };
 
   const handleVerifyEmail = async () => {
-  const code = emailOtp.join("");
-  if (code.length !== 6) {
-    alert("Please enter the 6-digit email OTP");
-    return;
-  }
-
-  try {
-    setLoading(true);
-    const res = await verifyEmailOtp({ userId, email: form.email.trim(), code });
-    const { user, accessToken, refreshToken, expiresIn, nextStep } = res.data?.data;
-    console.log("data: ", res.data);
-
-    const ttl = typeof expiresIn === "number" ? expiresIn : 900;
-
-    // Store tokens immediately after email verification
-    localStorage.setItem("accessToken", accessToken);
-    localStorage.setItem("refreshToken", refreshToken);
-    localStorage.setItem("user", JSON.stringify(user));
-    localStorage.setItem("expiresIn", String(ttl));
-    localStorage.setItem("token_expiry", String(Date.now() + ttl * 1000));
-
-    // Also keep legacy keys if your app uses both
-    localStorage.setItem("access_token", accessToken);
-    localStorage.setItem("refresh_token", refreshToken);
-
-    if (nextStep == "mobile_verification") {
-      setStage("set_phone");
-    } else {
-      alert("Unexpected next step: " + nextStep);
-    }
-  } catch (err: any) {
-    const msg = err?.response?.data?.message || err?.message || "Failed to verify email";
-    alert(msg);
-  } finally {
-    setLoading(false);
-  }
-};
-
-
-  const handleSetPhone = async () => {
-    if (!form.phone || !form.countryCode) {
-      alert("Please enter phone and country code");
+    const code = emailOtp.join("");
+    if (code.length !== 6) {
+      showError("Please enter the 6-digit email OTP");
       return;
     }
     try {
       setLoading(true);
-      const res = await setPhone({ userId, phone: form.phone.trim(), countryCode: form.countryCode.trim() });
-      const data = res.data as { debugOtp?: string; expiresIn?: number };
+      const res = await verifyEmailOtp({ userId, email: form.email.trim(), code });
+      const data = res.data.data || res.data;
+      
+      // Store tokens and user data
+      saveAuthToLocal(data);
+      localStorage.setItem("registration_stage", "set_phone");
+
+      setStage('set_phone');
+    } catch (err: any) {
+      const msg = err?.response?.data?.message || err?.message || "Failed to verify email";
+      showError(msg);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleSetPhone = async () => {
+    // PhoneInput returns full phone with country code (e.g. 97150...)
+    if (!form.phone) {
+      showError("Please enter phone number");
+      return;
+    }
+    try {
+      setLoading(true);
+
+      // Prepare split phone number
+      // form.countryCode is set by onChange (e.g. "971")
+      let dialCode = form.countryCode ? form.countryCode.replace('+', '') : '';
+      let fullPhone = form.phone.replace('+', '');
+      let localPhone = fullPhone;
+      
+      // Remove dial code from start of phone if present
+      if (dialCode && fullPhone.startsWith(dialCode)) {
+          localPhone = fullPhone.substring(dialCode.length);
+      }
+      localPhone = localPhone.replace(/^0+/, ''); // Remove leading zeros
+
+      // Send separated values
+      const res = await setPhone({ 
+          userId, 
+          phone: localPhone, 
+          countryCode: dialCode ? `+${dialCode}` : '+1' 
+      }); 
+      
+      const data = (res.data.data || res.data) as { debugOtp?: string; expiresIn?: number };
+      
       setStage('verify_phone');
+      localStorage.setItem("registration_stage", "verify_phone");
+      localStorage.setItem("registration_phone", form.phone); // Keep full phone for recovery
+      
       setTimeout(() => phoneRefs.current[0]?.focus(), 0);
-      // Show debug OTP from set-phone API (dev only) and start countdown if provided
       setDebugOtp(data?.debugOtp || "");
       setPhoneResendTimer(typeof data?.expiresIn === 'number' ? data.expiresIn : 0);
     } catch (err: any) {
       const msg = err?.response?.data?.message || err?.message || "Failed to set phone";
-      alert(msg);
+      showError(msg);
     } finally {
       setLoading(false);
     }
@@ -173,7 +219,7 @@ export default function RegisterPage() {
   const handleVerifyPhone = async () => {
     const code = phoneOtp.join("");
     if (code.length !== 6) {
-      alert("Please enter the 6-digit phone OTP");
+      showError("Please enter the 6-digit phone OTP");
       return;
     }
     try {
@@ -181,23 +227,22 @@ export default function RegisterPage() {
       // Compose E.164-like phone for verify: +<countryCode><number>
       const fullPhone = `${form.countryCode.trim()}${form.phone.trim()}`.replace(/\s+/g, "");
       const res = await verifyPhoneOtp({ userId, phone: fullPhone, code });
-      const { user, accessToken, refreshToken, expiresIn } = res.data;
-      const ttl = typeof expiresIn === 'number' ? expiresIn : 3600; // fallback 1h
-      // Store tokens using both conventions
-      localStorage.setItem("accessToken", accessToken);
-      localStorage.setItem("refreshToken", refreshToken);
-      localStorage.setItem("user", JSON.stringify(user));
-      localStorage.setItem("expiresIn", String(ttl));
-      localStorage.setItem("access_token", accessToken);
-      localStorage.setItem("refresh_token", refreshToken);
+      const data = res.data.data || res.data;
+      
+      saveAuthToLocal(data);
+      
+      // Clear registration temporary state
+      localStorage.removeItem("registration_stage");
+      localStorage.removeItem("registration_userId");
+      localStorage.removeItem("registration_email");
+      localStorage.removeItem("registration_phone");
 
-      localStorage.setItem("token_expiry", String(Date.now() + ttl * 1000));
       await refreshUser();
       // await api.cart.merge(); 
       router.push('/create-account');
     } catch (err: any) {
       const msg = err?.response?.data?.message || err?.message || "Failed to verify phone";
-      alert(msg);
+      showError(msg);
     } finally {
       setLoading(false);
     }
@@ -209,12 +254,12 @@ export default function RegisterPage() {
     try {
       setLoading(true);
       const res = await resendPhoneOtp({ userId, phone: form.phone.trim() });
-      const data = res.data;
+      const data = res.data.data || res.data;
       setDebugOtp(data.debugOtp || "");
       setPhoneResendTimer(typeof data.expiresIn === 'number' ? data.expiresIn : 60);
     } catch (err: any) {
       const msg = err?.response?.data?.message || err?.message || "Failed to resend OTP";
-      alert(msg);
+      showError(msg);
     } finally {
       setLoading(false);
     }
@@ -258,6 +303,7 @@ export default function RegisterPage() {
                 type="text"
                 name="name"
                 placeholder="Full Name"
+                value={form.name}
                 onChange={handleChange}
                 className="w-full mb-3 px-4 py-3 border border-[#D6CFC2] bg-transparent text-sm text-black focus:outline-none"
               />
@@ -265,6 +311,7 @@ export default function RegisterPage() {
                 type="text"
                 name="username"
                 placeholder="Username"
+                value={form.username}
                 onChange={handleChange}
                 className="w-full mb-3 px-4 py-3 border border-[#D6CFC2] bg-transparent text-sm text-black focus:outline-none"
               />
@@ -272,6 +319,7 @@ export default function RegisterPage() {
                 type="email"
                 name="email"
                 placeholder="Email Address"
+                value={form.email}
                 onChange={handleChange}
                 className="w-full mb-5 px-4 py-3 border border-[#D6CFC2] bg-transparent text-sm text-black focus:outline-none"
               />
@@ -303,88 +351,121 @@ export default function RegisterPage() {
           )}
 
           {stage === 'set_phone' && (
-            <>
-              <input
-                type="text"
-                name="countryCode"
-                placeholder="Country Code (e.g. +971)"
-                value={form.countryCode}
-                onChange={handleChange}
-                className="w-full mb-3 px-4 py-3 border border-[#D6CFC2] bg-transparent text-sm text-black focus:outline-none"
-              />
-              <input
-                type="text"
-                name="phone"
-                placeholder="Phone Number"
-                onChange={handleChange}
-                className="w-full mb-5 px-4 py-3 border border-[#D6CFC2] bg-transparent text-sm text-black focus:outline-none"
-              />
-            </>
-          )}
-
-          {stage === 'verify_phone' && (
-            <div className="mb-5">
-              <div className="flex gap-2 justify-center mb-2">
-                {phoneOtp.map((digit, index) => (
-                  <input
-                    key={index}
-                    type="text"
-                    inputMode="numeric"
-                    pattern="[0-9]*"
-                    maxLength={1}
-                    value={digit}
-                    onChange={(e) => handlePhoneOtpChange(index, e.target.value)}
-                    onKeyDown={(e) => handlePhoneOtpKeyDown(index, e)}
-                    ref={(el) => { if (el) phoneRefs.current[index] = el; }}
-                    className="w-10 h-12 text-center border border-[#C7B88A] bg-transparent text-sm text-black focus:outline-none"
-                  />
-                ))}
-              </div>
-              <div className="flex items-center justify-center gap-3 mt-2">
-                <button
-                  type="button"
-                  onClick={handleResendPhone}
-                  disabled={loading || phoneResendTimer > 0}
-                  className="text-sm font-semibold text-[#D35400] disabled:text-gray-400"
-                >
-                  {phoneResendTimer > 0 ? `Resend in ${phoneResendTimer}s` : 'Resend OTP'}
-                </button>
-              </div>
-              {debugOtp && (
-                <p className="text-xs text-gray-600 text-center mt-1">Debug OTP: {debugOtp}</p>
-              )}
-            </div>
-          )}
-
-          {stage === 'start' && (
-            <button
-              onClick={handleStart}
-              disabled={loading}
-              className="w-full h-[52px] bg-[#D35400] text-white font-black text-[16px] clip-path-supplier hover:bg-[#39482C] transition-colors uppercase"
-            >
-              {loading ? "Sending OTP..." : "Continue"}
-            </button>
-          )}
-
-          {stage === 'verify_email' && (
-            <button
-              onClick={handleVerifyEmail}
-              disabled={loading}
-              className="w-full h-[52px] bg-[#D35400] text-white font-black text-[16px] clip-path-supplier hover:bg-[#39482C] transition-colors uppercase"
-            >
-              {loading ? "Verifying..." : "Verify Email"}
-            </button>
-          )}
-
-          {stage === 'set_phone' && (
-            <button
-              onClick={handleSetPhone}
-              disabled={loading}
-              className="w-full h-[52px] bg-[#D35400] text-white font-black text-[16px] clip-path-supplier hover:bg-[#39482C] transition-colors uppercase"
-            >
-              {loading ? "Submitting..." : "Continue"}
-            </button>
-          )}
+            <div className="w-full">
+               <label className="block text-sm font-bold mb-2">PHONE NUMBER</label>
+               <PhoneInput
+                  country={'ae'}
+                  value={form.phone}
+                  onChange={(phone, data: any) => {
+                    // phone is the full number digits (e.g. 971501234567)
+                    // data.dialCode is the country code (e.g. 971)
+                    setForm({ 
+                        ...form, 
+                        phone: `+${phone}`, 
+                        countryCode: data.dialCode 
+                    });
+                  }}
+                  enableSearch={true}
+                  disableSearchIcon={true}
+                  searchPlaceholder="Search Country..."
+                  searchStyle={{
+                      width: '94%',
+                      height: '36px',
+                      margin: '4px auto',
+                      backgroundColor: '#F3EDE3',
+                      border: '1px solid #C7B88A',
+                      borderRadius: '2px',
+                      padding: '8px',
+                      color: 'black'
+                  }}
+                  inputStyle={{
+                      width: '100%',
+                      height: '42px',
+                      backgroundColor: '#F3EDE3',
+                      border: '1px solid #C7B88A',
+                      fontFamily: 'inherit',
+                      color: '#000000',
+                      paddingLeft: '65px'
+                  }}
+                  buttonStyle={{
+                      border: '1px solid #C7B88A',
+                      backgroundColor: '#C7B88A',
+                      // width: '70px',
+                      justifyContent: 'flex-start',
+                      padding: '8px'
+                  }}
+                  dropdownStyle={{
+                      backgroundColor: '#F3EDE3',
+                      color: 'black',
+                      width: '300px'
+                  }}
+               />
+             </div>
+           )}
+ 
+           {stage === 'verify_phone' && (
+             <div className="mb-5">
+               <div className="flex gap-2 justify-center mb-2">
+                 {phoneOtp.map((digit, index) => (
+                   <input
+                     key={index}
+                     type="text"
+                     inputMode="numeric"
+                     pattern="[0-9]*"
+                     maxLength={1}
+                     value={digit}
+                     onChange={(e) => handlePhoneOtpChange(index, e.target.value)}
+                     onKeyDown={(e) => handlePhoneOtpKeyDown(index, e)}
+                     ref={(el) => { if (el) phoneRefs.current[index] = el; }}
+                     className="w-10 h-12 text-center border border-[#C7B88A] bg-transparent text-sm text-black focus:outline-none"
+                   />
+                 ))}
+               </div>
+               <div className="flex items-center justify-center gap-3 mt-2">
+                 <button
+                   type="button"
+                   onClick={handleResendPhone}
+                   disabled={loading || phoneResendTimer > 0}
+                   className="text-sm font-semibold text-[#D35400] disabled:text-gray-400"
+                 >
+                   {phoneResendTimer > 0 ? `Resend in ${phoneResendTimer}s` : 'Resend OTP'}
+                 </button>
+               </div>
+               {debugOtp && (
+                 <p className="text-xs text-gray-600 text-center mt-1">Debug OTP: {debugOtp}</p>
+               )}
+             </div>
+           )}
+ 
+           {stage === 'start' && (
+             <button
+               onClick={handleStart}
+               disabled={loading}
+               className="w-full h-[52px] bg-[#D35400] text-white font-black text-[16px] clip-path-supplier hover:bg-[#39482C] transition-colors uppercase"
+             >
+               {loading ? "Sending OTP..." : "Continue"}
+             </button>
+           )}
+ 
+           {stage === 'verify_email' && (
+             <button
+               onClick={handleVerifyEmail}
+               disabled={loading}
+               className="w-full h-[52px] bg-[#D35400] text-white font-black text-[16px] clip-path-supplier hover:bg-[#39482C] transition-colors uppercase"
+             >
+               {loading ? "Verifying..." : "Verify Email"}
+             </button>
+           )}
+ 
+           {stage === 'set_phone' && (
+             <button
+               onClick={handleSetPhone}
+               disabled={loading}
+               className="w-full h-[52px] bg-[#D35400] text-white font-black text-[16px] clip-path-supplier hover:bg-[#39482C] transition-colors uppercase"
+             >
+               {loading ? "Sending..." : "Send OTP"}
+             </button>
+           )}
 
           {stage === 'verify_phone' && (
             <button

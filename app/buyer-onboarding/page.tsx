@@ -1,55 +1,48 @@
 "use client";
 
-import { useState } from "react";
-import Stepper from "./Stepper";
-import BuyerInfo from "./BuyerInfo";
-import ContactPerson from "./ContactPerson";
-import Declaration from "./Declaration";
-import AccountSetup from "./AccountSetup";
+import { useEffect } from "react";
 import { useRouter } from "next/navigation";
+import { useOnboarding } from "./context";
 
-export default function BuyerOnboardingPage() {
+// This page now acts as a director
+function Director() {
     const router = useRouter();
-  
-  const [step, setStep] = useState(1);
+    const { profileData, loading } = useOnboarding();
 
-  return (
-    <section className="min-h-screen bg-[#EBE3D6] px-6 py-12">
-      
-      {/* STEPPER */}
-      <Stepper currentStep={step} />
+    useEffect(() => {
+        if (!loading) {
+            let nextStep = 1;
+            
+            // If profile is empty (no id), force step 1 regardless of user.onboardingStep
+            if (!profileData?.id && !profileData?.profile?.id) { // checking nested profile just in case structure differs
+                 nextStep = 1;
+            } else if (profileData?.current_step) {
+                nextStep = profileData.current_step;
+            } else if (profileData?.onboardingStep) {
+                nextStep = profileData.onboardingStep;
+            } else if (profileData?.onboarding_step) {
+                 nextStep = profileData.onboarding_step;
+            }
 
-      {/* STEP CONTENT */}
-      {step === 1 && (
-        <BuyerInfo onNext={() => setStep(2)} />
-      )}
+            // If done (0), go to dashboard
+            if (nextStep === 0) {
+                 router.replace('/dashboard');
+            } else {
+                 router.replace(`/buyer-onboarding/step/${nextStep}`);
+            }
+        }
+    }, [loading, profileData, router]);
 
-      {step === 2 && (
-        <ContactPerson
-          onNext={() => setStep(3)}
-          onPrev={() => setStep(1)}
-        />
-      )}
+    return (
+        <div className="min-h-screen bg-[#EBE3D6] flex items-center justify-center font-orbitron text-xl">
+            Redirecting...
+        </div>
+    );
+}
 
-      {step === 3 && (
-        <Declaration
-          onNext={() => setStep(4)}
-          onPrev={() => setStep(2)}
-        />
-      )}
-
-     {step === 4 && (
-  <AccountSetup
-    onPrev={() => setStep(3)}
-    onSubmit={() => {
-
-      router.push("/");
-      // later: API call / redirect
-    }}
-  />
-)}
-
-   
-    </section>
-  );
+// We need to export a component that is NOT wrapped in provider here, 
+// because LAYOUT wraps this page. So we can just use useOnboarding directly?
+// YES, page.tsx is a child of layout.tsx.
+export default function BuyerOnboardingPage() {
+    return <Director />;
 }

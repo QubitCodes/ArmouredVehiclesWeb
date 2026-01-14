@@ -11,5 +11,5 @@ export type VendorOnboardingStep2Payload = {
 };
 
 export const submitOnboardingStep2 = (payload: VendorOnboardingStep2Payload) => {
-  return API.post("/vendor/onboarding/step2", payload);
+  return API.post("/onboarding/step2", payload);
 };

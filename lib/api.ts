@@ -453,9 +453,10 @@ filters: {
       contactMobileCountryCode: string;
       termsAccepted: boolean;
     }) => fetchJson<{ success: boolean; message?: string }>(
-      '/vendor/onboarding/step2',
+      '/onboarding/step2',
       { method: 'POST', body: JSON.stringify(data) }
     ),
+    getOnboardingProfile: () => fetchJson<any>('/onboarding/profile'),
   },
 };
 

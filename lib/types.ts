@@ -3,7 +3,9 @@ export interface User {
   id: string;
   name: string;
   email: string;
+  username: string;
   userType: 'customer' | 'vendor' | 'admin' | 'super_admin';
+  phone?: string;
   avatar?: string;
   completionPercentage?: number;
 }

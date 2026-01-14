@@ -11,6 +11,7 @@ export type CartItemLocal = {
   image?: string;
   sku?: string;
   stock?: number;
+  is_controlled?: boolean;
 };
 
 interface CartState {

@@ -4,6 +4,20 @@ interface SpecificationsTabProps {
     product?: any;
 }
 
+
+const parseArrayField = (value: any): any[] => {
+    if (Array.isArray(value)) return value;
+    if (typeof value === 'string') {
+        try {
+            const parsed = JSON.parse(value);
+            if (Array.isArray(parsed)) return parsed;
+        } catch (e) {
+            return value.split(',').map(s => s.trim()); // Fallback for comma-separated strings
+        }
+    }
+    return [];
+};
+
 export default function SpecificationsTab({ product }: SpecificationsTabProps) {
     if (!product) {
         return <div className="p-4 text-gray-500 italic">No specifications available.</div>;
@@ -30,29 +44,34 @@ export default function SpecificationsTab({ product }: SpecificationsTabProps) {
     }
 
     // Materials
-    if (product.materials && Array.isArray(product.materials) && product.materials.length > 0) {
-        specs.push({ label: "Material", value: product.materials.join(", ") });
+    const materials = parseArrayField(product.materials);
+    if (materials.length > 0) {
+        specs.push({ label: "Material", value: materials.join(", ") });
     }
 
     // Colors
-    if (product.colors && Array.isArray(product.colors) && product.colors.length > 0) {
-        specs.push({ label: "Colors", value: product.colors.join(", ") });
+    const colors = parseArrayField(product.colors);
+    if (colors.length > 0) {
+        specs.push({ label: "Colors", value: colors.join(", ") });
     }
 
     // Sizes
-    if (product.sizes && Array.isArray(product.sizes) && product.sizes.length > 0) {
-        specs.push({ label: "Available Sizes", value: product.sizes.join(", ") });
+    const sizes = parseArrayField(product.sizes);
+    if (sizes.length > 0) {
+        specs.push({ label: "Available Sizes", value: sizes.join(", ") });
     }
 
      // Drive Types
-    if (product.drive_types && Array.isArray(product.drive_types) && product.drive_types.length > 0) {
-        specs.push({ label: "Drive Types", value: product.drive_types.join(", ") });
+    const driveTypes = parseArrayField(product.drive_types);
+    if (driveTypes.length > 0) {
+        specs.push({ label: "Drive Types", value: driveTypes.join(", ") });
     }
 
     // Custom Specs from specifications array/string
     if (product.specifications) {
-         if (Array.isArray(product.specifications)) {
-             product.specifications.forEach((s: string) => {
+         const specifications = parseArrayField(product.specifications);
+         if (specifications.length > 0) {
+             specifications.forEach((s: string) => {
                  // Try to split "Key: Value"
                  const parts = s.split(':');
                  if (parts.length > 1) {

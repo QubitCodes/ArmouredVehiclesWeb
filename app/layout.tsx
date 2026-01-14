@@ -8,6 +8,7 @@ import { orbitron } from "@/lib/fonts";
 import { AuthProvider } from "@/lib/auth-context";
 import QueryProvider from "@/components/QueryProvider";
 import { Ruda } from "next/font/google";
+import { Toaster } from "sonner";
 
 const ruda = Ruda({
   subsets: ["latin"],
@@ -35,6 +36,7 @@ export default function RootLayout({
         {/* React Query + Auth Providers */}
         <QueryProvider>
           <AuthProvider>
+          <Toaster position="top-center" richColors />
             {/* Top navigation */}
             <Navbar />
 

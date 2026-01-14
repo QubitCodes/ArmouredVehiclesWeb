@@ -84,7 +84,7 @@ export default function ProductDetailsPage() {
           currency: productData.currency ?? null,
           image: productData.image || data.misc?.placeholder_image || "/product/product 1.png",
           gallery,
-          description: productData.description ?? productData.technicalDescription ?? null,
+          description: productData.description ?? productData.technical_description ?? productData.technicalDescription ?? null,
           condition: productData.condition ?? null,
           stock: typeof productData.stock === "number" ? productData.stock : null,
           features: Array.isArray(productData.features)
@@ -93,12 +93,12 @@ export default function ProductDetailsPage() {
             ? productData.features.split("| ").map((s: string) => s.trim()).filter(Boolean)
             : null,
           specifications: productData.specifications ?? null,
-          vehicleFitment: productData.vehicleFitment ?? null,
+          vehicleFitment: productData.vehicle_fitment ?? productData.vehicleFitment ?? null,
           warranty:
             productData.warranty ??
-            (productData.hasWarranty &&
-            (productData.warrantyTerms || productData.warrantyDuration)
-              ? [productData.warrantyTerms, productData.warrantyDuration, productData.warrantyDurationUnit]
+            (productData.has_warranty &&
+            (productData.warranty_terms || productData.warranty_duration)
+              ? [productData.warranty_terms, productData.warranty_duration, productData.warranty_duration_unit]
                   .filter(Boolean)
                   .join(" ")
               : null),

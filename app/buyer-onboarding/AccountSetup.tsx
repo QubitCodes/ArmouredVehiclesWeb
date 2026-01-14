@@ -1,16 +1,18 @@
 "use client";
 
 import Image from "next/image";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import API from "../services/api";
 
 
 export default function AccountSetup({
     onPrev,
     onSubmit,
+    initialData,
 }: {
     onPrev: () => void;
     onSubmit: () => void;
+    initialData?: any;
 }) {
     /* ---------------- Categories ---------------- */
     const categories = [
@@ -59,56 +61,44 @@ export default function AccountSetup({
     const [error, setError] = useState<string | null>(null);
   const [submitting, setSubmitting] = useState(false);
 
+  // Pre-fill effect
+  useEffect(() => {
+    if (initialData) {
+        if (initialData.selling_categories && Array.isArray(initialData.selling_categories)) {
+            // Need to map if formats differ, but assuming array of strings
+            setSelectedCategories(initialData.selling_categories);
+        }
+        
+        if (initialData.preferred_currency) {
+            setCurrency(initialData.preferred_currency);
+        }
+    }
+  }, [initialData]);
+
     /* ---------------- Radios ---------------- */
     const [currency, setCurrency] = useState("AED");
-    // ✅ ADDED: password states
-const [password, setPassword] = useState("");
-const [confirmPassword, setConfirmPassword] = useState("");
-const [passwordError, setPasswordError] = useState("");
+
 // ✅ ADDED: validation before submit
 const handleSubmit = async () => {
   setError(null);
 
-  // ✅ ONLY REQUIRED VALIDATION
-  if (!password || !confirmPassword) {
-    setError("Please fill the required fields");
-    return;
-  }
-
-  if (password !== confirmPassword) {
-    setError("Passwords do not match");
-    return;
-  }
-
   try {
     setSubmitting(true);
 
-    // const formData = new FormData();
-
-    // // REQUIRED
-    // formData.append("password", password);
-    // formData.append("isDraft", "false");
-
-    // // OPTIONAL / ARRAY FIELDS
-    // selectedCategories.forEach((cat) =>
-    //   formData.append("sellingCategories", cat)
-    // );
-
-    // if (currency)
-    //   formData.append("preferredCurrency", currency);
-
-    // formData.append("registerAs", "Buyer / End User");
-    // formData.append("sponsorContent", "true");
      const payload = {
     sellingCategories: selectedCategories, // ✅ ARRAY
     registerAs: "Buyer / End User",
     preferredCurrency: currency,
     sponsorContent: true,
-    password: password,
     isDraft: false,
   };
 
-    await API.post("/vendor/onboarding/step4", payload);
+    await API.post("/onboarding/step4", payload);
+
+    // Auto-trigger verification for buyers to complete flow
+    await API.post("/onboarding/submit-verification", {
+        verificationMethod: "manual" // Default method
+    });
 
     onSubmit();
   } catch (err: any) {
@@ -224,37 +214,7 @@ const handleSubmit = async () => {
                 </div>
             </div>
 
-            {/* ---------------- Password ---------------- */}
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mt-6 bg-[#F0EBE3] p-6">
-                <div>
-                    <label className="text-xs font-semibold mb-1 block">
-                        Set Platform Password:
-                    </label>
-                    <input
-                        type="password"
-                         value={password}                // ✅ ADDED
-  onChange={(e) => setPassword(e.target.value)} // ✅ ADDED
-                        className="w-full px-4 py-3 border border-[#C7B88A] bg-[#EBE3D6]"
-                    />
-                </div>
 
-                <div>
-                    <label className="text-xs font-semibold mb-1 block">
-                        Confirm Password:
-                    </label>
-                    <input
-                        type="password"
-                         value={confirmPassword}                // ✅ ADDED
-  onChange={(e) => setConfirmPassword(e.target.value)} // ✅ ADDED
-                        className="w-full px-4 py-3 border border-[#C7B88A] bg-[#EBE3D6]"
-                    />
-                </div>
-                 {passwordError && (
-  <p className="text-red-600 text-xs mt-1">
-    {passwordError}
-  </p>
-)}
-            </div>
 
             {/* ---------------- CAPTCHA ---------------- */}
             <div className="bg-[#F0EBE3] p-6 mt-6">
