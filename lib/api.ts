@@ -50,6 +50,9 @@ export function storeTokens(accessToken: string, refreshToken: string, expiresIn
   localStorage.setItem(REFRESH_TOKEN_KEY, refreshToken);
   // Store absolute expiry time (current time + seconds)
   localStorage.setItem(TOKEN_EXPIRY_KEY, String(Date.now() + expiresIn * 1000));
+  
+  // Sync to cookie for Middleware
+  document.cookie = `auth_token=${accessToken}; path=/; max-age=${expiresIn}; SameSite=Lax`;
 }
 
 export function storeUser(user: User) {
@@ -62,6 +65,9 @@ export function clearTokens() {
   localStorage.removeItem(ACCESS_TOKEN_KEY);
   localStorage.removeItem(REFRESH_TOKEN_KEY);
   localStorage.removeItem(TOKEN_EXPIRY_KEY);
+  
+  // Clear cookie
+  document.cookie = 'auth_token=; path=/; expires=Thu, 01 Jan 1970 00:00:01 GMT;';
   localStorage.removeItem(USER_KEY);
 }
 
@@ -156,11 +162,22 @@ async function fetchJson<T>(endpoint: string, options: RequestInit = {}, retry =
   const response = await fetch(url, { ...options, headers });
 
   // 2. Error handling: If 401 Unauthorized, try to refresh and retry ONCE
-  if (response.status === 401 && retry && getRefreshToken()) {
-    const refreshed = await refreshAccessToken();
-    if (refreshed) {
-      // Retry the original request with new token
-      return fetchJson<T>(endpoint, options, false);
+  if (response.status === 401) {
+    if (retry && getRefreshToken()) {
+        const refreshed = await refreshAccessToken();
+        if (refreshed) {
+          // Retry the original request with new token
+          return fetchJson<T>(endpoint, options, false);
+        }
+    }
+    
+    // If we are here, it means 401 and either no refresh token or refresh failed
+    // Redirect to login
+    if (typeof window !== 'undefined') {
+        const currentPath = window.location.pathname;
+        if (!currentPath.startsWith('/login')) {
+             window.location.href = `/login?returnUrl=${encodeURIComponent(currentPath)}`;
+        }
     }
   }
 
