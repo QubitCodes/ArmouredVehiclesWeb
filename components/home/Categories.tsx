@@ -92,43 +92,51 @@ export const Categories = () => {
     return () => window.removeEventListener("resize", updateWidth);
   }, []);
 
-  const handlePrevious = () => {
-    if (containerRef.current) {
-      const scrollAmount = isMobile ? 163 + 8 : 282; // card width + gap
-      containerRef.current.scrollBy({
-        left: -scrollAmount,
-        behavior: "smooth",
-      });
-    }
-  };
+  // Calculate max slides for desktop (how many positions we can slide)
+  const cardWidth = isMobile ? 163 + 8 : 282; // card width + gap
+  const visibleCards = isMobile ? 2 : Math.floor((measuredWidth || 1000) / cardWidth);
+  const maxSlide = Math.max(0, categories.length - visibleCards);
 
-  const handleNext = () => {
-    if (containerRef.current) {
-      const scrollAmount = isMobile ? 163 + 8 : 282;
-      containerRef.current.scrollBy({ left: scrollAmount, behavior: "smooth" });
-    }
-  };
-
-  // Track scroll position for progress bar
+  // Auto play - runs every 5 seconds
   useEffect(() => {
-    if (!isMobile || !containerRef.current) return;
+    if (categories.length === 0) return;
+    
+    const timer = setInterval(() => {
+      setCurrentIndex((prev) => {
+        // Infinite loop: if at last position, go back to 0
+        if (prev >= maxSlide) return 0;
+        return prev + 1;
+      });
+    }, 5000);
 
-    const container = containerRef.current;
-    const handleScroll = () => {
-      const scrollLeft = container.scrollLeft;
-      const cardWidth = 163 + 8; // card + gap
-      const newIndex = Math.round(scrollLeft / cardWidth);
-      setCurrentIndex(newIndex);
-    };
+    return () => clearInterval(timer);
+  }, [categories.length, maxSlide]);
 
-    container.addEventListener("scroll", handleScroll);
-    return () => container.removeEventListener("scroll", handleScroll);
-  }, [isMobile]);
+  // Handle Previous - Infinite Loop
+  const handlePrevious = useCallback(() => {
+    setCurrentIndex((prev) => {
+      // If at first slide, go to last
+      if (prev <= 0) return maxSlide;
+      return prev - 1;
+    });
+  }, [maxSlide]);
+
+  // Handle Next - Infinite Loop
+  const handleNext = useCallback(() => {
+    setCurrentIndex((prev) => {
+      // If at last slide, go to first
+      if (prev >= maxSlide) return 0;
+      return prev + 1;
+    });
+  }, [maxSlide]);
+
+  // Calculate progress for display
+  const totalSlides = maxSlide + 1;
+  const progressWidth = totalSlides > 0 ? ((currentIndex + 1) / totalSlides) * 100 : 0;
 
   // Mobile carousel view
   if (isMobile) {
-    const cardWidth = 163; // Fixed card width in pixels
-    const gap = 8; // Gap between cards
+    const mobileCardWidth = 163; // Fixed card width in pixels
 
     return (
       <section className="relative py-8">
@@ -150,87 +158,56 @@ export const Categories = () => {
             CATEGORIES
           </h2>
 
-          <div className="relative">
+          <div className="relative overflow-hidden">
             {/* Carousel Container */}
             <div
               ref={containerRef}
-              className="relative overflow-x-auto overflow-y-hidden rounded-none scrollbar-hide snap-x snap-mandatory"
-              style={{ scrollbarWidth: "none", msOverflowStyle: "none" }}>
-              <div className="flex gap-3">
-                {categories.map((category, index) => (
-                  <div
-                    key={index}
-                    className="shrink-0 snap-start"
-                    style={{ width: `${cardWidth}px` }}>
-                    <Link href={`/products?category_id=${category.id}`}
-                      className="block relative w-full h-52 overflow-hidden group bg-black/60">
-                      {category.image ? (
-                        <Image
-                          src={category.image}
-                          alt={category.title}
-                          fill
-                          className="object-cover"
-                        />
-                      ) : null}
-                      {/* Gradient Overlay */}
-                      <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-transparent to-transparent" />
+              className="flex gap-3 transition-transform duration-500 ease-out"
+              style={{
+                transform: `translateX(-${currentIndex * (mobileCardWidth + 8)}px)`,
+              }}>
+              {categories.map((category, index) => (
+                <div
+                  key={index}
+                  className="shrink-0"
+                  style={{ width: `${mobileCardWidth}px` }}>
+                  <Link href={`/products?category_id=${category.id}`}
+                    className="block relative w-full h-52 overflow-hidden group bg-black/60">
+                    {category.image ? (
+                      <Image
+                        src={category.image}
+                        alt={category.title}
+                        fill
+                        className="object-cover"
+                      />
+                    ) : null}
+                    {/* Gradient Overlay */}
+                    <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-transparent to-transparent" />
 
-                      {/* Category Title */}
-                      <div className="absolute bottom-0 left-0 right-0 p-5 pb-4">
-                        <h3 className="font-orbitron text-white text-[13px] font-bold uppercase leading-tight tracking-wide">
-                          {category.title}
-                        </h3>
-                      </div>
-                    </Link>
-                  </div>
-                ))}
-              </div>
+                    {/* Category Title */}
+                    <div className="absolute bottom-0 left-0 right-0 p-5 pb-4">
+                      <h3 className="font-orbitron text-white text-[13px] font-bold uppercase leading-tight tracking-wide">
+                        {category.title}
+                      </h3>
+                    </div>
+                  </Link>
+                </div>
+              ))}
             </div>
 
-            {/* Navigation Arrows */}
-            {/* <button
-              onClick={handlePrevious}
-              disabled={currentIndex === 0}
-              className={`absolute left-4 top-[45%] -translate-y-1/2 z-10 w-7 h-7 flex items-center justify-center transition-all ${
-                currentIndex === 0 ? 'opacity-20 cursor-not-allowed' : 'opacity-60'
-              }`}
-              aria-label="Previous category"
-            >
-              <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={3} stroke="white" className="w-6 h-6">
-                <path strokeLinecap="round" strokeLinejoin="round" d="M15.75 19.5 8.25 12l7.5-7.5" />
-              </svg>
-            </button>
-
-            <button
-              onClick={handleNext}
-              disabled={currentIndex === categories.length - 1}
-              className={`absolute right-4 top-[45%] -translate-y-1/2 z-10 w-7 h-7 flex items-center justify-center transition-all ${
-                currentIndex === categories.length - 1 ? 'opacity-20 cursor-not-allowed' : 'opacity-60'
-              }`}
-              aria-label="Next category"
-            >
-              <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={3} stroke="white" className="w-6 h-6">
-                <path strokeLinecap="round" strokeLinejoin="round" d="m8.25 4.5 7.5 7.5-7.5 7.5" />
-              </svg>
-            </button> */}
-
-            {/* Progress Bar */}
+            {/* Progress Bar with Navigation */}
             <div className="flex items-center gap-3 mt-6 px-2">
+              {/* Left Arrow - Always Enabled */}
               <button
                 onClick={handlePrevious}
-                disabled={currentIndex === 0}
-                className={`transition-opacity ${
-                  currentIndex === 0
-                    ? "opacity-20 cursor-not-allowed"
-                    : "opacity-60"
-                }`}
+                className="text-white/60 hover:text-white transition-colors"
                 aria-label="Previous">
                 <svg
                   xmlns="http://www.w3.org/2000/svg"
                   fill="none"
                   viewBox="0 0 24 24"
                   strokeWidth={2}
-                  stroke="white"
+                  stroke="currentColor"
                   className="w-5 h-5">
                   <path
                     strokeLinecap="round"
@@ -240,29 +217,26 @@ export const Categories = () => {
                 </svg>
               </button>
 
-              <div className="flex-1 h-[2px] bg-white/20 relative overflow-hidden">
+              {/* Progress Bar */}
+              <div className="flex-1 h-[3px] bg-white/20 relative overflow-hidden rounded-full">
                 <div
-                  className="absolute left-0 top-0 h-full bg-orange-500 transition-all duration-500 ease-out"
+                  className="absolute left-0 top-0 h-full bg-orange-500 rounded-full transition-all duration-500 ease-out"
                   style={{
-                    width: `${categories.length ? (((currentIndex + 1) / categories.length) * 100) : 0}%`,
+                    width: `${progressWidth}%`,
                   }}></div>
               </div>
 
+              {/* Right Arrow - Always Enabled */}
               <button
                 onClick={handleNext}
-                disabled={currentIndex === categories.length - 1}
-                className={`transition-opacity ${
-                  currentIndex === categories.length - 1
-                    ? "opacity-20 cursor-not-allowed"
-                    : "opacity-60"
-                }`}
+                className="text-white/60 hover:text-white transition-colors"
                 aria-label="Next">
                 <svg
                   xmlns="http://www.w3.org/2000/svg"
                   fill="none"
                   viewBox="0 0 24 24"
                   strokeWidth={2}
-                  stroke="white"
+                  stroke="currentColor"
                   className="w-5 h-5">
                   <path
                     strokeLinecap="round"
@@ -272,24 +246,16 @@ export const Categories = () => {
                 </svg>
               </button>
             </div>
+
           </div>
         </div>
       </section>
     );
   }
 
-  // Desktop view (original design)
-  const maxSlide = Math.max(
-    0,
-    categories.length - Math.floor((measuredWidth || 0) / 282)
-  );
-
+  // Desktop view
   const slideStyle = {
     transform: `translateX(-${currentIndex * 282}px)`,
-  };
-
-  const progressStyle = {
-    width: `${((currentIndex + 1) / (maxSlide + 1)) * 100}%`,
   };
 
   return (
@@ -346,56 +312,58 @@ export const Categories = () => {
               </div>
             ))}
           </div>
-
-          {/* Slider Progress Bar with Navigation */}
-          <div className="mt-8 flex items-center">
-            <button
-              className={`text-white/60 hover:text-white transition-colors mr-4 ${
-                currentIndex === 0 ? "opacity-50 cursor-not-allowed" : ""
-              }`}
-              onClick={handlePrevious}
-              disabled={currentIndex === 0}>
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                fill="none"
-                viewBox="0 0 24 24"
-                strokeWidth={2}
-                stroke="currentColor"
-                className="w-6 h-6">
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  d="M15.75 19.5 8.25 12l7.5-7.5"
-                />
-              </svg>
-            </button>
-            <div className="flex-1 h-0.5 bg-white/10 relative">
-              <div
-                className="absolute left-0 top-0 h-full bg-orange-500 rounded-full transition-all duration-500 ease-out"
-                style={progressStyle}></div>
-            </div>
-            <button
-              className={`text-white/60 hover:text-white transition-colors ml-4 ${
-                currentIndex >= maxSlide ? "opacity-50 cursor-not-allowed" : ""
-              }`}
-              onClick={handleNext}
-              disabled={currentIndex >= maxSlide}>
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                fill="none"
-                viewBox="0 0 24 24"
-                strokeWidth={2}
-                stroke="currentColor"
-                className="w-6 h-6">
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  d="m8.25 4.5 7.5 7.5-7.5 7.5"
-                />
-              </svg>
-            </button>
-          </div>
         </div>
+
+        {/* Progress Bar with Navigation */}
+        <div className="mt-8 flex items-center gap-4">
+          {/* Left Arrow - Always Enabled */}
+          <button
+            className="text-white/60 hover:text-white transition-colors"
+            onClick={handlePrevious}
+            aria-label="Previous">
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              fill="none"
+              viewBox="0 0 24 24"
+              strokeWidth={2}
+              stroke="currentColor"
+              className="w-6 h-6">
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                d="M15.75 19.5 8.25 12l7.5-7.5"
+              />
+            </svg>
+          </button>
+
+          {/* Progress Bar */}
+          <div className="flex-1 h-[3px] bg-white/20 relative overflow-hidden rounded-full">
+            <div
+              className="absolute left-0 top-0 h-full bg-orange-500 rounded-full transition-all duration-500 ease-out"
+              style={{ width: `${progressWidth}%` }}></div>
+          </div>
+
+          {/* Right Arrow - Always Enabled */}
+          <button
+            className="text-white/60 hover:text-white transition-colors"
+            onClick={handleNext}
+            aria-label="Next">
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              fill="none"
+              viewBox="0 0 24 24"
+              strokeWidth={2}
+              stroke="currentColor"
+              className="w-6 h-6">
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                d="m8.25 4.5 7.5 7.5-7.5 7.5"
+              />
+            </svg>
+          </button>
+        </div>
+
       </div>
     </section>
   );
