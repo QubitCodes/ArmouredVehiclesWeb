@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { createAddress, updateAddress } from "@/app/services/address";
 import { Address } from "@/lib/types";
+import { getStoredUser } from "@/lib/api";
 
 type NewAddress = Omit<Address, "id" | "userId" | "isVerified" | "createdAt">;
 
@@ -51,12 +52,27 @@ export default function AddressForm({
     onSubmitting?.(true);
     try {
       let resAddress: Address;
+      // Inject phone from profile
+      const user = getStoredUser();
+      const phoneToUse = user?.phone ? user.phone : "0000000000";
+      
+      console.log("DEBUG: AddressForm user:", user);
+      console.log("DEBUG: Phone to use:", phoneToUse);
+
+      const payload = {
+         ...form,
+         phone: phoneToUse,
+         addressType: "home" as "home" | "work" | "other" // Default since UI is removed
+      };
+      
+      console.log("DEBUG: Payload:", payload);
+
       if (initialData?.id) {
-         await updateAddress(initialData.id, form);
-         // Manually merge since update might not return full object or we want to reflect local changes immediately
-         resAddress = { ...initialData, ...form } as Address;
+         await updateAddress(initialData.id, payload);
+         // Manually merge
+         resAddress = { ...initialData, ...payload } as Address;
       } else {
-         resAddress = await createAddress(form);
+         resAddress = await createAddress(payload);
       }
       onCreated(resAddress);
     } catch (err: any) {
@@ -85,35 +101,11 @@ export default function AddressForm({
         </div>
 
         <div>
-          <label className="block text-sm text-black mb-1">Address Type</label>
-          <select
-            value={form.addressType}
-            onChange={(e) => update("addressType", e.target.value as NewAddress["addressType"])}
-            className="w-full bg-[#F0EBE3] border border-[#C2B280] px-3 py-2 text-sm text-black outline-none"
-          >
-            <option value="home">Home</option>
-            <option value="work">Work</option>
-            <option value="other">Other</option>
-          </select>
-        </div>
-
-        <div>
           <label className="block text-sm text-black mb-1">Full Name</label>
           <input
             type="text"
             value={form.fullName}
             onChange={(e) => update("fullName", e.target.value)}
-            className="w-full bg-[#F0EBE3] border border-[#C2B280] px-3 py-2 text-sm text-black outline-none"
-            required
-          />
-        </div>
-
-        <div>
-          <label className="block text-sm text-black mb-1">Phone</label>
-          <input
-            type="tel"
-            value={form.phone}
-            onChange={(e) => update("phone", e.target.value)}
             className="w-full bg-[#F0EBE3] border border-[#C2B280] px-3 py-2 text-sm text-black outline-none"
             required
           />

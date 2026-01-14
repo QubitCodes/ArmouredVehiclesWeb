@@ -22,6 +22,7 @@ interface ProductCardProps {
   price: number;
   delivery: string;
   action: "ADD TO CART" | "SUBMIT AN INQUIRY";
+  isControlled?: boolean;
 }
 
 export default function ProductCard({
@@ -34,6 +35,7 @@ export default function ProductCard({
   delivery,
   action,
   placeholderImage = "/placeholder.svg",
+  isControlled = false,
 }: ProductCardProps & { placeholderImage?: string }) {
   const [slide, setSlide] = useState(0);
   const [imgSrc, setImgSrc] = useState<string | null>(null);
@@ -185,16 +187,25 @@ export default function ProductCard({
       <ProductRating rating={rating} reviewCount={Number(reviews)} />
     </div>
 
+
+
     <hr className="border-t border-[#CCCCCC] my-2 md:my-3" />
 
     {/* Price */}
     {isLoading ? (
       <span className="text-sm text-gray-400">—</span>
     ) : isAuthenticated ? (
+      <div className="flex items-center justify-between w-full">
       <p className="text-base md:text-lg font-semibold text-gray-900 flex items-center gap-1">
         <Image src="/icons/currency/dirham.svg" alt="Currency" width={16} height={16} />
         {price.toLocaleString()}
       </p>
+      {isControlled && (
+          <div className="inline-block bg-red-100 text-red-600 text-[10px] md:text-xs px-2 py-0.5 font-bold uppercase tracking-wider border border-red-200 w-fit">
+            Controlled
+          </div>
+       )}
+      </div>
     ) : (
       <span
         onClick={(e) => {
@@ -209,7 +220,8 @@ export default function ProductCard({
     )}
 
     {/* Delivery */}
-    <div className="flex items-center gap-1 mt-2 whitespace-nowrap">
+    {/* Delivery info removed as per request */}
+    {/* <div className="flex items-center gap-1 mt-2 whitespace-nowrap">
       <Image
         src="/icons/delivery.svg"
         alt="delivery"
@@ -221,7 +233,7 @@ export default function ProductCard({
         <span className="text-[#D35400]">Standard</span> Delivery by{" "}
         <span className="font-medium">{getDeliveryRange()}</span>
       </span>
-    </div>
+    </div> */}
   </div>
 
   {/* ✅ THIS PUSHES EMPTY SPACE BELOW DELIVERY */}

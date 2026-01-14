@@ -17,6 +17,7 @@ type UiWishlistItem = {
   reviews?: string;
   deliveryText: string;
   isHighValue: boolean;
+  isControlled?: boolean;
 };
 
 export default function WishlistPage() {
@@ -42,6 +43,7 @@ export default function WishlistPage() {
         reviews: p?.reviewCount ? String(p.reviewCount) : undefined,
         deliveryText: "Delivery by tomorrow",
         isHighValue: false,
+        isControlled: p?.is_controlled,
       } as UiWishlistItem;
     });
   }, [rawItems]);
@@ -226,8 +228,11 @@ export default function WishlistPage() {
                   {item.reviews && <span className="text-xs text-[#999]">({item.reviews})</span>}
                 </div>
 
+
+
                 {/* Product Price */}
-                <div className="flex items-center gap-2 mb-3">
+                <div className="flex items-center justify-between w-full mb-3">
+                  <div className="flex items-center gap-2">
                   <Image
                     src="/icons/currency/dirham.svg"
                     alt="AED"
@@ -238,17 +243,23 @@ export default function WishlistPage() {
                   <span className="font-inter font-bold text-lg text-black">
                     {typeof item.price === "number" ? item.price.toLocaleString() : "—"}
                   </span>
+                  </div>
+                  {item.isControlled && (
+                    <div className="inline-block bg-red-100 text-red-600 text-[10px] px-2 py-0.5 font-bold uppercase tracking-wider border border-red-200">
+                      Controlled
+                    </div>
+                  )}
                 </div>
 
 
-                {/* Delivery Info */}
-                <div className="flex items-center gap-1.5 mb-4">
+                {/* Delivery Info - Removed as per request */}
+                {/* <div className="flex items-center gap-1.5 mb-4">
                   <Truck size={14} className="text-[#D35400]" />
                   <span className="text-xs">
                     <span className="text-[#D35400] font-medium">Standard</span>
                     <span className="text-[#666]"> {item.deliveryText}</span>
                   </span>
-                </div>
+                </div> */}
 
                 {/* Actions */}
                 <div className="flex items-center gap-3">

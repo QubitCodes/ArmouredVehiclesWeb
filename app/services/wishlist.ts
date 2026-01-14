@@ -9,6 +9,7 @@ export interface WishlistItemProduct {
   gallery?: string[];
   rating?: number;
   reviewCount?: number | string;
+  is_controlled?: boolean;
 }
 
 export interface WishlistItem {

@@ -10,6 +10,7 @@ type Product = {
   reviews: number;
   price: number;
   image: string;
+  is_controlled?: boolean;
 };
 
 type Props = {
@@ -45,6 +46,7 @@ export default function SimilarItemsSection({ products }: Props) {
             rating={product.rating}
             reviews={product.reviews}
             price={product.price}
+            isControlled={product.is_controlled}
           />
         ))}
       </div>

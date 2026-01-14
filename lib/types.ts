@@ -5,6 +5,7 @@ export interface User {
   email: string;
   username: string;
   userType: 'customer' | 'vendor' | 'admin' | 'super_admin';
+  phone?: string;
   avatar?: string;
   completionPercentage?: number;
 }

@@ -6,7 +6,11 @@ import { useCartStore, CartItemLocal } from "@/lib/cart-store";
 // Helper: find server cart item id by productId (for update/delete)
 async function findServerCartItemId(productId: number) {
   const items = await api.cart.get();
-  const match = (items || []).find((ci: any) => Number(ci.productId ?? ci.product?.id) === Number(productId));
+  // Check common key variations
+  const match = (items || []).find((ci: any) => {
+      const pId = ci.productId ?? ci.product_id ?? ci.product?.id;
+      return Number(pId) === Number(productId);
+  });
   return match?.id as number | undefined;
 }
 
@@ -48,8 +52,11 @@ export async function syncRemoveFromServer(productId: number) {
 export async function hydrateCartFromServer() {
   // if (!token) return;
   try {
-    const serverItems = await api.cart.get();
-    const mapped: CartItemLocal[] = (serverItems || []).map((ci: any) => ({
+    const response: any = await api.cart.get();
+    // Helper to find the items array regardless of wrapper
+    const serverItems = Array.isArray(response) ? response : (response.data?.items || response.items || []);
+
+    const mapped: CartItemLocal[] = serverItems.map((ci: any) => ({
       id: String(ci.productId ?? ci.product?.id ?? ci.id),
       name: ci.product?.name ?? `Product #${ci.productId}`,
       price: Number(ci.product?.price ?? 0),
@@ -57,9 +64,10 @@ export async function hydrateCartFromServer() {
       image:
         ci.product?.image ??
         ci.product?.images?.[0] ??
-  "/product/rim.png",
+        "/product/rim.png",
       sku: ci.product?.sku,
       stock: ci.product?.stock,
+      is_controlled: ci.product?.is_controlled,
     }));
     const setItems = useCartStore.getState().setItems;
     setItems(mapped);

@@ -24,6 +24,7 @@ interface Product {
     reviews: number;
     image: string[];
     action: 'ADD TO CART' | 'SUBMIT AN INQUIRY';
+    is_controlled?: boolean;
 }
 
 function CategoryContent() {
@@ -187,6 +188,7 @@ function CategoryContent() {
                             reviews: reviewCount,
                             image: images,
                             action: normalizedPrice > 0 ? 'ADD TO CART' : 'SUBMIT AN INQUIRY',
+                            is_controlled: item.is_controlled,
                         } as Product;
                     })
                     : [];
@@ -704,6 +706,7 @@ function CategoryContent() {
                                             price={product.price}
                                             delivery="Standard Delivery"
                                             action={product.action}
+                                            isControlled={product.is_controlled}
                                         />
                                     </Link>
                                 ))}

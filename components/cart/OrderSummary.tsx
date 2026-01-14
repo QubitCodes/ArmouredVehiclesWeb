@@ -12,6 +12,7 @@ type OrderSummaryProps = {
   onCheckout?: () => void;
   buttonText?: string;
   isLoading?: boolean;
+  approvalRequired?: boolean;
 };
 
 
@@ -21,7 +22,10 @@ export default function OrderSummary({
   onCheckout,
   buttonText = "CHECKOUT",
   isLoading = false,
+  approvalRequired = false,
 }: OrderSummaryProps) {
+  const finalButtonText = approvalRequired ? "REQUEST PURCHASE" : buttonText;
+
   return (
     <aside className="bg-[#EBE3D6] p-4 lg:p-6 w-full max-w-[500px] space-y-4 lg:space-y-6 overflow-hidden">
       {/* Title */}
@@ -62,7 +66,7 @@ export default function OrderSummary({
       </div>
 
       {/* Promo Code Input + Apply */}
-      <div className="flex h-[45px] lg:h-[50px] w-full">
+      {/* <div className="flex h-[45px] lg:h-[50px] w-full">
         <input
           type="text"
           placeholder="Enter Promo Code"
@@ -71,7 +75,7 @@ export default function OrderSummary({
         <button className="bg-[#3D4A26] text-white text-[13px] lg:text-[15px] font-bold uppercase px-6 lg:px-8 h-full hover:bg-[#4A6F36] transition-colors">
           APPLY
         </button>
-      </div>
+      </div> */}
 
       {/* Divider - Hidden on mobile */}
       <hr className="border-[#D6D0C3] hidden lg:block" />
@@ -129,7 +133,7 @@ export default function OrderSummary({
         "
         onClick={() => onCheckout?.()}>
         {isLoading && <Loader className="w-5 h-5 animate-spin" />}
-        {buttonText}
+        {finalButtonText}
       </button>
     </aside>
   );

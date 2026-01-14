@@ -20,6 +20,7 @@ import {
 import { Address } from "@/lib/types";
 import { getAccessToken } from "@/lib/api";
 import { useAddressStore } from "@/lib/address-store";
+import { toast } from "react-hot-toast";
 
 type UiCartItem = {
   id: number;
@@ -31,6 +32,7 @@ type UiCartItem = {
   discount?: string;
   qty: number;
   stock?: string;
+  isControlled?: boolean;
 };
 
 export default function CartPage() {
@@ -59,6 +61,7 @@ export default function CartPage() {
             ? "In Stock"
             : "Out of Stock"
           : undefined,
+      isControlled: i.is_controlled,
     }));
   }, [storeItems]);
 
@@ -112,6 +115,21 @@ export default function CartPage() {
       console.error("Remove item failed", e);
     }
   };
+
+  const handleSaveForLater = async (id: number) => {
+     if (!isLoggedIn) {
+        router.push("/login");
+        return;
+     } 
+     try {
+        await api.wishlist.add(id); 
+        await removeItem(id);
+        toast.success("Saved for later");
+     } catch (error) {
+        console.error("Failed to save for later", error);
+        toast.error("Failed to save for later");
+     }
+  };
   const subtotal = useMemo(
     () => items.reduce((sum, i) => sum + i.qty * i.price, 0),
     [items]
@@ -135,6 +153,7 @@ export default function CartPage() {
   }, []);
 
   const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const [userProfile, setUserProfile] = useState<any>(null); // Store full profile
 
   // Store hooks
   const fetchAddresses = useAddressStore((s) => s.fetchAddresses);
@@ -156,8 +175,37 @@ export default function CartPage() {
     if (logged) {
         // Fetch addresses on mount (store handles caching/updating)
         fetchAddresses();
+
+        // Fetch user profile for compliance check
+        api.user.getCurrent().then((u: any) => {
+            if (u && u.profile) setUserProfile(u.profile);
+            // Also checking if user object itself has the fields if backend structure differs
+            else if (u) setUserProfile(u);
+        }).catch(err => console.error("Failed to fetch user profile", err));
     }
   }, []);
+
+  // --- Compliance Check Logic ---
+  const approvalRequired = useMemo(() => {
+      // 1. Price Threshold
+      if (subtotal >= 10000) return true;
+
+      if (!userProfile) return false;
+
+      // 2. Controlled Items in UAE
+      const uaeVariants = ['United Arab Emirates', 'UAE', 'uae', 'United Arab Emirates (UAE)'];
+      const isUAE = uaeVariants.includes(userProfile.country) || uaeVariants.includes(userProfile.country_of_registration);
+      
+      const hasControlledItems = items.some(i => i.isControlled);
+      
+      // If user says "NO" to controlled items (controlled_dual_use_items === false), 
+      // but is buying controlled items in UAE -> NEEDS APPROVAL
+      if (isUAE && userProfile.controlled_dual_use_items === false && hasControlledItems) {
+          return true;
+      }
+
+      return false;
+  }, [subtotal, items, userProfile]);
 
   return (
 
@@ -170,38 +218,6 @@ export default function CartPage() {
 
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
             <div className="lg:col-span-2">
-                {/* Delivery Address Section */}
-                <div className="mb-10">
-                   <div className="flex items-center justify-between mb-3">
-                       <h2 className="font-orbitron font-bold text-[36px] text-black leading-[100%] tracking-[0%] uppercase">
-                          Delivery Address
-                       </h2>
-                  </div>
-                  <div className="bg-[#EBE3D6] p-5 text-black border border-[#E2DACB] flex items-center justify-between">
-                    <div>
-                      {address ? (
-                        <>
-                          <p className="text-sm font-semibold">Deliver to: {address.label}</p>
-                          <p className="text-[14px] text-[#6E6E6E] mt-1">
-                            {address.addressLine1}
-                            {address.addressLine2 ? `, ${address.addressLine2}` : ""}, {address.city}, {address.state} - {address.postalCode}, {address.country}
-                          </p>
-                        </>
-                      ) : (
-                        <p className="text-[14px] text-[#6E6E6E] mt-1">
-                            {isLoggedIn ? "No address selected. Please select an address." : "Please login to manage your addresses."}
-                        </p>
-                      )}
-                    </div>
-                    <button 
-                      onClick={() => setShowAddressModal(true)} 
-                      className="bg-[#D34D24] text-white font-orbitron font-bold text-[14px] uppercase px-6 py-2 relative clip-path-[polygon(10%_0%,100%_0%,90%_100%,0%_100%)] hover:bg-[#B84A00] transition-colors ml-4 shrink-0"
-                    >
-                      CHANGE
-                    </button>
-                  </div>
-                </div>
-
                 <h1 className="font-orbitron font-bold text-[36px] text-black leading-[100%] tracking-[0%] uppercase mb-6">
                   MY CART{" "}
                   <span
@@ -229,6 +245,7 @@ export default function CartPage() {
                         data={item}
                         updateQty={updateQty}
                         removeItem={removeItem}
+                        saveForLater={handleSaveForLater}
                     />
                     ))}
                 </div>
@@ -236,6 +253,49 @@ export default function CartPage() {
 
             {items.length > 0 && (
             <div className="mt-10 lg:mt-0 lg:sticky lg:top-36 self-start bg-[#EBE3D6]">
+              {/* Delivery Address Section */}
+                <div className="bg-[#EBE3D6] p-5 text-black border border-[#E2DACB] flex flex-col items-start gap-3">
+                <h3
+                    className="font-bold text-[18px] lg:text-[20px] uppercase tracking-[0px] leading-[100%] text-black"
+                    style={{ fontFamily: "Orbitron, sans-serif", fontWeight: 700 }}>
+                    Delivery Address
+                  </h3>
+                  <div className="w-full">
+                    {address ? (
+                      <>
+                        <p className="text-sm font-semibold">Deliver to: {address.label}</p>
+                        <p className="text-[14px] text-[#6E6E6E] mt-1 break-words">
+                          {address.addressLine1}
+                          {address.addressLine2 ? `, ${address.addressLine2}` : ""}, {address.city}, {address.state} - {address.postalCode}, {address.country}
+                        </p>
+                      </>
+                    ) : (
+                      <p className="text-[14px] text-[#6E6E6E] mt-1">
+                          {isLoggedIn ? "No address selected. Please select an address." : "Please login to manage your addresses."}
+                      </p>
+                    )}
+                  </div>
+                  <button 
+                    onClick={() => setShowAddressModal(true)} 
+                    className="bg-[#D34D24] text-white font-orbitron font-bold text-[14px] uppercase px-6 py-2 relative clip-path-[polygon(10%_0%,100%_0%,90%_100%,0%_100%)] hover:bg-[#B84A00] transition-colors shrink-0"
+                  >
+                    CHANGE
+                  </button>
+                </div>
+                {/* 
+            <div className="mb-6">
+              <div className="flex">
+                <input
+                  type="text"
+                  placeholder="Enter Promo Code"
+                  className="flex-1 px-4 py-3 text-sm placeholder:text-[#9CA3AF] focus:outline-none"
+                />
+                <button className="bg-[#3D4733] hover:bg-[#2C3324] text-white px-6 font-bold uppercase text-sm transition-colors">
+                  Apply
+                </button>
+              </div>
+            </div> 
+            */}
                 <OrderSummary
                 subtotal={subtotal}
                 itemCount={itemCount}
@@ -244,6 +304,7 @@ export default function CartPage() {
                 }
                 buttonText={isLoggedIn ? (subtotal >= 10000 ? "REQUEST PURCHASE" : "CHECKOUT") : "LOGIN TO CONTINUE"}
                 isLoading={isCheckoutLoading}
+                approvalRequired={approvalRequired}
                 />
             </div>
             )}
