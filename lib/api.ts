@@ -79,6 +79,25 @@ function isTokenExpiringSoon(): boolean {
   return Date.now() > parseInt(expiry) - 60000;
 }
 
+export function syncAuthCookie() {
+  if (typeof window === 'undefined') return;
+  const token = getAccessToken();
+  const expiry = localStorage.getItem(TOKEN_EXPIRY_KEY);
+  
+  if (token && expiry) {
+    const expiresAt = parseInt(expiry);
+    const expiresIn = Math.floor((expiresAt - Date.now()) / 1000);
+    
+    // Only set if not expired
+    if (expiresIn > 0) {
+       // Check if cookie already exists to avoid redundant writes if possible (optional, but good practice)
+       if (!document.cookie.includes(`auth_token=${token}`)) {
+          document.cookie = `auth_token=${token}; path=/; max-age=${expiresIn}; SameSite=Lax`;
+       }
+    }
+  }
+}
+
 // ==================== Token Refresh Logic ====================
 
 let refreshPromise: Promise<boolean> | null = null;

@@ -2,7 +2,7 @@
 
 import React, { createContext, useContext, useState, useEffect, useCallback, ReactNode } from 'react';
 import { usePathname, useRouter } from 'next/navigation';
-import { api, getStoredUser, clearTokens, getAccessToken } from './api';
+import { api, getStoredUser, clearTokens, getAccessToken, syncAuthCookie } from './api';
 import type { User } from './types';
 
 interface AuthContextType {
@@ -53,6 +53,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
           } catch {
             // Token might be expired, will be refreshed on next API call
           }
+          
+          // Ensure cookie is synced for Middleware
+          syncAuthCookie();
         }
       } catch (error) {
         console.error('Error initializing auth:', error);
