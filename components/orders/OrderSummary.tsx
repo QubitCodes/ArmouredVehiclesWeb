@@ -108,7 +108,7 @@ export default function OrderSummary({ orderId }: OrderSummaryProps) {
         <div className="space-y-3 lg:space-y-4">
           {order.items?.map((item: any, index: number) => {
             const itemName = item.product?.name || item.product_name || item.name || "Product";
-            const itemImage = item.product?.image || item.image || "/placeholders/product-placeholder.png";
+            const itemImage = item.product?.image || item.image || "/product/placeholder.svg";
             const itemPrice = item.price ? parseFloat(item.price) : 0;
             // Dummy status text as requested
             const statusText = "Delivered";
