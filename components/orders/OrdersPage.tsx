@@ -14,25 +14,22 @@ import { useOrders } from "@/lib/hooks/orders";
 import type { Order } from "@/lib/types";
 
 function formatStatusText(order: Order): string {
-  switch (order.status) {
-    case "pending":
-      return "Order placed";
-    case "processing":
-      return "Processing";
-    case "shipped":
-      return "Dispatched";
+  switch (order.order_status) {
     case "approved":
-      return "Approved";
+    case "pending_review":
     case "pending_approval":
-      return "Waiting Approval";
+      return "Processing"; // Map these to Processing for user view? Or keep distinct?
+    case "shipped":
+      return "Shipped";
     case "delivered":
       return "Delivered";
     case "cancelled":
+    case "rejected":
       return "Cancelled";
     case "returned":
       return "Returned";
     default:
-      return order.status;
+      return order.order_status.replace('_', ' ');
   }
 }
 
@@ -56,8 +53,8 @@ export default function OrdersPage() {
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
 
-  const inProgressOrders = (orders || []).filter((o) => ["pending", "processing", "shipped", "approved", "pending_approval"].includes(o.status));
-  const completedOrders = (orders || []).filter((o) => ["delivered", "cancelled", "returned"].includes(o.status));
+  const inProgressOrders = (orders || []).filter((o) => ["pending_review", "pending_approval", "approved", "processing", "shipped"].includes(o.order_status));
+  const completedOrders = (orders || []).filter((o) => ["delivered", "cancelled", "returned", "rejected"].includes(o.order_status));
 
   // Debug logging
   useEffect(() => {
@@ -147,7 +144,7 @@ export default function OrdersPage() {
             const extraCount = (order.items?.length || 0) - 1;
             const title = extraCount > 0 ? `${baseName} + ${extraCount} products` : baseName;
             
-            const price = first?.price ? parseFloat(first.price) : (order.totalAmount || 0);
+            const price = first?.price ? parseFloat(first.price) : Number(order.total_amount || 0);
             const statusText = formatStatusText(order);
             const statusNote = order.estimatedDelivery ? `ETA: ${order.estimatedDelivery}` : "on time";
             return (
@@ -156,10 +153,13 @@ export default function OrdersPage() {
               <div className="lg:hidden px-3 py-3">
                 <div className="flex items-center justify-between mb-3">
                   <p className="font-semibold text-sm text-black">{order.estimatedDelivery || ""}</p>
-                  <p className="text-sm">
+                  <div className="flex flex-col items-end gap-1">
+                    <p className="font-bold text-black">{Number(order.total_amount || 0).toFixed(2)} AED</p>
+                    <p className="text-xs text-[#666]">
                     <span className="text-[#009900]">{statusText}</span>
                     <span className="text-[#666]"> · {statusNote}</span>
                   </p>
+                </div>
                 </div>
                 {/* Track + More (Mobile) */}
                 <div className="flex items-center gap-2">
@@ -318,7 +318,7 @@ export default function OrdersPage() {
         <div className="space-y-3 lg:space-y-4">
           {completedOrders.map((order, index) => {
             const first = order.items?.[0];
-            const price = first?.price ? parseFloat(first.price) : (order.totalAmount || 0);
+            const price = first?.price ? parseFloat(first.price) : Number(order.total_amount || 0);
             const statusText = formatStatusText(order);
             // Use product image from relation, or legacy image, or placeholder
             const image = first?.product?.image || first?.image || "/product/placeholder.svg";
@@ -333,7 +333,7 @@ export default function OrdersPage() {
               <div className="lg:hidden px-3 py-3">
                 <div className="flex items-start justify-between gap-2 mb-3">
                   <div className="flex items-start gap-2">
-                    {order.status === "delivered" ? (
+                    {order.order_status === "delivered" ? (
                       <div className="w-5 h-5 bg-[#27AE60] rounded flex items-center justify-center flex-shrink-0 mt-0.5">
                         <svg width="12" height="8" viewBox="0 0 14 10" fill="none" xmlns="http://www.w3.org/2000/svg">
                           <path d="M1 5L5 9L13 1" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
@@ -351,7 +351,7 @@ export default function OrdersPage() {
                   </button>
                 </div>
                 {/* Track Refund Button - Mobile with angled sides */}
-                {order.status === "cancelled" && (
+                {order.order_status === "cancelled" && (
                   <div className="w-full p-[1px] clip-path-supplier bg-[#C2B280]">
                     <button
                       onClick={() => router.push(`/orders/refund/${order.id}`)}
@@ -368,7 +368,7 @@ export default function OrdersPage() {
               {/* Order Header - Desktop */}
               <div className="hidden lg:flex px-5 py-4 items-center justify-between">
                 <div className="flex items-center gap-3 min-w-0">
-                  {order.status === "delivered" ? (
+                  {order.order_status === "delivered" ? (
                     <div className="w-6 h-6 bg-[#27AE60] rounded flex items-center justify-center flex-shrink-0">
                       <svg width="14" height="10" viewBox="0 0 14 10" fill="none" xmlns="http://www.w3.org/2000/svg">
                         <path d="M1 5L5 9L13 1" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
@@ -382,7 +382,7 @@ export default function OrdersPage() {
                   <p className="text-sm text-black truncate">{statusText}</p>
                 </div>
                 <div className="flex items-center gap-3">
-                  {order.status === "cancelled" && (
+                  {order.order_status === "cancelled" && (
                     <div className="relative clip-path-supplier bg-[#C2B280] p-[1px]">
                       <button
                         onClick={() => router.push(`/orders/refund/${order.id}`)}

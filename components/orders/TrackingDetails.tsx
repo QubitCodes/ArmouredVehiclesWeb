@@ -96,16 +96,16 @@ export default function TrackingDetails({ orderId }: TrackingDetailsProps) {
             </div>
             <div>
               <p className="text-sm">
-                <span className="font-medium text-black capitalize">{order.status.replace('_', ' ')}</span>
+                <span className="font-medium text-black capitalize">{order.order_status.replace('_', ' ')}</span>
               </p>
-              {order.status === 'cancelled' && (
+              {order.order_status === 'cancelled' && (
                 <p className="text-sm text-[#666]">
-                    Reason: <span className="text-[#D35400]">{order.rejection_reason || "N/A"}</span>
+                    Reason: <span className="text-[#D35400]">{order.comments || "N/A"}</span>
                 </p>
               )}
             </div>
           </div>
-          {order.status === 'pending' && (
+          {(order.order_status === 'pending_review' || order.order_status === 'pending_approval') && (
              <div className="relative clip-path-supplier bg-[#3D4A26] p-[1px] w-full lg:w-auto">
                 <button 
                   className="clip-path-supplier bg-[#EBE3D6] hover:bg-[#3D4A26] text-[#000] hover:text-white px-6 py-2 text-sm font-bold font-orbitron uppercase tracking-wide transition-colors w-full lg:w-auto"

@@ -478,7 +478,7 @@ filters: {
 
   // --- User ---
   user: {
-    getCurrent: () => fetchJson<User>('/user'),
+    getCurrent: () => fetchJson<User>('/profile'),
   },
 
   // --- Vendor ---

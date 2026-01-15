@@ -125,9 +125,7 @@ export default function Declaration({ onNext, onPrev, initialData }: { onNext: (
       formData.append("isOnSanctionsList", "false");
       formData.append("complianceTermsAccepted", "true");
 
-      await API.post("/onboarding/step3", formData, {
-        headers: { "Content-Type": "multipart/form-data" },
-      });
+      await API.post("/onboarding/step3", formData);
 
       onNext();
     } catch (err: any) {

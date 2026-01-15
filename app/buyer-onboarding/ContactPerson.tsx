@@ -63,9 +63,7 @@ export default function ContactPerson({
         formData.append("contactIdDocumentFile", idFile);
       }
 
-      await API.post("/onboarding/step2", formData, {
-        headers: { "Content-Type": "multipart/form-data" },
-      });
+      await API.post("/onboarding/step2", formData);
 
       onNext();
     } catch (err: any) {

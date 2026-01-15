@@ -91,15 +91,16 @@ export interface CartItem {
 // Order Types
 export interface Order {
   id: string;
-  userId: string;
-  status: 'pending' | 'processing' | 'shipped' | 'delivered' | 'cancelled' | 'returned' | 'approved' | 'pending_approval';
-  totalAmount: number;
+  user_id: string;
+  order_status: "pending_review" | "pending_approval" | "rejected" | "approved" | "cancelled" | "processing" | "shipped" | "delivered" | "returned";
+  total_amount: number;
   currency: string;
+  type: "direct" | "request";
+  payment_status?: "pending" | "paid" | "failed" | "refunded" | null;
+  shipment_status?: "pending" | "processing" | "shipped" | "delivered" | "returned" | "cancelled" | null;
+  comments?: string | null;
   trackingNumber?: string;
   estimatedDelivery?: string;
-  rejection_reason?: string;
-  payment_status?: string;
-  shipment_status?: string;
   createdAt: string;
   items?: OrderItem[];
   address?: {

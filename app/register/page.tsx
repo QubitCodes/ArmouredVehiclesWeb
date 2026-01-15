@@ -226,21 +226,38 @@ export default function RegisterPage() {
       setLoading(true);
       // Compose E.164-like phone for verify: +<countryCode><number>
       const fullPhone = `${form.countryCode.trim()}${form.phone.trim()}`.replace(/\s+/g, "");
+      console.log('[DEBUG] Verifying phone OTP...', { userId, phone: fullPhone, code });
+      
       const res = await verifyPhoneOtp({ userId, phone: fullPhone, code });
+      console.log('[DEBUG] verifyPhoneOtp response:', res);
+      
       const data = res.data.data || res.data;
+      console.log('[DEBUG] Extracted data:', data);
       
       saveAuthToLocal(data);
+      console.log('[DEBUG] Auth data saved to localStorage');
       
       // Clear registration temporary state
       localStorage.removeItem("registration_stage");
       localStorage.removeItem("registration_userId");
       localStorage.removeItem("registration_email");
       localStorage.removeItem("registration_phone");
+      console.log('[DEBUG] Registration temp state cleared');
 
-      await refreshUser();
-      // await api.cart.merge(); 
+      console.log('[DEBUG] Calling refreshUser()...');
+      try {
+        await refreshUser();
+        console.log('[DEBUG] refreshUser() completed successfully');
+      } catch (refreshErr) {
+        console.error('[DEBUG] refreshUser() failed:', refreshErr);
+        // Continue anyway - don't block redirect
+      }
+      
+      console.log('[DEBUG] Redirecting to /create-account...');
       router.push('/create-account');
+      console.log('[DEBUG] router.push called');
     } catch (err: any) {
+      console.error('[DEBUG] handleVerifyPhone error:', err);
       const msg = err?.response?.data?.message || err?.message || "Failed to verify phone";
       showError(msg);
     } finally {

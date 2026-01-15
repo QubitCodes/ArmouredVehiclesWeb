@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { useSearchParams, useRouter } from "next/navigation";
-import { CheckCircle, Home, Package } from "lucide-react";
+import { CheckCircle, Home, Package, XCircle } from "lucide-react";
 import { api } from "@/lib/api";
 
 export default function SuccessClient() {
@@ -12,24 +12,42 @@ export default function SuccessClient() {
   const [loading, setLoading] = useState(true);
 
   const sessionId = searchParams.get("session_id");
-  const orderId = searchParams.get("order_id");
+  const orderId = searchParams.get("order_id") || searchParams.get("orderId");
 
   useEffect(() => {
     const verifyPayment = async () => {
       try {
+        console.log('[DEBUG] SuccessClient: Starting payment verification');
+        console.log('[DEBUG] sessionId:', sessionId);
+        console.log('[DEBUG] orderId:', orderId);
+        
         if (!sessionId || !orderId) {
-          console.error("No session ID or Order ID provided");
+          console.error("[DEBUG] No session ID or Order ID provided");
           setLoading(false);
           return;
         }
 
-        const data = await api.checkout.verifySession({ sessionId, orderId });
+        console.log('[DEBUG] Calling api.checkout.verifySession...');
+        const response = await api.checkout.verifySession({ sessionId, orderId });
+        console.log('[DEBUG] verifySession response:', response);
+        // Unwrap the response if it's nested in a 'data' property (standard API wrapper)
+        const data = (response as any).data || response;
         setOrderData(data);
+        
+        // Redirect to order summary with success flag
+        if (data.id) {
+            router.push(`/orders/summary/${data.id}?payment_success=true`);
+        }
       } catch (error: any) {
-        console.error("Error verifying payment:", error);
+        console.error("[DEBUG] Error verifying payment:", error);
+        console.error("[DEBUG] Error message:", error?.message);
+        console.error("[DEBUG] Error status:", error?.status);
         // If the error object has response data, log it
         if (error.response) {
-             console.error("Server Error Response:", error.response.data);
+             console.error("[DEBUG] Server Error Response:", error.response.data);
+        }
+        if (error.data) {
+             console.error("[DEBUG] Error data:", error.data);
         }
       } finally {
         setLoading(false);
@@ -39,92 +57,42 @@ export default function SuccessClient() {
     verifyPayment();
   }, [sessionId, orderId]);
 
-  if (loading) {
-    return (
-      <div className="flex flex-col items-center gap-4">
-        <div className="animate-spin">
-          <Package className="w-16 h-16 text-[#D35400]" />
+  if (loading || orderData) {
+     return (
+        <div className="flex h-[50vh] flex-col items-center justify-center gap-4">
+          <div className="h-12 w-12 animate-spin rounded-full border-4 border-[#D35400] border-t-transparent"></div>
+          <p className="font-orbitron text-lg font-medium text-[#1A1A1A]">
+            {orderData ? "Redirecting to order summary..." : "Verifying your payment..."}
+          </p>
         </div>
-        <p className="text-lg text-[#6E6E6E]">Verifying your payment...</p>
-      </div>
-    );
-  }
-
-  if (!orderData) {
-    return (
-      <div className="space-y-4">
-        <h1 className="font-orbitron font-black text-2xl text-black">
-          Payment Verification Failed
-        </h1>
-        <p className="text-[#6E6E6E]">
-          We couldn&apos;t verify your payment. Please check your email or contact support.
-        </p>
-        <button
-          onClick={() => router.push("/")}
-          className="px-6 py-3 bg-[#D35400] text-white font-bold uppercase rounded-lg hover:bg-[#B84A00] transition-colors"
-        >
-          Back to Home
-        </button>
-      </div>
-    );
+     );
   }
 
   return (
-    <div className="space-y-6">
-      <div className="flex justify-center">
-        <CheckCircle className="w-20 h-20 text-green-500" />
+    <div className="flex h-[50vh] flex-col items-center justify-center gap-6 text-center">
+      <div className="flex h-20 w-20 items-center justify-center rounded-full bg-red-100">
+        <XCircle className="h-10 w-10 text-red-600" />
       </div>
-
       <div>
-        <h1 className="font-orbitron font-black text-3xl text-black mb-2">
-          Order Confirmed!
+        <h1 className="font-orbitron text-2xl font-bold text-[#1A1A1A]">
+          Payment Verification Failed
         </h1>
-        <p className="text-[#6E6E6E] text-lg">Thank you for your purchase</p>
-      </div>
-
-      <div className="bg-[#F0EBE3] rounded-lg p-6 space-y-3 text-left">
-        <div className="flex justify-between">
-          <span className="text-[#6E6E6E]">Order ID:</span>
-          <span className="font-semibold text-black">{orderId}</span>
-        </div>
-        <div className="flex justify-between">
-          <span className="text-[#6E6E6E]">Session ID:</span>
-          <span className="font-semibold text-black break-all text-sm">{sessionId}</span>
-        </div>
-        {orderData?.amount && (
-          <div className="flex justify-between">
-            <span className="text-[#6E6E6E]">Amount Paid:</span>
-            <span className="font-semibold text-black">AED {(orderData.amount / 100).toFixed(2)}</span>
-          </div>
-        )}
-        {orderData?.status && (
-          <div className="flex justify-between">
-            <span className="text-[#6E6E6E]">Status:</span>
-            <span className="font-semibold text-green-600 uppercase">{orderData.status}</span>
-          </div>
-        )}
-      </div>
-
-      <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 text-left">
-        <p className="text-sm text-blue-900">
-          <strong>📧 Confirmation Email:</strong> A receipt and shipping details have been sent to your email address.
+        <p className="mt-2 max-w-md text-[#6E6E6E]">
+          We couldn't verify your payment details. Please check your bank statement or try again.
         </p>
       </div>
-
-      <div className="flex gap-4 flex-col sm:flex-row">
+      <div className="flex gap-4">
         <button
-          onClick={() => router.push("/orders")}
-          className="flex-1 px-6 py-3 bg-[#D35400] text-white font-bold uppercase rounded-lg hover:bg-[#B84A00] transition-colors flex items-center justify-center gap-2"
+            onClick={() => window.location.reload()}
+            className="bg-[#1A1A1A] text-white px-6 py-3 font-orbitron font-bold uppercase hover:bg-black/90 transition-colors"
         >
-          <Package className="w-5 h-5" />
-          Track Order
+            Try Again
         </button>
         <button
-          onClick={() => router.push("/")}
-          className="flex-1 px-6 py-3 border-2 border-[#D35400] text-[#D35400] font-bold uppercase rounded-lg hover:bg-[#FFF8F0] transition-colors flex items-center justify-center gap-2"
+            onClick={() => router.push("/contact")}
+            className="border border-[#1A1A1A] text-[#1A1A1A] px-6 py-3 font-orbitron font-bold uppercase hover:bg-gray-50 transition-colors"
         >
-          <Home className="w-5 h-5" />
-          Back to Home
+            Contact Support
         </button>
       </div>
     </div>

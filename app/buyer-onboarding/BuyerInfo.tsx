@@ -213,9 +213,7 @@ export default function BuyerInfo({ onNext, initialData }: Props) {
         formData.append('registrationFile', selectedFile);
       }
 
-      await API.post("/onboarding/step0", formData, {
-          headers: { "Content-Type": "multipart/form-data" }
-      });
+      await API.post("/onboarding/step0", formData);
       onNext();
     } catch (err: any) {
       const message = err?.response?.data?.message || err?.message || "Failed to submit";
