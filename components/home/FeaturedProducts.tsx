@@ -228,7 +228,7 @@ export const FeaturedProducts = () => {
         {isLoadingProducts ? (
           // SHIMMER SKELETON LOADER
           <div className="overflow-hidden relative w-full">
-            <div className="flex flex-row justify-center items-center gap-4 md:gap-1 lg:gap-2 xl:gap-4 2xl:gap-[60px] w-full">
+            <div className="flex flex-row justify-center items-center gap-2 md:gap-1 lg:gap-2 xl:gap-4 2xl:gap-[60px] w-full">
               {(isMobile ? [0] : [0, 1, 2]).map((idx) => (
                 <div
                   key={idx}

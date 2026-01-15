@@ -153,11 +153,7 @@ export function TopSellingProducts({ title }: { title: string }) {
             <div
               key={product.id}
               onClick={() => selectProduct(product)}
-              className={`min-w-[110px] border border-[#ccc] flex flex-col items-center p-1 snap-start active:scale-95 transition-all duration-200 hover:bg-[#EBE3D6] ${
-                selectedProduct?.id === product.id
-                  ? "bg-[#EBE3D6]"
-                  : "bg-[#F0EBE3]"
-              }`}
+              className="min-w-[110px] bg-[#F0EBE3] border border-[#ccc] flex flex-col items-center p-1 snap-start active:scale-95 transition"
             >
               <div className="relative w-[90px] h-[90px] mx-auto">
                 <Image src={product.image} alt={product.name} fill className="object-contain" />
@@ -233,14 +229,15 @@ export function TopSellingProducts({ title }: { title: string }) {
               <div
                 key={product.id}
                 onClick={() => selectProduct(product)}
-                className={`border border-[#CCCCCC] cursor-pointer flex flex-col items-center justify-start text-center transition-all duration-200 hover:bg-[#EBE3D6] overflow-hidden h-[281px] ${
+                className={`border cursor-pointer flex flex-col items-center justify-start text-center hover:shadow-md transition bg-[#EBE3D6] ${
                   selectedProduct.id === product.id
-                    ? "bg-[#EBE3D6]"
-                    : "bg-[#F0EBE3]"
+                    ? "border-[#D35400] ring-2 ring-[#D35400] ring-inset relative z-10"
+                    : "border-[#CCCCCC]"
                 }`}
+                style={{ width: "245px", height: "281px" }}
               >
-                <div className="relative w-[80%] h-[190px] mt-6 overflow-hidden flex-shrink-0">
-                  <Image src={product.image} alt={product.name} fill className="object-contain" />
+                <div className="relative w-[190px] h-[190px] mt-6">
+                  <Image src={product.image} alt={product.name} fill className="object-cover" />
                 </div>
                 <p className="text-black mt-4 text-[14px] leading-tight px-3 pb-2 line-clamp-2 w-full">{product.name}</p>
               </div>

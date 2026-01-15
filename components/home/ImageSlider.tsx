@@ -111,7 +111,7 @@ export function ImageSlider() {
     extendedSlides[currentIndex] || extendedSlides[1];
 
   return (
-    <div className="relative h-[550px] sm:h-[650px] lg:h-[700px] w-full overflow-hidden lg:-mt-16">
+    <div className="relative h-[350px] sm:h-[650px] lg:h-[700px] w-full overflow-hidden lg:-mt-16">
 
 
       {/* BACKGROUND SLIDES */}
@@ -143,12 +143,12 @@ export function ImageSlider() {
 
       {/* CONTENT (Text) */}
       <div className={`container-figma h-full flex relative z-10 ${
-          isMobile ? 'items-center pb-40' : 'items-center'
+          isMobile ? 'items-center pb-15' : 'items-center'
         }`}>
         <div
           className={
             isMobile
-              ? 'w-full text-white text-left px-6'
+              ? 'w-full text-white text-left px-0'
               : 'w-full lg:w-1/2 text-white flex justify-start pl-4 sm:pl-8 lg:pl-16'
           }
         >

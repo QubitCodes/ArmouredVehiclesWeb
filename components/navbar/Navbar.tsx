@@ -235,7 +235,7 @@ const Navbar = () => {
         <div className="container-figma">
 
           {/* MOBILE HEADER */}
-          <div className="flex items-center justify-between py-3 lg:hidden">
+          <div className="flex items-center justify-between pt-3 lg:hidden">
 
             {/* Logo */}
             <Link href="/" className="shrink-0">
@@ -331,7 +331,7 @@ const Navbar = () => {
                 disabled={isSearching}
                 className="absolute right-0 top-0 h-full w-[50px] flex items-center justify-center bg-[#D35400] text-white disabled:opacity-50"
               >
-                <Search className="w-5 h-5" />
+                <Search className="w-9 h-9" />
               </button>
             </div>
           </div>

@@ -99,7 +99,7 @@ const MobileBottomNav = () => {
 
       {/* FULL SCREEN ACCOUNT MODAL */}
       {accountOpen && (
-        <div className="fixed inset-0 z-[999] bg-white flex flex-col">
+        <div className="fixed inset-0 z-[999] bg-white flex flex-col h-[800px]">
 
           {/* HEADER */}
           <div className="flex items-center justify-between px-4 h-[60px] border-b">
@@ -131,7 +131,7 @@ const MobileBottomNav = () => {
                   </div>
   
                   <Link href="/login">
-                    <div className="bg-[#D35400] hover:bg-[#39482C] text-white clip-path-supplier flex items-center justify-center w-full h-12">
+                    <div className="bg-[#D35400] hover:bg-[#39482C] text-white clip-path-supplier flex items-center justify-center w-full h-12 my-3">
                       <span className="font-black text-[20px] font-orbitron uppercase">
                         LOGIN
                       </span>
@@ -141,7 +141,7 @@ const MobileBottomNav = () => {
 
 
                   <Link href="https://amadmin.vercel.app/vendor/login/" target='_blank'>
-                                  <div className="bg-[#39482C] hover:bg-[#D35400] text-white clip-path-supplier flex items-center justify-center w-full h-12">
+                                  <div className="bg-[#39482C] hover:bg-[#D35400] text-white clip-path-supplier flex items-center justify-center w-full h-12 my-3">
                                     <span className="font-black text-[20px] font-orbitron uppercase">
                                       SUPPLIER ZONE
                                     </span>
