@@ -38,13 +38,8 @@ const nextConfig: NextConfig = {
         pathname: "/**",
       },
       {
-        protocol: "https",
-        hostname: "armored-api.qubyt.codes",
-        pathname: "/**",
-      },
-      {
          protocol: "https",
-         hostname: "armapi.qubyt.codes",
+         hostname: process.env.NEXT_PUBLIC_API_BASE_URL ?? "armapi2.qubyt.codes",
          pathname: "/**",
       },
     ],
