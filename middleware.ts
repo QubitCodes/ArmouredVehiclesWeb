@@ -7,6 +7,7 @@ const protectedRoutes = [
   '/cart',
   '/checkout',
   '/orders',
+  '/orders/',
   '/wishlist',
   '/payments',
   '/address',
@@ -14,7 +15,7 @@ const protectedRoutes = [
   '/security-settings',
   '/notifications',
   '/warranty-claims',
-  '/vendor/dashboard', // Assuming specific vendor routes are protected
+  '/vendor/dashboard',
   '/vendor/products',
   '/vendor/orders',
   '/vendor/settings',
@@ -31,15 +32,26 @@ export function middleware(request: NextRequest) {
     const token = request.cookies.get('auth_token');
 
     if (!token) {
+      console.log(`[Middleware] Redirecting to login. Path: ${pathname}`);
+      console.log('[Middleware] Received Cookies:', request.cookies.getAll().map(c => `${c.name}=${c.value.substring(0, 10)}...`));
+      
       // Redirect to login if token is missing
       const loginUrl = new URL('/login', request.url);
-      // Optional: Add return URL to redirect back after login
       loginUrl.searchParams.set('returnUrl', pathname);
-      return NextResponse.redirect(loginUrl);
+      
+      const response = NextResponse.redirect(loginUrl);
+      response.headers.set('X-Middleware-Reason', 'missing_token');
+      response.headers.set('X-Middleware-Debug-Cookies', request.cookies.getAll().map(c => c.name).join(','));
+      return response;
+    } else {
+        // console.log(`[Middleware] Token found for ${pathname}`);
     }
   }
 
-  return NextResponse.next();
+  const response = NextResponse.next();
+  // Optional: Add debug header for success case (requires more complex logic for next(), usually skipped or done via intermediate response)
+  // For now, we trust that if we get here, token was found or route wasn't protected.
+  return response;
 }
 
 export const config = {

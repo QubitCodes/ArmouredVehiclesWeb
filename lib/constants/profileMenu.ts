@@ -7,6 +7,6 @@ export const profileMenuItems = [
   { name: 'Address', href: '/address', iconImg: '/icons/profile/pf5.svg' },
   { name: 'Payments', href: '/payments', iconImg: '/icons/profile/pf6.svg' },
   { name: 'Notifications', href: '/notifications', iconImg: '/icons/profile/pf7.svg' },
-  { name: 'Security Settings', href: '/security', iconImg: '/icons/profile/pf8.svg' },
+  { name: 'Security Settings', href: '/security-settings', iconImg: '/icons/profile/pf8.svg' },
   { name: 'Need Help?', href: '/help', iconImg: '/icons/profile/pf9.svg' },
 ];

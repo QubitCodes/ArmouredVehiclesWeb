@@ -52,7 +52,8 @@ export function storeTokens(accessToken: string, refreshToken: string, expiresIn
   localStorage.setItem(TOKEN_EXPIRY_KEY, String(Date.now() + expiresIn * 1000));
   
   // Sync to cookie for Middleware
-  document.cookie = `auth_token=${accessToken}; path=/; max-age=${expiresIn}; SameSite=Lax`;
+  // Using encodeURIComponent to be safe, though JWTs are usually safe chars
+  document.cookie = `auth_token=${encodeURIComponent(accessToken)}; path=/; max-age=${expiresIn}; SameSite=Lax`;
 }
 
 export function storeUser(user: User) {
@@ -90,11 +91,18 @@ export function syncAuthCookie() {
     
     // Only set if not expired
     if (expiresIn > 0) {
-       // Check if cookie already exists to avoid redundant writes if possible (optional, but good practice)
-       if (!document.cookie.includes(`auth_token=${token}`)) {
-          document.cookie = `auth_token=${token}; path=/; max-age=${expiresIn}; SameSite=Lax`;
-       }
+       // console.log('Syncing auth cookie (valid)', expiresIn);
+       document.cookie = `auth_token=${encodeURIComponent(token)}; path=/; max-age=${expiresIn}; SameSite=Lax`;
+    } else {
+       // console.log('Syncing auth cookie (expired/backup)', 3600);
+       // Give it a grace period or let it expire naturally? 
+       // For now, if we have a token but it says expired, we might want to refresh first.
+       // But this sync is simple. Let's set it with a short life if we think it's valid enough to be in storage
+       document.cookie = `auth_token=${encodeURIComponent(token)}; path=/; max-age=3600; SameSite=Lax`;
     }
+  } else if (token) {
+       // console.log('Syncing auth cookie (no expiry)', 3600);
+       document.cookie = `auth_token=${encodeURIComponent(token)}; path=/; max-age=3600; SameSite=Lax`;
   }
 }
 
@@ -398,12 +406,19 @@ export const api = {
   // --- Checkout ---
   checkout: {
     createSession: () => fetchJson<{ url?: string; testMode?: boolean; orderId?: string; error?: string; requiresApproval?: boolean; type?: string; paymentUrl?: string }>('/checkout/create', { method: 'POST' }),
+    verifySession: (data: { sessionId: string; orderId: string }) => fetchJson<{ success: boolean; amount?: number; currency?: string; status?: string; orderId?: string }>('/checkout/verify-session', { method: 'POST', body: JSON.stringify(data) }),
   },
 
   // --- Orders ---
   orders: {
-    getAll: () => fetchJson<Order[]>('/profile/orders'),
-    getById: (id: string) => fetchJson<Order>(`/profile/orders/${id}`),
+    getAll: async () => {
+        const res = await fetchJson<any>('/profile/orders');
+        return Array.isArray(res) ? res : res?.data ?? [];
+    },
+    getById: async (id: string) => {
+        const res = await fetchJson<any>(`/profile/orders/${id}`);
+        return res?.data ?? res;
+    },
     create: (items: any[]) => fetchJson<Order>('/orders', { method: 'POST', body: JSON.stringify({ items }) }),
   },
 

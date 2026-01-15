@@ -482,11 +482,20 @@ const Navbar = () => {
 
                         {/* Menu Items */}
                         <div>
-                          {profileMenuItems.map((item, index) => (
+                          {profileMenuItems
+                            .filter((item) =>
+                              [
+                                "User Profile",
+                                "Orders",
+                                "Notifications",
+                                "Security Settings",
+                              ].includes(item.name)
+                            )
+                            .map((item, index, arr) => (
                             <Link
                               key={item.name}
                               href={item.href}
-                              className={`flex items-center justify-between px-4 py-2.5 hover:bg-[#F5F5F5] transition-colors ${index < profileMenuItems.length - 1 ? 'border-b border-[#E5E5E5]' : ''
+                              className={`flex items-center justify-between px-4 py-2.5 hover:bg-[#F5F5F5] transition-colors ${index < arr.length - 1 ? 'border-b border-[#E5E5E5]' : ''
                                 }`}
                               onClick={() => setProfileDropdownOpen(false)}
                             >
@@ -594,9 +603,9 @@ const Navbar = () => {
               aria-hidden
               className="invisible absolute left-[-9999px] top-[-9999px] whitespace-nowrap flex items-center"
             >
-              {navItems.map((item) => (
+                {navItems.map((item) => (
                 <div
-                  key={item.name}
+                  key={item.id}
                   className="h-[50px] px-4 text-[15.5px] font-medium whitespace-nowrap"
                 >
                   {item.name}

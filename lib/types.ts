@@ -92,12 +92,24 @@ export interface CartItem {
 export interface Order {
   id: string;
   userId: string;
-  status: 'pending' | 'processing' | 'shipped' | 'delivered' | 'cancelled' | 'returned';
-  total: string;
+  status: 'pending' | 'processing' | 'shipped' | 'delivered' | 'cancelled' | 'returned' | 'approved' | 'pending_approval';
+  totalAmount: number;
+  currency: string;
   trackingNumber?: string;
   estimatedDelivery?: string;
+  rejection_reason?: string;
+  payment_status?: string;
+  shipment_status?: string;
   createdAt: string;
   items?: OrderItem[];
+  address?: {
+      name?: string;
+      address_line1?: string;
+      city?: string;
+      country?: string;
+      phone?: string;
+      email?: string;
+  };
 }
 
 export interface OrderItem {
@@ -105,10 +117,12 @@ export interface OrderItem {
   orderId: string;
   productId: number;
   vendorId?: string;
-  name: string;
-  image: string;
+  name?: string; // Legacy/Fallback
+  product_name?: string; // From DB
+  image?: string; // Legacy/Fallback
   price: string;
   quantity: number;
+  product?: Product; // Relation
 }
 
 // Address Types

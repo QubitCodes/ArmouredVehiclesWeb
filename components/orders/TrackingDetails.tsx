@@ -2,32 +2,8 @@
 
 import { useRouter } from "next/navigation";
 import Image from "next/image";
-import { ArrowLeft } from "lucide-react";
-
-// Mock order data - in real app this would come from API
-const orderData = {
-  itemId: "AMUAE0092259108-1",
-  orderDate: "3rd Nov 2025",
-  status: "Cancelled",
-  statusDate: "Monday, 3 Nov, 04:08 PM",
-  reason: "Payment Failure",
-  deliveryAddress: {
-    type: "Other",
-    name: "John Martin",
-    address: "Al Qusais, Dubai, United Arab Emirates",
-    phone: "+971 501234567",
-    verified: true,
-  },
-  items: [
-    {
-      id: 1,
-      name: "DFC® - 4000 HybriDynamic Hybrid Rear Brake Pads",
-      price: 679.0,
-      image: "/product/product 1.png",
-      orderId: "AMZ-12345678-987654",
-    },
-  ],
-};
+import { ArrowLeft, Package, User } from "lucide-react";
+import { useOrder } from "@/lib/hooks/orders";
 
 interface TrackingDetailsProps {
   orderId: string;
@@ -35,6 +11,48 @@ interface TrackingDetailsProps {
 
 export default function TrackingDetails({ orderId }: TrackingDetailsProps) {
   const router = useRouter();
+  const { data: order, isLoading, error } = useOrder(orderId);
+
+  if (isLoading) {
+    return (
+        <div className="flex-1 flex items-center justify-center min-h-[50vh]">
+            <div className="flex flex-col items-center gap-4">
+              <div className="animate-spin">
+                <Package className="w-12 h-12 text-[#D35400]" />
+              </div>
+              <p className="text-[#6E6E6E]">Loading order details...</p>
+            </div>
+        </div>
+    );
+  }
+
+  if (error || !order) {
+    return (
+        <div className="flex-1 flex items-center justify-center min-h-[50vh]">
+            <div className="text-center">
+                <h2 className="text-xl font-bold mb-2">Order not found</h2>
+                <button
+                  onClick={() => router.back()}
+                  className="px-6 py-2 bg-[#D35400] text-white rounded hover:bg-[#B84A00]"
+                >
+                  Go Back
+                </button>
+            </div>
+        </div>
+    );
+  }
+
+  const formattedDate = new Date(order.createdAt).toLocaleDateString('en-GB', {
+      day: 'numeric', month: 'short', year: 'numeric'
+  });
+
+  const deliveryAddress = order.address || {
+      name: "N/A",
+      address_line1: "Address not available",
+      city: "",
+      country: "",
+      phone: ""
+  };
 
   return (
     <div className="flex-1">
@@ -55,10 +73,10 @@ export default function TrackingDetails({ orderId }: TrackingDetailsProps) {
       <div className="bg-[#EBE3D6] p-4 lg:p-5 mb-4">
         <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-2">
           <p className="text-sm text-[#666]">
-            Item ID: <span className="text-black font-medium">{orderData.itemId}</span>
+            Order ID: <span className="text-black font-medium">#{order.id}</span>
           </p>
           <p className="text-sm text-[#666]">
-            Order Date: <span className="text-sm text-[#666]">{orderData.orderDate}</span>
+            Order Date: <span className="text-sm text-[#666]">{formattedDate}</span>
           </p>
         </div>
       </div>
@@ -78,46 +96,37 @@ export default function TrackingDetails({ orderId }: TrackingDetailsProps) {
             </div>
             <div>
               <p className="text-sm">
-                <span className="font-medium text-black">{orderData.status}</span>
-                {" "}on {orderData.statusDate}
+                <span className="font-medium text-black capitalize">{order.status.replace('_', ' ')}</span>
               </p>
-              <p className="text-sm text-[#666]">
-                Reason: <span className="text-[#D35400]">{orderData.reason}</span>
-              </p>
+              {order.status === 'cancelled' && (
+                <p className="text-sm text-[#666]">
+                    Reason: <span className="text-[#D35400]">{order.rejection_reason || "N/A"}</span>
+                </p>
+              )}
             </div>
           </div>
-          <div className="relative clip-path-supplier bg-[#3D4A26] p-[1px] w-full lg:w-auto">
-            <button 
-              onClick={() => router.push(`/orders/refund/${orderId}`)}
-              className="clip-path-supplier bg-[#EBE3D6] hover:bg-[#3D4A26] text-[#000] hover:text-white px-6 py-2 text-sm font-bold font-orbitron uppercase tracking-wide transition-colors w-full lg:w-auto"
-            >
-              Track Refund
-            </button>
-          </div>
+          {order.status === 'pending' && (
+             <div className="relative clip-path-supplier bg-[#3D4A26] p-[1px] w-full lg:w-auto">
+                <button 
+                  className="clip-path-supplier bg-[#EBE3D6] hover:bg-[#3D4A26] text-[#000] hover:text-white px-6 py-2 text-sm font-bold font-orbitron uppercase tracking-wide transition-colors w-full lg:w-auto"
+                >
+                  Cancel Order
+                </button>
+             </div>
+          )}
         </div>
       </div>
 
       {/* Delivery Address Section */}
       <div className="bg-[#EBE3D6] p-4 lg:p-5 mb-4">
         <h2 className="font-orbitron font-bold text-sm uppercase tracking-wider text-black mb-3">
-          Delivery Address{" "}
-          <span className="text-[#666] font-normal normal-case">({orderData.deliveryAddress.type})</span>
+          Delivery Address
         </h2>
         <div className="space-y-1">
-          <p className="font-semibold text-sm text-black">{orderData.deliveryAddress.name}</p>
-          <p className="text-sm text-[#666]">{orderData.deliveryAddress.address}</p>
+          <p className="font-semibold text-sm text-black">{deliveryAddress.name}</p>
+          <p className="text-sm text-[#666]">{deliveryAddress.address_line1}, {deliveryAddress.city}, {deliveryAddress.country}</p>
           <p className="text-sm text-[#666] flex items-center gap-2">
-            {orderData.deliveryAddress.phone}
-            {orderData.deliveryAddress.verified && (
-              <span className="flex items-center gap-1 text-[#27AE60] text-xs">
-                <span className="w-4 h-4 rounded-full bg-[#27AE60] flex items-center justify-center">
-                  <svg className="w-2.5 h-2.5 text-white" fill="currentColor" viewBox="0 0 20 20">
-                    <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
-                  </svg>
-                </span>
-                Verified
-              </span>
-            )}
+            {deliveryAddress.phone}
           </p>
         </div>
       </div>
@@ -143,40 +152,28 @@ export default function TrackingDetails({ orderId }: TrackingDetailsProps) {
         </div>
 
         {/* Item List */}
-        {orderData.items.map((item) => (
+        {order.items?.map((item) => (
           <div key={item.id} className="p-4 lg:p-5 flex items-start gap-4">
-            <Image
-              src={item.image}
-              alt={item.name}
-              width={80}
-              height={80}
-              className="w-16 h-16 lg:w-20 lg:h-20 object-contain flex-shrink-0"
-            />
+            <div className="w-16 h-16 lg:w-20 lg:h-20 flex-shrink-0 bg-white p-1">
+                <Image
+                src={item.image || "/product/product 1.png"}
+                alt={item.name}
+                width={80}
+                height={80}
+                className="w-full h-full object-contain"
+                />
+            </div>
             <div className="flex-1 min-w-0">
               <h3 className="text-sm font-medium text-black mb-1 line-clamp-2">
                 {item.name}
               </h3>
               <div className="flex items-center gap-1 mb-1">
-                <svg
-                  width="14"
-                  height="12"
-                  viewBox="0 0 17 15"
-                  fill="none"
-                  xmlns="http://www.w3.org/2000/svg"
-                >
-                  <path
-                    d="M1.5011 0.0172414C1.5079 0.0275862 1.5453 0.0741379 1.581 0.118966C1.8411 0.432759 2.0366 0.943104 2.142 1.58621C2.2117 2.00862 2.2151 2.14138 2.2151 3.75172V5.25172H1.5045C0.8551 5.25172 0.7803 5.24828 0.6528 5.22241C0.4522 5.17931 0.2448 5.06379 0.1054 4.91552C-0.0051 4.79655 -0.0017 4.78966 0.0051 5.15C0.0136 5.44828 0.017 5.48103 0.0595 5.6431C0.1275 5.9 0.221 6.09138 0.3621 6.26207C0.5542 6.49655 0.7497 6.62759 1.0285 6.71552C1.088 6.73276 1.2138 6.73966 1.6592 6.7431L2.2151 6.75172V7.49828V8.24655L1.4314 8.24138L0.6443 8.23621L0.5083 8.18104C0.3468 8.11552 0.2737 8.06724 0.1156 7.92414L0 7.81897L0.0068 8.14828C0.0153 8.45345 0.017 8.48793 0.0595 8.6431C0.2074 9.19138 0.5644 9.58276 1.0353 9.71035C1.1526 9.7431 1.1985 9.74483 1.6898 9.75173L2.2151 9.75862V11.3034C2.2151 12.2362 2.21 12.9241 2.2015 13.0414C2.193 13.1483 2.1658 13.3483 2.142 13.4879C2.0315 14.131 1.8326 14.6155 1.547 14.9293L1.4892 14.9931H4.3639C6.0826 14.9931 7.3678 14.9862 7.5565 14.9776C7.888 14.9603 8.6275 14.8862 8.7941 14.85C8.8468 14.8397 8.9454 14.8241 9.01 14.8138C9.1477 14.7931 9.3755 14.7448 9.7036 14.6603C10.166 14.5431 10.5876 14.3966 11.0007 14.2103C11.1299 14.1517 11.5005 13.9603 11.5991 13.9C11.6518 13.869 11.7147 13.831 11.7385 13.819C11.8048 13.7828 11.9153 13.7103 12.0768 13.5931C12.1567 13.5345 12.2366 13.4776 12.2536 13.4655C12.325 13.4172 12.5715 13.2086 12.6837 13.1034C13.1104 12.7052 13.4674 12.2621 13.7445 11.7879C13.7836 11.719 13.8346 11.6328 13.8567 11.5966C13.9128 11.5 14.144 11.0172 14.1661 10.9448C14.1763 10.9121 14.1899 10.8776 14.1967 10.8707C14.2409 10.8121 14.4959 9.99828 14.5265 9.82069C14.5367 9.76379 14.5418 9.75517 14.5843 9.74655C14.6115 9.74138 15.0076 9.74138 15.4649 9.74483C16.3795 9.75173 16.3795 9.75173 16.5818 9.84655C16.6957 9.9 16.7297 9.92414 16.8555 10.0397C17.0204 10.1897 17.0051 10.2138 16.9949 9.83793C16.9881 9.61724 16.9796 9.48104 16.9643 9.42586C16.9065 9.21379 16.8929 9.16897 16.8419 9.06207C16.6753 8.6931 16.3965 8.42931 16.0395 8.30345L15.9001 8.25173L15.3323 8.24483L14.7662 8.23621L14.773 8.03448C14.7798 7.76897 14.7798 7.2431 14.7713 6.97241L14.7645 6.75517L15.5227 6.75172C16.1721 6.74828 16.2928 6.75173 16.3642 6.77069C16.5784 6.83104 16.7229 6.91379 16.8997 7.07759L16.9983 7.17069V6.91552C16.9983 6.61207 16.983 6.47759 16.9218 6.27759C16.8011 5.87241 16.5631 5.57069 16.2231 5.38448C16.0021 5.26379 15.9885 5.26034 15.2286 5.25517C14.7832 5.25172 14.5503 5.24483 14.5384 5.23448C14.5282 5.22414 14.5197 5.2069 14.5197 5.1931C14.5197 5.17931 14.4942 5.07069 14.4602 4.95345C14.0624 3.52759 13.3195 2.39483 12.2332 1.55517C12.0853 1.43966 11.7232 1.19655 11.577 1.11379C11.5209 1.08103 11.4597 1.04655 11.4444 1.03621C11.373 0.996552 10.9633 0.793104 10.8613 0.75C10.8001 0.722414 10.7202 0.687931 10.6845 0.674138C10.0844 0.410345 9.078 0.160345 8.3096 0.0827586C8.1838 0.0706897 8.0172 0.0517241 7.9407 0.0448276C7.5939 0.00517241 7.1128 0 4.3809 0C2.0723 0 1.4926 0.00517241 1.5011 0.0172414ZM7.123 0.763793C7.6976 0.798276 8.0512 0.843104 8.4643 0.944828C9.7257 1.24828 10.6131 1.88966 11.2574 2.96207C11.3169 3.06207 11.5685 3.58276 11.6059 3.68793C11.7844 4.17586 11.8711 4.46552 11.9476 4.84828C11.9663 4.94138 11.9918 5.06552 12.0037 5.12414C12.0156 5.18104 12.0207 5.23448 12.0156 5.23966C12.0071 5.24655 10.3003 5.25 8.2195 5.24828L4.437 5.24483L4.4319 3.02931C4.4302 1.81207 4.4319 0.8 4.437 0.781035L4.4438 0.748276H5.6525C6.3155 0.748276 6.9785 0.755172 7.123 0.763793ZM12.1805 6.80345C12.1924 6.87759 12.1924 8.13621 12.1805 8.19828L12.1703 8.24483L8.3028 8.24138L4.437 8.23621L4.4336 7.50517C4.4302 7.10345 4.4336 6.76897 4.437 6.76207C4.4421 6.75345 6.0894 6.74828 8.3079 6.74828H12.1703L12.1805 6.80345ZM12.0071 9.76379C12.0156 9.78966 11.9748 10.0017 11.8915 10.3466C11.7963 10.7345 11.6671 11.1259 11.5362 11.4155C11.4716 11.5638 11.3101 11.8845 11.271 11.9448C11.2523 11.9724 11.1979 12.0603 11.1503 12.1379C10.8443 12.6241 10.4074 13.0672 9.9093 13.3948C9.7274 13.5121 9.3534 13.7121 9.2531 13.7431C9.2327 13.7483 9.2106 13.7586 9.2021 13.7655C9.1902 13.7759 9.0355 13.8345 8.8553 13.9C8.5238 14.019 7.8931 14.1483 7.3865 14.2017C7.0584 14.2345 7.0057 14.2362 5.7426 14.2362H4.4353V12V9.76207L8.1906 9.75517C10.2561 9.75173 11.9578 9.74655 11.9714 9.7431C11.9867 9.74138 12.002 9.75173 12.0071 9.76379Z"
-                    fill="currentColor"
-                  />
-                </svg>
                 <span className="font-semibold text-sm text-black">
-                  {item.price.toFixed(2)}
+                  {parseFloat(item.price).toFixed(2)} AED
                 </span>
+                <span className="text-xs text-[#666]">x {item.quantity}</span>
               </div>
             </div>
-            <p className="text-xs text-[#666] self-end flex-shrink-0">
-              Order ID: #{item.orderId}
-            </p>
           </div>
         ))}
       </div>
