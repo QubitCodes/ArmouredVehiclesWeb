@@ -50,6 +50,10 @@ export function storeTokens(accessToken: string, refreshToken: string, expiresIn
   localStorage.setItem(REFRESH_TOKEN_KEY, refreshToken);
   // Store absolute expiry time (current time + seconds)
   localStorage.setItem(TOKEN_EXPIRY_KEY, String(Date.now() + expiresIn * 1000));
+  
+  // Sync to cookie for Middleware
+  // Using encodeURIComponent to be safe, though JWTs are usually safe chars
+  document.cookie = `auth_token=${encodeURIComponent(accessToken)}; path=/; max-age=${expiresIn}; SameSite=Lax`;
 }
 
 export function storeUser(user: User) {
@@ -62,6 +66,9 @@ export function clearTokens() {
   localStorage.removeItem(ACCESS_TOKEN_KEY);
   localStorage.removeItem(REFRESH_TOKEN_KEY);
   localStorage.removeItem(TOKEN_EXPIRY_KEY);
+  
+  // Clear cookie
+  document.cookie = 'auth_token=; path=/; expires=Thu, 01 Jan 1970 00:00:01 GMT;';
   localStorage.removeItem(USER_KEY);
 }
 
@@ -71,6 +78,32 @@ function isTokenExpiringSoon(): boolean {
   if (!expiry) return true;
   // Refresh if expiring in less than 60 seconds
   return Date.now() > parseInt(expiry) - 60000;
+}
+
+export function syncAuthCookie() {
+  if (typeof window === 'undefined') return;
+  const token = getAccessToken();
+  const expiry = localStorage.getItem(TOKEN_EXPIRY_KEY);
+  
+  if (token && expiry) {
+    const expiresAt = parseInt(expiry);
+    const expiresIn = Math.floor((expiresAt - Date.now()) / 1000);
+    
+    // Only set if not expired
+    if (expiresIn > 0) {
+       // console.log('Syncing auth cookie (valid)', expiresIn);
+       document.cookie = `auth_token=${encodeURIComponent(token)}; path=/; max-age=${expiresIn}; SameSite=Lax`;
+    } else {
+       // console.log('Syncing auth cookie (expired/backup)', 3600);
+       // Give it a grace period or let it expire naturally? 
+       // For now, if we have a token but it says expired, we might want to refresh first.
+       // But this sync is simple. Let's set it with a short life if we think it's valid enough to be in storage
+       document.cookie = `auth_token=${encodeURIComponent(token)}; path=/; max-age=3600; SameSite=Lax`;
+    }
+  } else if (token) {
+       // console.log('Syncing auth cookie (no expiry)', 3600);
+       document.cookie = `auth_token=${encodeURIComponent(token)}; path=/; max-age=3600; SameSite=Lax`;
+  }
 }
 
 // ==================== Token Refresh Logic ====================
@@ -156,11 +189,22 @@ async function fetchJson<T>(endpoint: string, options: RequestInit = {}, retry =
   const response = await fetch(url, { ...options, headers });
 
   // 2. Error handling: If 401 Unauthorized, try to refresh and retry ONCE
-  if (response.status === 401 && retry && getRefreshToken()) {
-    const refreshed = await refreshAccessToken();
-    if (refreshed) {
-      // Retry the original request with new token
-      return fetchJson<T>(endpoint, options, false);
+  if (response.status === 401) {
+    if (retry && getRefreshToken()) {
+        const refreshed = await refreshAccessToken();
+        if (refreshed) {
+          // Retry the original request with new token
+          return fetchJson<T>(endpoint, options, false);
+        }
+    }
+    
+    // If we are here, it means 401 and either no refresh token or refresh failed
+    // Redirect to login
+    if (typeof window !== 'undefined') {
+        const currentPath = window.location.pathname;
+        if (!currentPath.startsWith('/login')) {
+             window.location.href = `/login?returnUrl=${encodeURIComponent(currentPath)}`;
+        }
     }
   }
 
@@ -362,12 +406,19 @@ export const api = {
   // --- Checkout ---
   checkout: {
     createSession: () => fetchJson<{ url?: string; testMode?: boolean; orderId?: string; error?: string; requiresApproval?: boolean; type?: string; paymentUrl?: string }>('/checkout/create', { method: 'POST' }),
+    verifySession: (data: { sessionId: string; orderId: string }) => fetchJson<{ success: boolean; amount?: number; currency?: string; status?: string; orderId?: string }>('/checkout/verify-session', { method: 'POST', body: JSON.stringify(data) }),
   },
 
   // --- Orders ---
   orders: {
-    getAll: () => fetchJson<Order[]>('/profile/orders'),
-    getById: (id: string) => fetchJson<Order>(`/profile/orders/${id}`),
+    getAll: async () => {
+        const res = await fetchJson<any>('/profile/orders');
+        return Array.isArray(res) ? res : res?.data ?? [];
+    },
+    getById: async (id: string) => {
+        const res = await fetchJson<any>(`/profile/orders/${id}`);
+        return res?.data ?? res;
+    },
     create: (items: any[]) => fetchJson<Order>('/orders', { method: 'POST', body: JSON.stringify({ items }) }),
   },
 

@@ -2,14 +2,7 @@
 
 import { useRouter, usePathname } from "next/navigation";
 import Image from "next/image";
-
-// Mock user data - in real app this would come from auth context
-const userData = {
-  name: "John Martin",
-  email: "info@johnmartin.com",
-  initials: "JM",
-  profileCompletion: 80,
-};
+import { useAuth } from "@/lib/auth-context";
 
 const sidebarNav = {
   ordersActivity: [
@@ -21,7 +14,7 @@ const sidebarNav = {
   myAccount: [
     { id: "profile", label: "User Profile", iconImg: "/order/Frame3.png", href: "/profile" },
     { id: "address", label: "Address", iconImg: "/order/Frame4.png", href: "/address" },
-    { id: "payments", label: "Payments", iconImg: "/order/Frame5.png", href: "/payments" },
+    // { id: "payments", label: "Payments", iconImg: "/order/Frame5.png", href: "/payments" },
   ],
   others: [
     { id: "notifications", label: "Notifications", iconImg: "/order/Frame6.png", href: "/notifications" },
@@ -40,13 +33,27 @@ const mobileNavTabs = [
 export default function ProfileSidebar() {
   const router = useRouter();
   const pathname = usePathname();
+  const { user, logout } = useAuth();
 
   const isActive = (href: string) => pathname === href;
 
-  const handleLogout = () => {
-    // Handle logout logic here
+  const handleLogout = async () => {
+    await logout();
     router.push("/");
   };
+
+  // Derived user data
+  const userName = user?.name || "User";
+  const userEmail = user?.email || "";
+  const initials = userName
+    .split(" ")
+    .map((n) => n[0])
+    .join("")
+    .toUpperCase()
+    .slice(0, 2);
+    
+  // Mock completion for now as we don't have it in user object yet
+  const profileCompletion = 80;
 
   return (
     <>
@@ -80,13 +87,13 @@ export default function ProfileSidebar() {
         <div className="bg-[#EBE3D6] rounded-lg p-4 mt-3">
           <div className="flex items-center gap-3 mb-3">
             <div className="w-12 h-12 rounded-full bg-[#3D4A26] flex items-center justify-center text-base font-bold text-white flex-shrink-0">
-              {userData.initials}
+              {initials}
             </div>
             <div className="min-w-0">
               <h3 className="font-semibold text-base text-black truncate">
-                Hello, {userData.name}
+                Hello, {userName}
               </h3>
-              <p className="text-xs text-black/70 truncate">{userData.email}</p>
+              <p className="text-xs text-black/70 truncate">{userEmail}</p>
             </div>
           </div>
           {/* Profile Completion */}
@@ -94,13 +101,13 @@ export default function ProfileSidebar() {
             <div className="flex items-center gap-2 text-sm">
               <span className="text-black">Profile Completion</span>
               <span className="bg-[#D35400] px-2 py-0.5 rounded text-xs font-semibold text-white">
-                {userData.profileCompletion}%
+                {profileCompletion}%
               </span>
             </div>
             <div className="w-full bg-white rounded-full h-2">
               <div
                 className="bg-[#D35400] h-2 rounded-full transition-all"
-                style={{ width: `${userData.profileCompletion}%` }}
+                style={{ width: `${profileCompletion}%` }}
               />
             </div>
           </div>
@@ -111,13 +118,13 @@ export default function ProfileSidebar() {
       <aside className="hidden lg:block w-[280px] flex-shrink-0 space-y-6">
         {/* User Profile Card */}
         <div className="bg-[#EBE3D6] text-black p-5 rounded-lg">
-          <div className="flex items-center gap-4 mb-4">
+          <div className="flex items-center gap-4">
             <div className="w-14 h-14 rounded-full bg-[#3D4A26] border-2 border-[#3D4A26] flex items-center justify-center text-xl font-bold text-white">
-              {userData.initials}
+              {initials}
             </div>
             <div>
-              <h3 className="font-semibold text-lg">Hello, {userData.name}</h3>
-              <p className="text-sm text-black/70">{userData.email}</p>
+              <h3 className="font-semibold text-lg">Hello, {userName}</h3>
+              <p className="text-sm text-black/70">{userEmail}</p>
             </div>
           </div>
           {/* <div className="space-y-2">
@@ -136,14 +143,14 @@ export default function ProfileSidebar() {
           </div> */}
         </div>
 
-        {/* Orders & Activity */}
+        {/* My Account */}
         <div>
           <h4 className="font-orbitron font-extrabold text-[16px] uppercase leading-none tracking-normal text-[#1A1A1A] px-1 py-3">
-            Orders & Activity
+            My Account
           </h4>
           <div className=" overflow-hidden bg-[#3D4A26]">
             <nav className="px-2 py-2 space-y-1">
-              {sidebarNav.ordersActivity.map((item) => (
+              {sidebarNav.myAccount.map((item) => (
                 <button
                   key={item.id}
                   onClick={() => router.push(item.href)}
@@ -161,14 +168,14 @@ export default function ProfileSidebar() {
           </div>
         </div>
 
-        {/* My Account */}
+        {/* Orders & Activity */}
         <div>
           <h4 className="font-orbitron font-extrabold text-[16px] uppercase leading-none tracking-normal text-[#1A1A1A] px-1 py-3">
-            My Account
+            Orders & Activity
           </h4>
           <div className=" overflow-hidden bg-[#3D4A26]">
             <nav className="px-2 py-2 space-y-1">
-              {sidebarNav.myAccount.map((item) => (
+              {sidebarNav.ordersActivity.map((item) => (
                 <button
                   key={item.id}
                   onClick={() => router.push(item.href)}

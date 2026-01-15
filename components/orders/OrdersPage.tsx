@@ -21,6 +21,10 @@ function formatStatusText(order: Order): string {
       return "Processing";
     case "shipped":
       return "Dispatched";
+    case "approved":
+      return "Approved";
+    case "pending_approval":
+      return "Waiting Approval";
     case "delivered":
       return "Delivered";
     case "cancelled":
@@ -52,8 +56,21 @@ export default function OrdersPage() {
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
 
-  const inProgressOrders = (orders || []).filter((o) => ["pending", "processing", "shipped"].includes(o.status));
+  const inProgressOrders = (orders || []).filter((o) => ["pending", "processing", "shipped", "approved", "pending_approval"].includes(o.status));
   const completedOrders = (orders || []).filter((o) => ["delivered", "cancelled", "returned"].includes(o.status));
+
+  // Debug logging
+  useEffect(() => {
+    if (orders?.length) {
+      console.log("[OrdersPage] Orders data:", orders);
+      orders.forEach(o => {
+          console.log(`[Order ${o.id}] Items:`, o.items);
+          if (o.items?.[0]) {
+              console.log(`[Order ${o.id}] First Item Name:`, o.items[0].name);
+          }
+      });
+    }
+  }, [orders]);
 
   return (
     <main className="flex-1">
@@ -123,8 +140,14 @@ export default function OrdersPage() {
         <div className="space-y-3 lg:space-y-4">
           {inProgressOrders.map((order, index) => {
             const first = order.items?.[0];
-            const image = first?.image || "/product/product 1.png";
-            const price = first?.price ? parseFloat(first.price) : parseFloat(order.total || "0");
+            // Use product image from relation, or legacy image, or placeholder
+            const image = first?.product?.image || first?.image || "/placeholders/product-placeholder.png"; 
+            // Prefer product name from relation, then product_name column, then legacy name
+            const baseName = first?.product?.name || first?.product_name || first?.name || `Order #${order.id}`;
+            const extraCount = (order.items?.length || 0) - 1;
+            const title = extraCount > 0 ? `${baseName} + ${extraCount} products` : baseName;
+            
+            const price = first?.price ? parseFloat(first.price) : (order.totalAmount || 0);
             const statusText = formatStatusText(order);
             const statusNote = order.estimatedDelivery ? `ETA: ${order.estimatedDelivery}` : "on time";
             return (
@@ -251,7 +274,10 @@ export default function OrdersPage() {
               <div className="mx-3 lg:mx-5 border-b border-[#C2B280]"></div>
 
               {/* Order Content */}
-              <div className="p-3 lg:p-5 flex items-start gap-5 lg:gap-5">
+              <div 
+                className="p-3 lg:p-5 flex items-start gap-5 lg:gap-5 cursor-pointer hover:bg-[#EAEAEA] transition-colors"
+                onClick={() => router.push(`/orders/summary/${order.id}`)}
+              >
                 <img
                   src={image}
                   alt={first?.name || `Order ${order.id}`}
@@ -259,7 +285,7 @@ export default function OrdersPage() {
                 />
                 <div className="flex-1 min-w-0">
                   <h3 className="text-sm font-medium text-black mb-1 line-clamp-2">
-                    {first?.name || `Order ${order.id}`}
+                    {title}
                   </h3>
                   <div className="flex items-center gap-1 mb-1">
                     <Image
@@ -292,9 +318,15 @@ export default function OrdersPage() {
         <div className="space-y-3 lg:space-y-4">
           {completedOrders.map((order, index) => {
             const first = order.items?.[0];
-            const price = first?.price ? parseFloat(first.price) : parseFloat(order.total || "0");
+            const price = first?.price ? parseFloat(first.price) : (order.totalAmount || 0);
             const statusText = formatStatusText(order);
-            const image = first?.image || "/order/Frame12.png";
+            // Use product image from relation, or legacy image, or placeholder
+            const image = first?.product?.image || first?.image || "/placeholders/product-placeholder.png";
+            // Prefer product name from relation, then product_name column, then legacy name
+            const baseName = first?.product?.name || first?.product_name || first?.name || `Order #${order.id}`;
+            const extraCount = (order.items?.length || 0) - 1;
+            const title = extraCount > 0 ? `${baseName} + ${extraCount} products` : baseName;
+            
             return (
             <div key={index} className="bg-[#F0EBE3] border border-[#C2B280] overflow-hidden">
               {/* Order Header - Mobile */}
@@ -402,7 +434,10 @@ export default function OrdersPage() {
               <div className="mx-3 lg:mx-5 border-b border-[#C2B280]"></div>
 
               {/* Order Content */}
-              <div className="p-3 lg:p-5 flex items-start gap-3 lg:gap-10">
+              <div 
+                className="p-3 lg:p-5 flex items-start gap-3 lg:gap-10 cursor-pointer hover:bg-[#EAEAEA] transition-colors"
+                onClick={() => router.push(`/orders/summary/${order.id}`)}
+              >
                 <img
                   src={image}
                   alt={first?.name || `Order ${order.id}`}
@@ -410,7 +445,7 @@ export default function OrdersPage() {
                 />
                 <div className="flex-1 min-w-0">
                   <h3 className="text-xs lg:text-sm font-medium text-black mb-1 line-clamp-2">
-                    {first?.name || `Order ${order.id}`}
+                    {title}
                   </h3>
                   <div className="flex items-center gap-1 mb-2 lg:mb-0">
                     <Image

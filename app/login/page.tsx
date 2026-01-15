@@ -8,6 +8,7 @@ import { useEffect, useRef, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { startOtpLogin, verifyOtpLogin } from "../services/auth";
 import { useAuth } from "@/lib/auth-context";
+import { storeTokens, storeUser } from "@/lib/api";
 
 
 import { Suspense } from 'react';
@@ -110,6 +111,20 @@ function LoginForm() {
         }
     }, [stage]);
 
+    // Redirect if already logged in
+    const { isAuthenticated, isLoading: authLoading } = useAuth();
+    useEffect(() => {
+        if (!authLoading && isAuthenticated) {
+             const returnUrl = searchParams.get('returnUrl') || '/';
+             // Prevent loop if returnUrl is login
+             if (returnUrl.includes('/login')) {
+                 router.replace('/');
+             } else {
+                 router.replace(returnUrl);
+             }
+        }
+    }, [authLoading, isAuthenticated, router, searchParams]);
+
     const handleVerify = async (manualEmail?: string, manualCode?: string) => {
         const email = manualEmail || identifier.trim();
         const code = manualCode || otp.join("");
@@ -124,13 +139,9 @@ function LoginForm() {
             // API response is nested: res.data = { status, message, code, data: { user, accessToken, ... } }
             const { user, accessToken, refreshToken, expiresIn } = res.data.data;
             // Store tokens (both legacy and lib/api.ts keys)
-            localStorage.setItem("accessToken", accessToken);
-            localStorage.setItem("refreshToken", refreshToken);
-            localStorage.setItem("user", JSON.stringify(user));
-            localStorage.setItem("expiresIn", expiresIn.toString());
-            localStorage.setItem("access_token", accessToken);
-            localStorage.setItem("refresh_token", refreshToken);
-            localStorage.setItem("token_expiry", String(Date.now() + expiresIn * 1000));
+            // Store tokens using centralized logic (handles cookies for middleware)
+            storeTokens(accessToken, refreshToken, expiresIn);
+            storeUser(user);
             
             console.log(`[CHECKOUT DEBUG] LOGIN SUCCESS. Token: ${accessToken.substring(0, 20)}...`);
 

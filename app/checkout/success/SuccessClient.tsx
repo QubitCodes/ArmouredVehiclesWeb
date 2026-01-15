@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import { useSearchParams, useRouter } from "next/navigation";
 import { CheckCircle, Home, Package } from "lucide-react";
+import { api } from "@/lib/api";
 
 export default function SuccessClient() {
   const searchParams = useSearchParams();
@@ -16,27 +17,20 @@ export default function SuccessClient() {
   useEffect(() => {
     const verifyPayment = async () => {
       try {
-        if (!sessionId) {
-          console.error("No session ID provided");
+        if (!sessionId || !orderId) {
+          console.error("No session ID or Order ID provided");
           setLoading(false);
           return;
         }
 
-        const response = await fetch("/api/checkout/verify-session", {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: `Bearer ${localStorage.getItem("access_token") || ""}`,
-          },
-          body: JSON.stringify({ sessionId, orderId }),
-        });
-
-        if (response.ok) {
-          const data = await response.json();
-          setOrderData(data);
-        }
-      } catch (error) {
+        const data = await api.checkout.verifySession({ sessionId, orderId });
+        setOrderData(data);
+      } catch (error: any) {
         console.error("Error verifying payment:", error);
+        // If the error object has response data, log it
+        if (error.response) {
+             console.error("Server Error Response:", error.response.data);
+        }
       } finally {
         setLoading(false);
       }
