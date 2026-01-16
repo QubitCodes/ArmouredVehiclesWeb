@@ -36,6 +36,7 @@ function CategoryContent() {
     const [products, setProducts] = useState<Product[]>([]);
     const [isLoading, setIsLoading] = useState<boolean>(true);
     const [error, setError] = useState<string | null>(null);
+    const [currentCategory, setCurrentCategory] = useState<{ id: number; name: string } | null>(null);
     const { isAuthenticated } = useAuth();
 
     useEffect(() => {
@@ -50,6 +51,19 @@ function CategoryContent() {
                 }
 
                 const data = await api.products.getAll(Object.keys(filters).length ? filters : undefined);
+
+                // Extract category from first product (data is already an array)
+                console.log('Products data:', data);
+                console.log('First product category:', data?.[0]?.category);
+                
+                if (data && data.length > 0 && data[0].category) {
+                    setCurrentCategory({
+                        id: data[0].category.id,
+                        name: data[0].category.name
+                    });
+                } else {
+                    setCurrentCategory(null);
+                }
 
                 const mapped: Product[] = Array.isArray(data)
                     ? data.map((item: any) => {
@@ -167,6 +181,16 @@ function CategoryContent() {
                     // Ideally we set initial bounds.
                 }
 
+                // Extract category from first product
+                if (data && data.length > 0 && data[0].category) {
+                    setCurrentCategory({
+                        id: data[0].category.id,
+                        name: data[0].category.name
+                    });
+                } else {
+                    setCurrentCategory(null);
+                }
+
                 const mapped: Product[] = Array.isArray(data)
                     ? data.map((item: any) => {
                         const priceNum = Number(item.price);
@@ -272,26 +296,30 @@ function CategoryContent() {
 
                 <div className="pt-5">
                     <div className="flex items-center gap-2 text-xs py-3 text-[#737373]">
-                        <span className="font-[Inter, sans-serif] font-semibold text-[12px] leading-[100%] tracking-[0%] uppercase cursor-pointer">
-                            AUTO PARTS
-                        </span>
-                        <span className="font-[Inter, sans-serif] font-semibold text-[12px] leading-[100%] tracking-[0%] uppercase ">
-                            /
-                        </span>
-                        <span className="font-[Inter, sans-serif] font-semibold text-[12px] leading-[100%] tracking-[0%] uppercase cursor-pointer">
-                            BRAKES
-                        </span>
-                        <span className="font-[Inter, sans-serif] font-semibold text-[12px] leading-[100%] tracking-[0%] uppercase">
-                            /
-                        </span>
-                        <span className="font-[Inter, sans-serif] font-medium text-[12px] leading-[100%] tracking-[0%] uppercase">
-                            PERFORMANCE BRAKE KITS
-                        </span>
+                        <Link 
+                            href="/products"
+                            className="font-[Inter, sans-serif] font-semibold text-[12px] leading-[100%] tracking-[0%] uppercase cursor-pointer hover:text-black transition-colors"
+                        >
+                            ALL PRODUCTS
+                        </Link>
+                        {currentCategory && (
+                            <>
+                                <span className="font-[Inter, sans-serif] font-semibold text-[12px] leading-[100%] tracking-[0%] uppercase">
+                                    /
+                                </span>
+                                <Link 
+                                    href={`/products?category_id=${currentCategory.id}`}
+                                    className="font-[Inter, sans-serif] font-semibold text-[12px] leading-[100%] tracking-[0%] uppercase cursor-pointer hover:text-black transition-colors"
+                                >
+                                    {currentCategory.name.toUpperCase()}
+                                </Link>
+                            </>
+                        )}
                     </div>
 
                     {/* Title */}
                     <h1 className="text-xl md:text-3xl font-[Orbitron] lg:text-4xl font-bold uppercase tracking-wide text-black mb-4">
-                        {(categoryNameParam || 'Categories').toUpperCase()}
+                        {(currentCategory?.name || categoryNameParam || 'All Products').toUpperCase()}
                     </h1>
 
                     {/* Filter Buttons - Mobile View */}
