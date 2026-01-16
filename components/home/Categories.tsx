@@ -51,7 +51,10 @@ export const Categories = () => {
         const res = await api.products.getCategories();
         const data = Array.isArray(res) ? res : res?.data ?? [];
         if (data && data.length > 0) {
-          const mapped = data.map((item: any) => ({
+          // Filter for top-level categories only
+          const topLevel = data.filter((item: any) => !item.parent_id);
+          
+          const mapped = topLevel.map((item: any) => ({
             id: item.id,
             title: item.name || "Unknown Category",
             image: item.image ? String(item.image) : undefined,

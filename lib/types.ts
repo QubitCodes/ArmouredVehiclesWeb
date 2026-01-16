@@ -57,6 +57,11 @@ export interface Product {
   condition: 'new' | 'used' | 'refurbished';
   stock: number;
   vendorId?: string;
+  media?: {
+    url: string;
+    type: string;
+    is_cover: boolean;
+  }[];
   make: string;
   model: string;
   year: number;
@@ -76,6 +81,7 @@ export interface Category {
   name: string;
   image: string;
   description?: string;
+  parent_id?: number | null;
 }
 
 // Cart Types
@@ -91,6 +97,7 @@ export interface CartItem {
 // Order Types
 export interface Order {
   id: string;
+  order_id?: string | null;
   user_id: string;
   order_status: "pending_review" | "pending_approval" | "rejected" | "approved" | "cancelled" | "processing" | "shipped" | "delivered" | "returned";
   total_amount: number;

@@ -153,12 +153,11 @@ const Navbar = () => {
   useEffect(() => {
     async function fetchCategories() {
       try {
-        const api = await import("@/lib/api").then((m) => m.default);
-        const categories = await api.products.getCategories();
-        // Map to expected structure if needed, or just use data
-        // We only need id and name for the navbar
+        const categories = await import("@/lib/api").then((m) => m.default.categories.getAll());
         if (Array.isArray(categories)) {
-           setNavItems(categories.map((c: any) => ({ id: c.id, name: c.name })));
+           // Filter for top-level categories (parent_id is null/undefined)
+           const topLevel = categories.filter((c: any) => !c.parent_id);
+           setNavItems(topLevel.map((c: any) => ({ id: c.id, name: c.name })));
         }
       } catch (error) {
         console.error("Failed to load navbar categories", error);

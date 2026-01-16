@@ -32,7 +32,7 @@ export default function Declaration({ onNext, onPrev, initialData }: { onNext: (
   ]);
 
   const [agreed, setAgreed] = useState(false);
-  const [controlledDualUseItems, setControlledDualUseItems] = useState<"Yes" | "No">("No");
+  const [controlledItems, setControlledItems] = useState(false);
   const [procurementPurpose, setProcurementPurpose] = useState("Internal Use");
   const [endUserType, setEndUserType] = useState("Military");
 
@@ -46,13 +46,13 @@ export default function Declaration({ onNext, onPrev, initialData }: { onNext: (
     if (initialData) {
         if (initialData.procurement_purpose) setProcurementPurpose(initialData.procurement_purpose);
         if (initialData.end_user_type) setEndUserType(initialData.end_user_type);
-        if (initialData.controlled_dual_use_items) {
-             setControlledDualUseItems(initialData.controlled_dual_use_items); // string match "Yes"/"No" or boolean?
-             // Backend stores as string usually if mapped from frontend "Yes"/"No". 
-             // If boolean, map it.
-             if (initialData.controlled_dual_use_items === true) setControlledDualUseItems("Yes");
-             else if (initialData.controlled_dual_use_items === false) setControlledDualUseItems("No");
-             else setControlledDualUseItems(initialData.controlled_dual_use_items as "Yes" | "No");
+        if (initialData.controlled_items !== undefined) {
+             // Backend now sends boolean, but handle legacy/string just in case or direct map
+             if (initialData.controlled_items === true || initialData.controlled_items === "Yes") {
+                setControlledItems(true);
+             } else {
+                setControlledItems(false);
+             }
         }
         
         if (initialData.compliance_terms_accepted) setAgreed(true);
@@ -103,7 +103,7 @@ export default function Declaration({ onNext, onPrev, initialData }: { onNext: (
 
       // Other optional arrays / strings
       formData.append("licenseTypes[]", ""); // optional
-      formData.append("controlledDualUseItems", controlledDualUseItems);
+      formData.append("controlledItems", String(controlledItems));
       formData.append("procurementPurpose", procurementPurpose);
       formData.append("endUserType", endUserType);
 
@@ -197,29 +197,18 @@ export default function Declaration({ onNext, onPrev, initialData }: { onNext: (
         <label className="text-xs font-semibold mb-2 block">
           Do you require controlled items? (Ballistic, Electronic, etc.)
         </label>
-        <div className="flex gap-8 text-sm">
-          <label className="flex items-center gap-2 cursor-pointer">
-            <input
-              type="radio"
-              name="controlled"
-              value="Yes"
-              checked={controlledDualUseItems === "Yes"}
-              onChange={() => setControlledDualUseItems("Yes")}
-              className="w-4 h-4 border border-[#C7B88A] accent-[#C7B88A]"
-            />
-            Yes
-          </label>
-          <label className="flex items-center gap-2 cursor-pointer">
-            <input
-              type="radio"
-              name="controlled"
-              value="No"
-              checked={controlledDualUseItems === "No"}
-              onChange={() => setControlledDualUseItems("No")}
-              className="w-4 h-4 border border-[#C7B88A] accent-[#C7B88A]"
-            />
-            No
-          </label>
+        <div className="flex items-center gap-2 mt-2">
+            <span className={`text-sm ${!controlledItems ? 'font-bold' : ''}`}>No</span>
+            <label className="relative inline-flex items-center cursor-pointer">
+                <input 
+                    type="checkbox" 
+                    className="sr-only peer" 
+                    checked={controlledItems}
+                    onChange={(e) => setControlledItems(e.target.checked)}
+                />
+                <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-[#C7B88A]/50 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-[#C7B88A]"></div>
+            </label>
+            <span className={`text-sm ${controlledItems ? 'font-bold' : ''}`}>Yes</span>
         </div>
       </div>
 
