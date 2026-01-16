@@ -31,7 +31,7 @@ const supportOptions = [
     icon: "/order/Frame1.png",
     detailTitle: "RETURNS",
     detailHeading: "How do I return a product?",
-    detailDescription: "You can initiate a return within 30 days of purchase through your account portal.",
+    detailDescription: "You can initiate a return within 7 days of purchase through your account portal.",
     detailAction: "Follow the steps in the Returns section to generate a shipping label.",
     relatedQuestions: [
       {

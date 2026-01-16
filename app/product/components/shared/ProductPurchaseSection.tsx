@@ -1,6 +1,7 @@
 "use client";
 
 import Image from "next/image";
+import Link from "next/link";
 import { Check, Info } from "lucide-react";
 import { Heart } from "lucide-react";
 import { Star, ShieldCheck } from "lucide-react";
@@ -359,10 +360,10 @@ export default function ProductPurchaseSection({
                 <div className="grid grid-cols-[90px_1fr] gap-2">
                     <span className="font-medium">Returns:</span>
                     <div>
-                        30 days returns. Seller pays for return shipping.{" "}
-                        <span className="text-[#D35400] underline cursor-pointer">
+                        7 days returns. Seller pays for return shipping.{" "}
+                        <Link href="/terms-conditions" className="text-[#D35400] underline cursor-pointer">
                             See details
-                        </span>
+                        </Link>
                     </div>
                 </div>
                 {/* PAYMENTS */}

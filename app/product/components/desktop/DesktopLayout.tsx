@@ -181,7 +181,6 @@ const DesktopLayout = ({ id, product }: { id?: string; product?: any }) => {
                 )}
             </Container>
 
-            <TopSellingProducts title="Recommended For Your Vehicle" />
 
             {/* product specifications starts here */}
             <div className="my-6">
@@ -196,6 +195,8 @@ const DesktopLayout = ({ id, product }: { id?: string; product?: any }) => {
                     onClose={() => setShowGallery(false)}
                 />
             )}
+                        <TopSellingProducts title="Recommended For Your Vehicle" />
+
         </section>
 
     );

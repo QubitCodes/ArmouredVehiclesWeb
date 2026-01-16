@@ -140,7 +140,6 @@ export default function MobileLayout({ id, product }: { id?: string; product?: a
                 )}
 
             </div>
-            <TopSellingProducts title="Recommended For Your Vehicle" />
              {/* product specifications starts here */}
             <Container className="my-10">
                 {tabContent.length > 0 && (
@@ -157,6 +156,8 @@ export default function MobileLayout({ id, product }: { id?: string; product?: a
                     onClose={() => setShowGallery(false)}
                 />
             )}
+                        <TopSellingProducts title="Recommended For Your Vehicle" />
+
         </section>
     );
 }

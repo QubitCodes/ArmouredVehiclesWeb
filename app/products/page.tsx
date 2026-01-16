@@ -273,7 +273,7 @@ function CategoryContent() {
                 <div className="pt-5">
                     <div className="flex items-center gap-2 text-xs py-3 text-[#737373]">
                         <span className="font-[Inter, sans-serif] font-semibold text-[12px] leading-[100%] tracking-[0%] uppercase cursor-pointer">
-                            
+                            AUTO PARTS
                         </span>
                         <span className="font-[Inter, sans-serif] font-semibold text-[12px] leading-[100%] tracking-[0%] uppercase ">
                             /
