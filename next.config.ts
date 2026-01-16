@@ -38,9 +38,9 @@ const nextConfig: NextConfig = {
         pathname: "/**",
       },
       {
-        protocol: "https",
-        hostname: "armored-api.qubyt.codes",
-        pathname: "/**",
+         protocol: "https",
+         hostname: "armapi2.qubyt.codes",
+         pathname: "/**",
       },
       {
          protocol: "https",

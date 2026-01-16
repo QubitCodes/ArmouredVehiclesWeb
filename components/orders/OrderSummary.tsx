@@ -1,9 +1,9 @@
 "use client";
 
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import Image from "next/image";
-import { ArrowLeft, ChevronDown, Check, MoreVertical } from "lucide-react";
-import { useState } from "react";
+import { ArrowLeft, ChevronDown, Check, MoreVertical, X } from "lucide-react";
+import { useState, useEffect } from "react";
 import { useOrder } from "@/lib/hooks/orders";
 
 interface OrderSummaryProps {
@@ -18,7 +18,43 @@ interface OrderSummaryProps {
 export default function OrderSummary({ orderId }: OrderSummaryProps) {
   const router = useRouter();
   const [showFees, setShowFees] = useState(false);
-  const { data: order, isLoading, error } = useOrder(orderId);
+  const { data: order, isLoading, error, refetch } = useOrder(orderId);
+  const searchParams = useSearchParams();
+  const sessionId = searchParams.get('session_id');
+  const [showSuccessPopup, setShowSuccessPopup] = useState(false);
+  const [isVerifying, setIsVerifying] = useState(false);
+
+  const [paymentStatus, setPaymentStatus] = useState<string | null>(null);
+
+  useEffect(() => {
+    // If we have a session_id and order_id (from URL redirect), verify the payment
+    if (sessionId && orderId && !showSuccessPopup && !isVerifying) {
+        setIsVerifying(true);
+        // Verify payment
+        import("@/lib/api").then(({ api }) => {
+            api.checkout.verifySession({ sessionId, orderId })
+                .then((response: any) => {
+                    // Unwrap response as per BaseController structure
+                    const data = response.data || response;
+                    setPaymentStatus(data.status || 'paid');
+                    setShowSuccessPopup(true);
+                    refetch(); // Refresh order data to show "paid" status
+                })
+                .catch(err => {
+                    console.error("Payment verification failed:", err);
+                    setPaymentStatus('failed'); // Or handle error state
+                })
+                .finally(() => setIsVerifying(false));
+        });
+    }
+  }, [sessionId, orderId]);
+
+  // Handle manual flag for backward compatibility or direct testing
+  useEffect(() => {
+     if (searchParams.get('payment_success') === 'true') {
+         setShowSuccessPopup(true);
+     }
+  }, [searchParams]);
 
   // Format date helper
   const formatDate = (dateString?: string) => {
@@ -56,7 +92,7 @@ export default function OrderSummary({ orderId }: OrderSummaryProps) {
   const orderDate = formatDate((order as any).created_at || order.createdAt);
   const shipmentId = (order as any).shipment_id || (order as any).tracking_number || null;
   const itemsCount = order.items?.length || 0;
-  const orderTotal = parseFloat((order as any).total_amount) || order.totalAmount || 0;
+  const orderTotal = parseFloat(String(order.total_amount || 0));
 
   // Address from order (populated by ProfileController)
   const address = order.address || {};
@@ -69,8 +105,67 @@ export default function OrderSummary({ orderId }: OrderSummaryProps) {
     "Card";
   const paymentLast4 = transactionDetails?.last4 || "";
 
+  // Payment details from transaction_details if available
+
   return (
-    <div className="flex-1">
+    <div className="flex-1 relative">
+      {/* Success Popup Modal */}
+      {showSuccessPopup && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4 animate-in fade-in duration-300">
+          <div className="bg-[#EBE3D6] max-w-md w-full p-8 shadow-2xl relative border-2 border-[#C2B280]" style={{ clipPath: 'polygon(20px 0, 100% 0, 100% calc(100% - 20px), calc(100% - 20px) 100%, 0 100%, 0 20px)' }}>
+            <button 
+              onClick={() => setShowSuccessPopup(false)}
+              className="absolute top-4 right-4 text-[#666] hover:text-[#D35400]"
+            >
+              <X className="w-6 h-6" />
+            </button>
+            
+            <div className="text-center mb-6">
+              <div className="w-20 h-20 mx-auto mb-4 bg-[#27AE60] rounded-full flex items-center justify-center animate-bounce-once">
+                <Check className="w-10 h-10 text-white" strokeWidth={3} />
+              </div>
+              <h2 className="font-orbitron font-black text-2xl uppercase tracking-wide text-[#1A1A1A] mb-2">
+                Order Confirmed!
+              </h2>
+              <p className="text-[#6E6E6E]">
+                Thank you for your purchase
+              </p>
+            </div>
+
+            <div className="bg-[#F0EBE3] p-4 mb-6 border border-[#C2B280]">
+               <div className="flex justify-between mb-2">
+                  <span className="text-sm text-[#666]">Order ID:</span>
+                  <span className="text-sm font-bold text-black">{orderId}</span>
+               </div>
+               <div className="flex justify-between mb-2">
+                  <span className="text-sm text-[#666]">Status:</span>
+                  <span className={`text-sm font-bold uppercase ${paymentStatus === 'failed' ? 'text-red-600' : 'text-[#27AE60]'}`}>
+                    {paymentStatus || 'Paid'}
+                  </span>
+               </div>
+               <div className="flex justify-between border-t border-[#C2B280] pt-2 mt-2">
+                  <span className="text-sm text-[#666]">Total Amount:</span>
+                  <span className="text-lg font-bold text-black">AED {orderTotal.toFixed(2)}</span>
+               </div>
+            </div>
+
+            <div className="bg-[#39482C] p-4 text-center mb-6">
+              <p className="text-white text-xs">
+                 A confirmation email has been sent to your registered email address.
+              </p>
+            </div>
+
+            <button
+               onClick={() => router.replace(`/orders/summary/${orderId}`)}
+               className="w-full bg-[#D35400] text-white font-orbitron font-bold text-sm uppercase py-3 hover:bg-[#B51E17] transition-colors"
+               style={{ clipPath: 'polygon(10px 0, 100% 0, 100% calc(100% - 10px), calc(100% - 10px) 100%, 0 100%, 0 10px)' }}
+            >
+               View Order Details
+            </button>
+          </div>
+        </div>
+      )}
+
       {/* Header */}
       <div className="flex items-center gap-3 mb-6">
         <button
@@ -108,11 +203,11 @@ export default function OrderSummary({ orderId }: OrderSummaryProps) {
         <div className="space-y-3 lg:space-y-4">
           {order.items?.map((item: any, index: number) => {
             const itemName = item.product?.name || item.product_name || item.name || "Product";
-            const itemImage = item.product?.image || item.image || "/placeholders/product-placeholder.png";
+            const itemImage = item.product?.image || item.image || "/product/placeholder.svg";
             const itemPrice = item.price ? parseFloat(item.price) : 0;
             // Dummy status text as requested
             const statusText = "Delivered";
-            const isDelivered = order.status === "delivered";
+            const isDelivered = order.order_status === "delivered";
 
             return (
               <div key={item.id || index} className="bg-[#F0EBE3] border border-[#C2B280] overflow-hidden">

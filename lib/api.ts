@@ -18,8 +18,7 @@ import type {
 
 // 1. Safe Environment Variable Access
 const API_BASE =
-  process.env.NEXT_PUBLIC_API_BASE_URL ??
-  "https://armapi.qubyt.codes/api/v1";
+  process.env.NEXT_PUBLIC_API_BASE_URL;
 
 // ==================== Token Management (Client Side Only) ====================
 
@@ -479,7 +478,7 @@ filters: {
 
   // --- User ---
   user: {
-    getCurrent: () => fetchJson<User>('/user'),
+    getCurrent: () => fetchJson<User>('/profile'),
   },
 
   // --- Vendor ---

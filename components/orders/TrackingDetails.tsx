@@ -96,16 +96,16 @@ export default function TrackingDetails({ orderId }: TrackingDetailsProps) {
             </div>
             <div>
               <p className="text-sm">
-                <span className="font-medium text-black capitalize">{order.status.replace('_', ' ')}</span>
+                <span className="font-medium text-black capitalize">{order.order_status.replace('_', ' ')}</span>
               </p>
-              {order.status === 'cancelled' && (
+              {order.order_status === 'cancelled' && (
                 <p className="text-sm text-[#666]">
-                    Reason: <span className="text-[#D35400]">{order.rejection_reason || "N/A"}</span>
+                    Reason: <span className="text-[#D35400]">{order.comments || "N/A"}</span>
                 </p>
               )}
             </div>
           </div>
-          {order.status === 'pending' && (
+          {(order.order_status === 'pending_review' || order.order_status === 'pending_approval') && (
              <div className="relative clip-path-supplier bg-[#3D4A26] p-[1px] w-full lg:w-auto">
                 <button 
                   className="clip-path-supplier bg-[#EBE3D6] hover:bg-[#3D4A26] text-[#000] hover:text-white px-6 py-2 text-sm font-bold font-orbitron uppercase tracking-wide transition-colors w-full lg:w-auto"
@@ -156,8 +156,8 @@ export default function TrackingDetails({ orderId }: TrackingDetailsProps) {
           <div key={item.id} className="p-4 lg:p-5 flex items-start gap-4">
             <div className="w-16 h-16 lg:w-20 lg:h-20 flex-shrink-0 bg-white p-1">
                 <Image
-                src={item.image || "/product/product 1.png"}
-                alt={item.name}
+                src={item.image || item.product?.image || "/product/placeholder.svg"}
+                alt={item.name || item.product_name || "Product"}
                 width={80}
                 height={80}
                 className="w-full h-full object-contain"
@@ -165,7 +165,7 @@ export default function TrackingDetails({ orderId }: TrackingDetailsProps) {
             </div>
             <div className="flex-1 min-w-0">
               <h3 className="text-sm font-medium text-black mb-1 line-clamp-2">
-                {item.name}
+                {item.name || item.product_name || item.product?.name || "Product"}
               </h3>
               <div className="flex items-center gap-1 mb-1">
                 <span className="font-semibold text-sm text-black">

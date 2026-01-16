@@ -19,7 +19,7 @@ const ORDER_STATUS_STEPS = [
 ];
 
 function getTrackingSteps(order: Order) {
-  const currentStatusIndex = ORDER_STATUS_STEPS.findIndex(s => s.status === order.status) || 0;
+  const currentStatusIndex = ORDER_STATUS_STEPS.findIndex(s => s.status === order.order_status) || 0;
   
   // Custom logic to show the flow
   // If status is 'shipped', then 'pending' and 'processing' are completed.
@@ -32,7 +32,7 @@ function getTrackingSteps(order: Order) {
 
     // Very basic status flow logic
     const statusOrder = ["pending", "processing", "shipped", "delivered"];
-    const orderStatusIdx = statusOrder.indexOf(order.status);
+    const orderStatusIdx = statusOrder.indexOf(order.order_status);
     const stepIdx = statusOrder.indexOf(step.status);
 
     if (orderStatusIdx >= stepIdx) {
@@ -43,7 +43,7 @@ function getTrackingSteps(order: Order) {
     }
 
     // specific override for cancelled
-    if (order.status === 'cancelled') {
+    if (order.order_status === 'cancelled') {
         completed = false;
         current = false;
     }
@@ -236,10 +236,10 @@ export default function TrackOrder({ orderId }: TrackOrderProps) {
                 Item Summary
               </h2>
               <p className="text-xs text-[#666] mt-1">
-                Total Amount: <span className="font-bold text-black">{(order.totalAmount || 0).toFixed(2)} AED</span>
+                Total Amount: <span className="font-bold text-black">{Number(order.total_amount || 0).toFixed(2)} AED</span>
               </p>
             </div>
-            {order.status === 'pending' && (
+            {(order.order_status === 'pending_review' || order.order_status === 'pending_approval') && (
                 <div className="relative clip-path-supplier bg-[#3D4A26] p-[1px] w-full lg:w-auto">
                 <button className="clip-path-supplier bg-[#EBE3D6] hover:bg-[#3D4A26] text-[#000] hover:text-white px-6 py-2 text-sm font-bold font-orbitron uppercase tracking-wide transition-colors w-full lg:w-auto">
                     Cancel Order

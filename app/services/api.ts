@@ -1,7 +1,11 @@
 import axios from "axios";
 
 const API = axios.create({
+<<<<<<< HEAD
   baseURL: process.env.NEXT_PUBLIC_API_BASE_URL || "https://amstoreweb.vercel.app/",
+=======
+  baseURL: process.env.NEXT_PUBLIC_API_BASE_URL,
+>>>>>>> 2a12aeb083930f7fe38c81bbbcb10ff1e2562157
 
   headers: {
     "Content-Type": "application/json",
