@@ -102,8 +102,8 @@ export const FeaturedProducts = () => {
     fetchFeatured();
   }, []);
 
-  // Group products into slides (3 per slide on desktop, 1 per slide on mobile)
-  const GROUP_SIZE = isMobile ? 1 : 3;
+  // Group products into slides (3 per slide on desktop, 2 per slide on mobile)
+  const GROUP_SIZE = isMobile ? 2 : 3;
   const baseSlides: Product[][] = [];
   for (let i = 0; i < products.length; i += GROUP_SIZE) {
     baseSlides.push(products.slice(i, i + GROUP_SIZE));
@@ -241,7 +241,7 @@ export const FeaturedProducts = () => {
                   `}
                 >
                   {/* IMAGE SKELETON */}
-                  <div className="w-full h-[244px] md:h-[290px] lg:h-[310px] xl:h-[330px] 2xl:h-[349px] flex items-center justify-center border-b border-white/30 shimmer bg-white/5">
+                  <div className="w-full h-[180px] sm:h-[210px] md:h-[290px] lg:h-[310px] xl:h-[330px] 2xl:h-[349px] flex items-center justify-center border-b border-white/30 shimmer bg-white/5">
                   </div>
 
                   {/* NAME SKELETON */}
@@ -302,7 +302,7 @@ export const FeaturedProducts = () => {
                       onClick={() => router.push(`/product/${product.id}`)}
                       className={`
     bg-transparent border border-b-0 border-white 
-    w-[221px] md:w-[260px] lg:w-[300px] xl:w-[340px] 2xl:w-[368px] h-[363px] md:h-[460px] lg:h-[480px] xl:h-[500px] 2xl:h-[519px] flex flex-col flex-shrink-0
+    w-[160px] sm:w-[180px] md:w-[260px] lg:w-[300px] xl:w-[340px] 2xl:w-[368px] h-[300px] sm:h-[340px] md:h-[460px] lg:h-[480px] xl:h-[500px] 2xl:h-[519px] flex flex-col flex-shrink-0
     shadow-[0_0_15px_rgba(255,255,255,0.1)]
     transition-all duration-700 ease-in-out
     animate-[slideIn_0.5s_ease-out]
@@ -316,7 +316,7 @@ export const FeaturedProducts = () => {
 
 
                       {/* IMAGE */}
-                      <div className="w-full h-[244px] md:h-[290px] lg:h-[310px] xl:h-[330px] 2xl:h-[349px] flex items-center justify-center border-b border-white relative overflow-hidden" >
+                      <div className="w-full h-[180px] sm:h-[210px] md:h-[290px] lg:h-[310px] xl:h-[330px] 2xl:h-[349px] flex items-center justify-center border-b border-white relative overflow-hidden" >
                         <Image
                           src={
                             isHovered && product.gallery && product.gallery.length > 0

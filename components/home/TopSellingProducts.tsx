@@ -153,7 +153,11 @@ export function TopSellingProducts({ title }: { title: string }) {
             <div
               key={product.id}
               onClick={() => selectProduct(product)}
-              className="min-w-[110px] bg-[#F0EBE3] border border-[#ccc] flex flex-col items-center p-1 snap-start active:scale-95 transition"
+              className={`min-w-[110px] bg-[#F0EBE3] border flex flex-col items-center p-1 snap-start transition-colors ${
+                selectedProduct?.id === product.id
+                  ? "border-[#D35400]"
+                  : "border-[#ccc] active:border-[#D35400]"
+              }`}
             >
               <div className="relative w-[90px] h-[90px] mx-auto">
                 <Image src={product.image} alt={product.name} fill className="object-contain" />
@@ -229,12 +233,12 @@ export function TopSellingProducts({ title }: { title: string }) {
               <div
                 key={product.id}
                 onClick={() => selectProduct(product)}
-                className={`border cursor-pointer flex flex-col items-center justify-start text-center hover:shadow-md transition bg-[#EBE3D6] ${
+                className={`border cursor-pointer flex flex-col items-center justify-start text-center transition-colors bg-[#EBE3D6] ${
                   selectedProduct.id === product.id
                     ? "border-[#D35400] ring-2 ring-[#D35400] ring-inset relative z-10"
-                    : "border-[#CCCCCC]"
+                    : "border-[#CCCCCC] hover:border-[#D35400]"
                 }`}
-                style={{ width: "245px", height: "281px" }}
+                style={{  height: "281px" }}
               >
                 <div className="relative w-[190px] h-[190px] mt-6">
                   <Image src={product.image} alt={product.name} fill className="object-cover" />
@@ -246,22 +250,23 @@ export function TopSellingProducts({ title }: { title: string }) {
         </div>
 
         {/* RIGHT PREVIEW SECTION */}
-        <div className="flex-1 bg-[#EBE3D6] flex flex-col items-center pt-0 lg:h-[900px] xl:pr-[140px]">
+        <div className="flex-1 bg-[#EBE3D6] flex flex-col items-center pt-0 lg:h-[900px]">
 
-          <div className="relative w-full flex justify-center items-start pt-[123px]">
+          <div className="flex justify-center items-center pt-[123px] gap-6 mx-auto px-[50px]">
+            {/* Left Arrow */}
+            <button onClick={handlePreviousImage} className="z-30 shrink-0">
+              <Image src="/icons/circled arrow left.svg" alt="Prev" width={40} height={40} />
+            </button>
+
+            {/* Image */}
             <div className="relative w-[467px] h-[514px]">
-
-              <button onClick={handlePreviousImage} className="absolute -left-20 top-1/2 -translate-y-1/2 z-30">
-                <Image src="/icons/circled arrow left.svg" alt="Prev" width={40} height={40} />
-              </button>
-
               <Image src={previewImage} alt={selectedProduct.name} fill className="object-cover rounded" />
-
-              <button onClick={handleNextImage} className="absolute -right-20 top-1/2 -translate-y-1/2 z-30">
-                <Image src="/icons/circled arrow right.svg" alt="Next" width={40} height={40} />
-              </button>
-
             </div>
+
+            {/* Right Arrow */}
+            <button onClick={handleNextImage} className="z-30 shrink-0">
+              <Image src="/icons/circled arrow right.svg" alt="Next" width={40} height={40} />
+            </button>
           </div>
 
           <div className="text-lg text-black font-semibold mt-6 flex justify-between items-center gap-2">

@@ -14,7 +14,7 @@ export default function ProductRating({ rating, reviewCount }: Props) {
   // ⭐ No reviews case
   if (numericRating === 0 && count === 0) {
     return (
-      <div className="mt-1 text-sm text-[#D35400]">
+      <div className="mt-1 text-sm text-black">
         No reviews yet
       </div>
     );

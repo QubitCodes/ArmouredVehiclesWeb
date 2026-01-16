@@ -111,7 +111,7 @@ export default function ProductPurchaseSection({
                             const currentPath = window.location.pathname;
                             router.push(`/login?redirect=${encodeURIComponent(currentPath)}`);
                         }}
-                        className="text-[20px] font-medium text-[#D35400] cursor-pointer hover:underline"
+                        className="text-[20px] font-medium text-black cursor-pointer hover:underline"
                     >
                         Login to Purchase
                     </span>

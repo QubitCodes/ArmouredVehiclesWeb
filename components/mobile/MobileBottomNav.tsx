@@ -6,7 +6,6 @@ import Image from 'next/image';
 import { usePathname } from 'next/navigation';
 import { useAuth } from '@/lib/auth-context';
 import { profileMenuItems } from '@/lib/constants/profileMenu';
-import { Footer } from '../footer';
 
 const MobileBottomNav = () => {
   const pathname = usePathname();
@@ -99,11 +98,17 @@ const MobileBottomNav = () => {
 
       {/* FULL SCREEN ACCOUNT MODAL */}
       {accountOpen && (
-        <div className="fixed inset-0 z-[999] bg-white flex flex-col h-[800px]">
+        <div className="fixed top-0 left-0 right-0 bottom-0 z-[999] bg-white flex flex-col min-h-screen h-screen">
 
           {/* HEADER */}
-          <div className="flex items-center justify-between px-4 h-[60px] border-b">
-            <span className="text-lg font-semibold text-black">My Account</span>
+          <div className="flex items-center justify-between px-4 h-[60px] shrink-0">
+            <Image
+              src="/final-logo (1).svg"
+              alt="ArmoredMart"
+              width={180}
+              height={40}
+              priority
+            />
             <button onClick={() => setAccountOpen(false)}>
               <svg width="24" height="24" viewBox="0 0 24 24">
                 <path d="M6 6L18 18M6 18L18 6" stroke="#000" strokeWidth="2" />
@@ -112,47 +117,36 @@ const MobileBottomNav = () => {
           </div>
 
           {/* CONTENT */}
-          <div className="flex-1 overflow-y-auto">
-
-            {/* NOT LOGGED IN */}
+          <div className="flex-1 overflow-y-auto bg-white">
 
             {/* NOT LOGGED IN */}
             {!isAuthenticated && (
-             <>
-                <div className="p-6 space-y-5">
-  
-                  <div className="text-center space-y-1">
-                    <p className="text-[18px] font-semibold text-black">
-                      Welcome to ArmoredMart
-                    </p>
-                    <p className="text-sm text-gray-600">
-                      Sign in to continue
-                    </p>
+              <div className="p-12 space-y-5 h-full">
+                <div className="text-center space-y-1">
+                  <p className="text-[18px] font-semibold text-black">
+                    Welcome to ArmoredMart
+                  </p>
+                  <p className="text-sm text-gray-600">
+                    Sign in to continue
+                  </p>
+                </div>
+
+                <Link href="/login" onClick={() => setAccountOpen(false)}>
+                  <div className="bg-[#D35400] hover:bg-[#39482C] text-white clip-path-supplier flex items-center justify-center w-full h-12 my-3">
+                    <span className="font-black text-[20px] font-orbitron uppercase">
+                      LOGIN
+                    </span>
                   </div>
-  
-                  <Link href="/login">
-                    <div className="bg-[#D35400] hover:bg-[#39482C] text-white clip-path-supplier flex items-center justify-center w-full h-12 my-3">
-                      <span className="font-black text-[20px] font-orbitron uppercase">
-                        LOGIN
-                      </span>
-                    </div>
-                  </Link>
+                </Link>
 
-
-
-                  <Link href="https://amadmin.vercel.app/vendor/login/" target='_blank'>
-                                  <div className="bg-[#39482C] hover:bg-[#D35400] text-white clip-path-supplier flex items-center justify-center w-full h-12 my-3">
-                                    <span className="font-black text-[20px] font-orbitron uppercase">
-                                      SUPPLIER ZONE
-                                    </span>
-                                  </div>
-                                </Link>
-  
-                  {/* FOOTER */}
-                  
-                </div><Footer disableMobileBottomSpace />
-
-             </>
+                <Link href="https://amadmin.vercel.app/vendor/login/" target='_blank' onClick={() => setAccountOpen(false)}>
+                  <div className="bg-[#39482C] hover:bg-[#D35400] text-white clip-path-supplier flex items-center justify-center w-full h-12 my-3">
+                    <span className="font-black text-[20px] font-orbitron uppercase">
+                      SUPPLIER ZONE
+                    </span>
+                  </div>
+                </Link>
+              </div>
             )}
 
 

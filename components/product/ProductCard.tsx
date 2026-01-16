@@ -213,7 +213,7 @@ export default function ProductCard({
             const currentPath = window.location.pathname;
             router.push(`/login?redirect=${encodeURIComponent(currentPath)}`);
         }}
-        className="text-sm font-medium text-[#D35400] cursor-pointer hover:underline"
+        className="text-sm font-medium text-black cursor-pointer hover:underline"
       >
         Login to Purchase
       </span>

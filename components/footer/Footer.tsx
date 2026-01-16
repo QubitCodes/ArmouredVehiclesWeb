@@ -86,10 +86,18 @@ const Footer = ({ disableMobileBottomSpace = false }: FooterProps) => {
 
         {/* ========== MOBILE FOOTER ========== */}
         <div className="lg:hidden mb-6">
-          <Image src="/final-logo.svg" alt="ArmoredMart" width={260} height={140} className="mb-4" />
+
+          {/* Social Icons */}
+          <div className="flex gap-8 mb-6">
+            {socialLinks.map((s) => (
+              <Link key={s.href} href={s.href} target="_blank">
+                <Image src={s.icon} alt="social" width={22} height={22} />
+              </Link>
+            ))}
+          </div>
 
           {/* Currency Selector - Mobile */}
-          <div className="shrink-0 relative mb-4">
+          <div className="shrink-0 relative mb-6">
             <button
               className="w-[115px] h-[45px] flex items-center justify-center bg-white border border-gray-200 hover:bg-gray-50 gap-3 px-3 rounded"
               onClick={() => setCurrencyOpen((s) => !s)}
@@ -114,15 +122,6 @@ const Footer = ({ disableMobileBottomSpace = false }: FooterProps) => {
                 </button>
               </div>
             )}
-          </div>
-
-          {/* Social Icons */}
-          <div className="flex gap-8 mb-6">
-            {socialLinks.map((s) => (
-              <Link key={s.href} href={s.href} target="_blank">
-                <Image src={s.icon} alt="social" width={22} height={22} />
-              </Link>
-            ))}
           </div>
 
           {[{ id: "useful", title: "USEFUL LINKS", items: usefulLinks },
@@ -159,7 +158,7 @@ const Footer = ({ disableMobileBottomSpace = false }: FooterProps) => {
         {/* ========== DESKTOP FOOTER ========== */}
         <div className="hidden lg:grid grid-cols-5 gap-8 mb-5">
           <div>
-            <Image src="/final-logo.svg" alt="logo" width={220} height={120} />
+            <Image src="/icons/final-logo-white.svg" alt="logo" width={220} height={120} />
             
             {/* Currency Selector - Between Logo and Social Icons */}
             <div className="shrink-0 relative mt-4" ref={currencyRef}>

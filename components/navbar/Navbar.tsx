@@ -153,7 +153,8 @@ const Navbar = () => {
   useEffect(() => {
     async function fetchCategories() {
       try {
-        const categories = await import("@/lib/api").then((m) => m.default.categories.getAll());
+        const api = await import("@/lib/api").then((m) => m.default);
+        const categories = await api.products.getCategories();
         // Map to expected structure if needed, or just use data
         // We only need id and name for the navbar
         if (Array.isArray(categories)) {
@@ -231,7 +232,7 @@ const Navbar = () => {
     <nav className="fixed top-0 left-0 w-full z-50">
 
       {/* TOP NAVBAR */}
-      <div className="bg-white border-b shadow-sm">
+      <div className="bg-white  shadow-sm">
         <div className="container-figma">
 
           {/* MOBILE HEADER */}
@@ -301,12 +302,12 @@ const Navbar = () => {
                 ref={menuButtonRef}
               >
                 {menuOpen ? (
-                  <svg className="w-6 h-6" fill="none" stroke="black" viewBox="0 0 24 24">
+                  <svg className="w-8 h-8" fill="none" stroke="black" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2}
                       d="M6 18L18 6M6 6l12 12" />
                   </svg>
                 ) : (
-                  <svg className="w-6 h-6" fill="none" stroke="black" viewBox="0 0 24 24">
+                  <svg className="w-8 h-8" fill="none" stroke="black" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2}
                       d="M4 6h16M4 12h16M4 18h16" />
                   </svg>
@@ -325,11 +326,13 @@ const Navbar = () => {
                 onChange={(e) => setSearchQuery(e.target.value)}
                 onKeyDown={handleSearchKeyDown}
                 className="w-full h-full px-4 border border-[#000000] focus:outline-none placeholder-[#6E6E6E] text-black"
+                suppressHydrationWarning
               />
               <button 
                 onClick={handleSearch}
                 disabled={isSearching}
                 className="absolute right-0 top-0 h-full w-[50px] flex items-center justify-center bg-[#D35400] text-white disabled:opacity-50"
+                suppressHydrationWarning
               >
                 <Search className="w-9 h-9" />
               </button>
@@ -346,51 +349,45 @@ const Navbar = () => {
                 aria-hidden="true"
               />
               
-              {/* Menu Content */}
-              <div className="lg:hidden absolute left-0 right-0 top-full bg-white shadow-lg z-50">
-                <div className="flex flex-col">
-                  {/* Supplier Zone */}
-                  <Link
-                    href="https://amadmin.vercel.app/vendor/login/"
-                    target="_blank"
-                    className="flex items-center justify-center gap-3 px-4 py-4 bg-[#39482C] text-white font-orbitron font-bold hover:bg-[#4a5c3a] transition-colors"
-                    onClick={() => setMenuOpen(false)}
-                  >
-                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                      <path d="M3.17 7.44L12 12.55L20.77 7.47" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
-                      <path d="M12 21.61V12.54" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
-                      <path d="M9.93 2.48L4.59 5.44C3.38 6.11 2.39 7.79 2.39 9.17V14.82C2.39 16.2 3.38 17.88 4.59 18.55L9.93 21.52C11.07 22.15 12.94 22.15 14.08 21.52L19.42 18.55C20.63 17.88 21.62 16.2 21.62 14.82V9.17C21.62 7.79 20.63 6.11 19.42 5.44L14.08 2.47C12.93 1.84 11.07 1.84 9.93 2.48Z" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
-                    </svg>
-                    <span>SUPPLIER ZONE</span>
-                  </Link>
-
-                  {/* Login / Profile */}
-                  {isAuthenticated ? (
-                    <Link
-                      href="/profile"
-                      className="flex items-center justify-center gap-3 px-4 py-4 bg-[#D35400] text-white font-orbitron font-bold hover:bg-[#b84d00] transition-colors"
-                      onClick={() => setMenuOpen(false)}
-                    >
-                      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                        <path d="M12 12C14.7614 12 17 9.76142 17 7C17 4.23858 14.7614 2 12 2C9.23858 2 7 4.23858 7 7C7 9.76142 9.23858 12 12 12Z" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
-                        <path d="M20.59 22C20.59 18.13 16.74 15 12 15C7.26 15 3.41 18.13 3.41 22" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
-                      </svg>
-                      <span>{user?.name || 'PROFILE'}</span>
-                    </Link>
-                  ) : (
-                    <Link
-                      href="/login"
-                      className="flex items-center justify-center gap-3 px-4 py-4 bg-[#D35400] text-white font-orbitron font-bold hover:bg-[#b84d00] transition-colors"
-                      onClick={() => setMenuOpen(false)}
-                    >
-                      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                        <path d="M12 12C14.7614 12 17 9.76142 17 7C17 4.23858 14.7614 2 12 2C9.23858 2 7 4.23858 7 7C7 9.76142 9.23858 12 12 12Z" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
-                        <path d="M20.59 22C20.59 18.13 16.74 15 12 15C7.26 15 3.41 18.13 3.41 22" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
-                      </svg>
-                      <span>LOGIN</span>
-                    </Link>
-                  )}
+              {/* Menu Content - Categories Only */}
+              <div className="lg:hidden absolute left-0 right-0 top-full bg-white shadow-lg z-50 max-h-[70vh] overflow-y-auto">
+                {/* Categories Header */}
+                <div className="px-4 py-3 bg-[#39482C]">
+                  <span className="text-sm font-bold text-white uppercase tracking-wider font-orbitron">Categories</span>
                 </div>
+                {navItems.length === 0 ? (
+                  <div className="flex items-center justify-center py-6 bg-white">
+                    <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-[#D35400]"></div>
+                  </div>
+                ) : (
+                  navItems.map((item, index) => (
+                    <Link
+                      key={item.id}
+                      href={`/products?category_id=${item.id}`}
+                      className={`flex items-center justify-between px-4 py-3 bg-white text-black hover:bg-gray-50 transition-colors ${
+                        index !== navItems.length - 1 ? 'border-b border-gray-100' : ''
+                      }`}
+                      onClick={() => setMenuOpen(false)}
+                    >
+                      <span className="font-medium text-[14px]">{item.name}</span>
+                      <svg
+                        width="6"
+                        height="10"
+                        viewBox="0 0 6 10"
+                        fill="none"
+                        xmlns="http://www.w3.org/2000/svg"
+                      >
+                        <path
+                          d="M1 1L5 5L1 9"
+                          stroke="#D35400"
+                          strokeWidth="1.5"
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                        />
+                      </svg>
+                    </Link>
+                  ))
+                )}
               </div>
             </>
           )}
@@ -421,11 +418,13 @@ const Navbar = () => {
                   onChange={(e) => setSearchQuery(e.target.value)}
                   onKeyDown={handleSearchKeyDown}
                   className="w-full h-full px-4 border border-[#000000] focus:outline-none placeholder-[#6E6E6E] text-black"
+                  suppressHydrationWarning
                 />
                 <button 
                   onClick={handleSearch}
                   disabled={isSearching}
                   className="absolute right-0 top-0 h-full w-[50px] flex items-center justify-center bg-[#D35400] text-white hover:bg-black disabled:opacity-50"
+                  suppressHydrationWarning
                 >
                   <Search className="w-6 h-6" />
                 </button>
