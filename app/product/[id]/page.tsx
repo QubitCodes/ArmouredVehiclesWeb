@@ -121,7 +121,7 @@ export default function ProductDetailsPage() {
                  rating: item.rating ?? 0,
                  reviews: item.reviewCount ?? 0,
                  price: Number(item.price) || 0,
-                 image: item.image || (item.media && item.media.length > 0 ? item.media[0].url : "/placeholder.png"),
+                 image: item.image || (item.media && item.media.length > 0 ? item.media[0].url : "/placeholder.jpg"),
             }));
             setSimilarProducts(filtered);
           } catch (e) {

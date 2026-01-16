@@ -33,7 +33,7 @@ export default function WishlistPage() {
       const p = wi.product;
       const rawPrice = p?.price ?? p?.base_price;
       const priceNum = typeof rawPrice === "string" ? Number(rawPrice) : rawPrice;
-      const images = p?.gallery?.length ? p.gallery : p?.image ? [p.image] : ["/placeholder.svg"];
+      const images = p?.gallery?.length ? p.gallery : p?.image ? [p.image] : ["/placeholder.jpg"];
       return {
         id: wi.id, // This is the Wishlist Item ID needed for delete
         name: p?.name ?? `Product #${wi.productId}`,

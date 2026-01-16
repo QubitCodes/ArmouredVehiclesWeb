@@ -138,7 +138,7 @@ export default function OrdersPage() {
           {inProgressOrders.map((order, index) => {
             const first = order.items?.[0];
             // Use product image from relation, or legacy image, or placeholder
-            const image = first?.product?.image || first?.image || "/product/placeholder.svg"; 
+            const image = first?.product?.image || first?.image || "/placeholder.jpg"; 
             // Prefer product name from relation, then product_name column, then legacy name
             const baseName = first?.product?.name || first?.product_name || first?.name || `Order #${order.id}`;
             const extraCount = (order.items?.length || 0) - 1;
@@ -321,7 +321,7 @@ export default function OrdersPage() {
             const price = first?.price ? parseFloat(first.price) : Number(order.total_amount || 0);
             const statusText = formatStatusText(order);
             // Use product image from relation, or legacy image, or placeholder
-            const image = first?.product?.image || first?.image || "/product/placeholder.svg";
+            const image = first?.product?.image || first?.image || "/placeholder.jpg";
             // Prefer product name from relation, then product_name column, then legacy name
             const baseName = first?.product?.name || first?.product_name || first?.name || `Order #${order.id}`;
             const extraCount = (order.items?.length || 0) - 1;

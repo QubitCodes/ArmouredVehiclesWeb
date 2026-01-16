@@ -34,7 +34,7 @@ export default function ProductCard({
   price,
   delivery,
   action,
-  placeholderImage = "/placeholder.svg",
+  placeholderImage = "/placeholder.jpg",
   isControlled = false,
 }: ProductCardProps & { placeholderImage?: string }) {
   const [slide, setSlide] = useState(0);

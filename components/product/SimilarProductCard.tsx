@@ -28,7 +28,7 @@ const SimilarProductCard = ({
   const router = useRouter();
   const { isAuthenticated, isLoading } = useAuth();
   const [imgError, setImgError] = useState(false);
-  const placeholder = "/placeholder.svg";
+  const placeholder = "/placeholder.jpg";
   
   const displayImage = imgError ? placeholder : (image ?? placeholder); 
   const displayName = name ?? "Product name";

@@ -16,7 +16,7 @@ export default function ImageGallery({
   selectedImage,
   setSelectedImage,
   onOpenGallery,
-  placeholderImage = "/placeholder.svg",
+  placeholderImage = "/placeholder.jpg",
 }: Props) {
   const scrollRef = useRef<HTMLDivElement | null>(null);
 

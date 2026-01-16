@@ -47,7 +47,7 @@ export function TopSellingProducts({ title }: { title: string }) {
               image:
                 Array.isArray(item.gallery) && item.gallery.length > 0
                   ? item.gallery[0]
-                  : item.image || item.thumbnail || "/placeholder.png",
+                  : item.image || item.thumbnail || "/placeholder.jpg",
               images:
                 (Array.isArray(item.gallery) && item.gallery.length > 0)
                   ? item.gallery

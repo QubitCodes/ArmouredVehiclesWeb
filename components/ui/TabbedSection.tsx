@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useRef, useEffect } from "react";
 import { ChevronDown } from "lucide-react";
 
 export interface TabContent {
@@ -24,6 +24,9 @@ const TabbedSection = ({
   const [expandedSections, setExpandedSections] = useState<Set<string>>(
     new Set([defaultTab || tabs[0]?.id])
   );
+  
+  // Create refs for each section
+  const sectionRefs = useRef<{ [key: string]: HTMLDivElement | null }>({});
 
   // Mobile Accordion Toggle
   const toggleSection = (tabId: string) => {
@@ -38,22 +41,15 @@ const TabbedSection = ({
     });
   };
 
-  // Desktop Scroll functionality
-  const scrollToSection = (id: string) => {
-    const element = document.getElementById(id);
-    if (element) {
-      const offset = 100; // Adjusted for sticky header + spacing
-      const elementPosition = element.getBoundingClientRect().top;
-      const offsetPosition = elementPosition + window.pageYOffset - offset;
-      
-      window.scrollTo({
-        top: offsetPosition,
-        behavior: "smooth"
+  // Scroll to section using ref
+  const scrollToSection = (tabId: string) => {
+    const ref = sectionRefs.current[tabId];
+    if (ref) {
+      ref.scrollIntoView({
+        behavior: "smooth",
+        block: "start",
       });
-      setActiveTab(id);
-      
-      // Optional: Update URL without jumping
-      // window.history.pushState(null, "", `#${id}`);
+      setActiveTab(tabId);
     }
   };
 
@@ -62,24 +58,21 @@ const TabbedSection = ({
       
       {/* ---------------- DESKTOP: STICKY TABS + STACKED CONTENT ---------------- */}
       <div className="hidden md:block">
-        {/* Sticky Header */}
-        <div className="sticky top-0 z-40 bg-[#EBE3D6] border-b border-gray-300 shadow-sm">
-           <div className="flex container-figma">
+        {/* Sticky Header - positioned below main navbar (navbar ~120px on desktop) */}
+        <div className="sticky top-[120px] z-[51] bg-[#EBE3D6] border-b border-gray-300 shadow-sm pointer-events-auto">
+           <div className="flex container-figma relative">
             {tabs.map((tab) => (
-              <a
+              <button
                 key={tab.id}
-                href={`#${tab.id}`}
-                onClick={(e) => {
-                    e.preventDefault();
-                    scrollToSection(tab.id);
-                }}
-                className={`flex-1 px-6 py-4 font-bold text-sm font-[Orbitron] uppercase tracking-wider transition-colors text-center flex items-center justify-center ${activeTab === tab.id
+                type="button"
+                onClick={() => scrollToSection(tab.id)}
+                className={`flex-1 px-6 py-4 font-bold text-sm font-[Orbitron] uppercase tracking-wider transition-colors text-center flex items-center justify-center cursor-pointer relative z-10 ${activeTab === tab.id
                     ? "text-black border-b-2 border-black bg-[#EBE3D6]"
                     : "text-gray-600 hover:text-black bg-[#F0EBE3]"
                   }`}
               >
                 {tab.label}
-              </a>
+              </button>
             ))}
            </div>
         </div>
@@ -87,7 +80,11 @@ const TabbedSection = ({
         {/* Stacked Content */}
         <div className="container-figma p-4 pb-12">
             {tabs.map((tab) => (
-                <div key={tab.id} id={tab.id} className="mb-4 last:mb-0 border-b border-gray-300 pb-4 last:border-0 last:pb-0 scroll-mt-24">
+                <div 
+                  key={tab.id} 
+                  ref={(el) => { sectionRefs.current[tab.id] = el; }}
+                  className="mb-8 last:mb-0 border-b border-gray-300 pb-8 last:border-0 last:pb-0 scroll-mt-[180px]"
+                >
                     {tab.content}
                 </div>
             ))}

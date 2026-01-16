@@ -156,7 +156,7 @@ export default function TrackingDetails({ orderId }: TrackingDetailsProps) {
           <div key={item.id} className="p-4 lg:p-5 flex items-start gap-4">
             <div className="w-16 h-16 lg:w-20 lg:h-20 flex-shrink-0 bg-white p-1">
                 <Image
-                src={item.image || item.product?.image || "/product/placeholder.svg"}
+                src={item.image || item.product?.image || "/placeholder.jpg"}
                 alt={item.name || item.product_name || "Product"}
                 width={80}
                 height={80}

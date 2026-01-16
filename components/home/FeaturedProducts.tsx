@@ -76,8 +76,8 @@ export const FeaturedProducts = () => {
           id: item.id,
           name: item.name,
           price: Number(item.price),
-          image: item.image || "/placeholder.png",
-          gallery: (item.gallery && item.gallery.length > 0) ? item.gallery : [(item.image || "/placeholder.png")],
+          image: item.image || "/placeholder.jpg",
+          gallery: (item.gallery && item.gallery.length > 0) ? item.gallery : [(item.image || "/placeholder.jpg")],
           action:
             item.actionType === "buy_now"
               ? "BUY NOW"
