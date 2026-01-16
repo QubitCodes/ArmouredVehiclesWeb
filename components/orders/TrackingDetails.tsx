@@ -73,7 +73,7 @@ export default function TrackingDetails({ orderId }: TrackingDetailsProps) {
       <div className="bg-[#EBE3D6] p-4 lg:p-5 mb-4">
         <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-2">
           <p className="text-sm text-[#666]">
-            Order ID: <span className="text-black font-medium">#{order.id}</span>
+            Order ID: <span className="text-black font-medium">#{order.order_id || order.id}</span>
           </p>
           <p className="text-sm text-[#666]">
             Order Date: <span className="text-sm text-[#666]">{formattedDate}</span>
