@@ -125,10 +125,10 @@ export default function ProductCard({
 
 
   return (
-    <div className="bg-white border border-[#E8E3D6] overflow-hidden hover:shadow-md transition-all duration-200 flex flex-col">
+    <div className="bg-white border border-[#cecbc5] overflow-hidden hover:shadow-md transition-all duration-200 flex flex-col w-full h-full">
       {/* ---------- IMAGE SECTION ---------- */}
       <div
-        className="relative bg-[#EBE3D6] w-auto max-h-[205px] h-[200px] md:h-[300px] flex items-center justify-center group"
+        className="relative bg-[#EBE3D6] w-full h-[180px] md:h-[200px] group overflow-hidden"
         onMouseEnter={startHoverCycle}
         onMouseLeave={stopHoverCycle}
       >
@@ -136,10 +136,9 @@ export default function ProductCard({
         <Image
           src={imageError ? placeholderImage : currentImage}
           alt={name}
-          width={375}
-          height={390}
-          // fill
-          className="object-cover w-full h-full transition-all duration-300"
+          fill
+          sizes="(max-width: 768px) 50vw, 25vw"
+          className="object-cover transition-all duration-300"
           onError={() => setImageError(true)}
         />
 
@@ -174,11 +173,11 @@ export default function ProductCard({
       </div>
 
       {/* ---------- PRODUCT DETAILS ---------- */}
-     <div className="p-2 md:p-4 flex flex-col bg-[#F0EBE3] flex-1">
-  {/* TOP CONTENT – natural height */}
+     <div className="p-2 md:p-4 flex flex-col bg-[#EBE3D6] flex-1">
+  {/* TOP CONTENT – fixed height for consistency */}
   <div>
-    {/* TITLE (NO min-h ❌) */}
-    <h3 className="text-[13px] md:text-[16px] font-semibold text-gray-900 leading-[1.25] line-clamp-2">
+    {/* TITLE - min height ensures equal card heights */}
+    <h3 className="text-[13px] md:text-[16px] font-semibold text-gray-900 leading-[1.25] line-clamp-2 min-h-[32px] md:min-h-[40px]">
       {name}
     </h3>
 

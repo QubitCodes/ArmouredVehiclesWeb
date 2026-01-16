@@ -97,9 +97,9 @@ export const Categories = () => {
   const visibleCards = isMobile ? 2 : Math.floor((measuredWidth || 1000) / cardWidth);
   const maxSlide = Math.max(0, categories.length - visibleCards);
 
-  // Auto play - runs every 5 seconds
+  // Auto play - runs every 5 seconds (desktop only)
   useEffect(() => {
-    if (categories.length === 0) return;
+    if (categories.length === 0 || isMobile) return;
     
     const timer = setInterval(() => {
       setCurrentIndex((prev) => {
@@ -110,7 +110,7 @@ export const Categories = () => {
     }, 5000);
 
     return () => clearInterval(timer);
-  }, [categories.length, maxSlide]);
+  }, [categories.length, maxSlide, isMobile]);
 
   // Handle Previous - Infinite Loop
   const handlePrevious = useCallback(() => {

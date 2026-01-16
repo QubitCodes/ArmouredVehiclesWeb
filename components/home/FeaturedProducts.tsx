@@ -227,8 +227,8 @@ export const FeaturedProducts = () => {
 
         {isLoadingProducts ? (
           // SHIMMER SKELETON LOADER
-          <div className="overflow-hidden relative w-full">
-            <div className="flex flex-row justify-center items-center gap-2 md:gap-1 lg:gap-2 xl:gap-4 2xl:gap-[60px] w-full">
+          <div className="overflow-hidden relative w-full flex justify-center">
+            <div className="flex flex-row justify-center items-center gap-2 md:gap-1 lg:gap-2 xl:gap-4 2xl:gap-[60px] w-full max-w-[360px] sm:max-w-[400px] md:max-w-[820px] lg:max-w-[940px] xl:max-w-[1080px] 2xl:max-w-[1264px]">
               {(isMobile ? [0] : [0, 1, 2]).map((idx) => (
                 <div
                   key={idx}
@@ -272,7 +272,9 @@ export const FeaturedProducts = () => {
         ) : (
           <>
             {/* SLIDER WRAPPER - Auto-slide on both mobile and desktop */}
-            <div className="overflow-hidden relative w-full" >
+            <div className="overflow-hidden relative w-full flex justify-center">
+              {/* Max-width container to constrain slider on very large screens */}
+              <div className="w-full max-w-[360px] sm:max-w-[400px] md:max-w-[820px] lg:max-w-[940px] xl:max-w-[1080px] 2xl:max-w-[1264px]">
           {/* TRACK */}
           <div
             ref={sliderRef}
@@ -371,6 +373,7 @@ export const FeaturedProducts = () => {
               </div>
             ))}
           </div>
+              </div>
         </div>
 
         {/* Dots (pagination for slides) */}
