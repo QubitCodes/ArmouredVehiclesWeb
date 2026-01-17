@@ -1,5 +1,8 @@
 @import "tailwindcss";
 
+@theme {
+  --breakpoint-3xl: 1910px;
+}
 
 :root {
   --primary: #3D4A26;

@@ -51,17 +51,19 @@ export const FeaturedProducts = () => {
   const [imageIndices, setImageIndices] = useState<Record<string, number>>({});
   const [isMobile, setIsMobile] = useState(false);
   const [isLargeDesktop, setIsLargeDesktop] = useState(false);
+  const [isExtraLarge, setIsExtraLarge] = useState(false);
   const [isLoadingProducts, setIsLoadingProducts] = useState(true);
 
   const sliderRef = useRef<HTMLDivElement | null>(null);
   const { isAuthenticated, isLoading } = useAuth();
 
-  // Detect mobile and large desktop screen sizes
+  // Detect mobile, large desktop, and extra large screen sizes
   useEffect(() => {
     const checkSizes = () => {
       const width = window.innerWidth;
       setIsMobile(width < 768);
       setIsLargeDesktop(width >= 1024);
+      setIsExtraLarge(width >= 1920);
     };
     checkSizes();
     window.addEventListener('resize', checkSizes);
@@ -152,7 +154,7 @@ useEffect(() => {
       }
       return p + 1;
     });
-  }, isMobile ? 4000 : 7000);
+  }, isMobile ? 4000 : 700000);
 
   return () => clearInterval(timer);
 }, [visibleSlides.length, isMobile, total]);
@@ -251,36 +253,36 @@ useEffect(() => {
       `}</style>
 
       <div className="container-figma">
-        <h2 className="text-2xl sm:text-[32px] lg:text-4xl font-bold text-white mb-8 sm:mb-10 lg:mb-12 font-orbitron" >
+        <h2 className="text-2xl sm:text-[32px] lg:text-4xl 3xl:text-5xl font-bold text-white mb-8 sm:mb-10 lg:mb-12 3xl:mb-16 font-orbitron" >
           FEATURED PRODUCTS
         </h2>
 
         {isLoadingProducts ? (
           // SHIMMER SKELETON LOADER
           <div className="overflow-hidden relative w-full flex justify-center">
-            <div className="flex flex-row justify-center items-center gap-2 md:gap-1 lg:gap-2 xl:gap-4 2xl:gap-[60px] w-full max-w-[360px] sm:max-w-[400px] md:max-w-[820px] lg:max-w-[940px] xl:max-w-[1080px] 2xl:max-w-[1264px]">
+            <div className="flex flex-row justify-center items-center gap-2 md:gap-1 lg:gap-2 xl:gap-4 2xl:gap-[60px] 3xl:gap-20 w-full max-w-[360px] sm:max-w-[400px] md:max-w-[820px] lg:max-w-[940px] xl:max-w-[1080px] 2xl:max-w-[1264px] 3xl:max-w-[1600px]">
               {(isMobile ? [0] : [0, 1, 2, 3]).map((idx) => (
                 <div
                   key={idx}
                   className={`
                     bg-transparent border border-b-0 border-white/30 
-                    w-40 sm:w-[180px] md:basis-1/3 lg:basis-1/4 h-[300px] sm:h-[340px] md:h-[460px] lg:h-[480px] xl:h-[500px] 2xl:h-[519px] flex flex-col shrink-0
+                    w-40 sm:w-[180px] md:basis-1/3 lg:basis-1/4 h-[300px] sm:h-[340px] md:h-[460px] lg:h-[480px] xl:h-[500px] 2xl:h-[519px] 3xl:h-[600px] flex flex-col shrink-0
                     shadow-[0_0_15px_rgba(255,255,255,0.1)]
                     overflow-hidden
                     ${(!isLargeDesktop && idx === 1) ? "md:mt-16" : ""}
                   `}
                 >
                   {/* IMAGE SKELETON */}
-                  <div className="w-full h-[180px] sm:h-[210px] md:h-[290px] lg:h-[310px] xl:h-[330px] 2xl:h-[349px] flex items-center justify-center border-b border-white/30 shimmer bg-white/5">
+                  <div className="w-full h-[180px] sm:h-[210px] md:h-[290px] lg:h-[310px] xl:h-[330px] 2xl:h-[349px] 3xl:h-[400px] flex items-center justify-center border-b border-white/30 shimmer bg-white/5">
                   </div>
 
                   {/* NAME SKELETON */}
-                  <div className="w-full h-[42px] md:h-[60px] flex items-center px-3 md:px-6 border-b border-white/30">
+                  <div className="w-full h-[42px] md:h-[60px] 3xl:h-[70px] flex items-center px-3 md:px-6 3xl:px-8 border-b border-white/30">
                     <div className="shimmer w-3/4 h-4 md:h-5 bg-white/10 rounded"></div>
                   </div>
 
                   {/* PRICE SKELETON */}
-                  <div className="w-full h-[42px] md:h-[60px] flex items-center px-3 md:px-6">
+                  <div className="w-full h-[42px] md:h-[60px] 3xl:h-[70px] flex items-center px-3 md:px-6 3xl:px-8">
                     <div className="shimmer w-1/2 h-4 md:h-5 bg-white/10 rounded"></div>
                   </div>
 
@@ -314,7 +316,7 @@ useEffect(() => {
                 {extendedSlides.map((group, slideIndex) => (
                   <div
                     key={slideIndex}
-                      className="flex flex-row justify-start items-start gap-2 md:gap-1 lg:gap-2 xl:gap-4 2xl:gap-[60px] shrink-0 w-full"
+                      className="flex flex-row justify-start items-start gap-2 md:gap-1 lg:gap-2 xl:gap-4 2xl:gap-[60px] 3xl:gap-20 shrink-0 w-full"
                     style={{ 
                       width: `${100 / total}%`,
                       // maxWidth: isMobile ? '360px' : isLargeDesktop ? '1264px' : '940px',
@@ -336,13 +338,13 @@ useEffect(() => {
                       onClick={() => router.push(`/product/${product.id}`)}
                       className={`
     bg-transparent border border-b-0 border-white 
-    ${isMobile ? 'w-[170px]' : 'w-[200px] md:w-[260px] lg:w-[280px] xl:w-[274px] 2xl:w-[317px]'} h-[300px] sm:h-[340px] md:h-[460px] lg:h-[480px] xl:h-[425px] 2xl:h-[475px] flex flex-col shrink-0
+    ${isMobile ? 'w-[170px]' : 'w-[200px] md:w-[260px] lg:w-[280px] xl:w-[274px] 2xl:w-[317px] 3xl:w-[364px]'} h-[300px] sm:h-[340px] md:h-[460px] lg:h-[480px] xl:h-[425px] 2xl:h-[475px] 3xl:h-[550px] flex flex-col shrink-0
     shadow-[0_0_15px_rgba(255,255,255,0.1)]
     transition-all duration-700 ease-in-out
     animate-[slideIn_0.5s_ease-out]
     overflow-visible
     ${isHovered ? "" : ""}
-    ${isOffset ? "mt-12 md:mt-16" : ""}
+    ${isOffset ? "mt-12 md:mt-16 3xl:mt-20" : ""}
   `}
                       role="button"
                       style={{ cursor: "pointer", animation: `slideIn 0.5s ease-out ${idx * 0.1}s both` }}
@@ -350,7 +352,7 @@ useEffect(() => {
 
 
                       {/* IMAGE */}
-                      <div className="w-full h-[180px] sm:h-[210px] md:h-[290px] lg:h-[310px] xl:h-[250px] 2xl:h-[290px] flex items-center justify-center border-b border-white relative overflow-hidden" >
+                      <div className="w-full h-[180px] sm:h-[210px] md:h-[290px] lg:h-[310px] xl:h-[250px] 2xl:h-[290px] 3xl:h-[350px] flex items-center justify-center border-b border-white relative overflow-hidden" >
                         <Image
                           src={
                             isHovered && product.gallery && product.gallery.length > 0
@@ -365,24 +367,24 @@ useEffect(() => {
                       </div>
 
                       {/* NAME */}
-                      <div className="w-full h-[42px] md:h-[60px] flex items-center px-3 md:px-6 border-b border-white">
-                        <h3 className="text-white font-orbitron text-[12px] md:text-[16px] font-semibold leading-tight">
+                      <div className="w-full h-[42px] md:h-[60px] 3xl:h-[70px] flex items-center px-3 md:px-6 3xl:px-8 border-b border-white">
+                        <h3 className="text-white font-orbitron text-[12px] md:text-[16px] 3xl:text-[18px] font-semibold leading-tight">
                           {product.name}
                         </h3>
                       </div>
 
                       {/* PRICE */}
-                      <div className="w-full h-[42px] md:h-[60px] flex items-center px-3 md:px-6">
+                      <div className="w-full h-[42px] md:h-[60px] 3xl:h-[70px] flex items-center px-3 md:px-6 3xl:px-8">
                         <p className="text-white font-orbitron flex items-center gap-1 md:gap-2 select-none">
                           {isLoading ? (
                             <span className="opacity-70">...</span>
                           ) : isAuthenticated ? (
                             <>
-                              <Image src="/icons/currency/dirham-white.svg" alt="Currency" width={16} height={16} className="opacity-60 md:w-5 md:h-5" />
-                              <span className="text-sm md:text-lg ">{product.price.toLocaleString()}</span>
+                              <Image src="/icons/currency/dirham-white.svg" alt="Currency" width={16} height={16} className="opacity-60 md:w-5 md:h-5 3xl:w-6 3xl:h-6" />
+                              <span className="text-sm md:text-lg 3xl:text-xl">{product.price.toLocaleString()}</span>
                             </>
                           ) : (
-                            <span className="text-white/80 text-sm md:text-sm tracking-wider"><span className="font-bold">Login</span> to <span className="font-bold">access</span> product pricing.</span>
+                            <span className="text-white/80 text-sm md:text-sm 3xl:text-base tracking-wider"><span className="font-bold">Login</span> to <span className="font-bold">access</span> product pricing.</span>
                           )}
                         </p>
                       </div>
@@ -394,7 +396,7 @@ useEffect(() => {
                             e.stopPropagation();
                             router.push(`/product/${product.id}`);
                           }}
-                          className={`w-full h-full text-[14px] md:text-[18px] font-orbitron font-extrabold uppercase transition-all ${isHovered ? "bg-[#FF5C00] text-white" : "bg-white text-[#FF5C00]"}`}
+                          className={`w-full h-full text-[14px] md:text-[18px] 3xl:text-[20px] font-orbitron font-extrabold uppercase transition-all ${isHovered ? "bg-[#FF5C00] text-white" : "bg-white text-[#FF5C00]"}`}
                         >
                           {product.action}
                         </button>
@@ -408,7 +410,7 @@ useEffect(() => {
         </div>
 
         {/* Dots (pagination for slides) */}
-        <div className="flex justify-center gap-2 md:gap-4 mt-8">
+        <div className="flex justify-center gap-2 md:gap-4 3xl:gap-6 mt-8 3xl:mt-12">
           {visibleSlides.map((_, dotIdx) => (
             <button
               key={dotIdx}
@@ -416,7 +418,7 @@ useEffect(() => {
                 setTransitionEnabled(true);
                 setIndex(dotIdx + 1);
               }}
-              className={`h-1 w-[30px] md:w-[50px] transition-all ${index === dotIdx + 1 ? "bg-[#FF5C00]" : "bg-white/30"}`}
+              className={`h-1 3xl:h-1.5 w-[30px] md:w-[50px] 3xl:w-[70px] transition-all ${index === dotIdx + 1 ? "bg-[#FF5C00]" : "bg-white/30"}`}
             />
           ))}
         </div>
