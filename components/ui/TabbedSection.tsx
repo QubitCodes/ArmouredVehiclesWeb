@@ -59,7 +59,7 @@ const TabbedSection = ({
       {/* ---------------- DESKTOP: STICKY TABS + STACKED CONTENT ---------------- */}
       <div className="hidden md:block">
         {/* Sticky Header - positioned below main navbar (navbar ~120px on desktop) */}
-        <div className="sticky top-[120px] z-[51] bg-[#EBE3D6] border-b border-gray-300 shadow-sm pointer-events-auto">
+        <div className="sticky top-[120px] z-[51] bg-[#F0EBE3] border-b border-gray-300 shadow-sm pointer-events-auto">
            <div className="flex container-figma relative">
             {tabs.map((tab) => (
               <button

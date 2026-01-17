@@ -89,7 +89,7 @@ export default function MobileLayout({ id, product }: { id?: string; product?: a
     const [selectedImage, setSelectedImage] = useState(0);
     const [quantity, setQuantity] = useState(1);
     const [showGallery, setShowGallery] = useState(false);
-
+    console.log("MobileLayout product:", product);
 
     // `id` is available when rendering via `/product/[id]`.
     // Currently not used inside this component, but provided so it can be
@@ -97,6 +97,14 @@ export default function MobileLayout({ id, product }: { id?: string; product?: a
     return (
         <section className="bg-[#F0EBE3]">
             <div className="p-4 space-y-6">
+                {/* Breadcrumb - Mobile */}
+                <div className="flex items-center gap-2 text-xs py-2 text-[#737373]">
+                    <span className="font-semibold cursor-pointer">Home</span>
+                    <span className="font-semibold">/</span>
+                    <span className="font-semibold cursor-pointer">{product?.category?.name ? product.category.name : "Products"}</span>
+                    <span className="font-semibold">/</span>
+                    <span className="font-medium truncate max-w-[60vw]">{product?.name || "DETAILS"}</span>
+                </div>
 
                 {/* 1️⃣ HEADER */}
                 <ProductHeader
