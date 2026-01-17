@@ -1,7 +1,9 @@
 @import "tailwindcss";
 
+@custom-media --3xl (min-width: 1920px);
+
 @theme {
-  --breakpoint-3xl: 1910px;
+  --breakpoint-3xl: 120rem;
 }
 
 :root {
