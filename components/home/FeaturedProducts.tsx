@@ -154,7 +154,7 @@ useEffect(() => {
       }
       return p + 1;
     });
-  }, isMobile ? 4000 : 700000);
+  }, isMobile ? 4000 : 7000);
 
   return () => clearInterval(timer);
 }, [visibleSlides.length, isMobile, total]);
