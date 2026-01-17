@@ -122,7 +122,7 @@ export default function ImageGallery({
 
         {/* MAIN IMAGE (RIGHT) */}
         <div
-          className="relative aspect-square w-full rounded-lg overflow-hidden border border-gray-200 bg-[#EBE3D6]"
+          className="relative aspect-square w-full rounded-lg overflow-hidden border border-gray-200 bg-[#fff]"
           onClick={onOpenGallery}
         >
           <Image

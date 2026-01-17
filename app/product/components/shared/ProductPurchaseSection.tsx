@@ -265,34 +265,32 @@ export default function ProductPurchaseSection({
 
                 {/* ADD TO WISHLIST */}
                 <button 
-                  className="relative w-full h-11 bg-transparent"
-                  onClick={async () => {
-                    await toggleWishlist(productId);
-                  }}
+                    className="relative w-full h-10 bg-transparent md:col-span-1"
+                    onClick={async () => {
+                        await toggleWishlist(productId);
+                    }}
                 >
-
                     {/* BORDER */}
                     <span
-                        className="absolute inset-0 clip-path-supplier bg-[#3D4A26]"
-                        aria-hidden
+                            className="absolute inset-0 clip-path-supplier bg-[#3D4A26]"
+                            aria-hidden
                     />
 
                     {/* INNER WHITE */}
                     <span
-                        className="absolute inset-[1.5px] clip-path-supplier bg-white"
-                        aria-hidden
+                            className="absolute inset-[1px] clip-path-supplier bg-white"
+                            aria-hidden
                     />
 
                     {/* CONTENT */}
                     <span
-                        className="relative z-10 flex items-center justify-center gap-2
-                 h-full w-full font-orbitron font-black
-                 text-[14px] uppercase text-[#3D4A26]"
+                            className="relative z-10 flex items-center justify-center gap-1
+                                     h-full w-full font-orbitron font-black
+                                     text-sm uppercase text-[#3D4A26]"
                     >
-                        <Heart size={16} strokeWidth={2} className={isLiked ? "fill-[#3D4A26] text-[#3D4A26]" : ""} />
-                        {isLiked ? "Saved" : "Add To Wishlist"}
+                            <Heart size={14} strokeWidth={2} className={isLiked ? "fill-[#3D4A26] text-[#3D4A26]" : ""} />
+                            {isLiked ? "Saved" : "Add To Wishlist"}
                     </span>
-
                 </button>
 
             </div>
