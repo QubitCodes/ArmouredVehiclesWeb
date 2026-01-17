@@ -343,17 +343,31 @@ const Navbar = () => {
             <>
               {/* Dark Overlay - covers the page behind the menu */}
               <div 
-                className="lg:hidden fixed inset-0 top-0 bg-black/60 z-40"
+                className="lg:hidden fixed inset-0 top-0 bg-white z-40"
                 onClick={() => setMenuOpen(false)}
                 aria-hidden="true"
               />
               
               {/* Menu Content - Categories Only */}
-              <div className="lg:hidden absolute left-0 right-0 top-full bg-white shadow-lg z-50 max-h-[70vh] overflow-y-auto">
-                {/* Categories Header */}
-                <div className="px-4 py-3 bg-[#39482C]">
-                  <span className="text-sm font-bold text-white uppercase tracking-wider font-orbitron">Categories</span>
+              <div className="lg:hidden absolute left-0 right-0 top-7 bg-white z-50 max-h-[70vh] overflow-y-auto">
+                {/* Close Button */}
+                <div className="sticky top-0 bg-white z-10 flex justify-end px-4 pt-0 pb-2 border-b border-gray-100">
+                  <button
+                    onClick={() => setMenuOpen(false)}
+                    className="p-2 hover:bg-gray-100 rounded-full transition-colors"
+                    aria-label="Close menu"
+                  >
+                    <svg className="w-6 h-6" fill="none" stroke="black" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2}
+                        d="M6 18L18 6M6 6l12 12" />
+                    </svg>
+                  </button>
                 </div>
+                
+                {/* Categories Header */}
+                {/* <div className="px-4 py-3 bg-[#39482C]">
+                  <span className="text-sm font-bold text-white uppercase tracking-wider font-orbitron">Categories</span>
+                </div> */}
                 {navItems.length === 0 ? (
                   <div className="flex items-center justify-center py-6 bg-white">
                     <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-[#D35400]"></div>
@@ -363,7 +377,7 @@ const Navbar = () => {
                     <Link
                       key={item.id}
                       href={`/products?category_id=${item.id}`}
-                      className={`flex items-center justify-between px-4 py-3 bg-white text-black hover:bg-gray-50 transition-colors ${
+                      className={`flex items-center justify-between px-4 py-3 bg-white text-black leading-6 hover:bg-gray-50 transition-colors ${
                         index !== navItems.length - 1 ? 'border-b border-gray-100' : ''
                       }`}
                       onClick={() => setMenuOpen(false)}

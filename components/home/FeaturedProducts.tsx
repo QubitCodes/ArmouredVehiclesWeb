@@ -219,7 +219,7 @@ useEffect(() => {
   return (
     <section
       className="py-16 bg-center bg-cover"
-      style={{ backgroundImage: "url('/featured products/background.png')" }}
+      style={{ backgroundImage: "url('/featured products/background.webp')" }}
     >
       <style jsx>{`
         @keyframes slideIn {
@@ -304,7 +304,7 @@ useEffect(() => {
         ) : (
           <>
             {/* SLIDER WRAPPER - Auto-slide on both mobile and desktop */}
-            <div className="overflow-hidden relative w-full">
+            <div className="overflow-hidden relative w-full" style={{ clipPath: 'inset(0)' }}>
               <div
                 ref={sliderRef}
                 className={`flex ${transitionEnabled && visibleSlides.length > 1 ? "transition-transform duration-700 ease-in-out" : ""}`}
