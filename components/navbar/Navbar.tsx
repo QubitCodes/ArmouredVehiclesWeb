@@ -604,7 +604,7 @@ const Navbar = () => {
                 {navItems.map((item) => (
                 <div
                   key={item.id}
-                  className="h-[50px] px-4 text-[15.5px] font-medium whitespace-nowrap"
+                  className="h-[50px] px-4 text-[13px] font-medium whitespace-nowrap"
                 >
                   {item.name}
                 </div>
