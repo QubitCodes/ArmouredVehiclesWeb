@@ -3,7 +3,7 @@ import Image from "next/image";
 import { useRouter } from "next/navigation";
 import api from "@/lib/api";
 import { useAuth } from "@/lib/auth-context";
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect, useRef, useMemo } from "react";
 
 interface Product {
   id: number;
@@ -50,19 +50,22 @@ export const FeaturedProducts = () => {
   const [hoveredKey, setHoveredKey] = useState<string | null>(null);
   const [imageIndices, setImageIndices] = useState<Record<string, number>>({});
   const [isMobile, setIsMobile] = useState(false);
+  const [isLargeDesktop, setIsLargeDesktop] = useState(false);
   const [isLoadingProducts, setIsLoadingProducts] = useState(true);
 
   const sliderRef = useRef<HTMLDivElement | null>(null);
   const { isAuthenticated, isLoading } = useAuth();
 
-  // Detect mobile screen size
+  // Detect mobile and large desktop screen sizes
   useEffect(() => {
-    const checkMobile = () => {
-      setIsMobile(window.innerWidth < 768);
+    const checkSizes = () => {
+      const width = window.innerWidth;
+      setIsMobile(width < 768);
+      setIsLargeDesktop(width >= 1024);
     };
-    checkMobile();
-    window.addEventListener('resize', checkMobile);
-    return () => window.removeEventListener('resize', checkMobile);
+    checkSizes();
+    window.addEventListener('resize', checkSizes);
+    return () => window.removeEventListener('resize', checkSizes);
   }, []);
 
   // Fetch products from API
@@ -102,51 +105,77 @@ export const FeaturedProducts = () => {
     fetchFeatured();
   }, []);
 
-  // Group products into slides (3 per slide on desktop, 2 per slide on mobile)
-  const GROUP_SIZE = isMobile ? 2 : 3;
-  const baseSlides: Product[][] = [];
-  for (let i = 0; i < products.length; i += GROUP_SIZE) {
-    baseSlides.push(products.slice(i, i + GROUP_SIZE));
-  }
+  // Group products into slides (4 per slide on large desktop, 3 on medium, 2 on mobile)
+  const GROUP_SIZE = useMemo(() => {
+    if (isMobile) return 2;
+    if (isLargeDesktop) return 4;
+    return 3;
+  }, [isMobile, isLargeDesktop]);
+
+  const baseSlides: Product[][] = useMemo(() => {
+    const slides: Product[][] = [];
+    for (let i = 0; i < products.length; i += GROUP_SIZE) {
+      slides.push(products.slice(i, i + GROUP_SIZE));
+    }
+    return slides;
+  }, [products, GROUP_SIZE]);
+  // Limit to only 3 slides on desktop; keep all on mobile
+  const visibleSlides = useMemo(
+    () => baseSlides,
+    [baseSlides]
+  );
 
   // Extend slides for looping: [ lastGroupClone, ...baseSlides, firstGroupClone ]
-  const extendedSlides = baseSlides.length > 0 ? [
-    baseSlides[baseSlides.length - 1],
-    ...baseSlides,
-    baseSlides[0],
-  ] : [];
+  // Only extend if we have more than 1 slide to avoid showing duplicates
+  const extendedSlides = useMemo(() => {
+    if (visibleSlides.length === 0) return [];
+    if (visibleSlides.length === 1) return visibleSlides; // No clones for single slide
+    return [
+      visibleSlides[visibleSlides.length - 1],
+      ...visibleSlides,
+      visibleSlides[0],
+    ];
+  }, [visibleSlides]);
 
   const total = extendedSlides.length;
 
   // AUTO slide: always increment index → moves left (translateX negative) - BOTH MOBILE AND DESKTOP
-  useEffect(() => {
-    if (baseSlides.length <= 1) return;
-    const timer = setInterval(() => {
-      setTransitionEnabled(true);
-      setIndex((p) => p + 1);
-    }, isMobile ? 4000 : 7000); // 4s on mobile, 7s on desktop
-    return () => clearInterval(timer);
-  }, [baseSlides.length, isMobile]);
+useEffect(() => {
+  if (visibleSlides.length <= 1) return;
+
+  const timer = setInterval(() => {
+    setTransitionEnabled(true);
+    setIndex((p) => {
+      // If next would be the last clone, jump to real first instead
+      if (p + 1 === total - 1) {
+        return 1;
+      }
+      return p + 1;
+    });
+  }, isMobile ? 4000 : 7000);
+
+  return () => clearInterval(timer);
+}, [visibleSlides.length, isMobile, total]);
 
   // transitionend handler: when we land on a cloned slide, snap (no transition) to the real one
-  useEffect(() => {
-    const el = sliderRef.current;
-    if (!el) return;
+  // Only needed when we have multiple slides with clones
+useEffect(() => {
+  if (visibleSlides.length <= 1) return;
 
-    const onTransitionEnd = () => {
-      if (index === total - 1) {
-        setTransitionEnabled(false);
-        setIndex(1);
-      }
-      if (index === 0) {
-        setTransitionEnabled(false);
-        setIndex(total - 2);
-      }
-    };
+  const el = sliderRef.current;
+  if (!el) return;
 
-    el.addEventListener("transitionend", onTransitionEnd);
-    return () => el.removeEventListener("transitionend", onTransitionEnd);
-  }, [index, total]);
+  const onTransitionEnd = () => {
+    if (index === 0) {
+      setTransitionEnabled(false);
+      setIndex(total - 2);
+    }
+  };
+
+  el.addEventListener("transitionend", onTransitionEnd);
+  return () => el.removeEventListener("transitionend", onTransitionEnd);
+}, [index, total, visibleSlides.length]);
+
 
   // When we turned off transition to snap, re-enable immediately (so next movement is animated)
   useEffect(() => {
@@ -181,6 +210,7 @@ export const FeaturedProducts = () => {
 
     return () => clearInterval(interval);
   }, [hoveredKey, extendedSlides]);
+  // console.log('Rendering FeaturedProducts with products:', products);
 
   // Do not early-return null; we'll render an empty-state badge below when no products
 
@@ -229,15 +259,15 @@ export const FeaturedProducts = () => {
           // SHIMMER SKELETON LOADER
           <div className="overflow-hidden relative w-full flex justify-center">
             <div className="flex flex-row justify-center items-center gap-2 md:gap-1 lg:gap-2 xl:gap-4 2xl:gap-[60px] w-full max-w-[360px] sm:max-w-[400px] md:max-w-[820px] lg:max-w-[940px] xl:max-w-[1080px] 2xl:max-w-[1264px]">
-              {(isMobile ? [0] : [0, 1, 2]).map((idx) => (
+              {(isMobile ? [0] : [0, 1, 2, 3]).map((idx) => (
                 <div
                   key={idx}
                   className={`
                     bg-transparent border border-b-0 border-white/30 
-                    w-[221px] md:w-[260px] lg:w-[300px] xl:w-[340px] 2xl:w-[368px] h-[363px] md:h-[460px] lg:h-[480px] xl:h-[500px] 2xl:h-[519px] flex flex-col flex-shrink-0
+                    w-40 sm:w-[180px] md:basis-1/3 lg:basis-1/4 h-[300px] sm:h-[340px] md:h-[460px] lg:h-[480px] xl:h-[500px] 2xl:h-[519px] flex flex-col shrink-0
                     shadow-[0_0_15px_rgba(255,255,255,0.1)]
                     overflow-hidden
-                    ${idx === 1 ? "md:mt-16" : ""}
+                    ${(!isLargeDesktop && idx === 1) ? "md:mt-16" : ""}
                   `}
                 >
                   {/* IMAGE SKELETON */}
@@ -262,7 +292,7 @@ export const FeaturedProducts = () => {
               ))}
             </div>
           </div>
-        ) : baseSlides.length === 0 ? (
+        ) : visibleSlides.length === 0 ? (
           // EMPTY-STATE BADGE WHEN THERE ARE NO PRODUCTS
           <div className="flex justify-center items-center py-8">
             <div className="px-4 py-2 rounded-full border border-white/30 bg-white/10 text-white/80 font-orbitron text-sm md:text-base">
@@ -272,45 +302,47 @@ export const FeaturedProducts = () => {
         ) : (
           <>
             {/* SLIDER WRAPPER - Auto-slide on both mobile and desktop */}
-            <div className="overflow-hidden relative w-full flex justify-center">
-              {/* Max-width container to constrain slider on very large screens */}
-              <div className="w-full max-w-[360px] sm:max-w-[400px] md:max-w-[820px] lg:max-w-[940px] xl:max-w-[1080px] 2xl:max-w-[1264px]">
-          {/* TRACK */}
-          <div
-            ref={sliderRef}
-            className={`flex ${transitionEnabled ? "transition-transform duration-700 ease-in-out" : ""}`}
-            style={{
-              width: `${total * 100}%`,
-              transform: `translateX(-${index * (100 / total)}%)`,
-            }}
-          >
-            {extendedSlides.map((group, slideIndex) => (
+            <div className="overflow-hidden relative w-full">
               <div
-                key={slideIndex}
-                className="flex flex-row justify-center items-center gap-4 md:gap-1 lg:gap-2 xl:gap-4 2xl:gap-[60px] flex-shrink-0"
-                style={{ width: `${100 / total}%` }}
+                ref={sliderRef}
+                className={`flex ${transitionEnabled && visibleSlides.length > 1 ? "transition-transform duration-700 ease-in-out" : ""}`}
+                style={{
+                  width: visibleSlides.length === 1 ? '100%' : `${total * 100}%`,
+                  transform: visibleSlides.length === 1 ? 'translateX(0)' : `translateX(-${index * (100 / total)}%)`,
+                }}
               >
+                {extendedSlides.map((group, slideIndex) => (
+                  <div
+                    key={slideIndex}
+                    className="flex flex-row justify-center items-start gap-2 md:gap-1 lg:gap-2 xl:gap-4 2xl:gap-[60px] shrink-0 w-full"
+                    style={{ 
+                      width: `${100 / total}%`,
+                      maxWidth: isMobile ? '360px' : isLargeDesktop ? '1264px' : '940px',
+                      margin: '0 auto'
+                    }}
+                  >
                 {group.map((product, idx) => {
                   const uniqueKey = `${slideIndex}-${idx}`;
                   const isHovered = hoveredKey === uniqueKey;
-                  const isMiddle = idx === 1; // middle card offset
+                  // Offset pattern: 2nd and 4th cards (odd indices) should be pushed down
+                  const isOffset = idx % 2 === 1;
 
                   return (
                     <div
-                      key={product.id}
+                      key={uniqueKey}
                       data-aos="fade-up"
                       onMouseEnter={() => setHoveredKey(uniqueKey)}
                       onMouseLeave={() => setHoveredKey(null)}
                       onClick={() => router.push(`/product/${product.id}`)}
                       className={`
     bg-transparent border border-b-0 border-white 
-    w-[160px] sm:w-[180px] md:w-[260px] lg:w-[300px] xl:w-[340px] 2xl:w-[368px] h-[300px] sm:h-[340px] md:h-[460px] lg:h-[480px] xl:h-[500px] 2xl:h-[519px] flex flex-col flex-shrink-0
+    ${isMobile ? 'w-[170px]' : 'md:basis-1/3 lg:basis-1/4'} h-[300px] sm:h-[340px] md:h-[460px] lg:h-[480px] xl:h-[500px] 2xl:h-[470px] flex flex-col shrink-0
     shadow-[0_0_15px_rgba(255,255,255,0.1)]
     transition-all duration-700 ease-in-out
     animate-[slideIn_0.5s_ease-out]
     overflow-visible
     ${isHovered ? "" : ""}
-    ${isMiddle ? "md:mt-16" : ""}
+    ${isOffset ? "mt-12 md:mt-16" : ""}
   `}
                       role="button"
                       style={{ cursor: "pointer", animation: `slideIn 0.5s ease-out ${idx * 0.1}s both` }}
@@ -318,7 +350,7 @@ export const FeaturedProducts = () => {
 
 
                       {/* IMAGE */}
-                      <div className="w-full h-[180px] sm:h-[210px] md:h-[290px] lg:h-[310px] xl:h-[330px] 2xl:h-[349px] flex items-center justify-center border-b border-white relative overflow-hidden" >
+                      <div className="w-full h-[180px] sm:h-[210px] md:h-[290px] lg:h-[310px] xl:h-[330px] 2xl:h-[290px] flex items-center justify-center border-b border-white relative overflow-hidden" >
                         <Image
                           src={
                             isHovered && product.gallery && product.gallery.length > 0
@@ -373,12 +405,11 @@ export const FeaturedProducts = () => {
               </div>
             ))}
           </div>
-              </div>
         </div>
 
         {/* Dots (pagination for slides) */}
         <div className="flex justify-center gap-2 md:gap-4 mt-8">
-          {baseSlides.map((_, dotIdx) => (
+          {visibleSlides.map((_, dotIdx) => (
             <button
               key={dotIdx}
               onClick={() => {
