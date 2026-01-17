@@ -119,6 +119,7 @@ const Navbar = () => {
 
   // secondary navbar scroll state hide
   const [showSecondaryNav, setShowSecondaryNav] = useState(true);
+  const [showMobileSearch, setShowMobileSearch] = useState(true);
   const lastScrollY = useRef(0);
 
   useEffect(() => {
@@ -128,9 +129,11 @@ const Navbar = () => {
       if (currentScrollY > lastScrollY.current && currentScrollY > 80) {
         // scrolling down
         setShowSecondaryNav(false);
+        setShowMobileSearch(false);
       } else {
         // scrolling up
         setShowSecondaryNav(true);
+        setShowMobileSearch(true);
       }
 
       lastScrollY.current = currentScrollY;
@@ -316,7 +319,11 @@ const Navbar = () => {
           </div>
 
           {/* MOBILE SEARCH BAR */}
-          <div className="lg:hidden mt-2 pb-3">
+          <div
+            className={`lg:hidden mt-2 pb-3 overflow-hidden transition-[max-height,opacity] duration-300 ease-in-out ${
+              showMobileSearch ? "opacity-100 max-h-[60px]" : "opacity-0 max-h-0"
+            }`}
+          >
             <div className="relative h-12">
               <input
                 type="text"

@@ -46,7 +46,7 @@ export default function ImageGallery({
         {displayImages.map((img, index) => (
           <div
             key={index}
-            className="relative min-w-full aspect-square snap-center bg-[#EBE3D6]"
+            className="relative min-w-full aspect-square snap-center bg-[#fff]"
             onClick={onOpenGallery}
           >
             <Image

@@ -77,7 +77,7 @@ export default function ProductPurchaseSection({
                                     alt="Currency"
                                     width={16}
                                     height={16}
-                                    className="opacity-60 md:w-5 md:h-5"
+                                    className=" md:w-5 md:h-5"
                                 />
                                 <span className="text-3xl font-bold font-[inter, sans-serif] text-black">
                                     {displayPrice}
@@ -92,7 +92,7 @@ export default function ProductPurchaseSection({
                                             alt="Currency"
                                             width={14}
                                             height={14}
-                                            className="opacity-60"
+                                            className=""
                                         />
                                         <span className="text-[#3D4A26] line-through opacity-70">
                                             {originalPrice}
@@ -198,10 +198,8 @@ export default function ProductPurchaseSection({
             {isAuthenticated && (
             <div className="grid grid-cols-2 gap-4">
 
-                {/* STANDARD DELIVERY */}
-                <div className="relative border-2 border-[#FF7A00] bg-white text-center py-6 px-4">
+                {/* <div className="relative border-2 border-[#FF7A00] bg-white text-center py-6 px-4">
 
-                    {/* RIBBON (INSIDE CARD) */}
                     <div className="absolute top-0 left-0">
                         <div className="w-10 h-10 bg-[#FF7A00] clip-triangle flex items-center justify-center">
                             <Check size={18} strokeWidth={3} className="text-white" />
@@ -219,7 +217,6 @@ export default function ProductPurchaseSection({
                     </div>
                 </div>
 
-                {/* DISABLED */}
                 <div className="border border-[#E0E0E0] bg-[#F1F1F1] text-center py-6 px-4">
                     <div className="font-semibold text-[14px] text-[#9A9A9A]">
                         Same Day Delivery
@@ -227,7 +224,7 @@ export default function ProductPurchaseSection({
                     <div className="text-[13px] mt-1 text-[#9A9A9A]">
                         Not available
                     </div>
-                </div>
+                </div> */}
 
             </div>
             )}
