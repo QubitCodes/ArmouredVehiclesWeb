@@ -44,6 +44,7 @@ export const Categories = () => {
   const [isMobile, setIsMobile] = useState(false);
   const containerRef = useRef<HTMLDivElement>(null);
   const [measuredWidth, setMeasuredWidth] = useState<number>(0);
+  const [scrollProgress, setScrollProgress] = useState(0);
 
   useEffect(() => {
     const fetchCategories = async () => {
@@ -96,7 +97,9 @@ export const Categories = () => {
   }, []);
 
   // Calculate max slides for desktop (how many positions we can slide)
-  const cardWidth = isMobile ? 163 + 8 : 282; // card width + gap
+  const mobileCardWidth = 163;
+  const mobileGap = 12; // Tailwind gap-3 = 12px
+  const cardWidth = isMobile ? mobileCardWidth + mobileGap : 282; // card width + gap
   const visibleCards = isMobile ? 2 : Math.floor((measuredWidth || 1000) / cardWidth);
   const maxSlide = Math.max(0, categories.length - visibleCards);
 
@@ -118,29 +121,41 @@ export const Categories = () => {
   // Handle Previous - Infinite Loop
   const handlePrevious = useCallback(() => {
     setCurrentIndex((prev) => {
-      // If at first slide, go to last
-      if (prev <= 0) return maxSlide;
-      return prev - 1;
+      const nextIndex = prev <= 0 ? maxSlide : prev - 1;
+      if (isMobile && containerRef.current) {
+        containerRef.current.scrollTo({
+          left: nextIndex * (mobileCardWidth + mobileGap),
+          behavior: "smooth",
+        });
+      }
+      return nextIndex;
     });
-  }, [maxSlide]);
+  }, [maxSlide, isMobile]);
 
   // Handle Next - Infinite Loop
   const handleNext = useCallback(() => {
     setCurrentIndex((prev) => {
-      // If at last slide, go to first
-      if (prev >= maxSlide) return 0;
-      return prev + 1;
+      const nextIndex = prev >= maxSlide ? 0 : prev + 1;
+      if (isMobile && containerRef.current) {
+        containerRef.current.scrollTo({
+          left: nextIndex * (mobileCardWidth + mobileGap),
+          behavior: "smooth",
+        });
+      }
+      return nextIndex;
     });
-  }, [maxSlide]);
+  }, [maxSlide, isMobile]);
 
   // Calculate progress for display
   const totalSlides = maxSlide + 1;
-  const progressWidth = totalSlides > 0 ? ((currentIndex + 1) / totalSlides) * 100 : 0;
+  const progressWidth = isMobile
+    ? scrollProgress * 100
+    : totalSlides > 0
+      ? ((currentIndex + 1) / totalSlides) * 100
+      : 0;
 
   // Mobile carousel view
   if (isMobile) {
-    const mobileCardWidth = 163; // Fixed card width in pixels
-
     return (
       <section className="relative py-8">
         <div className="absolute inset-0 z-0 flex flex-col">
@@ -161,18 +176,25 @@ export const Categories = () => {
             CATEGORIES
           </h2>
 
-          <div className="relative overflow-hidden">
+          <div className="relative overflow-x-auto">
             {/* Carousel Container */}
             <div
               ref={containerRef}
-              className="flex gap-3 transition-transform duration-500 ease-out"
-              style={{
-                transform: `translateX(-${currentIndex * (mobileCardWidth + 8)}px)`,
+              className="flex gap-3 snap-x snap-mandatory"
+              onScroll={(e) => {
+                const el = e.currentTarget;
+                const step = mobileCardWidth + mobileGap;
+                const idx = Math.round(el.scrollLeft / step);
+                const clamped = Math.max(0, Math.min(idx, maxSlide));
+                setCurrentIndex(clamped);
+                const totalScrollable = el.scrollWidth - el.clientWidth;
+                const progress = totalScrollable > 0 ? el.scrollLeft / totalScrollable : 0;
+                setScrollProgress(progress);
               }}>
               {categories.map((category, index) => (
                 <div
                   key={index}
-                  className="shrink-0"
+                  className="shrink-0 snap-start"
                   style={{ width: `${mobileCardWidth}px` }}>
                   <Link href={`/products?category_id=${category.id}`}
                     className="block relative w-full h-52 overflow-hidden group bg-black/60">
@@ -199,7 +221,7 @@ export const Categories = () => {
             </div>
 
             {/* Progress Bar with Navigation */}
-            <div className="flex items-center gap-3 mt-6 px-2">
+            <div className="flex items-center gap-3 mt-6 px-2 hidden md:block">
               {/* Left Arrow - Always Enabled */}
               <button
                 onClick={handlePrevious}
@@ -221,7 +243,21 @@ export const Categories = () => {
               </button>
 
               {/* Progress Bar */}
-              <div className="flex-1 h-[3px] bg-white/20 relative overflow-hidden rounded-full">
+              <div
+                className="flex-1 h-[3px] bg-white/20 relative overflow-hidden  rounded-full"
+                onClick={(e) => {
+                  const rect = e.currentTarget.getBoundingClientRect();
+                  const clickX = e.clientX - rect.left;
+                  const pct = rect.width > 0 ? clickX / rect.width : 0;
+                  if (containerRef.current) {
+                    const totalScrollable =
+                      containerRef.current.scrollWidth - containerRef.current.clientWidth;
+                    containerRef.current.scrollTo({
+                      left: pct * totalScrollable,
+                      behavior: "smooth",
+                    });
+                  }
+                }}>
                 <div
                   className="absolute left-0 top-0 h-full bg-orange-500 rounded-full transition-all duration-500 ease-out"
                   style={{
@@ -340,7 +376,15 @@ export const Categories = () => {
           </button>
 
           {/* Progress Bar */}
-          <div className="flex-1 h-[3px] bg-white/20 relative overflow-hidden rounded-full">
+          <div
+            className="flex-1 h-[3px] bg-white/20 relative overflow-hidden rounded-full"
+            onClick={(e) => {
+              const rect = e.currentTarget.getBoundingClientRect();
+              const clickX = e.clientX - rect.left;
+              const pct = rect.width > 0 ? clickX / rect.width : 0;
+              const targetIndex = Math.round(pct * (totalSlides - 1));
+              setCurrentIndex(Math.max(0, Math.min(targetIndex, maxSlide)));
+            }}>
             <div
               className="absolute left-0 top-0 h-full bg-orange-500 rounded-full transition-all duration-500 ease-out"
               style={{ width: `${progressWidth}%` }}></div>

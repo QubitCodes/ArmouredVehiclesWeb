@@ -47,10 +47,6 @@ export default function CategoryPage() {
 
   return (
     <div className="min-h-screen bg-white pb-20 lg:hidden">
-      {/* Header */}
-      
-      
-
       {/* Categories Grid */}
       <div className="px-4 pt-6">
         {loading ? (

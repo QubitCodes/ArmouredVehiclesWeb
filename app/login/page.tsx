@@ -184,14 +184,14 @@ function LoginForm() {
                     alt="Login Background"
                     fill
                     priority
-                    className="object-cover"
+                    className="object-cover hidden md:block"
                 />
 
                 {/* Light overlay */}
                 <div className="absolute inset-0 bg-black/10 pointer-events-none" />
 
                 {/* Content */}
-                <div className="relative z-10 max-w-[1720px] mx-auto px-6 lg:px-[140px] flex items-center min-h-[calc(100vh-140px)]">
+                <div className="relative z-10 max-w-[1720px] mx-auto px-6 lg:px-[140px] flex items-start lg:items-center min-h-[calc(100vh-140px)] top-28 lg:mt-0">
 
                     {/* Login Card */}
                     <div className="bg-[#F0EBE3] w-full max-w-[420px] p-8 shadow-md text-center pointer-events-auto">
