@@ -154,7 +154,7 @@ useEffect(() => {
       }
       return p + 1;
     });
-  }, isMobile ? 4000 : 7000);
+  }, isMobile ? 400000 : 7000);
 
   return () => clearInterval(timer);
 }, [visibleSlides.length, isMobile, total]);
@@ -352,7 +352,7 @@ useEffect(() => {
 
 
                       {/* IMAGE */}
-                      <div className="w-full h-[180px] sm:h-[210px] md:h-[290px] lg:h-[310px] xl:h-[250px] 2xl:h-[290px] 3xl:h-[350px] flex items-center justify-center border-b border-white relative overflow-hidden" >
+                      <div className="w-full h-[165px] sm:h-[210px] md:h-[290px] lg:h-[310px] xl:h-[250px] 2xl:h-[290px] 3xl:h-[350px] flex items-center justify-center border-b border-white relative overflow-hidden" >
                         <Image
                           src={
                             isHovered && product.gallery && product.gallery.length > 0

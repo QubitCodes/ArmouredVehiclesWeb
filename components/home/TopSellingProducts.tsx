@@ -175,7 +175,7 @@ export function TopSellingProducts({ title }: { title: string }) {
         {/* MOBILE preview */}
         <div className="bg-[#EBE3D6] w-full mt-4 pb-10 pt-4 text-center relative">
 
-          <div className="relative w-[281px] mx-auto h-[310px]">
+          <div className="relative w-[281px] mx-auto h-[255px]" onClick={() => router.push(`/product/${selectedProduct.id}`)}>
             <button onClick={handlePreviousImage} className="absolute -left-10 top-1/2 -translate-y-1/2 z-30">
               <Image src="/icons/circled arrow left.svg" width={28} height={28} alt="Prev" />
             </button>
@@ -199,7 +199,7 @@ export function TopSellingProducts({ title }: { title: string }) {
               <span className="text-black/70"> <strong>Login</strong> to <strong>access</strong> product pricing.</span>
             )}
           </div>
-          <h3 className="text-sm font-bold mt-1 px-4">{selectedProduct.name}</h3>
+          <h3 className="text-sm font-bold mt-1 px-4" onClick={() => router.push(`/product/${selectedProduct.id}`)}>{selectedProduct.name}</h3>
 
           <div className="flex justify-center items-center text-[#FF5C00] mt-1 gap-1">
             {selectedProduct.rating != null && selectedProduct.reviewCount > 0 ? (
@@ -216,9 +216,9 @@ export function TopSellingProducts({ title }: { title: string }) {
             )}
           </div>
 
-          <button className="text-[#D35400] font-orbitron font-black uppercase text-[18px] mt-3">
+          {/* <button className="text-[#D35400] font-orbitron font-black uppercase text-[18px] mt-3">
             Buy Now
-          </button>
+          </button> */}
         </div>
       </div>
 
