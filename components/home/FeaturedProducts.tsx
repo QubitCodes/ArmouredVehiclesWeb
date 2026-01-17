@@ -152,7 +152,7 @@ useEffect(() => {
       }
       return p + 1;
     });
-  }, isMobile ? 4000 : 7000);
+  }, isMobile ? 4000 : 700000);
 
   return () => clearInterval(timer);
 }, [visibleSlides.length, isMobile, total]);
@@ -314,11 +314,11 @@ useEffect(() => {
                 {extendedSlides.map((group, slideIndex) => (
                   <div
                     key={slideIndex}
-                    className="flex flex-row justify-center items-start gap-2 md:gap-1 lg:gap-2 xl:gap-4 2xl:gap-[60px] shrink-0 w-full"
+                      className="flex flex-row justify-start items-start gap-2 md:gap-1 lg:gap-2 xl:gap-4 2xl:gap-[60px] shrink-0 w-full"
                     style={{ 
                       width: `${100 / total}%`,
-                      maxWidth: isMobile ? '360px' : isLargeDesktop ? '1264px' : '940px',
-                      margin: '0 auto'
+                      // maxWidth: isMobile ? '360px' : isLargeDesktop ? '1264px' : '940px',
+                      // margin: '0 auto'
                     }}
                   >
                 {group.map((product, idx) => {
@@ -336,7 +336,7 @@ useEffect(() => {
                       onClick={() => router.push(`/product/${product.id}`)}
                       className={`
     bg-transparent border border-b-0 border-white 
-    ${isMobile ? 'w-[170px]' : 'md:basis-1/3 lg:basis-1/4'} h-[300px] sm:h-[340px] md:h-[460px] lg:h-[480px] xl:h-[500px] 2xl:h-[470px] flex flex-col shrink-0
+    ${isMobile ? 'w-[170px]' : 'w-[200px] md:w-[260px] lg:w-[280px] xl:w-[300px] 2xl:w-[358px]'} h-[300px] sm:h-[340px] md:h-[460px] lg:h-[480px] xl:h-[500px] 2xl:h-[490px] flex flex-col shrink-0
     shadow-[0_0_15px_rgba(255,255,255,0.1)]
     transition-all duration-700 ease-in-out
     animate-[slideIn_0.5s_ease-out]
@@ -350,7 +350,7 @@ useEffect(() => {
 
 
                       {/* IMAGE */}
-                      <div className="w-full h-[180px] sm:h-[210px] md:h-[290px] lg:h-[310px] xl:h-[330px] 2xl:h-[290px] flex items-center justify-center border-b border-white relative overflow-hidden" >
+                      <div className="w-full h-[180px] sm:h-[210px] md:h-[290px] lg:h-[310px] xl:h-[330px] 2xl:h-[320px] flex items-center justify-center border-b border-white relative overflow-hidden" >
                         <Image
                           src={
                             isHovered && product.gallery && product.gallery.length > 0
