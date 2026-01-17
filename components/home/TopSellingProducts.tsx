@@ -242,7 +242,7 @@ export function TopSellingProducts({ title }: { title: string }) {
                     : "border-[#CCCCCC] hover:border-[#D35400]"
                 }`}
               >
-                <div className="relative w-[120px] h-[120px] sm:w-[140px] sm:h-[140px] lg:w-[160px] lg:h-[160px] xl:w-[160px] xl:h-[140px] 2xl:w-[190px] 2xl:h-[190px] mt-6">
+                <div className="relative w-[120px] h-[120px] sm:w-[140px] sm:h-[140px] lg:w-[160px] lg:h-[160px] xl:w-[155px] xl:h-[140px] 2xl:w-[190px] 2xl:h-[190px] mt-6">
                   <Image src={product.image} alt={product.name} fill className="object-cover" />
                 </div>
                 <p className="text-black mt-4 text-[14px] leading-tight px-3 pb-2 line-clamp-2 w-full">{product.name}</p>
