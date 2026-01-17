@@ -152,7 +152,7 @@ useEffect(() => {
       }
       return p + 1;
     });
-  }, isMobile ? 4000 : 700000);
+  }, isMobile ? 4000 : 7000);
 
   return () => clearInterval(timer);
 }, [visibleSlides.length, isMobile, total]);
@@ -336,7 +336,7 @@ useEffect(() => {
                       onClick={() => router.push(`/product/${product.id}`)}
                       className={`
     bg-transparent border border-b-0 border-white 
-    ${isMobile ? 'w-[170px]' : 'w-[200px] md:w-[260px] lg:w-[280px] xl:w-[274px] 2xl:w-[358px]'} h-[300px] sm:h-[340px] md:h-[460px] lg:h-[480px] xl:h-[460px] 2xl:h-[490px] flex flex-col shrink-0
+    ${isMobile ? 'w-[170px]' : 'w-[200px] md:w-[260px] lg:w-[280px] xl:w-[274px] 2xl:w-[317px]'} h-[300px] sm:h-[340px] md:h-[460px] lg:h-[480px] xl:h-[425px] 2xl:h-[475px] flex flex-col shrink-0
     shadow-[0_0_15px_rgba(255,255,255,0.1)]
     transition-all duration-700 ease-in-out
     animate-[slideIn_0.5s_ease-out]
@@ -350,7 +350,7 @@ useEffect(() => {
 
 
                       {/* IMAGE */}
-                      <div className="w-full h-[180px] sm:h-[210px] md:h-[290px] lg:h-[310px] xl:h-[290px] 2xl:h-[320px] flex items-center justify-center border-b border-white relative overflow-hidden" >
+                      <div className="w-full h-[180px] sm:h-[210px] md:h-[290px] lg:h-[310px] xl:h-[250px] 2xl:h-[290px] flex items-center justify-center border-b border-white relative overflow-hidden" >
                         <Image
                           src={
                             isHovered && product.gallery && product.gallery.length > 0
