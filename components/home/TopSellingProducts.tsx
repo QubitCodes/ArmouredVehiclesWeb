@@ -226,7 +226,7 @@ export function TopSellingProducts({ title }: { title: string }) {
       <div className="hidden lg:flex w-full flex-row">
 
         {/* LEFT PRODUCT GRID */}
-        <div className="container-figma pt-10 pb-12 lg:w-auto">
+        <div className="container-figma pt-15 pb-12 lg:w-auto">
           <h2 className="text-4xl font-bold text-black font-orbitron mb-8">
             {title}
           </h2>
@@ -252,7 +252,7 @@ export function TopSellingProducts({ title }: { title: string }) {
         </div>
 
         {/* RIGHT PREVIEW SECTION */}
-        <div className="flex-1 bg-[#EBE3D6] flex flex-col items-center pt-0 lg:h-[900px]">
+        <div className="flex-1 bg-[#EBE3D6] flex flex-col items-center pt-0 lg:h-[725px]">
 
           <div className="flex justify-center items-center pt-[123px] gap-6 mx-auto px-[50px]">
             {/* Left Arrow */}
