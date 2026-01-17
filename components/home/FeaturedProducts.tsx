@@ -55,6 +55,8 @@ export const FeaturedProducts = () => {
   const [isLoadingProducts, setIsLoadingProducts] = useState(true);
 
   const sliderRef = useRef<HTMLDivElement | null>(null);
+  const nameRefs = useRef<Record<string, HTMLHeadingElement | null>>({});
+  const [nameOverflow, setNameOverflow] = useState<Record<string, boolean>>({});
   const { isAuthenticated, isLoading } = useAuth();
 
   // Detect mobile, large desktop, and extra large screen sizes
@@ -69,6 +71,8 @@ export const FeaturedProducts = () => {
     window.addEventListener('resize', checkSizes);
     return () => window.removeEventListener('resize', checkSizes);
   }, []);
+
+  
 
   // Fetch products from API
   useEffect(() => {
@@ -141,9 +145,33 @@ export const FeaturedProducts = () => {
 
   const total = extendedSlides.length;
 
+  // Measure product name overflow on mobile to show dotted indicator when beyond 2 lines
+  useEffect(() => {
+    const measure = () => {
+      if (!isMobile) {
+        setNameOverflow({});
+        return;
+      }
+      const entries: Record<string, boolean> = {};
+      const refs = nameRefs.current;
+      Object.keys(refs).forEach((key) => {
+        const el = refs[key];
+        if (!el) return;
+        const style = window.getComputedStyle(el);
+        const lineHeight = parseFloat(style.lineHeight) || 16;
+        const maxHeight = lineHeight * 2;
+        entries[key] = el.scrollHeight > maxHeight + 1;
+      });
+      setNameOverflow(entries);
+    };
+    measure();
+    window.addEventListener('resize', measure);
+    return () => window.removeEventListener('resize', measure);
+  }, [isMobile, products, visibleSlides]);
+
   // AUTO slide: always increment index → moves left (translateX negative) - BOTH MOBILE AND DESKTOP
 useEffect(() => {
-  if (visibleSlides.length <= 1) return;
+  if (isMobile || visibleSlides.length <= 1) return;
 
   const timer = setInterval(() => {
     setTransitionEnabled(true);
@@ -154,7 +182,7 @@ useEffect(() => {
       }
       return p + 1;
     });
-  }, isMobile ? 400000 : 7000);
+  }, 7000);
 
   return () => clearInterval(timer);
 }, [visibleSlides.length, isMobile, total]);
@@ -250,6 +278,33 @@ useEffect(() => {
           );
           background-size: 1000px 100%;
         }
+        /* Clamp to 2 lines on mobile */
+        .two-line-clamp {
+          display: -webkit-box;
+          -webkit-line-clamp: 2;
+          -webkit-box-orient: vertical;
+          overflow: hidden;
+        }
+        /* Dotted indicator when text exceeds two lines on mobile */
+        .mobile-dots {
+          position: relative;
+        }
+        .mobile-dots::after {
+          content: "";
+          position: absolute;
+          right: 8px;
+          bottom: 6px;
+          width: 32px;
+          border-bottom: 1px dotted rgba(255, 255, 255, 0.6);
+        }
+        /* Hide scrollbar for mobile scroller */
+        .scrollbar-hide {
+          -ms-overflow-style: none; /* IE and Edge */
+          scrollbar-width: none; /* Firefox */
+        }
+        .scrollbar-hide::-webkit-scrollbar {
+          display: none; /* Chrome, Safari */
+        }
       `}</style>
 
       <div className="container-figma">
@@ -303,40 +358,127 @@ useEffect(() => {
           </div>
         ) : (
           <>
-            {/* SLIDER WRAPPER - Auto-slide on both mobile and desktop */}
-            <div className="overflow-hidden relative w-full" style={{ clipPath: 'inset(0)' }}>
-              <div
-                ref={sliderRef}
-                className={`flex ${transitionEnabled && visibleSlides.length > 1 ? "transition-transform duration-700 ease-in-out" : ""}`}
-                style={{
-                  width: visibleSlides.length === 1 ? '100%' : `${total * 100}%`,
-                  transform: visibleSlides.length === 1 ? 'translateX(0)' : `translateX(-${index * (100 / total)}%)`,
-                }}
-              >
-                {extendedSlides.map((group, slideIndex) => (
+            {isMobile ? (
+              // Mobile: horizontal scroller with snap
+              <div className="overflow-x-auto snap-x snap-mandatory scrollbar-hide relative w-full" style={{ WebkitOverflowScrolling: 'touch' }}>
+                <div className="flex flex-row justify-start items-start gap-2 px-1">
+                  {products.map((product, idx) => {
+                    const uniqueKey = `m-${idx}`;
+                    const isHovered = hoveredKey === uniqueKey;
+                    const isOffset = idx % 2 === 1;
+                    return (
+                      <div
+                        key={uniqueKey}
+                        data-aos="fade-up"
+                        onMouseEnter={() => setHoveredKey(uniqueKey)}
+                        onMouseLeave={() => setHoveredKey(null)}
+                        onClick={() => router.push(`/product/${product.id}`)}
+                        className={`
+    bg-transparent border border-b-0 border-white 
+    min-w-[174px] w-[174px] h-[300px] sm:h-[340px] flex flex-col shrink-0 snap-start
+    shadow-[0_0_15px_rgba(255,255,255,0.1)]
+    transition-all duration-700 ease-in-out
+    animate-[slideIn_0.5s_ease-out]
+    overflow-visible
+    ${isHovered ? "" : ""}
+    ${isOffset ? "mt-12" : ""}
+  `}
+                        role="button"
+                        style={{ cursor: "pointer", animation: `slideIn 0.5s ease-out ${idx * 0.1}s both` }}
+                      >
+                        {/* IMAGE */}
+                        <div className="w-full h-[165px] sm:h-[210px] flex items-center justify-center border-b border-white relative overflow-hidden" >
+                          <Image
+                            src={
+                              isHovered && product.gallery && product.gallery.length > 0
+                                ? product.gallery[imageIndices[uniqueKey] || 0]
+                                : product.image
+                            }
+                            alt={product.name}
+                            width={300}
+                            height={300}
+                            className="object-cover w-full h-full"
+                          />
+                        </div>
+
+                        {/* NAME */}
+                        <div className="w-full h-[42px] flex items-center px-3 border-b border-white">
+                          <h3
+                            ref={(el) => {
+                              if (el) nameRefs.current[uniqueKey] = el; else delete nameRefs.current[uniqueKey];
+                            }}
+                            className={`text-white font-orbitron text-[12px] font-semibold leading-tight two-line-clamp ${nameOverflow[uniqueKey] ? 'mobile-dots' : ''}`}
+                          >
+                            {product.name}
+                          </h3>
+                        </div>
+
+                        {/* PRICE */}
+                        <div className="w-full h-[42px] flex items-center px-3">
+                          <p className="text-white font-orbitron flex items-center gap-1 select-none">
+                            {isLoading ? (
+                              <span className="opacity-70">...</span>
+                            ) : isAuthenticated ? (
+                              <>
+                                <Image src="/icons/currency/dirham-white.svg" alt="Currency" width={16} height={16} className="opacity-60" />
+                                <span className="text-sm">{product.price.toLocaleString()}</span>
+                              </>
+                            ) : (
+                              <span className="text-white/80 text-xs tracking-wider"><span className="font-bold">Login</span> to <span className="font-bold">access</span> product pricing.</span>
+                            )}
+                          </p>
+                        </div>
+
+                        {/* BUTTON */}
+                        <div className="w-full grow">
+                          <button
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              router.push(`/product/${product.id}`);
+                            }}
+                            className={`w-full h-full text-[14px] font-orbitron font-extrabold uppercase transition-all ${isHovered ? "bg-[#FF5C00] text-white" : "bg-white text-[#FF5C00]"}`}
+                          >
+                            {product.action}
+                          </button>
+                        </div>
+                      </div>
+                    );
+                  })}
+                </div>
+              </div>
+            ) : (
+              <>
+                {/* SLIDER WRAPPER - Desktop/tablet */}
+                <div className="overflow-hidden relative w-full" style={{ clipPath: 'inset(0)' }}>
                   <div
-                    key={slideIndex}
-                      className="flex flex-row justify-start items-start gap-2 md:gap-1 lg:gap-2 xl:gap-4 2xl:gap-[60px] 3xl:gap-20 shrink-0 w-full"
-                    style={{ 
-                      width: `${100 / total}%`,
-                      // maxWidth: isMobile ? '360px' : isLargeDesktop ? '1264px' : '940px',
-                      // margin: '0 auto'
+                    ref={sliderRef}
+                    className={`flex ${transitionEnabled && visibleSlides.length > 1 ? "transition-transform duration-700 ease-in-out" : ""}`}
+                    style={{
+                      width: visibleSlides.length === 1 ? '100%' : `${total * 100}%`,
+                      transform: visibleSlides.length === 1 ? 'translateX(0)' : `translateX(-${index * (100 / total)}%)`,
                     }}
                   >
-                {group.map((product, idx) => {
-                  const uniqueKey = `${slideIndex}-${idx}`;
-                  const isHovered = hoveredKey === uniqueKey;
-                  // Offset pattern: 2nd and 4th cards (odd indices) should be pushed down
-                  const isOffset = idx % 2 === 1;
+                    {extendedSlides.map((group, slideIndex) => (
+                      <div
+                        key={slideIndex}
+                        className="flex flex-row justify-start items-start gap-2 md:gap-1 lg:gap-2 xl:gap-4 2xl:gap-[60px] 3xl:gap-20 shrink-0 w-full"
+                        style={{ 
+                          width: `${100 / total}%`,
+                        }}
+                      >
+                        {group.map((product, idx) => {
+                          const uniqueKey = `${slideIndex}-${idx}`;
+                          const isHovered = hoveredKey === uniqueKey;
+                          const isOffset = idx % 2 === 1;
 
-                  return (
-                    <div
-                      key={uniqueKey}
-                      data-aos="fade-up"
-                      onMouseEnter={() => setHoveredKey(uniqueKey)}
-                      onMouseLeave={() => setHoveredKey(null)}
-                      onClick={() => router.push(`/product/${product.id}`)}
-                      className={`
+                          return (
+                            <div
+                              key={uniqueKey}
+                              data-aos="fade-up"
+                              onMouseEnter={() => setHoveredKey(uniqueKey)}
+                              onMouseLeave={() => setHoveredKey(null)}
+                              onClick={() => router.push(`/product/${product.id}`)}
+                              className={`
     bg-transparent border border-b-0 border-white 
     ${isMobile ? 'w-[174px]' : 'w-[200px] md:w-[260px] lg:w-[280px] xl:w-[274px] 2xl:w-[317px] 3xl:w-[350px]'} h-[300px] sm:h-[340px] md:h-[460px] lg:h-[480px] xl:h-[425px] 2xl:h-[475px] 3xl:h-[550px] flex flex-col shrink-0
     shadow-[0_0_15px_rgba(255,255,255,0.1)]
@@ -346,83 +488,88 @@ useEffect(() => {
     ${isHovered ? "" : ""}
     ${isOffset ? "mt-12 md:mt-16 3xl:mt-20" : ""}
   `}
-                      role="button"
-                      style={{ cursor: "pointer", animation: `slideIn 0.5s ease-out ${idx * 0.1}s both` }}
-                    >
+                              role="button"
+                              style={{ cursor: "pointer", animation: `slideIn 0.5s ease-out ${idx * 0.1}s both` }}
+                            >
+                              {/* IMAGE */}
+                              <div className="w-full h-[165px] sm:h-[210px] md:h-[290px] lg:h-[310px] xl:h-[250px] 2xl:h-[290px] 3xl:h-[350px] flex items-center justify-center border-b border-white relative overflow-hidden" >
+                                <Image
+                                  src={
+                                    isHovered && product.gallery && product.gallery.length > 0
+                                      ? product.gallery[imageIndices[uniqueKey] || 0]
+                                      : product.image
+                                  }
+                                  alt={product.name}
+                                  width={300}
+                                  height={300}
+                                  className="object-cover w-full h-full"
+                                />
+                              </div>
 
+                              {/* NAME */}
+                              <div className="w-full h-[42px] md:h-[60px] 3xl:h-[70px] flex items-center px-3 md:px-6 3xl:px-8 border-b border-white">
+                                <h3
+                                  ref={(el) => {
+                                    if (el) nameRefs.current[uniqueKey] = el; else delete nameRefs.current[uniqueKey];
+                                  }}
+                                  className={`text-white font-orbitron text-[12px] md:text-[16px] 3xl:text-[18px] font-semibold leading-tight ${isMobile ? 'two-line-clamp' : ''} ${isMobile && nameOverflow[uniqueKey] ? 'mobile-dots' : ''}`}
+                                >
+                                  {product.name}
+                                </h3>
+                              </div>
 
-                      {/* IMAGE */}
-                      <div className="w-full h-[165px] sm:h-[210px] md:h-[290px] lg:h-[310px] xl:h-[250px] 2xl:h-[290px] 3xl:h-[350px] flex items-center justify-center border-b border-white relative overflow-hidden" >
-                        <Image
-                          src={
-                            isHovered && product.gallery && product.gallery.length > 0
-                              ? product.gallery[imageIndices[uniqueKey] || 0]
-                              : product.image
-                          }
-                          alt={product.name}
-                          width={300}
-                          height={300}
-                          className="object-cover w-full h-full"
-                        />
+                              {/* PRICE */}
+                              <div className="w-full h-[42px] md:h-[60px] 3xl:h-[70px] flex items-center px-3 md:px-6 3xl:px-8">
+                                <p className="text-white font-orbitron flex items-center gap-1 md:gap-2 select-none">
+                                  {isLoading ? (
+                                    <span className="opacity-70">...</span>
+                                  ) : isAuthenticated ? (
+                                    <>
+                                      <Image src="/icons/currency/dirham-white.svg" alt="Currency" width={16} height={16} className="opacity-60 md:w-5 md:h-5 3xl:w-6 3xl:h-6" />
+                                      <span className="text-sm md:text-lg 3xl:text-xl">{product.price.toLocaleString()}</span>
+                                    </>
+                                  ) : (
+                                    <span className="text-white/80 text-xs md:text-sm 3xl:text-base tracking-wider"><span className="font-bold">Login</span> to <span className="font-bold">access</span> product pricing.</span>
+                                  )}
+                                </p>
+                              </div>
+
+                              {/* BUTTON */}
+                              <div className="w-full grow">
+                                <button
+                                  onClick={(e) => {
+                                    e.stopPropagation();
+                                    router.push(`/product/${product.id}`);
+                                  }}
+                                  className={`w-full h-full text-[14px] md:text-[18px] 3xl:text-[20px] font-orbitron font-extrabold uppercase transition-all ${isHovered ? "bg-[#FF5C00] text-white" : "bg-white text-[#FF5C00]"}`}
+                                >
+                                  {product.action}
+                                </button>
+                              </div>
+                            </div>
+                          );
+                        })}
                       </div>
+                    ))}
+                  </div>
+                </div>
 
-                      {/* NAME */}
-                      <div className="w-full h-[42px] md:h-[60px] 3xl:h-[70px] flex items-center px-3 md:px-6 3xl:px-8 border-b border-white">
-                        <h3 className="text-white font-orbitron text-[12px] md:text-[16px] 3xl:text-[18px] font-semibold leading-tight">
-                          {product.name}
-                        </h3>
-                      </div>
-
-                      {/* PRICE */}
-                      <div className="w-full h-[42px] md:h-[60px] 3xl:h-[70px] flex items-center px-3 md:px-6 3xl:px-8">
-                        <p className="text-white font-orbitron flex items-center gap-1 md:gap-2 select-none">
-                          {isLoading ? (
-                            <span className="opacity-70">...</span>
-                          ) : isAuthenticated ? (
-                            <>
-                              <Image src="/icons/currency/dirham-white.svg" alt="Currency" width={16} height={16} className="opacity-60 md:w-5 md:h-5 3xl:w-6 3xl:h-6" />
-                              <span className="text-sm md:text-lg 3xl:text-xl">{product.price.toLocaleString()}</span>
-                            </>
-                          ) : (
-                            <span className="text-white/80 text-xs md:text-sm 3xl:text-base tracking-wider"><span className="font-bold">Login</span> to <span className="font-bold">access</span> product pricing.</span>
-                          )}
-                        </p>
-                      </div>
-
-                      {/* BUTTON */}
-                      <div className="w-full grow">
-                        <button
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            router.push(`/product/${product.id}`);
-                          }}
-                          className={`w-full h-full text-[14px] md:text-[18px] 3xl:text-[20px] font-orbitron font-extrabold uppercase transition-all ${isHovered ? "bg-[#FF5C00] text-white" : "bg-white text-[#FF5C00]"}`}
-                        >
-                          {product.action}
-                        </button>
-                      </div>
-                    </div>
-                  );
-                })}
-              </div>
-            ))}
-          </div>
-        </div>
-
-        {/* Dots (pagination for slides) */}
-        <div className="flex justify-center gap-2 md:gap-4 3xl:gap-6 mt-8 3xl:mt-12">
-          {visibleSlides.map((_, dotIdx) => (
-            <button
-              key={dotIdx}
-              onClick={() => {
-                setTransitionEnabled(true);
-                setIndex(dotIdx + 1);
-              }}
-              className={`h-1 3xl:h-1.5 w-[30px] md:w-[50px] 3xl:w-[70px] transition-all ${index === dotIdx + 1 ? "bg-[#FF5C00]" : "bg-white/30"}`}
-            />
-          ))}
-        </div>
-        </>
+                {/* Dots (pagination for slides) */}
+                <div className="flex justify-center gap-2 md:gap-4 3xl:gap-6 mt-8 3xl:mt-12">
+                  {visibleSlides.map((_, dotIdx) => (
+                    <button
+                      key={dotIdx}
+                      onClick={() => {
+                        setTransitionEnabled(true);
+                        setIndex(dotIdx + 1);
+                      }}
+                      className={`h-1 3xl:h-1.5 w-[30px] md:w-[50px] 3xl:w-[70px] transition-all ${index === dotIdx + 1 ? "bg-[#FF5C00]" : "bg-white/30"}`}
+                    />
+                  ))}
+                </div>
+              </>
+            )}
+          </>
         )}
       </div>
     </section>
