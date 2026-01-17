@@ -75,8 +75,8 @@ export default function ProductPurchaseSection({
                                 <Image
                                     src="/icons/currency/dirham.svg"
                                     alt="Currency"
-                                    width={16}
-                                    height={16}
+                                    width={24}
+                                    height={24}
                                     className=" md:w-5 md:h-5"
                                 />
                                 <span className="text-3xl font-bold font-[inter, sans-serif] text-black">

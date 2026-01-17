@@ -69,8 +69,23 @@ export default function ProductDetailsPage() {
         const productData = data.data || data; 
 
 
-        const gallery = Array.isArray(productData.gallery)
+        // Normalize gallery: prefer media URLs, fallback to gallery strings, then image/placeholder
+        const galleryFromMedia = Array.isArray(productData.media)
+          ? productData.media
+              .map((m: any) => m?.url)
+              .filter((u: any) => typeof u === "string" && u.length > 0)
+          : [];
+
+        const galleryFromField = Array.isArray(productData.gallery)
           ? productData.gallery
+              .map((g: any) => (typeof g === "string" ? g : g?.url))
+              .filter((u: any) => typeof u === "string" && u.length > 0)
+          : [];
+
+        const normalizedGallery = galleryFromMedia.length > 0
+          ? galleryFromMedia
+          : galleryFromField.length > 0
+          ? galleryFromField
           : productData.image
           ? [productData.image]
           : [data.misc?.placeholder_image || "/product/product 1.png"];
@@ -82,8 +97,11 @@ export default function ProductDetailsPage() {
           price: productData.price ?? null,
           originalPrice: productData.originalPrice ?? null,
           currency: productData.currency ?? null,
-          image: productData.image || data.misc?.placeholder_image || "/product/product 1.png",
-          gallery,
+          image:
+            (Array.isArray(productData.media) && productData.media.find((m: any) => m?.is_cover)?.url) ||
+            productData.image ||
+            (normalizedGallery.length > 0 ? normalizedGallery[0] : data.misc?.placeholder_image || "/product/product 1.png"),
+          gallery: normalizedGallery,
           description: productData.description ?? productData.technical_description ?? productData.technicalDescription ?? null,
           condition: productData.condition ?? null,
           stock: typeof productData.stock === "number" ? productData.stock : null,

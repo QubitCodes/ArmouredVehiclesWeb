@@ -27,9 +27,17 @@ export default function MobileLayout({ id, product }: { id?: string; product?: a
     const addItem = useCartStore((s) => s.addItem);
     const router = useRouter();
 
-    const images = Array.isArray(product?.gallery) && product.gallery.length > 0
-        ? product.gallery
-        : [product?.image || "/product/product 1.png"];
+    // Normalize images to a string[] of URLs
+    const images = (() => {
+        const gallery = Array.isArray(product?.gallery)
+            ? product!.gallery
+                  .map((g: any) => (typeof g === "string" ? g : g?.url))
+                  .filter((u: any) => typeof u === "string" && u.length > 0)
+            : [];
+        if (gallery.length > 0) return gallery;
+        const fallback = product?.image || product?.misc?.placeholder_image || "/product/product 1.png";
+        return [fallback];
+    })();
     const tabContent: TabContent[] = [];
     // -------------------------------------------------------------
     // DYNAMIC SECTIONS - If data exists, tabs will be displayed.

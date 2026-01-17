@@ -30,6 +30,12 @@ export default function ImageGallery({
     setFailedImages((prev) => ({ ...prev, [index]: true }));
   };
 
+  const scrollToIndex = (index: number) => {
+    const el = scrollRef.current;
+    if (!el) return;
+    el.scrollTo({ left: index * el.clientWidth, behavior: 'smooth' });
+  };
+
   return (
     <div className="w-full">
 
@@ -46,7 +52,7 @@ export default function ImageGallery({
         {displayImages.map((img, index) => (
           <div
             key={index}
-            className="relative min-w-full aspect-square snap-center bg-[#fff]"
+            className="relative min-w-full aspect-square snap-center bg-white"
             onClick={onOpenGallery}
           >
             <Image
@@ -61,9 +67,60 @@ export default function ImageGallery({
         ))}
       </div>
 
+      {/* Mobile Thumbnails */}
+      {displayImages.length > 1 && (
+        <div className="md:hidden mt-2 flex flex-row gap-2 overflow-x-auto scrollbar-hide">
+          {displayImages.map((image, index) => (
+            <button
+              key={index}
+              onClick={() => {
+                setSelectedImage(index);
+                scrollToIndex(index);
+              }}
+              className={`relative w-16 aspect-square shrink-0 rounded-md overflow-hidden border ${
+                selectedImage === index ? 'border-[#D35400]' : 'border-gray-200'
+              }`}
+              aria-label={`Select image ${index + 1}`}
+            >
+              <Image
+                src={failedImages[index] ? placeholderImage : image}
+                alt={`Thumbnail ${index + 1}`}
+                fill
+                className="object-cover"
+                onError={() => handleImageError(index)}
+              />
+            </button>
+          ))}
+        </div>
+      )}
+
       {/* ================= DESKTOP VIEW ================= */}
-      <div className="hidden md:flex flex-col gap-4">
-        {/* MAIN IMAGE */}
+      <div className="hidden md:flex flex-row gap-4">
+        {/* THUMBNAILS (LEFT) */}
+        {displayImages.length > 1 && (
+          <div className="flex flex-col gap-2 overflow-y-auto max-h-[600px]">
+            {displayImages.map((image, index) => (
+              <button
+                key={index}
+                onClick={() => setSelectedImage(index)}
+                className={`relative w-20 aspect-square shrink-0 rounded-md overflow-hidden border ${
+                  selectedImage === index ? "border-[#D35400]" : "border-gray-200"}
+                `}
+                aria-label={`Select image ${index + 1}`}
+              >
+                <Image
+                  src={failedImages[index] ? placeholderImage : image}
+                  alt={`Thumbnail ${index + 1}`}
+                  fill
+                  className="object-cover"
+                  onError={() => handleImageError(index)}
+                />
+              </button>
+            ))}
+          </div>
+        )}
+
+        {/* MAIN IMAGE (RIGHT) */}
         <div
           className="relative aspect-square w-full rounded-lg overflow-hidden border border-gray-200 bg-[#EBE3D6]"
           onClick={onOpenGallery}
@@ -75,29 +132,6 @@ export default function ImageGallery({
             className="object-contain p-0"
             onError={() => handleImageError(selectedImage)}
           />
-        </div>
-
-        {/* THUMBNAILS */}
-        <div className="flex flex-row gap-2 overflow-x-auto">
-          {displayImages.map((image, index) => (
-            <button
-              key={index}
-              onClick={() => setSelectedImage(index)}
-              className={`relative w-20 aspect-square shrink-0 rounded-md overflow-hidden border ${
-                selectedImage === index
-                  ? "border-[#D35400]"
-                  : "border-gray-200"
-              }`}
-            >
-              <Image
-                src={failedImages[index] ? placeholderImage : image}
-                alt="Thumbnail"
-                fill
-                className="object-cover"
-                onError={() => handleImageError(index)}
-              />
-            </button>
-          ))}
         </div>
       </div>
     </div>
