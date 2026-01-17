@@ -2,6 +2,7 @@
 
 import Image from "next/image";
 import { useState, useEffect } from "react";
+import { useRouter } from "next/navigation";
 import api from '@/lib/api';
 import { useAuth } from "@/lib/auth-context";
 // import type { Product } from '@/lib/types';
@@ -21,6 +22,8 @@ interface Product {
 
 
 export function TopSellingProducts({ title }: { title: string }) {
+  const router = useRouter();
+  
   // 1. State for data and loading status
   const [products, setProducts] = useState<Product[]>([]);
   const [isLoading, setIsLoading] = useState(true);
@@ -253,22 +256,25 @@ export function TopSellingProducts({ title }: { title: string }) {
 
           <div className="flex justify-center items-center pt-[123px] gap-6 mx-auto px-[50px]">
             {/* Left Arrow */}
-            <button onClick={handlePreviousImage} className="z-30 shrink-0">
+            <button onClick={handlePreviousImage} className="z-30 shrink-0 cursor-pointer">
               <Image src="/icons/circled arrow left.svg" alt="Prev" width={40} height={40} />
             </button>
 
             {/* Image */}
-            <div className="relative w-[467px] h-[514px]">
+            <div 
+              onClick={() => router.push(`/product/${selectedProduct.id}`)}
+              className="relative w-[300px] h-[330px] sm:w-[350px] sm:h-[385px] md:w-[400px] md:h-[440px] lg:w-[420px] lg:h-[462px] xl:w-[467px] xl:h-[348px] 2xl:w-[467px] 2xl:h-[406px] cursor-pointer"
+            >
               <Image src={previewImage} alt={selectedProduct.name} fill className="object-cover rounded" />
             </div>
 
             {/* Right Arrow */}
-            <button onClick={handleNextImage} className="z-30 shrink-0">
+            <button onClick={handleNextImage} className="z-30 shrink-0 cursor-pointer">
               <Image src="/icons/circled arrow right.svg" alt="Next" width={40} height={40} />
             </button>
           </div>
 
-          <div className="text-lg text-black font-semibold mt-6 flex justify-between items-center gap-2">
+          <div className="text-lg text-black font-semibold mt-6 flex justify-between items-center gap-2 cursor-pointer" onClick={() => router.push(`/product/${selectedProduct.id}`)}>
             {authLoading ? (
               <span className="opacity-70">...</span>
             ) : isAuthenticated ? (
@@ -283,11 +289,11 @@ export function TopSellingProducts({ title }: { title: string }) {
             )}
           </div>
 
-          <h3 className="text-xl font-bold text-black mb-1 text-center">
+          <h3 className="text-xl font-bold text-black mb-1 text-center cursor-pointer" onClick={() => router.push(`/product/${selectedProduct.id}`)}>
             {selectedProduct.name}
           </h3>
 
-          <div className="flex items-center justify-center gap-1 text-[#FF5C00] mb-2">
+          <div className="flex items-center justify-center gap-1 text-[#FF5C00] mb-2 cursor-pointer" onClick={() => router.push(`/product/${selectedProduct.id}`)}>
             {selectedProduct.rating != null && selectedProduct.reviewCount > 0 ? (
               <>
                 {[...Array(5)].map((_, i) => (
@@ -301,10 +307,10 @@ export function TopSellingProducts({ title }: { title: string }) {
               <span className="text-black text-sm">No reviews yet</span>
             )}
           </div>
-
+{/* 
           <button className="text-[#D35400] font-orbitron font-black uppercase text-[20px] mt-2">
             Buy Now
-          </button>
+          </button> */}
         </div>
       </div>
     </section>
