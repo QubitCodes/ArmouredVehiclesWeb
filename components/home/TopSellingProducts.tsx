@@ -156,17 +156,17 @@ export function TopSellingProducts({ title }: { title: string }) {
             <div
               key={product.id}
               onClick={() => selectProduct(product)}
-              className={`min-w-[110px] bg-[#F0EBE3] border flex flex-col items-center p-1 snap-start transition-colors ${
+              className={`min-w-[130px] bg-[#F0EBE3] border flex flex-col items-center p-1 snap-start transition-colors ${
                 selectedProduct?.id === product.id
                   ? "border-[#D35400]"
                   : "border-[#ccc] active:border-[#D35400]"
               }`}
             >
-              <div className="relative w-[90px] h-[90px] mx-auto">
+              <div className="relative w-[110px] h-[90px] mx-auto">
                 <Image src={product.image} alt={product.name} fill className="object-contain" />
               </div>
               <p className="text-[11px] mt-1 leading-tight text-center px-1">
-                {product.name.length > 20 ? product.name.slice(0, 20) + "..." : product.name}
+                {product.name.length > 20 ? product.name.slice(0, 35) + "..." : product.name}
               </p>
             </div>
           ))}
