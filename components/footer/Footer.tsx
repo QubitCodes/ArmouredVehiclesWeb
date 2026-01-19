@@ -208,7 +208,7 @@ const Footer = ({ disableMobileBottomSpace = false }: FooterProps) => {
                 </div>
 
                 {/* Social Icons */}
-                <div className="flex gap-6 mt-4">
+                <div className="flex gap-6 mt-12">
                   {socialLinks.map((s) => (
                     <Link key={s.href} href={s.href} target="_blank">
                       <Image src={s.icon} alt="social" width={20} height={20} />
