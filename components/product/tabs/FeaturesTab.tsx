@@ -15,7 +15,7 @@ export default function FeaturesTab({ features = [] }: FeaturesTabProps) {
             
             <ul className="space-y-2">
                 {features.map((f, idx) => (
-                    <li key={idx} className="flex items-start gap-3 text-xs md:text-sm leading-relaxed group">
+                    <li key={idx} className="flex items-start gap-3 text-sm md:text-sm leading-relaxed group">
                         {/* Custom Triangle Bullet */}
                         <svg width="6" height="10" viewBox="0 0 6 10" fill="none" xmlns="http://www.w3.org/2000/svg" className="mt-[5px] shrink-0">
                             <path d="M6 5L0 10V0L6 5Z" fill="black"/>

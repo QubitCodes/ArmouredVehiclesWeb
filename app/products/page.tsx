@@ -39,6 +39,29 @@ function CategoryContent() {
     const [currentCategory, setCurrentCategory] = useState<{ id: number; name: string } | null>(null);
     const { isAuthenticated } = useAuth();
 
+    // Fetch category details from backend using category id in URL
+    useEffect(() => {
+        const fetchCategory = async () => {
+            try {
+                if (categoryIdParam && !isNaN(Number(categoryIdParam))) {
+                    const cat = await api.categories.getById(Number(categoryIdParam));
+                    if (cat && cat.id) {
+                        setCurrentCategory({ id: cat.id, name: cat.name });
+                    } else {
+                        setCurrentCategory(null);
+                    }
+                } else {
+                    setCurrentCategory(null);
+                }
+            } catch (err) {
+                console.error('Failed to load category', err);
+                // Keep UI functional even if category fails
+                setCurrentCategory(null);
+            }
+        };
+        fetchCategory();
+    }, [categoryIdParam]);
+
     useEffect(() => {
         const fetchProducts = async () => {
             try {
@@ -51,19 +74,6 @@ function CategoryContent() {
                 }
 
                 const data = await api.products.getAll(Object.keys(filters).length ? filters : undefined);
-
-                // Extract category from first product (data is already an array)
-                console.log('Products data:', data);
-                console.log('First product category:', data?.[0]?.category);
-                
-                if (data && data.length > 0 && data[0].category) {
-                    setCurrentCategory({
-                        id: data[0].category.id,
-                        name: data[0].category.name
-                    });
-                } else {
-                    setCurrentCategory(null);
-                }
 
                 const mapped: Product[] = Array.isArray(data)
                     ? data.map((item: any) => {
@@ -181,15 +191,7 @@ function CategoryContent() {
                     // Ideally we set initial bounds.
                 }
 
-                // Extract category from first product
-                if (data && data.length > 0 && data[0].category) {
-                    setCurrentCategory({
-                        id: data[0].category.id,
-                        name: data[0].category.name
-                    });
-                } else {
-                    setCurrentCategory(null);
-                }
+                // Do not derive category from product list; rely on backend category fetch
 
                 const mapped: Product[] = Array.isArray(data)
                     ? data.map((item: any) => {
@@ -228,10 +230,10 @@ function CategoryContent() {
         };
 
         // Debounce fetching slightly if price changes, or just run.
-        const timer = setTimeout(() => {
-            fetchProducts();
-        }, 300);
-        return () => clearTimeout(timer);
+        // const timer = setTimeout(() => {
+        //     fetchProducts();
+        // }, 300);
+        // return () => clearTimeout(timer);
 
     }, [categoryIdParam, searchQueryParam, selectedBrands, selectedTypes, priceRange, selectedConditions, selectedColors, selectedCountries]); // Dep array triggers update
 
@@ -282,7 +284,7 @@ function CategoryContent() {
         { name: 'Performance', desc: 'High-performance upgrades' },
         { name: 'Replacement', desc: 'OEM-quality replacement' },
     ];
-
+    console.log(currentCategory)
 
     return (
         <section className='bg-[#F0EBE3] relative px-4'>
@@ -300,7 +302,7 @@ function CategoryContent() {
                             href="/products"
                             className="font-[Inter, sans-serif] font-semibold text-[12px] leading-[100%] tracking-[0%] uppercase cursor-pointer hover:text-black transition-colors"
                         >
-                            ALL PRODUCTS
+                            Home
                         </Link>
                         {currentCategory && (
                             <>

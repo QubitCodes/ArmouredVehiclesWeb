@@ -1,9 +1,10 @@
 "use client";
 
-import React, { useState, useRef } from "react";
+import React, { useState, useRef, useEffect } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import { Container } from "../ui";
+import api from "@/lib/api";
 
 type FooterProps = {
   disableMobileBottomSpace?: boolean;
@@ -25,17 +26,26 @@ const Footer = ({ disableMobileBottomSpace = false }: FooterProps) => {
   ];
 
 
-  const categories = [
-    { title: "Core Vehicle Systems", href: "/categories/core-vehicle-systems" },
-    { title: "Armor-specific Systems", href: "/categories/armor-specific-systems" },
-    { title: "Communication & Control Systems", href: "/categories/communication-control-systems" },
-    { title: "Climate & Interior", href: "/categories/climate-interior" },
-    { title: "Exterior & Utility", href: "/categories/exterior-utility" },
-    { title: "OEM / Custom Manufacturing Support", href: "/categories/oem-custom-manufacturing" },
-    { title: "Platform & Rolling Chassis", href: "/categories/platform-rolling-chassis" },
-    { title: "OEM Baseline Chassis Sourcing", href: "/categories/oem-baseline-chassis" },
-    { title: "Custom Tactical Hardware", href: "/categories/custom-tactical-hardware" },
-  ];
+  const [footerCategories, setFooterCategories] = useState<{ title: string; href: string }[]>([]);
+
+  useEffect(() => {
+    const fetchCategories = async () => {
+      try {
+        const res = await api.products.getCategories();
+        const data = Array.isArray(res) ? res : res?.data ?? [];
+        const topLevel = data.filter((item: any) => !item.parent_id);
+        const mapped = topLevel.map((item: any) => ({
+          title: item.name || "Unknown Category",
+          href: `/products?category_id=${item.id}`,
+        }));
+        setFooterCategories(mapped);
+      } catch (err) {
+        console.error("Footer categories fetch failed", err);
+        setFooterCategories([]);
+      }
+    };
+    fetchCategories();
+  }, []);
 
   const help = [
     { title: "Order Status", href: "/order-status" },
@@ -125,7 +135,7 @@ const Footer = ({ disableMobileBottomSpace = false }: FooterProps) => {
           </div>
 
           {[{ id: "useful", title: "USEFUL LINKS", items: usefulLinks },
-          { id: "categories", title: "CATEGORIES", items: categories },
+          { id: "categories", title: "CATEGORIES", items: footerCategories },
           { id: "help", title: "HELP", items: help },
           { id: "about", title: "ABOUT US", items: aboutUs },
           ].map((section) => (
@@ -198,7 +208,7 @@ const Footer = ({ disableMobileBottomSpace = false }: FooterProps) => {
             </div>
           </div>
 
-          {[usefulLinks, categories, help, aboutUs].map((group, i) => (
+          {[usefulLinks, footerCategories, help, aboutUs].map((group, i) => (
             <div key={i}>
               <h3 className="font-orbitron text-[#D35400] mb-2 uppercase">
                 {["Useful Links", "Categories", "Help", "About Us"][i]}

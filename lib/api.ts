@@ -372,6 +372,11 @@ export const api = {
       const res = await fetchJson<any>('/categories');
       return Array.isArray(res) ? res : res?.data ?? [];
     },
+    getById: async (id: number) => {
+      const res = await fetchJson<any>(`/categories/${id}`);
+      // Unwrap common API envelope { status, message, code, data }
+      return res?.data ?? res;
+    },
   },
 
   // --- Reviews ---
