@@ -67,28 +67,28 @@ export default function CartPage() {
 
   const handleCheckout = async () => {
     if (!address) {
-       setShowAddressModal(true);
-       return;
+      setShowAddressModal(true);
+      return;
     }
-    
+
     setIsCheckoutLoading(true);
     try {
-       const res: any = await api.checkout.createSession();
-       const data = res.data || res;
-       
-       if (data.paymentUrl) {
-          window.location.href = data.paymentUrl;
-       } else if (data.requiresApproval) {
-          router.push('/profile/orders'); 
-       } else {
-          console.error("Unknown checkout response", res);
-          setError("Unexpected response from server");
-       }
+      const res: any = await api.checkout.createSession();
+      const data = res.data || res;
+
+      if (data.paymentUrl) {
+        window.location.href = data.paymentUrl;
+      } else if (data.requiresApproval) {
+        router.push('/profile/orders');
+      } else {
+        console.error("Unknown checkout response", res);
+        setError("Unexpected response from server");
+      }
     } catch (e: any) {
-        console.error("Checkout failed", e);
-        setError(e.message || "Checkout failed");
+      console.error("Checkout failed", e);
+      setError(e.message || "Checkout failed");
     } finally {
-        setIsCheckoutLoading(false);
+      setIsCheckoutLoading(false);
     }
   };
 
@@ -117,18 +117,18 @@ export default function CartPage() {
   };
 
   const handleSaveForLater = async (id: number) => {
-     if (!isLoggedIn) {
-        router.push("/login");
-        return;
-     } 
-     try {
-        await api.wishlist.add(id); 
-        await removeItem(id);
-        toast.success("Saved for later");
-     } catch (error) {
-        console.error("Failed to save for later", error);
-        toast.error("Failed to save for later");
-     }
+    if (!isLoggedIn) {
+      router.push("/login");
+      return;
+    }
+    try {
+      await api.wishlist.add(id);
+      await removeItem(id);
+      toast.success("Saved for later");
+    } catch (error) {
+      console.error("Failed to save for later", error);
+      toast.error("Failed to save for later");
+    }
   };
   const subtotal = useMemo(
     () => items.reduce((sum, i) => sum + i.qty * i.price, 0),
@@ -147,7 +147,7 @@ export default function CartPage() {
       try {
         await hydrateCartFromServer();
       } catch (e) {
-          console.error("Cart hydration failed", e);
+        console.error("Cart hydration failed", e);
       }
     })();
   }, []);
@@ -159,10 +159,10 @@ export default function CartPage() {
   const fetchAddresses = useAddressStore((s) => s.fetchAddresses);
   const addresses = useAddressStore((s) => Array.isArray(s.addresses) ? s.addresses : []);
   const selectedId = useAddressStore((s) => s.selectedId);
-  
+
   // Derived state
-  const address = useMemo(() => 
-    addresses.find((a) => a.id === selectedId) || null, 
+  const address = useMemo(() =>
+    addresses.find((a) => a.id === selectedId) || null,
     [addresses, selectedId]
   );
 
@@ -173,38 +173,38 @@ export default function CartPage() {
     setIsLoggedIn(logged);
 
     if (logged) {
-        // Fetch addresses on mount (store handles caching/updating)
-        fetchAddresses();
+      // Fetch addresses on mount (store handles caching/updating)
+      fetchAddresses();
 
-        // Fetch user profile for compliance check
-        api.user.getCurrent().then((u: any) => {
-            if (u && u.profile) setUserProfile(u.profile);
-            // Also checking if user object itself has the fields if backend structure differs
-            else if (u) setUserProfile(u);
-        }).catch(err => console.error("Failed to fetch user profile", err));
+      // Fetch user profile for compliance check
+      api.user.getCurrent().then((u: any) => {
+        if (u && u.profile) setUserProfile(u.profile);
+        // Also checking if user object itself has the fields if backend structure differs
+        else if (u) setUserProfile(u);
+      }).catch(err => console.error("Failed to fetch user profile", err));
     }
   }, []);
 
   // --- Compliance Check Logic ---
   const approvalRequired = useMemo(() => {
-      // 1. Price Threshold
-      if (subtotal >= 10000) return true;
+    // 1. Price Threshold
+    if (subtotal >= 10000) return true;
 
-      if (!userProfile) return false;
+    if (!userProfile) return false;
 
-      // 2. Controlled Items in UAE
-      const uaeVariants = ['United Arab Emirates', 'UAE', 'uae', 'United Arab Emirates (UAE)'];
-      const isUAE = uaeVariants.includes(userProfile.country) || uaeVariants.includes(userProfile.country_of_registration);
-      
-      const hasControlledItems = items.some(i => i.isControlled);
-      
-      // If user says "NO" to controlled items (controlled_dual_use_items === false), 
-      // but is buying controlled items in UAE -> NEEDS APPROVAL
-      if (isUAE && userProfile.controlled_dual_use_items === false && hasControlledItems) {
-          return true;
-      }
+    // 2. Controlled Items in UAE
+    const uaeVariants = ['United Arab Emirates', 'UAE', 'uae', 'United Arab Emirates (UAE)'];
+    const isUAE = uaeVariants.includes(userProfile.country) || uaeVariants.includes(userProfile.country_of_registration);
 
-      return false;
+    const hasControlledItems = items.some(i => i.isControlled);
+
+    // If user says "NO" to controlled items (controlled_dual_use_items === false), 
+    // but is buying controlled items in UAE -> NEEDS APPROVAL
+    if (isUAE && userProfile.controlled_dual_use_items === false && hasControlledItems) {
+      return true;
+    }
+
+    return false;
   }, [subtotal, items, userProfile]);
 
   return (
@@ -217,72 +217,79 @@ export default function CartPage() {
         </Link>
 
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-            <div className="lg:col-span-2">
-                <h1 className="font-orbitron font-bold text-[36px] text-black leading-[100%] tracking-[0%] uppercase mb-6">
-                  MY CART{" "}
-                  <span
-                    className="text-[#737373] normal-case"
-                    style={{
-                      fontFamily: "Inter sans-serif",
-                      fontWeight: 400,
-                      fontStyle: "normal",
-                      fontSize: "16px",
-                      lineHeight: "100%",
-                      letterSpacing: "0%",
-                    }}>
-                    ({itemCount} {itemCount === 1 ? "item" : "items"})
-                  </span>
-                </h1>
+          <div className="lg:col-span-2">
+            <h1 className="font-orbitron font-bold text-[36px] text-black leading-[100%] tracking-[0%] uppercase mb-6">
+              MY CART{" "}
+              <span
+                className="text-[#737373] normal-case"
+                style={{
+                  fontFamily: "Inter sans-serif",
+                  fontWeight: 400,
+                  fontStyle: "normal",
+                  fontSize: "16px",
+                  lineHeight: "100%",
+                  letterSpacing: "0%",
+                }}>
+                ({itemCount} {itemCount === 1 ? "item" : "items"})
+              </span>
+            </h1>
 
-                <div className="space-y-5 p-5 bg-[#EBE3D6]">
-                    {error && <div className="text-red-600">{error}</div>}
-                    {!error && items.length === 0 && (
-                    <div className="text-[#737373]">Your cart is empty.</div>
-                    )}
-                    {items.map((item) => (
-                    <CartItem
-                        key={item.id}
-                        data={item}
-                        updateQty={updateQty}
-                        removeItem={removeItem}
-                        saveForLater={handleSaveForLater}
-                    />
-                    ))}
-                </div>
+            <div className="space-y-5 p-5 bg-[#EBE3D6]">
+              {error && <div className="text-red-600">{error}</div>}
+              {!error && items.length === 0 && (
+                <div className="text-[#737373]">Your cart is empty.</div>
+              )}
+              {items.map((item) => (
+                <CartItem
+                  key={item.id}
+                  data={item}
+                  updateQty={updateQty}
+                  removeItem={removeItem}
+                  saveForLater={handleSaveForLater}
+                />
+              ))}
             </div>
+          </div>
 
-            {items.length > 0 && (
+          {items.length > 0 && (
             <div className="mt-10 lg:mt-0 lg:sticky lg:top-36 self-start bg-[#EBE3D6]">
               {/* Delivery Address Section */}
-                <div className="bg-[#EBE3D6] p-5 text-black border border-[#E2DACB] flex flex-col items-start gap-3">
+              <div className="bg-[#EBE3D6] p-5 text-black border border-[#E2DACB] flex flex-col items-start gap-3">
                 <h3
-                    className="font-bold text-[18px] lg:text-[20px] uppercase tracking-[0px] leading-[100%] text-black"
-                    style={{ fontFamily: "Orbitron, sans-serif", fontWeight: 700 }}>
-                    Delivery Address
-                  </h3>
-                  <div className="w-full">
-                    {address ? (
-                      <>
-                        <p className="text-sm font-semibold">Deliver to: {address.label}</p>
-                        <p className="text-[14px] text-[#6E6E6E] mt-1 break-words">
-                          {address.addressLine1}
-                          {address.addressLine2 ? `, ${address.addressLine2}` : ""}, {address.city}, {address.state} - {address.postalCode}, {address.country}
+                  className="font-bold text-[18px] lg:text-[20px] uppercase tracking-[0px] leading-[100%] text-black"
+                  style={{ fontFamily: "Orbitron, sans-serif", fontWeight: 700 }}>
+                  Delivery Address
+                </h3>
+                <div className="w-full">
+                  {address ? (
+                    <>
+                      <p className="text-sm font-semibold">Deliver to: {address.label}</p>
+                      <div className="text-[14px] text-[#6E6E6E] mt-1 break-words">
+                        <p>{address.addressLine1 || (address as any).address_line1}</p>
+                        {(address.addressLine2 || (address as any).address_line2) && (
+                          <p>{address.addressLine2 || (address as any).address_line2}</p>
+                        )}
+                        <p>
+                          {[address.city, address.state].filter(Boolean).join(", ")}
+                          {(address.postalCode || (address as any).postal_code) ? ` - ${address.postalCode || (address as any).postal_code}` : ""}
                         </p>
-                      </>
-                    ) : (
-                      <p className="text-[14px] text-[#6E6E6E] mt-1">
-                          {isLoggedIn ? "No address selected. Please select an address." : "Please login to manage your addresses."}
-                      </p>
-                    )}
-                  </div>
-                  <button 
-                    onClick={() => setShowAddressModal(true)} 
-                    className="bg-[#D34D24] text-white font-orbitron font-bold text-[14px] uppercase px-6 py-2 relative clip-path-[polygon(10%_0%,100%_0%,90%_100%,0%_100%)] hover:bg-[#B84A00] transition-colors shrink-0"
-                  >
-                    CHANGE
-                  </button>
+                        <p>{address.country}</p>
+                      </div>
+                    </>
+                  ) : (
+                    <p className="text-[14px] text-[#6E6E6E] mt-1">
+                      {isLoggedIn ? "No address selected. Please select an address." : "Please login to manage your addresses."}
+                    </p>
+                  )}
                 </div>
-                {/* 
+                <button
+                  onClick={() => setShowAddressModal(true)}
+                  className="bg-[#D34D24] text-white font-orbitron font-bold text-[14px] uppercase px-6 py-2 relative clip-path-[polygon(10%_0%,100%_0%,90%_100%,0%_100%)] hover:bg-[#B84A00] transition-colors shrink-0"
+                >
+                  CHANGE
+                </button>
+              </div>
+              {/* 
             <div className="mb-6">
               <div className="flex">
                 <input
@@ -296,23 +303,23 @@ export default function CartPage() {
               </div>
             </div> 
             */}
-                <OrderSummary
+              <OrderSummary
                 subtotal={subtotal}
                 itemCount={itemCount}
                 onCheckout={
-                    isLoggedIn ? handleCheckout : () => router.push("/login")
+                  isLoggedIn ? handleCheckout : () => router.push("/login")
                 }
                 buttonText={isLoggedIn ? (subtotal >= 10000 ? "REQUEST PURCHASE" : "CHECKOUT") : "LOGIN TO CONTINUE"}
                 isLoading={isCheckoutLoading}
                 approvalRequired={approvalRequired}
-                />
+              />
             </div>
-            )}
+          )}
         </div>
       </div>
 
       {showAddressModal && (
-        <SelectAddressModal 
+        <SelectAddressModal
           onClose={() => setShowAddressModal(false)}
         />
       )}

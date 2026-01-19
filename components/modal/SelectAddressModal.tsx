@@ -14,14 +14,14 @@ import { useAddressStore } from "@/lib/address-store";
 
 export default function SelectAddressModal({ onClose, onSelect }: { onClose: () => void; onSelect?: (id: number) => void }) {
   const router = useRouter();
-  
+
   // Store
   const addresses = useAddressStore((s) => s.addresses);
   const selectedId = useAddressStore((s) => s.selectedId);
   const isLoading = useAddressStore((s) => s.isLoading);
   const fetchAddresses = useAddressStore((s) => s.fetchAddresses);
   const selectAddress = useAddressStore((s) => s.selectAddress);
-  
+
   const [showForm, setShowForm] = useState(false);
   const [editingAddress, setEditingAddress] = useState<Address | undefined>(undefined);
 
@@ -30,7 +30,7 @@ export default function SelectAddressModal({ onClose, onSelect }: { onClose: () 
     // Fetch if empty or stale? Just fetch to be safe and get latest
     fetchAddresses();
     return () => {
-        document.body.style.overflow = "";
+      document.body.style.overflow = "";
     };
   }, []);
 
@@ -64,35 +64,35 @@ export default function SelectAddressModal({ onClose, onSelect }: { onClose: () 
     // Store logic handles selection of new if needed, or we can manually select
     selectAddress(addr.id);
   };
-  
+
   const handleEdit = (addr: Address) => {
-      setEditingAddress(addr);
-      setShowForm(true);
+    setEditingAddress(addr);
+    setShowForm(true);
   };
-  
+
   const openNew = () => {
-      setEditingAddress(undefined);
-      setShowForm(true);
+    setEditingAddress(undefined);
+    setShowForm(true);
   };
 
   const handleConfirm = () => {
     if (selectedId) {
       // Store already persisted selectedId
       if (onSelect) {
-         onSelect(selectedId); // For custom callbacks
+        onSelect(selectedId); // For custom callbacks
       }
       onClose();
     }
   };
 
   if (showForm) {
-      return (
-        <AddEditAddressModal 
-            onClose={() => { setShowForm(false); setEditingAddress(undefined); }}
-            onSuccess={handleCreated}
-            initialData={editingAddress}
-        />
-      );
+    return (
+      <AddEditAddressModal
+        onClose={() => { setShowForm(false); setEditingAddress(undefined); }}
+        onSuccess={handleCreated}
+        initialData={editingAddress}
+      />
+    );
   }
 
   return (
@@ -110,16 +110,15 @@ export default function SelectAddressModal({ onClose, onSelect }: { onClose: () 
             <p className="text-sm text-[#666]">No addresses found. Add a new one below.</p>
           )}
           {addresses.map((addr) => (
-            <div 
-              key={addr.id} 
+            <div
+              key={addr.id}
               className={`flex items-start justify-between p-3 border cursor-pointer transition-colors ${selectedId === addr.id ? "border-[#C2B280] bg-[#FFF8F0]" : "border-[#E2DACB]"}`}
               onClick={() => selectAddress(addr.id)}
             >
               <div className="flex items-start gap-3">
                 <div
-                  className={`w-5 h-5 border flex items-center justify-center transition-colors shadow-sm mt-1 ${
-                    selectedId === addr.id ? "bg-[#D7C6AF] border-[#C2B280]" : "bg-[#F0EBE3] border-[#C2B280]"
-                  }`}
+                  className={`w-5 h-5 border flex items-center justify-center transition-colors shadow-sm mt-1 ${selectedId === addr.id ? "bg-[#D7C6AF] border-[#C2B280]" : "bg-[#F0EBE3] border-[#C2B280]"
+                    }`}
                 >
                   {selectedId === addr.id && <Check className="w-3 h-3 text-white" />}
                 </div>
@@ -134,15 +133,23 @@ export default function SelectAddressModal({ onClose, onSelect }: { onClose: () 
                     <span className="font-semibold">Name: </span>
                     {addr.fullName}
                   </p>
-                  <p className="text-[13px] text-black">
-                    <span className="font-semibold">Address: </span>
-                    {addr.addressLine1}
-                    {addr.addressLine2 ? `, ${addr.addressLine2}` : ""}, {addr.city}, {addr.state} - {addr.postalCode}
-                  </p>
-                  
+                  <div className="text-[13px] text-black">
+                    <span className="font-semibold block mb-1">Address: </span>
+                    <p>{addr.addressLine1 || (addr as any).address_line1}</p>
+                    {(addr.addressLine2 || (addr as any).address_line2) && (
+                      <p>{addr.addressLine2 || (addr as any).address_line2}</p>
+                    )}
+                    <p>
+                      {[addr.city, addr.state].filter(Boolean).join(", ")}
+                      {(addr.postalCode || (addr as any).postal_code) ? ` - ${addr.postalCode || (addr as any).postal_code}` : ""}
+                    </p>
+                    <p>{addr.country}</p>
+                  </div>
+
+
                 </div>
               </div>
-              <button 
+              <button
                 className="text-sm flex items-center gap-1 text-[#515151] hover:text-black px-2 py-1"
                 onClick={(e) => { e.stopPropagation(); handleEdit(addr); }}
               >
@@ -150,8 +157,8 @@ export default function SelectAddressModal({ onClose, onSelect }: { onClose: () 
               </button>
             </div>
           ))}
-          
-           <button className="px-2 py-4 text-sm text-[#444] flex items-center gap-2 hover:bg-gray-50 w-full text-left" onClick={openNew}>
+
+          <button className="px-2 py-4 text-sm text-[#444] flex items-center gap-2 hover:bg-gray-50 w-full text-left" onClick={openNew}>
             <Plus size={16} /> Add New Address
           </button>
         </div>

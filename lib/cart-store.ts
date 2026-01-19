@@ -12,6 +12,7 @@ export type CartItemLocal = {
   sku?: string;
   stock?: number;
   is_controlled?: boolean;
+  vendorId?: string; // Add vendorId
 };
 
 interface CartState {

@@ -39,12 +39,12 @@ export default function ProductCard({
 }: ProductCardProps & { placeholderImage?: string }) {
   const [slide, setSlide] = useState(0);
   const [imgSrc, setImgSrc] = useState<string | null>(null);
-  
+
   const intervalRef = useRef<number | null>(null);
   const addItem = useCartStore((s) => s.addItem);
   const { isAuthenticated, isLoading } = useAuth();
   const router = useRouter();
-  
+
   // Wishlist Hook
   const { isInWishlist, toggleWishlist } = useWishlist();
   const isLiked = isInWishlist(id);
@@ -58,7 +58,7 @@ export default function ProductCard({
   // 1. If we have a state override (imgSrc), use it (unless it's null). 
   //    Actually simpler: derive display URL.
   //    If images[slide] exists, try that. If it fails, fallback.
-  
+
   // Better approach for NextJS Image:
   // Use state to track if current slide failed.
   // But we have cycling slides. 
@@ -67,7 +67,7 @@ export default function ProductCard({
   const [imageError, setImageError] = useState(false);
 
   useEffect(() => {
-     setImageError(false);
+    setImageError(false);
   }, [slide, images]);
 
   const currentImage = (images && images.length > 0) ? images[slide] : placeholderImage;
@@ -89,7 +89,7 @@ export default function ProductCard({
         month: "short",
       });
 
-      //  return `${format(from)} – ${format(to)}`;
+    //  return `${format(from)} – ${format(to)}`;
 
     return ` ${format(to)}`;
   };
@@ -142,85 +142,85 @@ export default function ProductCard({
           onError={() => setImageError(true)}
         />
 
-      {/* Wishlist Icon */}
-      {isAuthenticated && (
-        <button
-          onClick={async (e) => {
-            e.preventDefault(); // Prevent link navigation
-            // Require auth to add to wishlist
-            if (!isAuthenticated) {
-              router.push("/login");
-              return;
-            }
-            try {
-              await toggleWishlist(id);
-            } catch (e) {
-              // noop
-            }
-          }}
-          className="absolute top-2 md:top-3 right-2 md:right-3 bg-[#F0EBE3] rounded-full p-1 shadow-md hover:scale-105 transition z-10"
-        >
-          <Heart
-            size={16}
-            className={
-              isLiked ? "fill-[#D35400] text-[#D35400] md:w-5 md:h-5" : "text-[#3D4A26] md:w-5 md:h-5"
-            }
-          />
-        </button>
-      )}
+        {/* Wishlist Icon */}
+        {isAuthenticated && (
+          <button
+            onClick={async (e) => {
+              e.preventDefault(); // Prevent link navigation
+              // Require auth to add to wishlist
+              if (!isAuthenticated) {
+                router.push("/login");
+                return;
+              }
+              try {
+                await toggleWishlist(id);
+              } catch (e) {
+                // noop
+              }
+            }}
+            className="absolute top-2 md:top-3 right-2 md:right-3 bg-[#F0EBE3] rounded-full p-1 shadow-md hover:scale-105 transition z-10"
+          >
+            <Heart
+              size={16}
+              className={
+                isLiked ? "fill-[#D35400] text-[#D35400] md:w-5 md:h-5" : "text-[#3D4A26] md:w-5 md:h-5"
+              }
+            />
+          </button>
+        )}
 
         {/* No slider controls or indicators; hover cycles images */}
       </div>
 
       {/* ---------- PRODUCT DETAILS ---------- */}
-     <div className="p-2 md:p-4 flex flex-col bg-[#EBE3D6] flex-1">
-  {/* TOP CONTENT – fixed height for consistency */}
-  <div>
-    {/* TITLE - min height ensures equal card heights */}
-    <h3 className="text-[13px] md:text-[16px] font-semibold text-gray-900 leading-[1.25] line-clamp-2 min-h-[32px] md:min-h-[40px]">
-      {name}
-    </h3>
+      <div className="p-2 md:p-4 flex flex-col bg-[#EBE3D6] flex-1">
+        {/* TOP CONTENT – fixed height for consistency */}
+        <div>
+          {/* TITLE - min height ensures equal card heights */}
+          <h3 className="text-[13px] md:text-[16px] font-semibold text-gray-900 leading-[1.25] line-clamp-2 min-h-[32px] md:min-h-[40px]">
+            {name}
+          </h3>
 
-    {/* Rating */}
-    <div className="flex items-center gap-1 mt-1 text-xs md:text-sm">
-      <ProductRating rating={rating} reviewCount={Number(reviews)} />
-    </div>
-
-
-
-    <hr className="border-t border-[#CCCCCC] my-2 md:my-3" />
-
-    {/* Price */}
-    {isLoading ? (
-      <span className="text-sm text-gray-400">—</span>
-    ) : isAuthenticated ? (
-      <div className="flex items-center justify-between w-full">
-      <p className="text-base md:text-lg font-semibold text-gray-900 flex items-center gap-1">
-        <Image src="/icons/currency/dirham.svg" alt="Currency" width={16} height={16} />
-        {price.toLocaleString()}
-      </p>
-      {isControlled && (
-          <div className="inline-block bg-red-100 text-red-600 text-[10px] md:text-xs px-2 py-0.5 font-bold uppercase tracking-wider border border-red-200 w-fit">
-            Controlled
+          {/* Rating */}
+          <div className="flex items-center gap-1 mt-1 text-xs md:text-sm">
+            <ProductRating rating={rating} reviewCount={Number(reviews)} />
           </div>
-       )}
-      </div>
-    ) : (
-      <span
-        onClick={(e) => {
-            e.preventDefault();
-            const currentPath = window.location.pathname;
-            router.push(`/login?redirect=${encodeURIComponent(currentPath)}`);
-        }}
-        className="text-sm font-medium text-black cursor-pointer hover:underline"
-      >
-        Login to Purchase
-      </span>
-    )}
 
-    {/* Delivery */}
-    {/* Delivery info removed as per request */}
-    {/* <div className="flex items-center gap-1 mt-2 whitespace-nowrap">
+
+
+          <hr className="border-t border-[#CCCCCC] my-2 md:my-3" />
+
+          {/* Price */}
+          {isLoading ? (
+            <span className="text-sm text-gray-400">—</span>
+          ) : isAuthenticated ? (
+            <div className="flex items-center justify-between w-full">
+              <p className="text-base md:text-lg font-semibold text-gray-900 flex items-center gap-1">
+                <Image src="/icons/currency/dirham.svg" alt="Currency" width={16} height={16} />
+                {price.toLocaleString()}
+              </p>
+              {isControlled && (
+                <div className="inline-block bg-red-100 text-red-600 text-[10px] md:text-xs px-2 py-0.5 font-bold uppercase tracking-wider border border-red-200 w-fit">
+                  Controlled
+                </div>
+              )}
+            </div>
+          ) : (
+            <span
+              onClick={(e) => {
+                e.preventDefault();
+                const currentPath = window.location.pathname;
+                router.push(`/login?redirect=${encodeURIComponent(currentPath)}`);
+              }}
+              className="text-sm font-medium text-black cursor-pointer hover:underline"
+            >
+              Login to Purchase
+            </span>
+          )}
+
+          {/* Delivery */}
+          {/* Delivery info removed as per request */}
+          {/* <div className="flex items-center gap-1 mt-2 whitespace-nowrap">
       <Image
         src="/icons/delivery.svg"
         alt="delivery"
@@ -233,40 +233,40 @@ export default function ProductCard({
         <span className="font-medium">{getDeliveryRange()}</span>
       </span>
     </div> */}
-  </div>
+        </div>
 
-  {/* ✅ THIS PUSHES EMPTY SPACE BELOW DELIVERY */}
-  <div className="flex-grow" />
-</div>
+        {/* ✅ THIS PUSHES EMPTY SPACE BELOW DELIVERY */}
+        <div className="flex-grow" />
+      </div>
 
 
       {/* ---------- FULL-WIDTH BUTTON ---------- */}
       {/* Hide button if user is not authenticated OR if action is inquire */}
       {isAuthenticated && action === "ADD TO CART" && (
-      <button
-        className="w-full py-2 md:py-3 font-black font-[Orbitron] uppercase text-sm md:text-[18px] tracking-wide transition bg-[#000000] text-white hover:bg-[#D35400]"
-        onClick={async (e) => {
-          e.preventDefault();
-          if (action === "ADD TO CART" && id) {
-            addItem(
-              {
-                id: String(id ?? name + "-" + price),
-                name,
-                price: Number(price) ?? 0,
-                image: (images && images.length > 0 ? images[0] : "/product/rim.png"),
-              },
-              1
-            );
+        <button
+          className="w-full py-2 md:py-3 font-black font-[Orbitron] uppercase text-sm md:text-[18px] tracking-wide transition bg-[#000000] text-white hover:bg-[#D35400]"
+          onClick={async (e) => {
+            e.preventDefault();
+            if (action === "ADD TO CART" && id) {
+              addItem(
+                {
+                  id: String(id ?? name + "-" + price),
+                  name,
+                  price: Number(price) ?? 0,
+                  image: (images && images.length > 0 ? images[0] : "/product/rim.png"),
+                },
+                1
+              );
 
-            const pid = id ? Number(id) : NaN;
-            if (Number.isFinite(pid)) {
-              await syncAddToServer(pid, 1);
+              const pid = id ? Number(id) : NaN;
+              if (Number.isFinite(pid)) {
+                await syncAddToServer(pid, 1);
+              }
             }
-          }
-        }}
-      >
-        {action}
-      </button>
+          }}
+        >
+          {action}
+        </button>
       )}
 
     </div>

@@ -68,6 +68,7 @@ export async function hydrateCartFromServer() {
       sku: ci.product?.sku,
       stock: ci.product?.stock,
       is_controlled: ci.product?.is_controlled,
+      vendorId: ci.product?.vendor_id || ci.product?.vendorId,
     }));
     const setItems = useCartStore.getState().setItems;
     setItems(mapped);

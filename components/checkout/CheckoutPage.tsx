@@ -27,6 +27,7 @@ export default function CheckoutPage() {
   const [selectedReceiver, setSelectedReceiver] = useState<"self" | "other">("self");
   const [selectedPayment, setSelectedPayment] = useState<PaymentMethod>("card");
   const [showPaymentModal, setShowPaymentModal] = useState(false);
+  const [showSplitWarning, setShowSplitWarning] = useState(false); // New state for split warning
   const [isProcessing, setIsProcessing] = useState(false);
   const [address, setAddress] = useState<Address | null>(null);
 
@@ -48,7 +49,7 @@ export default function CheckoutPage() {
             const stored = localStorage.getItem("selectedAddressId");
             selId = stored ? Number(stored) : null;
           }
-        } catch {}
+        } catch { }
         const selected = selId ? list.find((a) => a.id === selId) : list.find((a) => a.isDefault) || list[0] || null;
         setAddress(selected || null);
       } catch (e) {
@@ -76,6 +77,27 @@ export default function CheckoutPage() {
   const total = subtotal + shippingFee + estimatedVAT - discount;
 
   const handleCheckout = () => {
+    // Check for multiple vendors
+    const vendorIds = new Set(storeItems.map((i) => i.vendorId).filter(Boolean)); // Filter out undefined/null
+    // If we have distinct vendors (more than 1, or even if 1 but we want to be safe? request says "products from different warehouses")
+    // "An order can have products from multiple vendors... split the items... On clicking checkout, inform via popup"
+    // Logic: If unique vendors > 1 -> Show Popup.
+    // If unique vendors <= 1 -> Proceed normally.
+
+    // Note: If some items have vendorId and others don't (admin), that counts as 2 "groups" (vendor vs admin).
+    // So we should map undefined/null to 'admin' or 'default' for counting.
+    const uniqueGroups = new Set(storeItems.map(i => i.vendorId || 'admin'));
+
+    if (uniqueGroups.size > 1) {
+      setShowSplitWarning(true);
+    } else {
+      setIsProcessing(true);
+      setShowPaymentModal(true);
+    }
+  };
+
+  const handleConfirmSplit = () => {
+    setShowSplitWarning(false);
     setIsProcessing(true);
     setShowPaymentModal(true);
   };
@@ -103,10 +125,17 @@ export default function CheckoutPage() {
               {address ? (
                 <>
                   <p className="text-sm font-semibold">Deliver to: {address.label}</p>
-                  <p className="text-[14px] text-[#6E6E6E] mt-1">
-                    {address.addressLine1}
-                    {address.addressLine2 ? `, ${address.addressLine2}` : ""}, {address.city}, {address.state} - {address.postalCode}, {address.country}
-                  </p>
+                  <div className="text-[14px] text-[#6E6E6E] mt-1">
+                    <p>{address.addressLine1 || (address as any).address_line1}</p>
+                    {(address.addressLine2 || (address as any).address_line2) && (
+                      <p>{address.addressLine2 || (address as any).address_line2}</p>
+                    )}
+                    <p>
+                      {[address.city, address.state].filter(Boolean).join(", ")}
+                      {(address.postalCode || (address as any).postal_code) ? ` - ${address.postalCode || (address as any).postal_code}` : ""}
+                    </p>
+                    <p>{address.country}</p>
+                  </div>
                 </>
               ) : (
                 <p className="text-[14px] text-[#6E6E6E] mt-1">No address selected. Please select an address in cart.</p>
@@ -126,9 +155,8 @@ export default function CheckoutPage() {
               onClick={() => setDeliveryInstructions(!deliveryInstructions)}
             >
               <div
-                className={`w-5 h-5 flex items-center justify-center border shadow-sm transition-colors ${
-                  deliveryInstructions ? "bg-[#D7C6AF] border-[#C2B280]" : "bg-[#F0EBE3] border-[#C2B280]"
-                }`}
+                className={`w-5 h-5 flex items-center justify-center border shadow-sm transition-colors ${deliveryInstructions ? "bg-[#D7C6AF] border-[#C2B280]" : "bg-[#F0EBE3] border-[#C2B280]"
+                  }`}
               >
                 {deliveryInstructions && <Check className="w-3 h-3 text-white" />}
               </div>
@@ -144,9 +172,8 @@ export default function CheckoutPage() {
             <div className="flex gap-3">
               {/* Self option */}
               <label
-                className={`flex items-center gap-3 px-4 py-3 border cursor-pointer transition-all ${
-                  selectedReceiver === "self" ? "border-[#C2B280] bg-[#F0EBE3]" : "border-[#C2B280] bg-[#F0EBE3]"
-                }`}
+                className={`flex items-center gap-3 px-4 py-3 border cursor-pointer transition-all ${selectedReceiver === "self" ? "border-[#C2B280] bg-[#F0EBE3]" : "border-[#C2B280] bg-[#F0EBE3]"
+                  }`}
                 onClick={() => setSelectedReceiver("self")}
               >
                 <div className="w-9 h-9 rounded-full bg-[#004E5E] flex items-center justify-center shrink-0">
@@ -157,9 +184,8 @@ export default function CheckoutPage() {
                   <p className="text-[16px] text-[#6E6E6E]">+91-77335-00000</p>
                 </div>
                 <div
-                  className={`w-5 h-5 border flex items-center justify-center transition-colors shadow-sm ${
-                    selectedReceiver === "self" ? "bg-[#D7C6AF] border-[#C2B280]" : "bg-[#F0EBE3] border-[#C2B280]"
-                  }`}
+                  className={`w-5 h-5 border flex items-center justify-center transition-colors shadow-sm ${selectedReceiver === "self" ? "bg-[#D7C6AF] border-[#C2B280]" : "bg-[#F0EBE3] border-[#C2B280]"
+                    }`}
                 >
                   {selectedReceiver === "self" && <Check className="w-3 h-3 text-white" />}
                 </div>
@@ -174,9 +200,8 @@ export default function CheckoutPage() {
                 <Phone className="w-5 h-5 text-[#D35400]" />
                 <span className="text-sm">Someone else will receive it</span>
                 <div
-                  className={`w-5 h-5 border flex items-center justify-center transition-colors shadow-sm ${
-                    selectedReceiver === "other" ? "bg-[#39482C] border-[#39482C]" : "bg-[#F0EBE3] border-[#C2B280]"
-                  }`}
+                  className={`w-5 h-5 border flex items-center justify-center transition-colors shadow-sm ${selectedReceiver === "other" ? "bg-[#39482C] border-[#39482C]" : "bg-[#F0EBE3] border-[#C2B280]"
+                    }`}
                 >
                   {selectedReceiver === "other" && <Check className="w-3 h-3 text-white" />}
                 </div>
@@ -231,9 +256,8 @@ export default function CheckoutPage() {
                 >
                   <div className="flex items-center gap-3">
                     <div
-                      className={`w-5 h-5 rounded-full border-2 flex items-center justify-center ${
-                        selectedPayment === method.id ? "border-[#D35400]" : "border-[#6E6E6E]"
-                      }`}
+                      className={`w-5 h-5 rounded-full border-2 flex items-center justify-center ${selectedPayment === method.id ? "border-[#D35400]" : "border-[#6E6E6E]"
+                        }`}
                     >
                       {selectedPayment === method.id && <div className="w-2.5 h-2.5 rounded-full bg-[#D35400]" />}
                     </div>
@@ -275,7 +299,6 @@ export default function CheckoutPage() {
         </div>
       </div>
 
-      {/* Payment Method Modal */}
       {showPaymentModal && (
         <PaymentMethodModal
           onClose={() => {
@@ -289,7 +312,36 @@ export default function CheckoutPage() {
           }}
         />
       )}
+
+      {/* Split Order Warning Modal */}
+      {showSplitWarning && (
+        <div className="fixed inset-0 z-[9999] flex items-center justify-center bg-black/60 backdrop-blur-sm p-4">
+          <div className="bg-[#EBE3D6] border-2 border-[#C2B280] w-full max-w-md p-6 shadow-2xl relative">
+            <h3 className="font-orbitron font-bold text-xl uppercase mb-4 text-black">Split Shipment Notice</h3>
+            <p className="text-black mb-6">
+              Your order contains items from different vendors. These items will be shipped from separate warehouses and you will receive separate tracking numbers for each shipment.
+            </p>
+            <p className="text-sm text-[#6E6E6E] mb-6">
+              You will verify everything in a single transaction.
+            </p>
+            <div className="flex gap-3 justify-end">
+              <button
+                onClick={() => setShowSplitWarning(false)}
+                className="px-4 py-2 border-2 border-[#3D4A26] text-[#3D4A26] font-bold hover:bg-[#3D4A26] hover:text-white transition-colors"
+              >
+                CANCEL
+              </button>
+              <button
+                onClick={handleConfirmSplit}
+                className="px-4 py-2 bg-[#D35400] text-white font-bold hover:bg-[#A04000] transition-colors"
+              >
+                I UNDERSTAND, PROCEED
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </section>
   );
 }
- 
+

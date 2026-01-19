@@ -325,8 +325,7 @@ export const api = {
     getAll: async (filters?: ProductFilters) => {
       const params = new URLSearchParams();
       // Backend expects snake_case: category_id
-      if (filters?.categoryId)
-        params.set('category_id', filters.categoryId.toString());
+      if (filters?.categoryId) params.set('category_id', String(filters.categoryId));
       // Keep generic search/min/max if backend supports; harmless if ignored
       if (filters?.search) params.set('search', filters.search);
       if (typeof filters?.minPrice === 'number')
@@ -409,7 +408,7 @@ export const api = {
 
   // --- Checkout ---
   checkout: {
-    createSession: () => fetchJson<{ url?: string; testMode?: boolean; orderId?: string; error?: string; requiresApproval?: boolean; type?: string; paymentUrl?: string }>('/checkout/create', { method: 'POST' }),
+    createSession: () => fetchJson<{ url?: string; testMode?: boolean; orderId?: string; error?: string; requiresApproval?: boolean; type?: string; paymentUrl?: string; redirectUrl?: string }>('/checkout/create', { method: 'POST' }),
     verifySession: (data: { sessionId: string; orderId: string }) => fetchJson<{ success: boolean; amount?: number; currency?: string; status?: string; orderId?: string }>('/checkout/verify-session', { method: 'POST', body: JSON.stringify(data) }),
   },
 
@@ -421,6 +420,10 @@ export const api = {
     },
     getById: async (id: string) => {
         const res = await fetchJson<any>(`/profile/orders/${id}`);
+        return res?.data ?? res;
+    },
+    getGroup: async (id: string) => {
+        const res = await fetchJson<any>(`/profile/orders/group/${id}`);
         return res?.data ?? res;
     },
     create: (items: any[]) => fetchJson<Order>('/orders', { method: 'POST', body: JSON.stringify({ items }) }),

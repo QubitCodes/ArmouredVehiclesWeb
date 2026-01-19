@@ -18,7 +18,9 @@ function formatStatusText(order: Order): string {
     case "approved":
     case "pending_review":
     case "pending_approval":
-      return "Processing"; // Map these to Processing for user view? Or keep distinct?
+      return "Processing"; // Map these to Processing for user view
+    case "order_received":
+      return "Order Received";
     case "shipped":
       return "Shipped";
     case "delivered":
@@ -29,7 +31,7 @@ function formatStatusText(order: Order): string {
     case "returned":
       return "Returned";
     default:
-      return order.order_status.replace('_', ' ');
+      return order.order_status.replace(/_/g, ' ');
   }
 }
 
@@ -53,19 +55,45 @@ export default function OrdersPage() {
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
 
-  const inProgressOrders = (orders || []).filter((o) => ["pending_review", "pending_approval", "approved", "processing", "shipped"].includes(o.order_status));
-  const completedOrders = (orders || []).filter((o) => ["delivered", "cancelled", "returned", "rejected"].includes(o.order_status));
+  // Group Orders Logic
+  const groupedOrders = (orders || []).reduce((acc: any, order) => {
+      const groupId = order.order_group_id || order.id;
+      if (!acc[groupId]) {
+          acc[groupId] = {
+              ...order, // Base props from first order
+              id: groupId, // Use Group ID as main ID
+              displayId: order.order_group_id || order.order_id || order.id,
+              subOrders: [],
+              totalAmount: 0,
+              items: [] // Aggregate items for preview
+          };
+      }
+      acc[groupId].subOrders.push(order);
+      acc[groupId].totalAmount += Number(order.total_amount || 0);
+      if (order.items) {
+        acc[groupId].items.push(...order.items);
+      }
+      // Status Logic: If any sub-order is "in progress", the group is in progress?
+      // Or verify logic later. For now, use first order's status as proxy for filter group?
+      // Actually, we should filter GROUPS.
+      return acc;
+  }, {});
+
+  const orderGroups = Object.values(groupedOrders);
+
+  // Filter Groups based on Sub-Orders
+  const inProgressGroups = orderGroups.filter((group: any) => 
+      group.subOrders.some((o: any) => ["order_received", "pending_review", "pending_approval", "approved", "processing", "shipped"].includes(o.order_status))
+  );
+
+  const completedGroups = orderGroups.filter((group: any) => 
+      group.subOrders.every((o: any) => ["delivered", "cancelled", "returned", "rejected"].includes(o.order_status))
+  );
 
   // Debug logging
   useEffect(() => {
     if (orders?.length) {
-      console.log("[OrdersPage] Orders data:", orders);
-      orders.forEach(o => {
-          console.log(`[Order ${o.id}] Items:`, o.items);
-          if (o.items?.[0]) {
-              console.log(`[Order ${o.id}] First Item Name:`, o.items[0].name);
-          }
-      });
+      console.log("[OrdersPage] Grouped Orders:", orderGroups);
     }
   }, [orders]);
 
@@ -131,30 +159,34 @@ export default function OrdersPage() {
       <div className="mb-6 lg:mb-8 px-3 py-4 lg:px-5 lg:py-5 bg-[#EBE3D6] border border-[#EBE3D6]  overflow-hidden">
         <h2 className="font-orbitron font-bold text-xs lg:text-sm uppercase tracking-wider text-black mb-3 lg:mb-4">
           In Progress{" "}
-          <span className="text-[#666] font-normal">({inProgressOrders.length} Item)</span>
+          <span className="text-[#666] font-normal">({inProgressGroups.length} Item)</span>
         </h2>
 
         <div className="space-y-3 lg:space-y-4">
-          {inProgressOrders.map((order, index) => {
-            const first = order.items?.[0];
-            // Use product image from relation, or legacy image, or placeholder
-            const image = first?.product?.image || first?.image || "/placeholder.jpg"; 
-            // Prefer product name from relation, then product_name column, then legacy name
-            const baseName = first?.product?.name || first?.product_name || first?.name || `Order #${order.id}`;
-            const extraCount = (order.items?.length || 0) - 1;
+          {inProgressGroups.map((group: any, index: any) => {
+            // First product for display
+            const firstItem = group.items?.[0];
+            const image = firstItem?.product?.image || firstItem?.image || "/placeholder.jpg";
+            const baseName = firstItem?.product?.name || firstItem?.product_name || firstItem?.name || `Order ${group.displayId}`;
+            
+            const totalItemsCount = group.items?.length || 0;
+            const extraCount = totalItemsCount - 1;
             const title = extraCount > 0 ? `${baseName} + ${extraCount} products` : baseName;
             
-            const price = first?.price ? parseFloat(first.price) : Number(order.total_amount || 0);
-            const statusText = formatStatusText(order);
-            const statusNote = order.estimatedDelivery ? `ETA: ${order.estimatedDelivery}` : "on time";
+            // Status from the most relevant sub-order (e.g. the one preventing completion)
+            const activeOrder = group.subOrders.find((o:any) => !["delivered", "cancelled"].includes(o.order_status)) || group.subOrders[0];
+            const statusText = formatStatusText(activeOrder);
+            const statusNote = activeOrder.estimatedDelivery ? `ETA: ${activeOrder.estimatedDelivery}` : "on time";
+            const totalPrice = group.totalAmount;
+
             return (
             <div key={index} className="bg-[#F0EBE3] border border-[#C2B280] overflow-hidden">
               {/* Order Header - Mobile */}
               <div className="lg:hidden px-3 py-3">
                 <div className="flex items-center justify-between mb-3">
-                  <p className="font-semibold text-sm text-black">{order.estimatedDelivery || ""}</p>
+                  <p className="font-semibold text-sm text-black">{activeOrder.estimatedDelivery || ""}</p>
                   <div className="flex flex-col items-end gap-1">
-                    <p className="font-bold text-black">{Number(order.total_amount || 0).toFixed(2)} AED</p>
+                    <p className="font-bold text-black">{totalPrice.toFixed(2)} AED</p>
                     <p className="text-xs text-[#666]">
                     <span className="text-[#009900]">{statusText}</span>
                     <span className="text-[#666]"> · {statusNote}</span>
@@ -163,51 +195,33 @@ export default function OrdersPage() {
                 </div>
                 {/* Track + More (Mobile) */}
                 <div className="flex items-center gap-2">
-                  {/* Track Button */}
                   <button
-                    onClick={() => router.push(`/orders/track/${order.id}`)}
+                    onClick={() => router.push(`/orders/track/${activeOrder.id}`)} // Track specific order? Or Group? Default to active
                     className="flex-1 bg-[#3D4A26] h-[40px] hover:bg-[#4A5D3A] text-white clip-path-supplier flex items-center justify-center py-2.5 transition-colors"
                   >
                     <span className="font-bold text-[11px]  font-orbitron uppercase tracking-wide">
-                      Track Your Order
+                      Track Order
                     </span>
                   </button>
 
-                  {/* 3 Dots Menu */}
                   <div className="relative" ref={dropdownRef}>
                     <button
                       onClick={() =>
-                        setOpenDropdown(openDropdown === order.id ? null : order.id)
+                        setOpenDropdown(openDropdown === group.id ? null : group.id)
                       }
                       className="h-[40px] w-[40px] flex items-center justify-center hover:bg-[#E0D9CC] transition-colors"
                     >
                       <MoreVertical size={18} className="text-[#333]" />
                     </button>
 
-                    {openDropdown === order.id && (
+                    {openDropdown === group.id && (
                       <div className="absolute right-0 top-full mt-2 w-48 bg-[#EBE3D6] border border-[#E2DACB] rounded-lg shadow-lg z-10 overflow-visible">
-                        <button className="w-full flex items-center gap-3 px-4 py-3 text-sm text-[#333] hover:bg-[#F5F5F5]">
-                          <Image src="/order/Frame9.png" alt="Tracking" width={16} height={16} />
-                          Tracking Details
-                        </button>
-
-                        <button
-                          onClick={() => router.push(`/orders/summary/${order.id}`)}
+                        <button 
+                          onClick={() => router.push(`/orders/summary/${group.id}`)}
                           className="w-full flex items-center gap-3 px-4 py-3 text-sm text-[#333] hover:bg-[#F5F5F5]"
                         >
                           <Image src="/order/Frame10.png" alt="Order Summary" width={16} height={16} />
-                          Order Summary
-                        </button>
-
-                        <button
-                          onClick={() => {
-                            setShowSupportPanel(true);
-                            setOpenDropdown(null);
-                          }}
-                          className="w-full flex items-center gap-3 px-4 py-3 text-sm text-[#333] hover:bg-[#F5F5F5]"
-                        >
-                          <Image src="/order/Frame11.png" alt="Help" width={16} height={16} />
-                          Need Help?
+                          Order Details
                         </button>
                       </div>
                     )}
@@ -219,7 +233,7 @@ export default function OrdersPage() {
               {/* Order Header - Desktop */}
               <div className="hidden lg:flex px-5 py-4 items-center justify-between">
                 <div>
-                  <p className="font-semibold text-sm text-black">{order.estimatedDelivery || ""}</p>
+                  <p className="font-semibold text-sm text-black">{activeOrder.estimatedDelivery || ""}</p>
                   <p className="text-sm">
                     <span className="text-[#009900]">{statusText}</span>
                     <span className="text-[#666]"> · {statusNote}</span>
@@ -227,46 +241,13 @@ export default function OrdersPage() {
                 </div>
                 <div className="flex items-center gap-3">
                   <button
-                    onClick={() => router.push(`/orders/track/${order.id}`)}
+                    onClick={() => router.push(`/orders/summary/${group.id}`)}
                     className="bg-[#39482C] hover:bg-[#D35400] text-white clip-path-supplier flex items-center justify-center px-6 h-[38px] transition-colors"
                   >
                     <span className="font-black text-[12px] font-orbitron uppercase whitespace-nowrap">
-                      Track Your Order
+                      View Details
                     </span>
                   </button>
-                  <div className="relative" ref={dropdownRef}>
-                    <button
-                      className="text-[#666] hover:text-black p-1"
-                      onClick={() => setOpenDropdown(openDropdown === order.id ? null : order.id)}
-                    >
-                      <MoreVertical size={20} />
-                    </button>
-                    {openDropdown === order.id && (
-                      <div className="absolute right-0 top-full mt-2 w-48 bg-[#EBE3D6] border border-[#E2DACB] rounded-lg shadow-lg z-10 overflow-hidden">
-                        <button className="w-full flex items-center gap-3 px-4 py-3 text-sm text-[#333] hover:bg-[#F5F5F5] transition-colors">
-                          <Image src="/order/Frame9.png" alt="Tracking" width={16} height={16} />
-                          Tracking Details
-                        </button>
-                        <button
-                          onClick={() => router.push(`/orders/summary/${order.id}`)}
-                          className="w-full flex items-center gap-3 px-4 py-3 text-sm text-[#333] hover:bg-[#F5F5F5] transition-colors"
-                        >
-                          <Image src="/order/Frame10.png" alt="Order Summary" width={16} height={16} />
-                          Order Summary
-                        </button>
-                        <button
-                          onClick={() => {
-                            setShowSupportPanel(true);
-                            setOpenDropdown(null);
-                          }}
-                          className="w-full flex items-center gap-3 px-4 py-3 text-sm text-[#333] hover:bg-[#F5F5F5] transition-colors"
-                        >
-                          <Image src="/order/Frame11.png" alt="Help" width={16} height={16} />
-                          Need Help?
-                        </button>
-                      </div>
-                    )}
-                  </div>
                 </div>
               </div>
 
@@ -276,11 +257,11 @@ export default function OrdersPage() {
               {/* Order Content */}
               <div 
                 className="p-3 lg:p-5 flex items-start gap-5 lg:gap-5 cursor-pointer hover:bg-[#EAEAEA] transition-colors"
-                onClick={() => router.push(`/orders/summary/${order.id}`)}
+                onClick={() => router.push(`/orders/summary/${group.id}`)}
               >
                 <img
                   src={image}
-                  alt={first?.name || `Order ${order.id}`}
+                  alt={title}
                   className="w-16 h-16 lg:w-20 lg:h-20 object-contain flex-shrink-0"
                 />
                 <div className="flex-1 min-w-0">
@@ -297,11 +278,11 @@ export default function OrdersPage() {
                     />
 
                     <span className="font-semibold text-sm text-black">
-                      {price.toFixed(2)}
+                      {totalPrice.toFixed(2)}
                     </span>
                   </div>
 
-                  <p className="text-xs text-[#666]">Order ID: #{order.id}</p>
+                  <p className="text-xs text-[#666]">Order ID: #{group.displayId}</p>
                 </div>
               </div>
             </div>
@@ -316,15 +297,18 @@ export default function OrdersPage() {
         </h2>
 
         <div className="space-y-3 lg:space-y-4">
-          {completedOrders.map((order, index) => {
-            const first = order.items?.[0];
-            const price = first?.price ? parseFloat(first.price) : Number(order.total_amount || 0);
-            const statusText = formatStatusText(order);
+          {completedGroups.map((group: any, index: any) => {
+            const firstItem = group.items?.[0];
+            const price = group.totalAmount;
+            
+            // Status from the most relevant sub-order
+            const activeOrder = group.subOrders.find((o:any) => ["delivered", "returned"].includes(o.order_status)) || group.subOrders[0];
+            const statusText = formatStatusText(activeOrder);
+
             // Use product image from relation, or legacy image, or placeholder
-            const image = first?.product?.image || first?.image || "/placeholder.jpg";
-            // Prefer product name from relation, then product_name column, then legacy name
-            const baseName = first?.product?.name || first?.product_name || first?.name || `Order #${order.id}`;
-            const extraCount = (order.items?.length || 0) - 1;
+            const image = firstItem?.product?.image || firstItem?.image || "/product/placeholder.svg";
+            const baseName = firstItem?.product?.name || firstItem?.product_name || firstItem?.name || `Order ${group.displayId}`;
+            const extraCount = group.items?.length - 1;
             const title = extraCount > 0 ? `${baseName} + ${extraCount} products` : baseName;
             
             return (
@@ -333,7 +317,7 @@ export default function OrdersPage() {
               <div className="lg:hidden px-3 py-3">
                 <div className="flex items-start justify-between gap-2 mb-3">
                   <div className="flex items-start gap-2">
-                    {order.order_status === "delivered" ? (
+                    {activeOrder.order_status === "delivered" ? (
                       <div className="w-5 h-5 bg-[#27AE60] rounded flex items-center justify-center flex-shrink-0 mt-0.5">
                         <svg width="12" height="8" viewBox="0 0 14 10" fill="none" xmlns="http://www.w3.org/2000/svg">
                           <path d="M1 5L5 9L13 1" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
@@ -346,15 +330,46 @@ export default function OrdersPage() {
                     )}
                     <p className="text-sm text-black leading-tight">{statusText}</p>
                   </div>
-                  <button className="text-[#666] hover:text-black p-1 flex-shrink-0">
-                    <MoreVertical size={18} />
-                  </button>
+                  <div className="relative">
+                    <button 
+                       className="text-[#666] hover:text-black p-1 flex-shrink-0"
+                       onClick={() => setOpenDropdown(openDropdown === `completed-${index}` ? null : `completed-${index}`)}
+                    >
+                      <MoreVertical size={18} />
+                    </button>
+                    
+                    {openDropdown === `completed-${index}` && (
+                        <div className="absolute right-0 top-full mt-2 w-48 bg-[#EBE3D6] border border-[#E2DACB] rounded-lg shadow-lg z-10 overflow-visible">
+                            <button className="w-full flex items-center gap-3 px-4 py-3 text-sm text-[#333] hover:bg-[#F5F5F5]">
+                                <Image src="/order/Frame9.png" alt="Tracking" width={16} height={16} />
+                                Tracking Details
+                            </button>
+                            <button
+                                onClick={() => router.push(`/orders/summary/${group.id}`)}
+                                className="w-full flex items-center gap-3 px-4 py-3 text-sm text-[#333] hover:bg-[#F5F5F5]"
+                            >
+                                <Image src="/order/Frame10.png" alt="Order Summary" width={16} height={16} />
+                                Order Details
+                            </button>
+                            <button
+                                onClick={() => {
+                                    setShowSupportPanel(true);
+                                    setOpenDropdown(null);
+                                }}
+                                className="w-full flex items-center gap-3 px-4 py-3 text-sm text-[#333] hover:bg-[#F5F5F5]"
+                            >
+                                <Image src="/order/Frame11.png" alt="Help" width={16} height={16} />
+                                Need Help?
+                            </button>
+                        </div>
+                    )}
+                  </div>
                 </div>
                 {/* Track Refund Button - Mobile with angled sides */}
-                {order.order_status === "cancelled" && (
+                {activeOrder.order_status === "cancelled" && (
                   <div className="w-full p-[1px] clip-path-supplier bg-[#C2B280]">
                     <button
-                      onClick={() => router.push(`/orders/refund/${order.id}`)}
+                      onClick={() => router.push(`/orders/refund/${activeOrder.id}`)}
                       className="w-full bg-[#F0EBE3] hover:bg-[#E8E3DB] text-[#333] clip-path-supplier flex items-center justify-center py-2.5 transition-colors"
                     >
                       <span className="font-bold text-[11px] font-orbitron uppercase tracking-wide">
@@ -368,7 +383,7 @@ export default function OrdersPage() {
               {/* Order Header - Desktop */}
               <div className="hidden lg:flex px-5 py-4 items-center justify-between">
                 <div className="flex items-center gap-3 min-w-0">
-                  {order.order_status === "delivered" ? (
+                  {activeOrder.order_status === "delivered" ? (
                     <div className="w-6 h-6 bg-[#27AE60] rounded flex items-center justify-center flex-shrink-0">
                       <svg width="14" height="10" viewBox="0 0 14 10" fill="none" xmlns="http://www.w3.org/2000/svg">
                         <path d="M1 5L5 9L13 1" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
@@ -382,10 +397,10 @@ export default function OrdersPage() {
                   <p className="text-sm text-black truncate">{statusText}</p>
                 </div>
                 <div className="flex items-center gap-3">
-                  {order.order_status === "cancelled" && (
+                  {activeOrder.order_status === "cancelled" && (
                     <div className="relative clip-path-supplier bg-[#C2B280] p-[1px]">
                       <button
-                        onClick={() => router.push(`/orders/refund/${order.id}`)}
+                        onClick={() => router.push(`/orders/refund/${activeOrder.id}`)}
                         className="bg-[#F5F0E6] text-[#333333] clip-path-supplier flex items-center justify-center px-8 h-[36px] hover:bg-[#EBE6DC] transition-colors"
                       >
                         <span className="font-semibold text-[12px] font-orbitron uppercase leading-none tracking-normal whitespace-nowrap">
@@ -408,11 +423,11 @@ export default function OrdersPage() {
                           Tracking Details
                         </button>
                         <button
-                          onClick={() => router.push(`/orders/summary/${order.id}`)}
+                          onClick={() => router.push(`/orders/summary/${group.id}`)}
                           className="w-full flex items-center gap-3 px-4 py-3 text-sm text-[#333] hover:bg-[#F5F5F5] transition-colors"
                         >
                           <Image src="/order/Frame10.png" alt="Order Summary" width={16} height={16} />
-                          Order Summary
+                          Order Details
                         </button>
                         <button
                           onClick={() => {
@@ -436,11 +451,11 @@ export default function OrdersPage() {
               {/* Order Content */}
               <div 
                 className="p-3 lg:p-5 flex items-start gap-3 lg:gap-10 cursor-pointer hover:bg-[#EAEAEA] transition-colors"
-                onClick={() => router.push(`/orders/summary/${order.id}`)}
+                onClick={() => router.push(`/orders/summary/${group.id}`)}
               >
                 <img
                   src={image}
-                  alt={first?.name || `Order ${order.id}`}
+                  alt={title}
                   className="w-16 h-16 lg:w-20 lg:h-20 object-contain flex-shrink-0"
                 />
                 <div className="flex-1 min-w-0">
@@ -460,9 +475,9 @@ export default function OrdersPage() {
                     </span>
                   </div>
 
-                  <p className="text-[10px] lg:text-xs text-[#666] lg:hidden">Order ID: #{order.id}</p>
+                  <p className="text-[10px] lg:text-xs text-[#666] lg:hidden">Order ID: #{group.displayId}</p>
                 </div>
-                <p className="hidden lg:block text-xs text-[#666] flex-shrink-0">Order ID: #{order.id}</p>
+                <p className="hidden lg:block text-xs text-[#666] flex-shrink-0">Order ID: #{group.displayId}</p>
               </div>
             </div>
           );})}

@@ -157,12 +157,12 @@ function CategoryContent() {
                     need_filters: 1 // Request filters
                 };
                 
-                if (categoryIdParam && !isNaN(Number(categoryIdParam))) filters.category_id = Number(categoryIdParam);
+                if (categoryIdParam && !isNaN(Number(categoryIdParam))) filters.categoryId = Number(categoryIdParam);
                 if (searchQueryParam && searchQueryParam.trim()) filters.search = searchQueryParam.trim();
                 
                 // Active Filters
                 if (selectedBrands.length > 0) filters.make = selectedBrands.join(',');
-                if (selectedTypes.length > 0) filters.category_id = selectedTypes.join(','); 
+                if (selectedTypes.length > 0) filters.categoryId = selectedTypes.join(','); 
                 
                 if (selectedConditions.length > 0) filters.condition = selectedConditions.join(',');
                 if (selectedColors.length > 0) filters.colors = selectedColors.join(',');

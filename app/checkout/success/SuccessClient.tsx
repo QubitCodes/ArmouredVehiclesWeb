@@ -20,7 +20,7 @@ export default function SuccessClient() {
         console.log('[DEBUG] SuccessClient: Starting payment verification');
         console.log('[DEBUG] sessionId:', sessionId);
         console.log('[DEBUG] orderId:', orderId);
-        
+
         if (!sessionId || !orderId) {
           console.error("[DEBUG] No session ID or Order ID provided");
           setLoading(false);
@@ -33,10 +33,10 @@ export default function SuccessClient() {
         // Unwrap the response if it's nested in a 'data' property (standard API wrapper)
         const data = (response as any).data || response;
         setOrderData(data);
-        
+
         // Redirect to order summary with success flag
         if (data.id) {
-            router.push(`/orders/summary/${data.id}?payment_success=true`);
+          router.push(`/orders/summary/${data.id}?payment_success=true`);
         }
       } catch (error: any) {
         console.error("[DEBUG] Error verifying payment:", error);
@@ -44,10 +44,10 @@ export default function SuccessClient() {
         console.error("[DEBUG] Error status:", error?.status);
         // If the error object has response data, log it
         if (error.response) {
-             console.error("[DEBUG] Server Error Response:", error.response.data);
+          console.error("[DEBUG] Server Error Response:", error.response.data);
         }
         if (error.data) {
-             console.error("[DEBUG] Error data:", error.data);
+          console.error("[DEBUG] Error data:", error.data);
         }
       } finally {
         setLoading(false);
@@ -58,14 +58,14 @@ export default function SuccessClient() {
   }, [sessionId, orderId]);
 
   if (loading || orderData) {
-     return (
-        <div className="flex h-[50vh] flex-col items-center justify-center gap-4">
-          <div className="h-12 w-12 animate-spin rounded-full border-4 border-[#D35400] border-t-transparent"></div>
-          <p className="font-orbitron text-lg font-medium text-[#1A1A1A]">
-            {orderData ? "Redirecting to order summary..." : "Verifying your payment..."}
-          </p>
-        </div>
-     );
+    return (
+      <div className="flex h-[50vh] flex-col items-center justify-center gap-4">
+        <div className="h-12 w-12 animate-spin rounded-full border-4 border-[#D35400] border-t-transparent"></div>
+        <p className="font-orbitron text-lg font-medium text-[#1A1A1A]">
+          {orderData ? "Redirecting to order summary..." : "Verifying your payment..."}
+        </p>
+      </div>
+    );
   }
 
   return (
@@ -83,16 +83,16 @@ export default function SuccessClient() {
       </div>
       <div className="flex gap-4">
         <button
-            onClick={() => window.location.reload()}
-            className="bg-[#1A1A1A] text-white px-6 py-3 font-orbitron font-bold uppercase hover:bg-black/90 transition-colors"
+          onClick={() => window.location.reload()}
+          className="bg-[#1A1A1A] text-white px-6 py-3 font-orbitron font-bold uppercase hover:bg-black/90 transition-colors"
         >
-            Try Again
+          Try Again
         </button>
         <button
-            onClick={() => router.push("/contact")}
-            className="border border-[#1A1A1A] text-[#1A1A1A] px-6 py-3 font-orbitron font-bold uppercase hover:bg-gray-50 transition-colors"
+          onClick={() => router.push("/contact")}
+          className="border border-[#1A1A1A] text-[#1A1A1A] px-6 py-3 font-orbitron font-bold uppercase hover:bg-gray-50 transition-colors"
         >
-            Contact Support
+          Contact Support
         </button>
       </div>
     </div>

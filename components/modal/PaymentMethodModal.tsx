@@ -30,6 +30,9 @@ export default function PaymentMethodModal({
       if (data.url) {
         // Redirect to Stripe checkout
         window.location.href = data.url;
+      } else if (data.redirectUrl) {
+        // Redirect to internal page (e.g. approval summary)
+        window.location.href = data.redirectUrl;
       } else if (data.testMode) {
         // In test mode, show the order ID
         setError(`Order created in test mode: ${data.orderId}`);

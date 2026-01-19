@@ -19,6 +19,14 @@ export function useOrder(id?: string) {
   });
 }
 
+export function useOrderGroup(id?: string) {
+  return useQuery<any>({
+    queryKey: ["orders", "group", id],
+    queryFn: () => api.orders.getGroup(id!),
+    enabled: !!id,
+  });
+}
+
 export function useCreateOrder() {
   const qc = useQueryClient();
   return useMutation({

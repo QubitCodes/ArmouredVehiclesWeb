@@ -7,17 +7,17 @@ import { getStoredUser } from "@/lib/api";
 
 type NewAddress = Omit<Address, "id" | "userId" | "isVerified" | "createdAt">;
 
-export default function AddressForm({ 
-  onCreated, 
-  onCancel, 
-  initialData, 
-  formId, 
-  hideActions, 
+export default function AddressForm({
+  onCreated,
+  onCancel,
+  initialData,
+  formId,
+  hideActions,
   onSubmitting,
   className
-}: { 
-  onCreated: (addr: Address) => void; 
-  onCancel?: () => void; 
+}: {
+  onCreated: (addr: Address) => void;
+  onCancel?: () => void;
   initialData?: Address;
   formId?: string;
   hideActions?: boolean;
@@ -27,15 +27,15 @@ export default function AddressForm({
   const [form, setForm] = useState<NewAddress>({
     label: initialData?.label || "",
     addressType: initialData?.addressType || "home",
-    fullName: initialData?.fullName || "",
+    fullName: initialData?.fullName || (initialData as any)?.full_name || "",
     phone: initialData?.phone || "",
-    addressLine1: initialData?.addressLine1 || "",
-    addressLine2: initialData?.addressLine2 || "",
+    addressLine1: initialData?.addressLine1 || (initialData as any)?.address_line1 || "",
+    addressLine2: initialData?.addressLine2 || (initialData as any)?.address_line2 || "",
     city: initialData?.city || "",
     state: initialData?.state || "",
-    postalCode: initialData?.postalCode || "",
+    postalCode: initialData?.postalCode || (initialData as any)?.postal_code || "",
     country: initialData?.country || "United Arab Emirates",
-    isDefault: initialData?.isDefault || false,
+    isDefault: initialData?.isDefault || (initialData as any)?.is_default || false,
   });
 
   const [submitting, setSubmitting] = useState(false);
@@ -55,24 +55,24 @@ export default function AddressForm({
       // Inject phone from profile
       const user = getStoredUser();
       const phoneToUse = user?.phone ? user.phone : "0000000000";
-      
+
       console.log("DEBUG: AddressForm user:", user);
       console.log("DEBUG: Phone to use:", phoneToUse);
 
       const payload = {
-         ...form,
-         phone: phoneToUse,
-         addressType: "home" as "home" | "work" | "other" // Default since UI is removed
+        ...form,
+        phone: phoneToUse,
+        addressType: "home" as "home" | "work" | "other" // Default since UI is removed
       };
-      
+
       console.log("DEBUG: Payload:", payload);
 
       if (initialData?.id) {
-         await updateAddress(initialData.id, payload);
-         // Manually merge
-         resAddress = { ...initialData, ...payload } as Address;
+        await updateAddress(initialData.id, payload);
+        // Manually merge
+        resAddress = { ...initialData, ...payload } as Address;
       } else {
-         resAddress = await createAddress(payload);
+        resAddress = await createAddress(payload);
       }
       onCreated(resAddress);
     } catch (err: any) {

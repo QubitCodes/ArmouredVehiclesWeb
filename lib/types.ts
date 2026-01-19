@@ -98,8 +98,12 @@ export interface CartItem {
 export interface Order {
   id: string;
   order_id?: string | null;
+  order_group_id?: string | null;
+  vendor_id?: string | null;
+  vat_amount?: number;
+  admin_commission?: number;
   user_id: string;
-  order_status: "pending_review" | "pending_approval" | "rejected" | "approved" | "cancelled" | "processing" | "shipped" | "delivered" | "returned";
+  order_status: "order_received" | "vendor_approved" | "vendor_rejected" | "pending_review" | "pending_approval" | "approved" | "rejected" | "cancelled" | "processing" | "shipped" | "delivered" | "returned" | "Order Received" | "Pending Review" | "Approved";
   total_amount: number;
   currency: string;
   type: "direct" | "request";
@@ -229,7 +233,7 @@ export interface Session {
 
 // Filter Types
 export interface ProductFilters {
-  categoryId?: number;
+  categoryId?: number | string;
   search?: string;
   minPrice?: number;
   maxPrice?: number;
