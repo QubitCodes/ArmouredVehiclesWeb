@@ -39,6 +39,7 @@ export default function CreateAccountPage() {
     if (user) {
       setName(user.username ?? user.name ?? "");
       setEmail(user.email ?? "");
+      setPhone(user.phone ?? "");
     }
   }, [user]);
 
@@ -50,7 +51,7 @@ export default function CreateAccountPage() {
         <div className="bg-[#F3EDE3] w-full max-w-[420px] p-8 shadow-md">
 
           {/* COUNTRY */}
-          <label className="text-xs font-semibold mb-1 block">
+          {/* <label className="text-xs font-semibold mb-1 block">
             Country*
           </label>
           <div className="flex items-center border border-[#C7B88A] px-3 py-3 mb-4 bg-[#EFE8DC]">
@@ -61,7 +62,7 @@ export default function CreateAccountPage() {
               height={16}
             />
             <span className="ml-2 text-sm">{selectedCountry.name}</span>
-          </div>
+          </div> */}
 
           {/* USER NAME */}
           <label className="text-xs font-semibold mb-1 block">
@@ -85,7 +86,7 @@ export default function CreateAccountPage() {
             className="w-full mb-4 px-4 py-3 border border-[#C7B88A] bg-[#EBE3D6] text-gray-600 text-sm focus:outline-none cursor-not-allowed"
           />
 
-          {/* <label className="text-xs font-semibold mb-1 block">
+          <label className="text-xs font-semibold mb-1 block">
             Phone Number*
           </label>
 
@@ -97,26 +98,26 @@ export default function CreateAccountPage() {
                 onClick={() => setOpen(!open)}
                 className="flex items-center gap-2 px-3 h-full border-r border-[#C7B88A] bg-[#EFE8DC]"
               >
-                <Image
+                {/* <Image
                   src={selectedCountry.flag}
                   alt={selectedCountry.name}
                   width={22}
                   height={16}
-                />
+                /> */}
                 <span className="text-sm">{selectedCountry.code}</span>
-                <span className="text-xs">▼</span>
+                {/* <span className="text-xs">▼</span> */}
               </button>
-x`
               <input
                 type="tel"
                 value={phone}
                 onChange={(e) => setPhone(e.target.value)}
                 placeholder="9072725777"
+                readOnly
                 className="flex-1 px-3 bg-transparent text-sm focus:outline-none"
               />
             </div>
 
-            {open && (
+            {/* {open && (
               <div className="absolute z-20 w-full bg-[#F3EDE3] border border-[#C7B88A] mt-1 shadow">
                 {countries.map((country) => (
                   <button
@@ -139,8 +140,8 @@ x`
                   </button>
                 ))}
               </div>
-            )}
-          </div> */}
+            )} */}
+          </div>
 
           {/* CREATE BUTTON */}
           <button
