@@ -62,7 +62,7 @@ const SimilarProductCard = ({
             src={displayImage} 
             alt={displayName} 
             fill 
-            className="object-contain" 
+            className="object-cover" 
             onError={() => setImgError(true)}
         />
 
@@ -75,9 +75,9 @@ const SimilarProductCard = ({
       {/* Rating */}
       <div className="flex items-center gap-2 mt-2">
         <div className="relative leading-none">
-          <div className="text-gray-300">★★★★★</div>
+          {/* <div className="text-gray-300">★★★★★</div> */}
           <div
-            className="absolute top-0 left-0 overflow-hidden text-orange-500"
+            className="absolute top-0 left-0 overflow-hidden text-[#D35400]"
             style={{ width: `${ratingPercent}%` }}
             aria-hidden="true"
           >
@@ -85,9 +85,9 @@ const SimilarProductCard = ({
           </div>
         </div>
         {hasReviews ? (
-          <span className="text-sm text-gray-700">{displayRating} ({reviewsCount})</span>
+          <span className="text-sm text-[#D35400]">{displayRating} ({reviewsCount})</span>
         ) : (
-          <span className="text-sm text-gray-500 italic">No reviews yet</span>
+          <span className="text-sm text-[#D35400]">No reviews yet</span>
         )}
       </div>
 
@@ -107,7 +107,7 @@ const SimilarProductCard = ({
           ) : (
              <span
                 onClick={() => router.push("/login")}
-                className="text-sm font-medium text-[#D35400] cursor-pointer hover:underline"
+                className="text-sm font-medium text-black cursor-pointer hover:underline"
              >
                 Login to view price
              </span>
