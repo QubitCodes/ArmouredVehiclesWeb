@@ -112,7 +112,6 @@ const DesktopLayout = ({ id, product }: { id?: string; product?: any }) => {
         label: `Reviews (${product?.reviewCount || 0})`,
         content: <ReviewsTab reviews={product?.reviews || []} rating={product?.rating || 0} reviewCount={product?.reviewCount || 0} />
     });
-    console.log(product.reviewCount)
 
     // `id` is available when rendering via `/product/[id]`.
     // Currently not used inside this component, but provided so it can be

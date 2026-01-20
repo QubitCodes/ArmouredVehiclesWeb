@@ -89,7 +89,6 @@ export default function MobileLayout({ id, product }: { id?: string; product?: a
     const [selectedImage, setSelectedImage] = useState(0);
     const [quantity, setQuantity] = useState(1);
     const [showGallery, setShowGallery] = useState(false);
-    console.log("MobileLayout product:", product);
 
     // `id` is available when rendering via `/product/[id]`.
     // Currently not used inside this component, but provided so it can be
