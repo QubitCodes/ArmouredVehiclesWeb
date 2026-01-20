@@ -33,8 +33,17 @@ const SimilarProductCard = ({
   const displayImage = imgError ? placeholder : (image ?? placeholder); 
   const displayName = name ?? "Product name";
   const displayRating = rating ?? "4.7";
-  const displayReviews = reviews ?? "2083";
+  const reviewsCount = Number(reviews ?? 0);
+  const hasReviews = Number.isFinite(reviewsCount) && reviewsCount > 0;
   const displayPrice = price ?? "99.9";
+
+  const ratingValue = (() => {
+    if (!hasReviews) return 0;
+    const n = Number(displayRating);
+    if (Number.isNaN(n)) return 0;
+    return Math.min(5, Math.max(0, n));
+  })();
+  const ratingPercent = (ratingValue / 5) * 100;
 
   const handleNavigate = () => {
     if (id) {
@@ -46,7 +55,7 @@ const SimilarProductCard = ({
     <div className="w-full max-w-[230px] rounded-xl shadow-sm border p-3 bg-[#EBE4D7] hover:shadow-md transition">
       {/* Product Image + Wishlist */}
       <div 
-        className="relative w-full h-[160px] rounded-lg overflow-hidden bg-[#EBE4D7] cursor-pointer"
+        className="relative w-full h-[160px] rounded-lg overflow-hidden bg-[#fff] cursor-pointer"
         onClick={handleNavigate}
       >
         <Image 
@@ -65,8 +74,21 @@ const SimilarProductCard = ({
 
       {/* Rating */}
       <div className="flex items-center gap-2 mt-2">
-        <div className="flex text-orange-500">{"★★★★★"}</div>
-        <span className="text-sm text-gray-700">{displayRating} ({displayReviews})</span>
+        <div className="relative leading-none">
+          <div className="text-gray-300">★★★★★</div>
+          <div
+            className="absolute top-0 left-0 overflow-hidden text-orange-500"
+            style={{ width: `${ratingPercent}%` }}
+            aria-hidden="true"
+          >
+            ★★★★★
+          </div>
+        </div>
+        {hasReviews ? (
+          <span className="text-sm text-gray-700">{displayRating} ({reviewsCount})</span>
+        ) : (
+          <span className="text-sm text-gray-500 italic">No reviews yet</span>
+        )}
       </div>
 
       {/* Price - Conditional Display */}
