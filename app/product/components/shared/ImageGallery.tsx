@@ -98,7 +98,7 @@ export default function ImageGallery({
       <div className="hidden md:flex flex-row gap-4">
         {/* THUMBNAILS (LEFT) */}
         {displayImages.length > 1 && (
-          <div className="flex flex-col gap-2 overflow-y-auto max-h-[600px]">
+          <div className="flex flex-col gap-2 max-h-[600px]">
             {displayImages.map((image, index) => (
               <button
                 key={index}
