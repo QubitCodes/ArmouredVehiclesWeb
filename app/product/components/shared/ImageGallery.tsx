@@ -19,6 +19,7 @@ export default function ImageGallery({
   placeholderImage = "/placeholder.jpg",
 }: Props) {
   const scrollRef = useRef<HTMLDivElement | null>(null);
+  const MAX_DESKTOP_THUMBS = 8;
 
   // If no images are provided, use placeholder
   const displayImages = images && images.length > 0 ? images : [placeholderImage];
@@ -99,7 +100,11 @@ export default function ImageGallery({
         {/* THUMBNAILS (LEFT) */}
         {displayImages.length > 1 && (
           <div className="flex flex-col gap-2 max-h-[600px]">
-            {displayImages.map((image, index) => (
+            {(
+              displayImages.length > MAX_DESKTOP_THUMBS
+                ? displayImages.slice(0, MAX_DESKTOP_THUMBS - 1)
+                : displayImages
+            ).map((image, index) => (
               <button
                 key={index}
                 onClick={() => setSelectedImage(index)}
@@ -117,6 +122,25 @@ export default function ImageGallery({
                 />
               </button>
             ))}
+
+            {displayImages.length > MAX_DESKTOP_THUMBS && (
+              <button
+                onClick={onOpenGallery}
+                className="relative w-20 aspect-square shrink-0 rounded-md overflow-hidden border border-gray-200"
+                aria-label={`View ${displayImages.length - (MAX_DESKTOP_THUMBS - 1)} more images`}
+              >
+                <Image
+                  src={failedImages[MAX_DESKTOP_THUMBS - 1] ? placeholderImage : displayImages[MAX_DESKTOP_THUMBS - 1]}
+                  alt={`More images`}
+                  fill
+                  className="object-cover"
+                  onError={() => handleImageError(MAX_DESKTOP_THUMBS - 1)}
+                />
+                <div className="absolute inset-0 bg-black/60 flex items-center justify-center text-white text-sm font-medium">
+                  +{displayImages.length - (MAX_DESKTOP_THUMBS - 1)}
+                </div>
+              </button>
+            )}
           </div>
         )}
 
