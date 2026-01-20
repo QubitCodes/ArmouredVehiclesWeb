@@ -131,7 +131,7 @@ export default function SelectAddressModal({ onClose, onSelect }: { onClose: () 
                   </div>
                   <p className="text-[13px] text-black">
                     <span className="font-semibold">Name: </span>
-                    {addr.fullName}
+                    {addr.full_name}
                   </p>
                   <div className="text-[13px] text-black">
                     <span className="font-semibold block mb-1">Address: </span>
