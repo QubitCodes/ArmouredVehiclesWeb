@@ -8,6 +8,7 @@ export interface User {
   phone?: string;
   avatar?: string;
   completionPercentage?: number;
+  profile?: any;
 }
 
 export interface AuthResponse {

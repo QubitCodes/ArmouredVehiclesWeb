@@ -546,7 +546,19 @@ filters: {
 
   // --- User ---
   user: {
-    getCurrent: () => fetchJson<User>('/profile'),
+    getCurrent: async () => {
+        const res = await fetchJson<any>('/profile');
+        // Backend returns { success: true, data: { user: {...}, profile: {...} } }
+        const data = res?.data || res;
+        const user = data?.user || data;
+        
+        // Merge profile into user if it exists and isn't already there
+        if (data?.profile && !user.profile) {
+            user.profile = data.profile;
+        }
+        
+        return user as User;
+    },
   },
 
   // --- Vendor ---
