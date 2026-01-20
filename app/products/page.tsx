@@ -179,8 +179,13 @@ function CategoryContent() {
         warranty: []
     });
 
-    // Derived state for types (mapped from categories)
-    const [selectedTypes, setSelectedTypes] = useState<string[]>([]);
+    // Selected category or subcategory (single selection for API)
+    const [selectedCategoryId, setSelectedCategoryId] = useState<string | null>(null);
+
+    // State for category -> subcategory dropdowns
+    const [expandedCategories, setExpandedCategories] = useState<Record<number, boolean>>({});
+    const [subcategoriesByParent, setSubcategoriesByParent] = useState<Record<number, Array<{ id: number; name: string; slug?: string }>>>({});
+    const [loadingSubCategoryId, setLoadingSubCategoryId] = useState<number | null>(null);
 
     const [openFilters, setOpenFilters] = useState({
         brand: true,
@@ -208,7 +213,7 @@ function CategoryContent() {
 
                 // Active Filters
                 if (selectedBrands.length > 0) filters.make = selectedBrands.join(',');
-                if (selectedTypes.length > 0) filters.categoryId = selectedTypes.join(',');
+                if (selectedCategoryId) filters.categoryId = selectedCategoryId;
 
                 if (selectedConditions.length > 0) filters.condition = selectedConditions.join(',');
                 if (selectedColors.length > 0) filters.colors = selectedColors.join(',');
@@ -278,7 +283,7 @@ function CategoryContent() {
             }
         };
         fetchProducts();
-    }, [categoryIdParam, searchQueryParam, selectedBrands, selectedTypes, priceRange, selectedConditions, selectedColors, selectedCountries, selectedSizes, placeholderImage]); // Dep array triggers update
+    }, [categoryIdParam, searchQueryParam, selectedBrands, selectedCategoryId, priceRange, selectedConditions, selectedColors, selectedCountries, selectedSizes, placeholderImage]); // Dep array triggers update
 
     const toggleBrand = (brand: string) => {
         setSelectedBrands(prev =>
@@ -286,10 +291,8 @@ function CategoryContent() {
         );
     };
 
-    const toggleType = (id: string) => {
-        setSelectedTypes(prev =>
-            prev.includes(id) ? prev.filter(t => t !== id) : [...prev, id]
-        );
+    const toggleCategory = (id: string) => {
+        setSelectedCategoryId(prev => (prev === id ? null : id));
     };
 
     const toggleCondition = (val: string) => {
@@ -325,6 +328,23 @@ function CategoryContent() {
             ...prev,
             [key]: !(prev as any)[key]
         }));
+    };
+
+    const toggleCategoryExpand = async (catId: number) => {
+        setExpandedCategories(prev => ({ ...prev, [catId]: !prev[catId] }));
+        if (!subcategoriesByParent[catId]) {
+            try {
+                setLoadingSubCategoryId(catId);
+                const subs = await api.categories.getByParent(catId);
+                const list = Array.isArray(subs) ? subs : (subs?.data ?? []);
+                setSubcategoriesByParent(prev => ({ ...prev, [catId]: list || [] }));
+            } catch (err) {
+                console.error('Failed to load subcategories', err);
+                setSubcategoriesByParent(prev => ({ ...prev, [catId]: [] }));
+            } finally {
+                setLoadingSubCategoryId(null);
+            }
+        }
     };
 
     // Static lists for fallback/demo (Department)
@@ -423,22 +443,54 @@ function CategoryContent() {
                                     <div className="space-y-2 text-black">
                                         {childCategories?.length > 0 ? (
                                             childCategories.map((cat: any) => (
-                                                <div
-                                                    key={cat.id}
-                                                    onClick={() => toggleType(String(cat.id))}
-                                                    className={`flex items-center justify-between border ${selectedTypes.includes(String(cat.id)) ? 'border-[#D35400] bg-[#fae3d1]' : 'border-[#D8D3C5] bg-[#EBE3D6]'} p-3 cursor-pointer hover:bg-[#F9F7F2] transition`}
-                                                >
-                                                    <div className="flex items-center space-x-4">
-                                                        <div className="bg-white rounded-md w-10 h-10 flex items-center justify-center shadow-sm">
-                                                            <div className="w-6 h-6 bg-gray-200 rounded-full"></div>
+                                                <div key={cat.id} className={`border ${selectedCategoryId === String(cat.id) ? 'border-[#D35400] bg-[#fae3d1]' : 'border-[#D8D3C5] bg-[#EBE3D6]'} rounded-sm`}>
+                                                    <div
+                                                        onClick={() => toggleCategory(String(cat.id))}
+                                                        className="flex items-center justify-between p-3 cursor-pointer hover:bg-[#F9F7F2] transition"
+                                                    >
+                                                        <div className="flex items-center space-x-4">
+                                                            <div className="bg-white rounded-md w-10 h-10 flex items-center justify-center shadow-sm">
+                                                                <div className="w-6 h-6 bg-gray-200 rounded-full"></div>
+                                                            </div>
+                                                            <p className="text-[14px]">{cat.name}</p>
                                                         </div>
-                                                        <p className="text-[14px]">{cat.name}</p>
+                                                        <div className="flex items-center gap-3">
+                                                            {selectedCategoryId === String(cat.id) && <div className="w-2 h-2 bg-[#D35400] rounded-full"></div>}
+                                                            <button
+                                                                type="button"
+                                                                aria-label="Toggle subcategories"
+                                                                className="p-1 hover:opacity-80"
+                                                                onClick={(e) => { e.stopPropagation(); toggleCategoryExpand(Number(cat.id)); }}
+                                                            >
+                                                                <ChevronDown size={16} className={`transition-transform ${expandedCategories[cat.id] ? 'rotate-180' : ''}`} />
+                                                            </button>
+                                                        </div>
                                                     </div>
-                                                    {selectedTypes.includes(String(cat.id)) && <div className="w-2 h-2 bg-[#D35400] rounded-full"></div>}
+
+                                                    {expandedCategories[cat.id] && (
+                                                        <div className="pl-12 pr-3 pb-3 space-y-2">
+                                                            {loadingSubCategoryId === cat.id ? (
+                                                                <p className="text-xs text-gray-500">Loading...</p>
+                                                            ) : subcategoriesByParent[cat.id]?.length ? (
+                                                                subcategoriesByParent[cat.id].map((sub: any) => (
+                                                                    <div
+                                                                        key={sub.id}
+                                                                        onClick={() => toggleCategory(String(sub.id))}
+                                                                        className={`flex items-center justify-between border ${selectedCategoryId === String(sub.id) ? 'border-[#D35400] bg-[#f9d9c3]' : 'border-[#D8D3C5] bg-[#F0EBE3]'} p-2 cursor-pointer hover:bg-[#F9F7F2] transition rounded-sm`}
+                                                                    >
+                                                                        <p className="text-[13px]">{sub.name}</p>
+                                                                        {selectedCategoryId === String(sub.id) && <div className="w-2 h-2 bg-[#D35400] rounded-full"></div>}
+                                                                    </div>
+                                                                ))
+                                                            ) : (
+                                                                <p className="text-xs text-gray-500">No subcategories</p>
+                                                            )}
+                                                        </div>
+                                                    )}
                                                 </div>
                                             ))
                                         ) : (
-                                             <p className="text-gray-500 text-sm">No types available</p>
+                                            <p className="text-gray-500 text-sm">No categories available</p>
                                         )}
                                     </div>
                                 )}
@@ -554,7 +606,7 @@ function CategoryContent() {
 
 
                             {/* PRODUCT TYPE FILTER */}
-                            <div>
+                            {/* <div>
                                 <div
                                     className="flex justify-between items-center cursor-pointer text-black"
                                     onClick={() => toggleFilter("type")}
@@ -593,7 +645,7 @@ function CategoryContent() {
                                         )}
                                     </div>
                                 )}
-                            </div>
+                            </div> */}
 
 
                             {/* DEPARTMENT FILTER */}
