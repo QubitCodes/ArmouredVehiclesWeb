@@ -34,7 +34,7 @@ export default function AddressForm({
     city: initialData?.city || "",
     state: initialData?.state || "",
     postalCode: initialData?.postalCode || (initialData as any)?.postal_code || "",
-    country: initialData?.country || "United Arab Emirates",
+    country: initialData?.country || "",
     isDefault: initialData?.isDefault || (initialData as any)?.is_default || false,
   });
 
