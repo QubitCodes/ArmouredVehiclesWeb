@@ -262,7 +262,7 @@ export default function BuyerInfo({ onNext, initialData }: Props) {
                 )}
                 {!buyerTypesLoading && !buyerTypesError &&
                   buyerTypes.map((t) => (
-                    <option key={t.value} value={t.value}>
+                    <option key={t.value} value={t.value} className="bg-[#F3EDE3] focus:outline-none">
                       {t.label}
                     </option>
                   ))}
@@ -411,7 +411,7 @@ export default function BuyerInfo({ onNext, initialData }: Props) {
     
           {/* UPLOAD SECTION */}
           <div className="mt-6">
-            <label className="font-semibold mb-2 block text-sm">
+            <label className="font-semibold mb-2 block text-sm text-black">
               Govt. or Compliance Registration (MOD, EOCN, etc.):
             </label>
     

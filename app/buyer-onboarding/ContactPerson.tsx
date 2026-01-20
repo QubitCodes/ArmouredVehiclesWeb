@@ -105,11 +105,11 @@ export default function ContactPerson({
       </h2>
 
       <div className="bg-[#F0EBE3] py-2 px-5">
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 text-[#F0EBE3] px-4 py-6">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 text-[#000000] px-4 py-6 ">
 
           {/* Full Name */}
           <div className="md:col-span-2">
-            <label className="text-xs font-semibold mb-1 block">
+            <label className="text-xs font-semibold mb-1 block text-black">
               Full Name
             </label>
             <input
