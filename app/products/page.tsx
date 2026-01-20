@@ -449,10 +449,7 @@ function CategoryContent() {
                                                         className="flex items-center justify-between p-3 cursor-pointer hover:bg-[#F9F7F2] transition"
                                                     >
                                                         <div className="flex items-center space-x-4">
-                                                            <div className="bg-white rounded-md w-10 h-10 flex items-center justify-center shadow-sm">
-                                                                <div className="w-6 h-6 bg-gray-200 rounded-full"></div>
-                                                            </div>
-                                                            <p className="text-[14px]">{cat.name}</p>
+                                                            <p className="text-[14px] font-bold">{cat.name}</p>
                                                         </div>
                                                         <div className="flex items-center gap-3">
                                                             {selectedCategoryId === String(cat.id) && <div className="w-2 h-2 bg-[#D35400] rounded-full"></div>}
