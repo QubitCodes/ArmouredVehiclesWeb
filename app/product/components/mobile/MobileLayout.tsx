@@ -110,7 +110,7 @@ export default function MobileLayout({ id, product }: { id?: string; product?: a
                 <ProductHeader
                     name={product?.name}
                     rating={product?.rating}
-                    reviewCount={product?.reviewCount}
+                    reviewCount={product?.reviewCount ?? 0}
                     sku={product?.sku}
                 />
 

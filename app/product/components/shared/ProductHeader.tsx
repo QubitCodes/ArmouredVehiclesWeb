@@ -30,7 +30,7 @@ export default function ProductHeader({ name, rating, reviewCount, sku }: Props)
         )}
 
         {typeof reviewCount === "number" && (
-          <span className={`text-sm ${reviewCount === 0 ? "text-black" : "text-[#D35400]"}`}>
+          <span className="text-sm text-[#D35400]">
             {reviewCount === 0
               ? "No reviews yet"
               : `${reviewCount} Review${reviewCount === 1 ? "" : "s"}`}
