@@ -154,6 +154,7 @@ export interface Address {
   isDefault: boolean;
   isVerified: boolean;
   createdAt: string;
+  full_name?:string;
 }
 
 // Payment Method Types
@@ -238,6 +239,7 @@ export interface ProductFilters {
   minPrice?: number;
   maxPrice?: number;
   vendorId?: string;
+  need_filters?: boolean; // Indicates if filter options are needed
 }
 
 export interface FilterOptions {
