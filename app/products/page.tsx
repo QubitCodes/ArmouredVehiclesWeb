@@ -465,7 +465,7 @@ function CategoryContent() {
                                                     </div>
 
                                                     {expandedCategories[cat.id] && (
-                                                        <div className="pl-12 pr-3 pb-3 space-y-2">
+                                                        <div className="pl-2 pr-3 pb-3 space-y-2">
                                                             {loadingSubCategoryId === cat.id ? (
                                                                 <p className="text-xs text-gray-500">Loading...</p>
                                                             ) : subcategoriesByParent[cat.id]?.length ? (
