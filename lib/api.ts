@@ -314,16 +314,17 @@ export const api = {
     getSessions: () => fetchJson<Session[]>('/auth/sessions'),
     revokeSession: (sessionId: string) => fetchJson<{ message: string }>(`/auth/sessions/${sessionId}`, { method: 'DELETE' }),
     
-    updateProfile: async (data: { name?: string; email?: string }) => {
-         const res = await fetchJson<any>('/profile', { method: 'PUT', body: JSON.stringify(data) });
-         return res?.data?.user || res?.user;
-    },
+        updateProfile: async (data: { name?: string; email?: string; phone?: string; countryCode?: string; avatar?: string }) => {
+          const res = await fetchJson<any>('/profile', { method: 'PUT', body: JSON.stringify(data) });
+          return res?.data?.user || res?.user;
+        },
   },
 
   // --- Products ---
   products: {
     getAll: async (filters?: ProductFilters) => {
       const params = new URLSearchParams();
+      // console.log(`[CHECKOUT DEBUG] Fetching products with filters`, filters);
       // Backend expects snake_case: category_id
       if (filters?.categoryId) params.set('category_id', String(filters.categoryId));
       // Keep generic search/min/max if backend supports; harmless if ignored
@@ -333,11 +334,65 @@ export const api = {
       if (typeof filters?.maxPrice === 'number')
         params.set('max_price', String(filters.maxPrice));
       if (filters?.vendorId) params.set('vendor_id', filters.vendorId);
+      if (filters?.need_filters)
+        params.set('need_filters', String(filters.need_filters));
+
 
       const queryString = params.toString();
       const res = await fetchJson<any>(`/products${queryString ? `?${queryString}` : ''}`);
       // Many endpoints wrap payload in { data: [...] }
       return Array.isArray(res) ? res : res?.data ?? [];
+    },
+    // Returns the full API envelope including misc filters/meta
+    getAllWithMeta: async (filters?: ProductFilters & Record<string, any>) => {
+      const params = new URLSearchParams();
+
+      // Known mappings
+      if (filters?.categoryId)
+        params.set('category_id', filters.categoryId.toString());
+      if (filters?.search) params.set('search', filters.search);
+      if (typeof filters?.minPrice === 'number')
+        params.set('min_price', String(filters.minPrice));
+      if (typeof filters?.maxPrice === 'number')
+        params.set('max_price', String(filters.maxPrice));
+      if ((filters as any)?.vendorId) params.set('vendor_id', (filters as any).vendorId);
+      if ((filters as any)?.need_filters !== undefined)
+        params.set('need_filters', String((filters as any).need_filters));
+
+      // Pass-through any additional filter keys (e.g., colors, condition, country_of_origin, make, category_id)
+      if (filters) {
+        Object.entries(filters).forEach(([key, value]) => {
+          if (
+            [
+              'categoryId',
+              'search',
+              'minPrice',
+              'maxPrice',
+              'vendorId',
+              'need_filters',
+            ].includes(key)
+          )
+            return;
+
+          if (key === 'category_id') {
+            params.set('category_id', String(value));
+            return;
+          }
+
+          if (Array.isArray(value)) {
+            if (value.length) params.set(key, value.join(','));
+          } else if (
+            typeof value === 'string' ||
+            typeof value === 'number' ||
+            typeof value === 'boolean'
+          ) {
+            params.set(key, String(value));
+          }
+        });
+      }
+
+      const queryString = params.toString();
+      return fetchJson<any>(`/products${queryString ? `?${queryString}` : ''}`);
     },
     getFeatured: async () => {
       const res = await fetchJson<any>('/products/featured');
@@ -375,6 +430,11 @@ export const api = {
       const res = await fetchJson<any>(`/categories/${id}`);
       // Unwrap common API envelope { status, message, code, data }
       return res?.data ?? res;
+    },
+    // Fetch child categories by parent id
+    getByParent: async (parentId: number) => {
+      const res = await fetchJson<any>(`/categories/by-parent/${parentId}`);
+      return Array.isArray(res) ? res : res?.data ?? [];
     },
   },
 

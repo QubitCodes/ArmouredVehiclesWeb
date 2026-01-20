@@ -38,6 +38,8 @@ function CategoryContent() {
     const [error, setError] = useState<string | null>(null);
     const [currentCategory, setCurrentCategory] = useState<{ id: number; name: string } | null>(null);
     const { isAuthenticated } = useAuth();
+    const [placeholderImage, setPlaceholderImage] = useState<string>("/placeholder.jpg");
+    const [childCategories, setChildCategories] = useState<Array<{ id: number; name: string; slug?: string; parent_id?: number; image?: string | null }>>([]);
 
     // Fetch category details from backend using category id in URL
     useEffect(() => {
@@ -62,10 +64,31 @@ function CategoryContent() {
         fetchCategory();
     }, [categoryIdParam]);
 
+    // Fetch child categories for the current parent category (from route)
     useEffect(() => {
-        const fetchProducts = async () => {
+        const fetchChildren = async () => {
             try {
-                const filters: any = {};
+                if (categoryIdParam && !isNaN(Number(categoryIdParam))) {
+                    const children = await api.categories.getByParent(Number(categoryIdParam));
+                    const list = Array.isArray(children) ? children : (children?.data ?? []);
+                    setChildCategories(list || []);
+                } else {
+                    setChildCategories([]);
+                }
+            } catch (err) {
+                console.error('Failed to load child categories', err);
+                setChildCategories([]);
+            }
+        };
+        fetchChildren();
+    }, [categoryIdParam]);
+
+    useEffect(() => {
+        const fetchProductsInitial = async () => {
+            try {
+                const filters: any = {
+                    need_filters: true
+                };
                 if (categoryIdParam && !isNaN(Number(categoryIdParam))) {
                     filters.categoryId = Number(categoryIdParam);
                 }
@@ -73,7 +96,23 @@ function CategoryContent() {
                     filters.search = searchQueryParam.trim();
                 }
 
-                const data = await api.products.getAll(Object.keys(filters).length ? filters : undefined);
+                const payload: any = await api.products.getAllWithMeta(Object.keys(filters).length ? filters : undefined);
+                const data = Array.isArray(payload) ? payload : (payload?.data ?? []);
+                const meta = payload?.misc?.filters;
+                const placeholder = payload?.misc?.placeholder_image;
+
+                if (placeholder && typeof placeholder === 'string') setPlaceholderImage(placeholder);
+                if (meta) {
+                    setFilterOptions({
+                        brands: meta.brands || [],
+                        categories: meta.categories || [],
+                        price: meta.price || { min: 0, max: 100000 },
+                        conditions: meta.conditions || [],
+                        colors: meta.colors || [],
+                        countries: meta.countries || [],
+                        sizes: meta.sizes || []
+                    });
+                }
 
                 const mapped: Product[] = Array.isArray(data)
                     ? data.map((item: any) => {
@@ -84,7 +123,7 @@ function CategoryContent() {
                                 .filter((m: any) => !!m?.url)
                                 .sort((a: any, b: any) => (b?.is_cover === true ? 1 : 0) - (a?.is_cover === true ? 1 : 0))
                                 .map((m: any) => String(m.url))
-                            : ["/placeholder.jpg"];
+                            : [placeholderImage];
                         const ratingNum = typeof item.rating === 'number' ? item.rating : Number(item.rating) || 0;
                         const reviewCount = typeof item.review_count === 'number' ? item.review_count : Number(item.review_count) || 0;
 
@@ -110,19 +149,20 @@ function CategoryContent() {
             }
         };
 
-        fetchProducts();
-    }, [categoryIdParam, searchQueryParam]);
+        fetchProductsInitial();
+    }, [categoryIdParam, searchQueryParam, placeholderImage]);
 
 
     // Filter states
     const [selectedBrands, setSelectedBrands] = useState<string[]>([]);
     const [priceRange, setPriceRange] = useState({ min: 0, max: 100000 });
     const [selectedDepartments, setSelectedDepartments] = useState<string[]>([]); // Keep static
-    
+
     // New Filter States
     const [selectedConditions, setSelectedConditions] = useState<string[]>([]);
     const [selectedColors, setSelectedColors] = useState<string[]>([]);
     const [selectedCountries, setSelectedCountries] = useState<string[]>([]);
+    const [selectedSizes, setSelectedSizes] = useState<string[]>([]);
 
     // Dynamic Filter Options State
     const [filterOptions, setFilterOptions] = useState<any>({
@@ -131,9 +171,14 @@ function CategoryContent() {
         price: { min: 0, max: 0 },
         conditions: [],
         colors: [],
-        countries: []
+        countries: [],
+        sizes: [],
+        vehicleCompactibility: [],
+        materials: [],
+        features: [],
+        warranty: []
     });
-    
+
     // Derived state for types (mapped from categories)
     const [selectedTypes, setSelectedTypes] = useState<string[]>([]);
 
@@ -144,7 +189,8 @@ function CategoryContent() {
         department: true,
         condition: true,
         color: true,
-        country: true
+        country: true,
+        size: true
     });
     const [showFilters, setShowFilters] = useState(false);
 
@@ -154,29 +200,30 @@ function CategoryContent() {
             setIsLoading(true);
             try {
                 const filters: any = {
-                    need_filters: 1 // Request filters
+                    need_filters: true // Request filters
                 };
-                
+
                 if (categoryIdParam && !isNaN(Number(categoryIdParam))) filters.categoryId = Number(categoryIdParam);
                 if (searchQueryParam && searchQueryParam.trim()) filters.search = searchQueryParam.trim();
-                
+
                 // Active Filters
                 if (selectedBrands.length > 0) filters.make = selectedBrands.join(',');
-                if (selectedTypes.length > 0) filters.categoryId = selectedTypes.join(','); 
-                
+                if (selectedTypes.length > 0) filters.categoryId = selectedTypes.join(',');
+
                 if (selectedConditions.length > 0) filters.condition = selectedConditions.join(',');
                 if (selectedColors.length > 0) filters.colors = selectedColors.join(',');
                 if (selectedCountries.length > 0) filters.country_of_origin = selectedCountries.join(',');
+                if (selectedSizes.length > 0) filters.sizes = selectedSizes.join(',');
 
                 if (priceRange.min > 0) filters.min_price = priceRange.min;
                 if (priceRange.max > 0 && priceRange.max < 1000000) filters.max_price = priceRange.max;
+                console.log("Fetching products with filters:", filters);
+                const payload: any = await api.products.getAllWithMeta(filters);
 
-                const response = await api.products.getAll(filters);
-                
                 // Handle Response
-                const payload: any = response; 
                 const data = Array.isArray(payload) ? payload : (payload?.data ?? []);
                 const meta = payload?.misc?.filters;
+                const placeholder = payload?.misc?.placeholder_image;
 
                 if (meta) {
                     setFilterOptions({
@@ -185,11 +232,13 @@ function CategoryContent() {
                         price: meta.price || { min: 0, max: 100000 },
                         conditions: meta.conditions || [],
                         colors: meta.colors || [],
-                        countries: meta.countries || []
+                        countries: meta.countries || [],
+                        sizes: meta.sizes || []
                     });
                     // Only set price range initially or if reset? For now let's not auto-reset user selection on every fetch to avoid jumping UI.
                     // Ideally we set initial bounds.
                 }
+                if (placeholder && typeof placeholder === 'string') setPlaceholderImage(placeholder);
 
                 // Do not derive category from product list; rely on backend category fetch
 
@@ -202,7 +251,7 @@ function CategoryContent() {
                                 .filter((m: any) => !!m?.url)
                                 .sort((a: any, b: any) => (b?.is_cover === true ? 1 : 0) - (a?.is_cover === true ? 1 : 0))
                                 .map((m: any) => String(m.url))
-                            : ["/placeholder.jpg"];
+                            : [placeholderImage];
                         const ratingNum = typeof item.rating === 'number' ? item.rating : Number(item.rating) || 0;
                         const reviewCount = typeof item.review_count === 'number' ? item.review_count : Number(item.review_count) || 0;
 
@@ -228,14 +277,8 @@ function CategoryContent() {
                 setIsLoading(false);
             }
         };
-
-        // Debounce fetching slightly if price changes, or just run.
-        // const timer = setTimeout(() => {
-        //     fetchProducts();
-        // }, 300);
-        // return () => clearTimeout(timer);
-
-    }, [categoryIdParam, searchQueryParam, selectedBrands, selectedTypes, priceRange, selectedConditions, selectedColors, selectedCountries]); // Dep array triggers update
+        fetchProducts();
+    }, [categoryIdParam, searchQueryParam, selectedBrands, selectedTypes, priceRange, selectedConditions, selectedColors, selectedCountries, selectedSizes, placeholderImage]); // Dep array triggers update
 
     const toggleBrand = (brand: string) => {
         setSelectedBrands(prev =>
@@ -245,25 +288,30 @@ function CategoryContent() {
 
     const toggleType = (id: string) => {
         setSelectedTypes(prev =>
-             prev.includes(id) ? prev.filter(t => t !== id) : [...prev, id]
+            prev.includes(id) ? prev.filter(t => t !== id) : [...prev, id]
         );
     };
 
     const toggleCondition = (val: string) => {
         setSelectedConditions(prev =>
-             prev.includes(val) ? prev.filter(v => v !== val) : [...prev, val]
+            prev.includes(val) ? prev.filter(v => v !== val) : [...prev, val]
         );
     };
-    
+
     const toggleColor = (val: string) => {
         setSelectedColors(prev =>
-             prev.includes(val) ? prev.filter(v => v !== val) : [...prev, val]
+            prev.includes(val) ? prev.filter(v => v !== val) : [...prev, val]
         );
     };
 
     const toggleCountry = (val: string) => {
         setSelectedCountries(prev =>
-             prev.includes(val) ? prev.filter(v => v !== val) : [...prev, val]
+            prev.includes(val) ? prev.filter(v => v !== val) : [...prev, val]
+        );
+    };
+    const toggleSize = (val: string) => {
+        setSelectedSizes(prev =>
+            prev.includes(val) ? prev.filter(v => v !== val) : [...prev, val]
         );
     };
 
@@ -278,13 +326,12 @@ function CategoryContent() {
             [key]: !(prev as any)[key]
         }));
     };
-    
+
     // Static lists for fallback/demo (Department)
     const departments = [
         { name: 'Performance', desc: 'High-performance upgrades' },
         { name: 'Replacement', desc: 'OEM-quality replacement' },
     ];
-    console.log(currentCategory)
 
     return (
         <section className='bg-[#F0EBE3] relative px-4'>
@@ -298,7 +345,7 @@ function CategoryContent() {
 
                 <div className="pt-5">
                     <div className="flex items-center gap-2 text-xs py-3 text-[#737373]">
-                        <Link 
+                        <Link
                             href="/products"
                             className="font-[Inter, sans-serif] font-semibold text-[12px] leading-[100%] tracking-[0%] uppercase cursor-pointer hover:text-black transition-colors"
                         >
@@ -309,7 +356,7 @@ function CategoryContent() {
                                 <span className="font-[Inter, sans-serif] font-semibold text-[12px] leading-[100%] tracking-[0%] uppercase">
                                     /
                                 </span>
-                                <Link 
+                                <Link
                                     href={`/products?category_id=${currentCategory.id}`}
                                     className="font-[Inter, sans-serif] font-semibold text-[12px] leading-[100%] tracking-[0%] uppercase cursor-pointer hover:text-black transition-colors"
                                 >
@@ -330,6 +377,13 @@ function CategoryContent() {
                             onClick={() => setShowFilters(!showFilters)}
                             className="px-4 py-2.5 border border-gray-300 bg-[#EBE3D6] text-xs font-semibold whitespace-nowrap flex items-center gap-2 font-[Orbitron] uppercase"
                         >
+                            CATEGORY
+                            <ChevronDown size={14} />
+                        </button>
+                        <button
+                            onClick={() => setShowFilters(!showFilters)}
+                            className="px-4 py-2.5 border border-gray-300 bg-[#EBE3D6] text-xs font-semibold whitespace-nowrap flex items-center gap-2 font-[Orbitron] uppercase"
+                        >
                             BRAND
                             <ChevronDown size={14} />
                         </button>
@@ -338,13 +392,6 @@ function CategoryContent() {
                             className="px-4 py-2.5 border border-gray-300 bg-[#EBE3D6] text-xs font-semibold whitespace-nowrap flex items-center gap-2 font-[Orbitron] uppercase"
                         >
                             PRICE
-                            <ChevronDown size={14} />
-                        </button>
-                        <button
-                            onClick={() => setShowFilters(!showFilters)}
-                            className="px-4 py-2.5 border border-gray-300 bg-[#EBE3D6] text-xs font-semibold whitespace-nowrap flex items-center gap-2 font-[Orbitron] uppercase"
-                        >
-                            SELECT PRODUCT TYPE
                             <ChevronDown size={14} />
                         </button>
                     </div>
@@ -356,6 +403,46 @@ function CategoryContent() {
                     {/* ---------------- FILTER SIDEBAR ---------------- */}
                     <aside className={`w-full lg:w-1/4 bg-[#F0EBE3] rounded-md lg:sticky lg:top-4 lg:self-start ${showFilters ? 'block' : 'hidden lg:block'}`}>
                         <div className="p-5 space-y-8">
+                            <div>
+                                <div
+                                    className="flex justify-between items-center cursor-pointer text-black"
+                                    onClick={() => toggleFilter("type")}
+                                >
+                                    <h3 className="text-sm font-bold font-[Orbitron] uppercase text-black mb-3">
+                                        Category
+                                    </h3>
+
+                                    <ChevronDown
+                                        size={18}
+                                        className={`transition-transform duration-300 ${openFilters.type ? "rotate-180" : ""
+                                            }`}
+                                    />
+                                </div>
+
+                                {openFilters.type && (
+                                    <div className="space-y-2 text-black">
+                                        {childCategories?.length > 0 ? (
+                                            childCategories.map((cat: any) => (
+                                                <div
+                                                    key={cat.id}
+                                                    onClick={() => toggleType(String(cat.id))}
+                                                    className={`flex items-center justify-between border ${selectedTypes.includes(String(cat.id)) ? 'border-[#D35400] bg-[#fae3d1]' : 'border-[#D8D3C5] bg-[#EBE3D6]'} p-3 cursor-pointer hover:bg-[#F9F7F2] transition`}
+                                                >
+                                                    <div className="flex items-center space-x-4">
+                                                        <div className="bg-white rounded-md w-10 h-10 flex items-center justify-center shadow-sm">
+                                                            <div className="w-6 h-6 bg-gray-200 rounded-full"></div>
+                                                        </div>
+                                                        <p className="text-[14px]">{cat.name}</p>
+                                                    </div>
+                                                    {selectedTypes.includes(String(cat.id)) && <div className="w-2 h-2 bg-[#D35400] rounded-full"></div>}
+                                                </div>
+                                            ))
+                                        ) : (
+                                             <p className="text-gray-500 text-sm">No types available</p>
+                                        )}
+                                    </div>
+                                )}
+                            </div>
                             {/* BRAND FILTER */}
                             <div>
                                 {/* Heading */}
@@ -398,7 +485,7 @@ function CategoryContent() {
                                         ) : (
                                             <p className="text-gray-500 text-sm">No brands available</p>
                                         )}
-                                        
+
                                         {/* Static Example for Comparison (Hidden or removed as per preference, but user said keep existing below? 
                                             Actually user said "Keep existing filter UI below for comparison". 
                                             Since I'm replacing the CONTENT of the "Brand" section, I should probably keep the STATIC list below this dynamic list if strictly following "keep existing UI".
@@ -473,7 +560,7 @@ function CategoryContent() {
                                     onClick={() => toggleFilter("type")}
                                 >
                                     <h3 className="text-sm font-bold font-[Orbitron] uppercase text-black mb-3">
-                                        Select Product Type
+                                        Category
                                     </h3>
 
                                     <ChevronDown
@@ -485,8 +572,8 @@ function CategoryContent() {
 
                                 {openFilters.type && (
                                     <div className="space-y-2 text-black">
-                                        {filterOptions?.categories?.length > 0 ? (
-                                            filterOptions.categories.map((cat: any) => (
+                                        {childCategories?.length > 0 ? (
+                                            childCategories.map((cat: any) => (
                                                 <div
                                                     key={cat.id}
                                                     onClick={() => toggleType(String(cat.id))}
@@ -494,16 +581,15 @@ function CategoryContent() {
                                                 >
                                                     <div className="flex items-center space-x-4">
                                                         <div className="bg-white rounded-md w-10 h-10 flex items-center justify-center shadow-sm">
-                                                            {/* Use generic icon or if cat has image */}
                                                             <div className="w-6 h-6 bg-gray-200 rounded-full"></div>
                                                         </div>
-                                                        <p className="text-[14px]">{cat.name} ({cat.count})</p>
+                                                        <p className="text-[14px]">{cat.name}</p>
                                                     </div>
                                                     {selectedTypes.includes(String(cat.id)) && <div className="w-2 h-2 bg-[#D35400] rounded-full"></div>}
                                                 </div>
                                             ))
                                         ) : (
-                                             <p className="text-gray-500 text-sm">No types available</p>
+                                            <p className="text-gray-500 text-sm">No types available</p>
                                         )}
                                     </div>
                                 )}
@@ -566,7 +652,7 @@ function CategoryContent() {
 
                                 {openFilters.condition && (
                                     <div className="space-y-2">
-                                         {filterOptions?.conditions?.length > 0 ? (
+                                        {filterOptions?.conditions?.length > 0 ? (
                                             filterOptions.conditions.map((c: any) => (
                                                 <label
                                                     key={c.name}
@@ -609,7 +695,7 @@ function CategoryContent() {
 
                                 {openFilters.color && (
                                     <div className="space-y-2">
-                                         {filterOptions?.colors?.length > 0 ? (
+                                        {filterOptions?.colors?.length > 0 ? (
                                             filterOptions.colors.map((c: any) => (
                                                 <label
                                                     key={c.name}
@@ -633,8 +719,51 @@ function CategoryContent() {
                                 )}
                             </div>
 
-                             {/* COUNTRY FILTER */}
-                             <div>
+                            {/* SIZE FILTER */}
+                            <div>
+                                <div
+                                    className="flex justify-between items-center cursor-pointer text-black"
+                                    onClick={() => toggleFilter("size")}
+                                >
+                                    <h3 className="text-sm font-bold uppercase font-[Orbitron] text-black mb-3">
+                                        Size
+                                    </h3>
+
+                                    <ChevronDown
+                                        size={18}
+                                        className={`transition-transform duration-300 ${openFilters.size ? "rotate-180" : ""}
+                                            `}
+                                    />
+                                </div>
+
+                                {openFilters.size && (
+                                    <div className="space-y-2">
+                                        {filterOptions?.sizes?.length > 0 ? (
+                                            filterOptions.sizes.map((s: any) => (
+                                                <label
+                                                    key={s.name}
+                                                    className="flex items-center justify-between text-black cursor-pointer text-sm"
+                                                >
+                                                    <div className="flex items-center space-x-2">
+                                                        <input
+                                                            type="checkbox"
+                                                            checked={selectedSizes.includes(s.name)}
+                                                            onChange={() => toggleSize(s.name)}
+                                                            className="w-4 h-4 border border-gray-400 rounded-sm accent-[#D35400]"
+                                                        />
+                                                        <span>{s.name} ({s.count})</span>
+                                                    </div>
+                                                </label>
+                                            ))
+                                        ) : (
+                                            <p className="text-gray-500 text-sm">No sizes available</p>
+                                        )}
+                                    </div>
+                                )}
+                            </div>
+
+                            {/* COUNTRY FILTER */}
+                            <div>
                                 <div
                                     className="flex justify-between items-center cursor-pointer text-black"
                                     onClick={() => toggleFilter("country")}
@@ -652,7 +781,7 @@ function CategoryContent() {
 
                                 {openFilters.country && (
                                     <div className="space-y-2">
-                                         {filterOptions?.countries?.length > 0 ? (
+                                        {filterOptions?.countries?.length > 0 ? (
                                             filterOptions.countries.map((c: any) => (
                                                 <label
                                                     key={c.name}
