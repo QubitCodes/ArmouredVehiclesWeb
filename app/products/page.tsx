@@ -353,6 +353,24 @@ function CategoryContent() {
         { name: 'Replacement', desc: 'OEM-quality replacement' },
     ];
 
+    // Compute selected category name for display (from sidebar selection)
+    const selectedCategoryName: string | null = (() => {
+        if (!selectedCategoryId) return null;
+        const childMatch = childCategories.find((c: any) => String(c.id) === String(selectedCategoryId));
+        if (childMatch) return childMatch.name;
+        const subLists = Object.values(subcategoriesByParent) as Array<Array<{ id: number; name: string }>>;
+        for (const list of subLists) {
+            const subMatch = list?.find((s: any) => String(s.id) === String(selectedCategoryId));
+            if (subMatch) return subMatch.name;
+        }
+        return null;
+    })();
+
+    const resultsContextLabel = selectedCategoryName
+        || ((categoryIdParam && currentCategory?.name) ? currentCategory.name : null)
+        || ((searchQueryParam && searchQueryParam.trim()) ? searchQueryParam.trim() : null)
+        || (categoryNameParam || 'All Products');
+
     return (
         <section className='bg-[#F0EBE3] relative px-4'>
             {/* ---------------- BREADCRUMB BAR ---------------- */}
@@ -870,7 +888,7 @@ function CategoryContent() {
                         <div className="hidden md:flex justify-between items-center mb-6">
                             {/* Result Count - Desktop */}
                             <p className="text-black text-[16px] font-semibold font-[Inter, sans-serif]">
-                                <span>{products.length}</span> Results for <span className="font-normal">{(searchQueryParam && searchQueryParam.trim()) ? searchQueryParam : (categoryNameParam || 'All Products')}</span>
+                                <span>{products.length}</span> Results for <span className="font-normal">{resultsContextLabel}</span>
                             </p>
 
                             <div className="flex items-center gap-4">
