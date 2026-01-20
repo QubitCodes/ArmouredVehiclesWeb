@@ -36,7 +36,7 @@ export default function SimilarItemsSection({ products }: Props) {
         </button>
       </div>
 
-      <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-5 gap-4">
+      <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-7 gap-4">
         {products.map((product) => (
           <SimilarProductCard
             key={product.id}

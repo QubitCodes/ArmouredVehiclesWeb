@@ -20,7 +20,7 @@ export default function ProductHeader({ name, rating, reviewCount, sku }: Props)
         {name || "Product"}
       </Typography>
 
-      <div className="flex items-center gap-2">
+      <div className="flex flex-col items-start gap-2">
         {showRating && (
           <div className="flex text-[#D35400]" aria-label={`Rating ${numericRating} out of 5`}>
             {Array.from({ length: 5 }).map((_, i) => (
@@ -36,7 +36,6 @@ export default function ProductHeader({ name, rating, reviewCount, sku }: Props)
               : `${reviewCount} Review${reviewCount === 1 ? "" : "s"}`}
           </span>
         )}
-
 
         {sku && <span className="text-sm text-gray-500">SKU #{sku}</span>}
       </div>
