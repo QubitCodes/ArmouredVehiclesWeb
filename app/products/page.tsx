@@ -569,7 +569,7 @@ function CategoryContent() {
                                             <div>
                                                 <p className="text-[13px] mb-1 text-gray-700">Minimum</p>
                                                 <div className="flex items-center border border-[#D8D3C5] bg-[#EBE3D6] rounded-sm px-2 py-1">
-                                                    <span className="mr-2 text-gray-700">฿</span>
+                                                    <Image src="/icons/currency/dirham.svg" className='m-1' alt="Currency" width={13} height={13} />
                                                     <input
                                                         type="number"
                                                         value={priceRange.min}
@@ -585,7 +585,8 @@ function CategoryContent() {
                                             <div>
                                                 <p className="text-[13px] mb-1 text-gray-700">Maximum</p>
                                                 <div className="flex items-center border border-[#D8D3C5] bg-[#EBE3D6] rounded-sm px-2 py-1">
-                                                    <span className="mr-2 text-gray-700">฿</span>
+                                                    <Image src="/icons/currency/dirham.svg" className='m-1' alt="Currency" width={13} height={13} />
+
                                                     <input
                                                         type="number"
                                                         value={priceRange.max}
