@@ -80,7 +80,7 @@ export default function BuyerInfo({ onNext, initialData }: Props) {
       if (initialData.year_of_establishment) setYearOfEstablishment(String(initialData.year_of_establishment));
       if (initialData.city_office_address) setCityOfficeAddress(initialData.city_office_address);
       if (initialData.official_website) setOfficialWebsite(initialData.official_website);
-      if (initialData.business_license_url) setExistingFile(initialData.business_license_url);
+      if (initialData.govt_compliance_reg_url) setExistingFile(initialData.govt_compliance_reg_url);
     }
   }, [initialData]);
 

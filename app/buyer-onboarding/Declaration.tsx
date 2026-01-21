@@ -24,12 +24,7 @@ const ALL_COUNTRIES: Country[] = [
 
 export default function Declaration({ onNext, onPrev, initialData }: { onNext: () => void; onPrev: () => void; initialData?: any }) {
   const [search, setSearch] = useState("");
-  const [selected, setSelected] = useState<Country[]>([
-    { name: "United Arab Emirates (UAE)", code: "AE", flag: "/icons/flags/uae.svg" },
-    { name: "Saudi Arabia (KSA)", code: "SA", flag: "/icons/flags/ksa.png" },
-    { name: "Qatar", code: "QA", flag: "/icons/flags/qatar.png" },
-    { name: "Oman", code: "OM", flag: "/icons/flags/oman.png" },
-  ]);
+  const [selected, setSelected] = useState<Country[]>([]); // Unchecked by default
 
   const [agreed, setAgreed] = useState(false);
   const [controlledItems, setControlledItems] = useState(false);
@@ -37,6 +32,7 @@ export default function Declaration({ onNext, onPrev, initialData }: { onNext: (
   const [endUserType, setEndUserType] = useState("Military");
 
   const [businessLicenseFile, setBusinessLicenseFile] = useState<File | null>(null);
+  const [businessLicenseUrl, setBusinessLicenseUrl] = useState<string | null>(null); // To store existing or uploaded URL
 
   const [error, setError] = useState<string | null>(null);
   const [submitting, setSubmitting] = useState(false);
@@ -44,26 +40,28 @@ export default function Declaration({ onNext, onPrev, initialData }: { onNext: (
   // Pre-fill effect
   useEffect(() => {
     if (initialData) {
-        if (initialData.procurement_purpose) setProcurementPurpose(initialData.procurement_purpose);
-        if (initialData.end_user_type) setEndUserType(initialData.end_user_type);
-        if (initialData.controlled_items !== undefined) {
-             // Backend now sends boolean, but handle legacy/string just in case or direct map
-             if (initialData.controlled_items === true || initialData.controlled_items === "Yes") {
-                setControlledItems(true);
-             } else {
-                setControlledItems(false);
-             }
+      if (initialData.procurement_purpose) setProcurementPurpose(initialData.procurement_purpose);
+      if (initialData.end_user_type) setEndUserType(initialData.end_user_type);
+      if (initialData.controlled_items !== undefined) {
+        if (initialData.controlled_items === true || initialData.controlled_items === "Yes") {
+          setControlledItems(true);
+        } else {
+          setControlledItems(false);
         }
-        
-        if (initialData.compliance_terms_accepted) setAgreed(true);
+      }
 
-        if (initialData.end_use_markets && Array.isArray(initialData.end_use_markets)) {
-             // Map strings to Country objects
-             const mapped = initialData.end_use_markets.map((name: string) => {
-                 return ALL_COUNTRIES.find(c => c.name === name);
-             }).filter(Boolean) as Country[];
-             if (mapped.length > 0) setSelected(mapped);
-        }
+      if (initialData.compliance_terms_accepted) setAgreed(true);
+
+      // Pre-select countries if available
+      if (initialData.end_use_markets && Array.isArray(initialData.end_use_markets)) {
+        const mapped = initialData.end_use_markets.map((name: string) => {
+          return ALL_COUNTRIES.find(c => c.name === name);
+        }).filter(Boolean) as Country[];
+        if (mapped.length > 0) setSelected(mapped);
+      }
+
+      // Pre-fill file URL
+      if (initialData.business_license_url) setBusinessLicenseUrl(initialData.business_license_url);
     }
   }, [initialData]);
 
@@ -86,46 +84,46 @@ export default function Declaration({ onNext, onPrev, initialData }: { onNext: (
       return;
     }
 
-    // if (!businessLicenseFile) {
-    //   setError("Please upload the mandatory Business License file");
-    //   return;
-    // }
-
     setError(null);
     setSubmitting(true);
 
     try {
-      const formData = new FormData();
+      let uploadedBusinessLicenseUrl = businessLicenseUrl;
 
-      // Required arrays
-      formData.append("natureOfBusiness[]", ""); // optional, can add items
-      formData.append("endUseMarkets[]", selected.map(c => c.name).join(",")); // selected countries
-
-      // Other optional arrays / strings
-      formData.append("licenseTypes[]", ""); // optional
-      formData.append("controlledItems", String(controlledItems));
-      formData.append("procurementPurpose", procurementPurpose);
-      formData.append("endUserType", endUserType);
-
-      // Files
+      // Upload file if new file selected
       if (businessLicenseFile) {
-        formData.append("businessLicenseFile", businessLicenseFile);
-      } else {
-        formData.append("businessLicenseFile", "");
+        const uploadData = new FormData();
+        uploadData.append("files", businessLicenseFile);
+        uploadData.append("label", "CUSTOMER_BUSINESS_LICENSE");
+
+        const uploadRes = await API.post("/upload/files", uploadData, {
+          headers: { "Content-Type": "multipart/form-data" }
+        });
+
+        if (uploadRes.data.status && uploadRes.data.data.length > 0) {
+          uploadedBusinessLicenseUrl = uploadRes.data.data[0];
+        } else {
+          throw new Error("File upload failed");
+        }
       }
-      // other files optional, skipped for now
-      formData.append("defenseApprovalFile", "");
-      formData.append("companyProfileFile", "");
-      formData.append("modLicenseFile", "");
-      formData.append("eocnApprovalFile", "");
-      formData.append("itarRegistrationFile", "");
-      formData.append("localAuthorityApprovalFile", "");
 
-      // Other fields
-      formData.append("isOnSanctionsList", "false");
-      formData.append("complianceTermsAccepted", "true");
+      // Prepare JSON Payload
+      const payload = {
+        natureOfBusiness: [], // Add if UI captures it, currently sending empty
+        endUseMarkets: selected.map(c => c.name), // JSON Array of country names
+        licenseTypes: [],
+        operatingCountries: [],
+        controlledItems: controlledItems,
+        procurementPurpose: procurementPurpose,
+        endUserType: endUserType,
+        isOnSanctionsList: false,
+        complianceTermsAccepted: true,
 
-      await API.post("/onboarding/step3", formData);
+        businessLicenseUrl: uploadedBusinessLicenseUrl,
+        // Add other file URLs if captured in UI
+      };
+
+      await API.post("/onboarding/step3", payload);
 
       onNext();
     } catch (err: any) {
@@ -198,17 +196,17 @@ export default function Declaration({ onNext, onPrev, initialData }: { onNext: (
           Do you require controlled items? (Ballistic, Electronic, etc.)
         </label>
         <div className="flex items-center gap-2 mt-2">
-            <span className={`text-sm ${!controlledItems ? 'font-bold' : ''}`}>No</span>
-            <label className="relative inline-flex items-center cursor-pointer">
-                <input 
-                    type="checkbox" 
-                    className="sr-only peer" 
-                    checked={controlledItems}
-                    onChange={(e) => setControlledItems(e.target.checked)}
-                />
-                <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-[#C7B88A]/50 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-[#C7B88A]"></div>
-            </label>
-            <span className={`text-sm ${controlledItems ? 'font-bold' : ''}`}>Yes</span>
+          <span className={`text-sm ${!controlledItems ? 'font-bold' : ''}`}>No</span>
+          <label className="relative inline-flex items-center cursor-pointer">
+            <input
+              type="checkbox"
+              className="sr-only peer"
+              checked={controlledItems}
+              onChange={(e) => setControlledItems(e.target.checked)}
+            />
+            <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-[#C7B88A]/50 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-[#C7B88A]"></div>
+          </label>
+          <span className={`text-sm ${controlledItems ? 'font-bold' : ''}`}>Yes</span>
         </div>
       </div>
 
@@ -216,6 +214,26 @@ export default function Declaration({ onNext, onPrev, initialData }: { onNext: (
       <div className="bg-[#F0EBE3] py-2 px-5 mb-4">
         <label className="text-xs font-semibold mb-2 block">Upload Business License *</label>
         <input type="file" onChange={(e) => setBusinessLicenseFile(e.target.files?.[0] || null)} />
+
+        {/* Document Preview */}
+        {businessLicenseUrl && (
+          <div className="mt-4 p-4 border border-[#C7B88A]">
+            <p className="text-xs font-semibold mb-2">Uploaded Document:</p>
+            {businessLicenseUrl.toLowerCase().endsWith(".pdf") ? (
+              <iframe
+                src={businessLicenseUrl}
+                className="w-full h-64 border border-gray-300"
+                title="Business License Preview"
+              />
+            ) : (
+              <img
+                src={businessLicenseUrl}
+                alt="Business License"
+                className="max-w-full h-auto max-h-64 object-contain mx-auto"
+              />
+            )}
+          </div>
+        )}
       </div>
 
       {/* Compliance Checkbox */}
