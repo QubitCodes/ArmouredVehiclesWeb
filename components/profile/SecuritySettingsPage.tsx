@@ -17,13 +17,12 @@ export default function SecuritySettingsPage() {
       </div>
 
       {/* Security Section */}
-      <div className="bg-[#EBE3D6] p-5 lg:p-6 mb-6">
+      {/* <div className="bg-[#EBE3D6] p-5 lg:p-6 mb-6">
         <h2 className="font-orbitron font-black text-sm lg:text-base uppercase tracking-wide text-black mb-4">
           Security
         </h2>
 
         <div className="flex flex-col md:flex-row md:items-end gap-4">
-          {/* Password Field */}
           <div className="flex-1 md:max-w-[50%]">
             <label className="block font-inter text-sm text-[#666] mb-2">Password</label>
             <div className="w-full bg-[#F0EBE3] border border-[#C2B280] px-4 py-3">
@@ -31,7 +30,6 @@ export default function SecuritySettingsPage() {
             </div>
           </div>
 
-          {/* Change Password Button */}
           <div
             className="bg-[#C2B280] clip-path-supplier p-[1px] cursor-pointer inline-block"
           >
@@ -42,7 +40,7 @@ export default function SecuritySettingsPage() {
             </div>
           </div>
         </div>
-      </div>
+      </div> */}
 
       {/* Account Deletion Section */}
       <div className="bg-[#EBE3D6] p-5 lg:p-6">
