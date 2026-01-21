@@ -168,7 +168,17 @@ export default function AddressForm({
           />
         </div>
 
-        {/* Address Line 1 replaced by Address field above */}
+        {/* Address Line 1 input (as before) */}
+        <div className="md:col-span-2">
+          <label className="block text-sm text-black mb-1">Address Line 1</label>
+          <input
+            type="text"
+            value={form.addressLine1}
+            onChange={(e) => update("addressLine1", e.target.value)}
+            className="w-full bg-[#F0EBE3] border border-[#C2B280] px-3 py-2 text-sm text-black outline-none"
+            required
+          />
+        </div>
 
         <div className="md:col-span-2">
           <label className="block text-sm text-black mb-1">Address Line </label>
