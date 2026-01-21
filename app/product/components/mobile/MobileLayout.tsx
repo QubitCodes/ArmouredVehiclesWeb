@@ -31,11 +31,11 @@ export default function MobileLayout({ id, product }: { id?: string; product?: a
     const images = (() => {
         const gallery = Array.isArray(product?.gallery)
             ? product!.gallery
-                  .map((g: any) => (typeof g === "string" ? g : g?.url))
-                  .filter((u: any) => typeof u === "string" && u.length > 0)
+                .map((g: any) => (typeof g === "string" ? g : g?.url))
+                .filter((u: any) => typeof u === "string" && u.length > 0)
             : [];
         if (gallery.length > 0) return gallery;
-        const fallback = product?.image || product?.misc?.placeholder_image || "/product/product 1.png";
+        const fallback = product?.image || "/placeholder.jpg";
         return [fallback];
     })();
     const tabContent: TabContent[] = [];
@@ -76,7 +76,7 @@ export default function MobileLayout({ id, product }: { id?: string; product?: a
         label: "Warranty",
         content: <WarrantyTab warranty={product?.warranty || undefined} />
     });
-     
+
     tabContent.push({
         id: "reviews",
         label: `Reviews (${product?.reviewCount || 0})`,
@@ -155,13 +155,13 @@ export default function MobileLayout({ id, product }: { id?: string; product?: a
                 )}
 
             </div>
-             {/* product specifications starts here */}
+            {/* product specifications starts here */}
             <Container className="my-10">
                 {tabContent.length > 0 && (
                     <TabbedSection tabs={tabContent} defaultTab={tabContent[0]?.id} />
                 )}
             </Container>
-             {/* product specifications ends here */}
+            {/* product specifications ends here */}
 
             {/* FULLSCREEN GALLERY */}
             {showGallery && (
@@ -171,7 +171,7 @@ export default function MobileLayout({ id, product }: { id?: string; product?: a
                     onClose={() => setShowGallery(false)}
                 />
             )}
-                        <TopSellingProducts title="Recommended For Your Vehicle" />
+            <TopSellingProducts title="Recommended For Your Vehicle" />
 
         </section>
     );

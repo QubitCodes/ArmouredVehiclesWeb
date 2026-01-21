@@ -23,7 +23,7 @@ interface Product {
 
 export function TopSellingProducts({ title }: { title: string }) {
   const router = useRouter();
-  
+
   // 1. State for data and loading status
   const [products, setProducts] = useState<Product[]>([]);
   const [isLoading, setIsLoading] = useState(true);
@@ -44,23 +44,23 @@ export function TopSellingProducts({ title }: { title: string }) {
         // ✅ Map API response to UI model
         const mappedProducts: Product[] = Array.isArray(data)
           ? data.map((item: any) => ({
-              id: item.id,
-              name: item.name || "Unknown Product",
-              price: Number(item.price) || 0,
-              image:
-                Array.isArray(item.gallery) && item.gallery.length > 0
-                  ? item.gallery[0]
-                  : item.image || item.thumbnail || "/placeholder.jpg",
-              images:
-                (Array.isArray(item.gallery) && item.gallery.length > 0)
-                  ? item.gallery
-                  : (Array.isArray(item.images) && item.images.length > 0)
+            id: item.id,
+            name: item.name || "Unknown Product",
+            price: Number(item.price) || 0,
+            image:
+              Array.isArray(item.gallery) && item.gallery.length > 0
+                ? item.gallery[0]
+                : item.image || item.thumbnail || "/placeholder.jpg",
+            images:
+              (Array.isArray(item.gallery) && item.gallery.length > 0)
+                ? item.gallery
+                : (Array.isArray(item.images) && item.images.length > 0)
                   ? item.images
-                  : [item.image || item.thumbnail || "/placeholder.png"],
-              description: item.description || "No description available.",
-              rating: item.rating ?? null,
-              reviewCount: item.reviewCount ?? 0,
-            }))
+                  : [item.image || item.thumbnail || "/placeholder.jpg"],
+            description: item.description || "No description available.",
+            rating: item.rating ?? null,
+            reviewCount: item.reviewCount ?? 0,
+          }))
           : [];
 
         // Use mapped products when available
@@ -82,10 +82,10 @@ export function TopSellingProducts({ title }: { title: string }) {
         setIsLoading(false);
       }
     };
-  
+
     fetchProducts();
   }, []);
-  
+
   // UI Handlers
   const selectProduct = (product: Product) => {
     setSelectedProduct(product);
@@ -156,11 +156,10 @@ export function TopSellingProducts({ title }: { title: string }) {
             <div
               key={product.id}
               onClick={() => selectProduct(product)}
-              className={`min-w-[130px] bg-[#F0EBE3] border flex flex-col items-center p-1 snap-start transition-colors ${
-                selectedProduct?.id === product.id
+              className={`min-w-[130px] bg-[#F0EBE3] border flex flex-col items-center p-1 snap-start transition-colors ${selectedProduct?.id === product.id
                   ? "border-[#D35400]"
                   : "border-[#ccc] active:border-[#D35400]"
-              }`}
+                }`}
             >
               <div className="relative w-[110px] h-[90px] mx-auto">
                 <Image src={product.image} alt={product.name} fill className="object-contain" />
@@ -192,7 +191,7 @@ export function TopSellingProducts({ title }: { title: string }) {
               <span className="opacity-70">...</span>
             ) : isAuthenticated ? (
               <>
-                <Image src="/icons/currency/dirham.svg" alt="Currency" width={20} height={20} /> 
+                <Image src="/icons/currency/dirham.svg" alt="Currency" width={20} height={20} />
                 <span>{selectedProduct.price.toLocaleString()}</span>
               </>
             ) : (
@@ -236,11 +235,10 @@ export function TopSellingProducts({ title }: { title: string }) {
               <div
                 key={product.id}
                 onClick={() => selectProduct(product)}
-                className={`border cursor-pointer flex flex-col items-center justify-start text-center transition-colors bg-[#EBE3D6] h-[220px] sm:h-[240px] md:h-[260px] lg:h-[270px] xl:h-[250px] 2xl:h-[281px] ${
-                  selectedProduct.id === product.id
+                className={`border cursor-pointer flex flex-col items-center justify-start text-center transition-colors bg-[#EBE3D6] h-[220px] sm:h-[240px] md:h-[260px] lg:h-[270px] xl:h-[250px] 2xl:h-[281px] ${selectedProduct.id === product.id
                     ? "border-[#D35400] ring-2 ring-[#D35400] ring-inset relative z-10"
                     : "border-[#CCCCCC] hover:border-[#D35400]"
-                }`}
+                  }`}
               >
                 <div className="relative w-[120px] h-[120px] sm:w-[140px] sm:h-[140px] lg:w-[160px] lg:h-[160px] xl:w-[155px] xl:h-[140px] 2xl:w-[190px] 2xl:h-[190px] mt-6">
                   <Image src={product.image} alt={product.name} fill className="object-cover" />
@@ -261,7 +259,7 @@ export function TopSellingProducts({ title }: { title: string }) {
             </button>
 
             {/* Image */}
-            <div 
+            <div
               onClick={() => router.push(`/product/${selectedProduct.id}`)}
               className="relative w-[300px] h-[330px] sm:w-[350px] sm:h-[385px] md:w-[400px] md:h-[440px] lg:w-[420px] lg:h-[462px] xl:w-[467px] xl:h-[348px] 2xl:w-[467px] 2xl:h-[406px] cursor-pointer"
             >
@@ -279,7 +277,7 @@ export function TopSellingProducts({ title }: { title: string }) {
               <span className="opacity-70">...</span>
             ) : isAuthenticated ? (
               <>
-                <Image src="/icons/currency/dirham.svg" alt="Currency" width={20} height={20} /> 
+                <Image src="/icons/currency/dirham.svg" alt="Currency" width={20} height={20} />
                 <span>{selectedProduct.price.toLocaleString()}</span>
               </>
             ) : (
@@ -307,7 +305,7 @@ export function TopSellingProducts({ title }: { title: string }) {
               <span className="text-black text-sm">No reviews yet</span>
             )}
           </div>
-{/* 
+          {/* 
           <button className="text-[#D35400] font-orbitron font-black uppercase text-[20px] mt-2">
             Buy Now
           </button> */}

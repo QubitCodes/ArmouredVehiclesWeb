@@ -72,7 +72,7 @@ export const FeaturedProducts = () => {
     return () => window.removeEventListener('resize', checkSizes);
   }, []);
 
-  
+
 
   // Fetch products from API
   useEffect(() => {
@@ -170,41 +170,41 @@ export const FeaturedProducts = () => {
   }, [isMobile, products, visibleSlides]);
 
   // AUTO slide: always increment index → moves left (translateX negative) - BOTH MOBILE AND DESKTOP
-useEffect(() => {
-  if (isMobile || visibleSlides.length <= 1) return;
+  useEffect(() => {
+    if (isMobile || visibleSlides.length <= 1) return;
 
-  const timer = setInterval(() => {
-    setTransitionEnabled(true);
-    setIndex((p) => {
-      // If next would be the last clone, jump to real first instead
-      if (p + 1 === total - 1) {
-        return 1;
-      }
-      return p + 1;
-    });
-  }, 7000);
+    const timer = setInterval(() => {
+      setTransitionEnabled(true);
+      setIndex((p) => {
+        // If next would be the last clone, jump to real first instead
+        if (p + 1 === total - 1) {
+          return 1;
+        }
+        return p + 1;
+      });
+    }, 7000);
 
-  return () => clearInterval(timer);
-}, [visibleSlides.length, isMobile, total]);
+    return () => clearInterval(timer);
+  }, [visibleSlides.length, isMobile, total]);
 
   // transitionend handler: when we land on a cloned slide, snap (no transition) to the real one
   // Only needed when we have multiple slides with clones
-useEffect(() => {
-  if (visibleSlides.length <= 1) return;
+  useEffect(() => {
+    if (visibleSlides.length <= 1) return;
 
-  const el = sliderRef.current;
-  if (!el) return;
+    const el = sliderRef.current;
+    if (!el) return;
 
-  const onTransitionEnd = () => {
-    if (index === 0) {
-      setTransitionEnabled(false);
-      setIndex(total - 2);
-    }
-  };
+    const onTransitionEnd = () => {
+      if (index === 0) {
+        setTransitionEnabled(false);
+        setIndex(total - 2);
+      }
+    };
 
-  el.addEventListener("transitionend", onTransitionEnd);
-  return () => el.removeEventListener("transitionend", onTransitionEnd);
-}, [index, total, visibleSlides.length]);
+    el.addEventListener("transitionend", onTransitionEnd);
+    return () => el.removeEventListener("transitionend", onTransitionEnd);
+  }, [index, total, visibleSlides.length]);
 
 
   // When we turned off transition to snap, re-enable immediately (so next movement is animated)
@@ -462,7 +462,7 @@ useEffect(() => {
                       <div
                         key={slideIndex}
                         className="flex flex-row justify-start items-start gap-2 md:gap-1 lg:gap-2 xl:gap-4 2xl:gap-[60px] 3xl:gap-20 shrink-0 w-full"
-                        style={{ 
+                        style={{
                           width: `${100 / total}%`,
                         }}
                       >

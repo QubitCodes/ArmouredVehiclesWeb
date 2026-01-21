@@ -128,7 +128,7 @@ export default function ProductCard({
     <div className="bg-white border border-[#cecbc5] overflow-hidden hover:shadow-md transition-all duration-200 flex flex-col w-full h-full">
       {/* ---------- IMAGE SECTION ---------- */}
       <div
-        className="relative bg-[#EBE3D6] w-full h-[180px] md:h-[200px] group overflow-hidden"
+        className="relative bg-[#EBE3D6] w-full h-[180px] md:h-[200px] group overflow-hidden border-b border-[#cecbc5]"
         onMouseEnter={startHoverCycle}
         onMouseLeave={stopHoverCycle}
       >

@@ -42,12 +42,7 @@ export default function AccountSetup({
         "Drive-Side Conversion Components (LHD ↔ RHD)",
     ];
 
-    const [selectedCategories, setSelectedCategories] = useState<string[]>([
-        "Engine Systems",
-        "Braking Systems",
-        "Runflat & Tire Systems",
-        "Turrets & Mounts (Controlled item MOD/EOCN)",
-    ]);
+    const [selectedCategories, setSelectedCategories] = useState<string[]>([]);
     const [captchaChecked, setCaptchaChecked] = useState(false);
 
 
@@ -59,58 +54,58 @@ export default function AccountSetup({
         );
     };
     const [error, setError] = useState<string | null>(null);
-  const [submitting, setSubmitting] = useState(false);
+    const [submitting, setSubmitting] = useState(false);
 
-  // Pre-fill effect
-  useEffect(() => {
-    if (initialData) {
-        if (initialData.selling_categories && Array.isArray(initialData.selling_categories)) {
-            // Need to map if formats differ, but assuming array of strings
-            setSelectedCategories(initialData.selling_categories);
+    // Pre-fill effect
+    useEffect(() => {
+        if (initialData) {
+            if (initialData.selling_categories && Array.isArray(initialData.selling_categories)) {
+                // Need to map if formats differ, but assuming array of strings
+                setSelectedCategories(initialData.selling_categories);
+            }
+
+            if (initialData.preferred_currency) {
+                setCurrency(initialData.preferred_currency);
+            }
         }
-        
-        if (initialData.preferred_currency) {
-            setCurrency(initialData.preferred_currency);
-        }
-    }
-  }, [initialData]);
+    }, [initialData]);
 
     /* ---------------- Radios ---------------- */
     const [currency, setCurrency] = useState("AED");
 
-// ✅ ADDED: validation before submit
-const handleSubmit = async () => {
-  setError(null);
+    // ✅ ADDED: validation before submit
+    const handleSubmit = async () => {
+        setError(null);
 
-  try {
-    setSubmitting(true);
+        try {
+            setSubmitting(true);
 
-     const payload = {
-    sellingCategories: selectedCategories, // ✅ ARRAY
-    registerAs: "Buyer / End User",
-    preferredCurrency: currency,
-    sponsorContent: true,
-    isDraft: false,
-  };
+            const payload = {
+                sellingCategories: selectedCategories, // ✅ ARRAY
+                registerAs: "Buyer / End User",
+                preferredCurrency: currency,
+                sponsorContent: true,
+                isDraft: false,
+            };
 
-    await API.post("/onboarding/step4", payload);
+            await API.post("/onboarding/step4", payload);
 
-    // Auto-trigger verification for buyers to complete flow
-    await API.post("/onboarding/submit-verification", {
-        verificationMethod: "manual" // Default method
-    });
+            // Auto-trigger verification for buyers to complete flow
+            await API.post("/onboarding/submit-verification", {
+                verificationMethod: "manual" // Default method
+            });
 
-    onSubmit();
-  } catch (err: any) {
-    setError(
-      err?.response?.data?.message ||
-      err?.message ||
-      "Submission failed"
-    );
-  } finally {
-    setSubmitting(false);
-  }
-};
+            onSubmit();
+        } catch (err: any) {
+            setError(
+                err?.response?.data?.message ||
+                err?.message ||
+                "Submission failed"
+            );
+        } finally {
+            setSubmitting(false);
+        }
+    };
 
 
 
@@ -248,7 +243,7 @@ const handleSubmit = async () => {
                             height={36}
                             priority
                         />
-                       
+
                         <span>Privacy • Terms</span>
                     </div>
                 </div>
@@ -269,7 +264,7 @@ const handleSubmit = async () => {
                 </button>
 
                 <button
-                   onClick={handleSubmit} 
+                    onClick={handleSubmit}
                     disabled={!captchaChecked}
                     className={`w-[300px] h-[48px] font-orbitron font-bold clip-path-supplier
     ${captchaChecked
@@ -281,7 +276,7 @@ const handleSubmit = async () => {
                 </button>
 
             </div>
-           
+
         </div>
     );
 }

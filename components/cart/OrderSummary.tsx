@@ -13,6 +13,7 @@ type OrderSummaryProps = {
   buttonText?: string;
   isLoading?: boolean;
   approvalRequired?: boolean;
+  onboardingWarning?: string | null;
 };
 
 
@@ -23,6 +24,7 @@ export default function OrderSummary({
   buttonText = "CHECKOUT",
   isLoading = false,
   approvalRequired = false,
+  onboardingWarning = null,
 }: OrderSummaryProps) {
   const finalButtonText = approvalRequired ? "REQUEST PURCHASE" : buttonText;
 
@@ -121,20 +123,28 @@ export default function OrderSummary({
       </div>
 
       {/* Checkout Button */}
-      <button
-        disabled={itemCount === 0 || isLoading}
-
-        className="
-        checkout-button
-        bg-[#D35400] text-white font-bold text-[16px] lg:text-[18px] uppercase
-        w-full h-[50px] lg:h-[55px] relative
-        flex items-center justify-center gap-2
-        transition-colors hover:bg-[#B51E17] disabled:opacity-50 disabled:cursor-not-allowed
-        "
-        onClick={() => onCheckout?.()}>
-        {isLoading && <Loader className="w-5 h-5 animate-spin" />}
-        {finalButtonText}
-      </button>
+      {/* Checkout Button OR Warning */}
+      {onboardingWarning ? (
+        <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded relative text-sm">
+          <strong className="font-bold">Attention: </strong>
+          <span className="block sm:inline">{onboardingWarning}</span>
+        </div>
+      ) : (
+        <button
+          disabled={itemCount === 0 || isLoading}
+          className="
+            checkout-button
+            bg-[#D35400] text-white font-bold text-[16px] lg:text-[18px] uppercase
+            w-full h-[50px] lg:h-[55px] relative
+            flex items-center justify-center gap-2
+            transition-colors hover:bg-[#B51E17] disabled:opacity-50 disabled:cursor-not-allowed
+          "
+          onClick={() => onCheckout?.()}
+        >
+          {isLoading && <Loader className="w-5 h-5 animate-spin" />}
+          {finalButtonText}
+        </button>
+      )}
     </aside>
   );
 }

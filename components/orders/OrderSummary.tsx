@@ -229,7 +229,7 @@ export default function OrderSummary({ orderId }: OrderSummaryProps) {
                 <div className="p-3 lg:p-5 space-y-3">
                   {order.items?.map((item: any, i: number) => {
                     const itemName = item.product?.name || item.product_name || item.name || "Product";
-                    const itemImage = item.product?.image || item.image || "/product/placeholder.svg";
+                    const itemImage = item.product?.image || item.image || "/placeholder.jpg";
                     const itemPrice = item.price ? parseFloat(item.price) : 0;
                     return (
                       <div key={item.id || i} className="flex items-start gap-3 lg:gap-5 border-b border-[#C2B280] last:border-0 pb-3 last:pb-0">

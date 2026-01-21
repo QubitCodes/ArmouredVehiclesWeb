@@ -10,15 +10,21 @@ export default function CartItem({ data, updateQty, removeItem, saveForLater }: 
 
       <div className="flex flex-col sm:flex-row gap-5">
         {/* Product Image */}
-        {data.image && (
+        {(data.image || true) && (
           <Link href={`/products/${data.id}`} className="shrink-0">
-          <Image
-            src={data.image}
-            alt={data.title}
-            width={112}
-            height={112}
-            className="object-contain"
-          />
+            <div className="relative w-[112px] h-[112px]">
+              <Image
+                src={data.image || "/placeholder.jpg"}
+                alt={data.title}
+                fill
+                className="object-contain"
+                onError={(e) => {
+                  const target = e.target as HTMLImageElement;
+                  target.src = "/placeholder.jpg";
+                  target.srcset = "/placeholder.jpg";
+                }}
+              />
+            </div>
           </Link>
         )}
 
@@ -26,9 +32,9 @@ export default function CartItem({ data, updateQty, removeItem, saveForLater }: 
         {/* Product Info */}
         <div className="flex-1 min-w-0">
           <Link href={`/products/${data.id}`}>
-          <h3 className="font-semibold text-[14px] lg:text-[16px] text-[#1A1A1A] mb-1 hover:text-[#D35400] transition-colors">
-            {data.title}
-          </h3>
+            <h3 className="font-semibold text-[14px] lg:text-[16px] text-[#1A1A1A] mb-1 hover:text-[#D35400] transition-colors">
+              {data.title}
+            </h3>
           </Link>
 
 
@@ -47,7 +53,7 @@ export default function CartItem({ data, updateQty, removeItem, saveForLater }: 
             </p>
           )}
 
-{/*           <p className="text-xs lg:text-sm text-[#6A6A6A] mb-1">
+          {/*           <p className="text-xs lg:text-sm text-[#6A6A6A] mb-1">
             Standard Delivery | Estimated delivery{" "}
             <span className="font-semibold">tomorrow</span>
           </p>
@@ -133,7 +139,7 @@ export default function CartItem({ data, updateQty, removeItem, saveForLater }: 
 
         {data.isControlled && (
           <div className="inline-block bg-red-100 text-red-600 text-[10px] px-2 py-0.5 mb-2 font-bold uppercase tracking-wider border border-red-200">
-              Controlled
+            Controlled
           </div>
         )}
 
@@ -158,7 +164,7 @@ export default function CartItem({ data, updateQty, removeItem, saveForLater }: 
             <span className="underline">Remove</span>
           </button>
 
-          <button 
+          <button
             onClick={() => saveForLater && saveForLater(data.id)}
             className="flex items-center gap-1 hover:text-black"
           >

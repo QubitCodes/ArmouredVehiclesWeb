@@ -205,7 +205,49 @@ export default function CartPage() {
     }
 
     return false;
+    return false;
   }, [subtotal, items, userProfile]);
+
+  const onboardingWarning = useMemo(() => {
+    if (!isLoggedIn) return null;
+    if (!userProfile) return null; // Wait for profile to load
+
+    console.log("CartPage Debug - Full Profile:", userProfile);
+    // Handle nested profile and case variations (onboardingStatus vs onboarding_status)
+    const status = userProfile.onboarding_status ||
+      userProfile.onboardingStatus ||
+      userProfile.profile?.onboarding_status ||
+      userProfile.profile?.onboardingStatus ||
+      userProfile.user?.onboarding_status ||
+      userProfile.user?.onboardingStatus;
+    console.log("CartPage Debug - Status:", status);
+
+    const isApproved = status === 'approved_general' || status === 'approved_controlled';
+
+    // 1. Generic Check: Must be at least approved_general
+    if (!isApproved) {
+      return "Your profile is being verified by the admin, and you can only checkout once it's verified";
+    }
+
+    // 2. Controlled Item Check (UAE Specific)
+    const uaeVariants = ['United Arab Emirates', 'UAE', 'uae', 'United Arab Emirates (UAE)'];
+    const isUAE = uaeVariants.includes(userProfile.country) || uaeVariants.includes(userProfile.country_of_registration);
+
+    // Count controlled items
+    const controlledItemsRaw = items.filter(i => i.isControlled);
+    const controlledCount = controlledItemsRaw.reduce((sum, item) => sum + item.qty, 0); // Total quantity or just unique items? Usually "x products" implies items. 
+    // If I buy 2 of same gun -> 2 controlled products? or 1? unique items logic is usually better for "remove them".
+    // "Your cart has 5 controlled products" (could be 5 AK-47s). 
+    // Implementation: using item count (lines).
+    const controlledLineItems = controlledItemsRaw.length;
+
+    // If attempting to buy controlled items in UAE, must have 'approved_controlled'
+    if (isUAE && controlledLineItems > 0 && status !== 'approved_controlled') {
+      return `Your cart has ${controlledLineItems} controlled product${controlledLineItems === 1 ? '' : 's'}, but you're not authorised to purchase controlled products. Please remove them to checkout.`;
+    }
+
+    return null;
+  }, [isLoggedIn, userProfile, items]);
 
   return (
 
@@ -331,6 +373,7 @@ export default function CartPage() {
                 buttonText={isLoggedIn ? (subtotal >= 10000 ? "REQUEST PURCHASE" : "CHECKOUT") : "LOGIN TO CONTINUE"}
                 isLoading={isCheckoutLoading}
                 approvalRequired={approvalRequired}
+                onboardingWarning={onboardingWarning}
               />
             </div>
           )}

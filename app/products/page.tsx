@@ -106,7 +106,10 @@ function CategoryContent() {
                 const meta = payload?.misc?.filters;
                 const placeholder = payload?.misc?.placeholder_image;
 
-                if (placeholder && typeof placeholder === 'string') setPlaceholderImage(placeholder);
+                if (placeholder && typeof placeholder === 'string') {
+                    // Ignore backend placeholder, force local
+                    setPlaceholderImage("/placeholder.jpg");
+                }
                 if (meta) {
                     setFilterOptions({
                         brands: meta.brands || [],
@@ -249,7 +252,10 @@ function CategoryContent() {
                     // Only set price range initially or if reset? For now let's not auto-reset user selection on every fetch to avoid jumping UI.
                     // Ideally we set initial bounds.
                 }
-                if (placeholder && typeof placeholder === 'string') setPlaceholderImage(placeholder);
+                if (placeholder && typeof placeholder === 'string') {
+                    // Ignore backend placeholder, force local
+                    setPlaceholderImage("/placeholder.jpg");
+                }
 
                 // Do not derive category from product list; rely on backend category fetch
 

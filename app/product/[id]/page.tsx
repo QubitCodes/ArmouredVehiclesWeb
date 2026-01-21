@@ -64,31 +64,31 @@ export default function ProductDetailsPage() {
         const data: any = await api.products.getById(productId);
 
         if (!active) return;
-        
+
         // Unwrap if necessary (safety check)
-        const productData = data.data || data; 
+        const productData = data.data || data;
 
 
         // Normalize gallery: prefer media URLs, fallback to gallery strings, then image/placeholder
         const galleryFromMedia = Array.isArray(productData.media)
           ? productData.media
-              .map((m: any) => m?.url)
-              .filter((u: any) => typeof u === "string" && u.length > 0)
+            .map((m: any) => m?.url)
+            .filter((u: any) => typeof u === "string" && u.length > 0)
           : [];
 
         const galleryFromField = Array.isArray(productData.gallery)
           ? productData.gallery
-              .map((g: any) => (typeof g === "string" ? g : g?.url))
-              .filter((u: any) => typeof u === "string" && u.length > 0)
+            .map((g: any) => (typeof g === "string" ? g : g?.url))
+            .filter((u: any) => typeof u === "string" && u.length > 0)
           : [];
 
         const normalizedGallery = galleryFromMedia.length > 0
           ? galleryFromMedia
           : galleryFromField.length > 0
-          ? galleryFromField
-          : productData.image
-          ? [productData.image]
-          : [data.misc?.placeholder_image || "/product/product 1.png"];
+            ? galleryFromField
+            : productData.image
+              ? [productData.image]
+              : ["/placeholder.jpg"];
 
         setProduct({
           id: productData.id,
@@ -100,7 +100,7 @@ export default function ProductDetailsPage() {
           image:
             (Array.isArray(productData.media) && productData.media.find((m: any) => m?.is_cover)?.url) ||
             productData.image ||
-            (normalizedGallery.length > 0 ? normalizedGallery[0] : data.misc?.placeholder_image || "/product/product 1.png"),
+            (normalizedGallery.length > 0 ? normalizedGallery[0] : "/placeholder.jpg"),
           gallery: normalizedGallery,
           description: productData.description ?? productData.technical_description ?? productData.technicalDescription ?? null,
           condition: productData.condition ?? null,
@@ -108,17 +108,17 @@ export default function ProductDetailsPage() {
           features: Array.isArray(productData.features)
             ? productData.features
             : typeof productData.features === "string" && productData.features
-            ? productData.features.split("| ").map((s: string) => s.trim()).filter(Boolean)
-            : null,
+              ? productData.features.split("| ").map((s: string) => s.trim()).filter(Boolean)
+              : null,
           specifications: productData.specifications ?? null,
           vehicleFitment: productData.vehicle_fitment ?? productData.vehicleFitment ?? null,
           warranty:
             productData.warranty ??
             (productData.has_warranty &&
-            (productData.warranty_terms || productData.warranty_duration)
+              (productData.warranty_terms || productData.warranty_duration)
               ? [productData.warranty_terms, productData.warranty_duration, productData.warranty_duration_unit]
-                  .filter(Boolean)
-                  .join(" ")
+                .filter(Boolean)
+                .join(" ")
               : null),
           actionType: productData.actionType ?? null,
           category: productData.category ?? null,
@@ -126,8 +126,8 @@ export default function ProductDetailsPage() {
           reviewCount: typeof productData.review_count === "number"
             ? productData.review_count
             : typeof productData.reviewCount === "number"
-            ? productData.reviewCount
-            : Number(productData.review_count ?? productData.reviewCount) || 0
+              ? productData.reviewCount
+              : Number(productData.review_count ?? productData.reviewCount) || 0
         });
 
         // 1.1 Fetch Similar Products if category exists
@@ -139,12 +139,12 @@ export default function ProductDetailsPage() {
 
             // Filter out current product
             const filtered = similar.filter((p: any) => p.id !== productData.id).map((item: any) => ({
-                 id: item.id,
-                 name: item.name,
-                 rating: item.rating ?? 0,
-                 reviews: item.reviewCount ?? 0,
-                 price: Number(item.price) || 0,
-                 image: item.image || (item.media && item.media.length > 0 ? item.media[0].url : "/placeholder.jpg"),
+              id: item.id,
+              name: item.name,
+              rating: item.rating ?? 0,
+              reviews: item.reviewCount ?? 0,
+              price: Number(item.price) || 0,
+              image: item.image || (item.media && item.media.length > 0 ? item.media[0].url : "/placeholder.jpg"),
             }));
             setSimilarProducts(filtered);
           } catch (e) {

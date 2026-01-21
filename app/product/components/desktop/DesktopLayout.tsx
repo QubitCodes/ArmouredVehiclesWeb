@@ -53,14 +53,14 @@ const DesktopLayout = ({ id, product }: { id?: string; product?: any }) => {
     const images = (() => {
         const gallery = Array.isArray(product?.gallery)
             ? product!.gallery
-                  .map((g: any) => (typeof g === "string" ? g : g?.url))
-                  .filter((u: any) => typeof u === "string" && u.length > 0)
+                .map((g: any) => (typeof g === "string" ? g : g?.url))
+                .filter((u: any) => typeof u === "string" && u.length > 0)
             : [];
         if (gallery.length > 0) return gallery;
-        const fallback = product?.image || product?.misc?.placeholder_image || "/product/product 1.png";
+        const fallback = product?.image || "/placeholder.jpg";
         return [fallback];
     })();
-    
+
 
 
 
@@ -76,7 +76,7 @@ const DesktopLayout = ({ id, product }: { id?: string; product?: any }) => {
     // -------------------------------------------------------------
     // STATIC SECTIONS - Tabs are always displayed.
     // -------------------------------------------------------------
-    
+
     tabContent.push({
         id: "vehicle-fitment",
         label: "Vehicle Fitment",
@@ -106,7 +106,7 @@ const DesktopLayout = ({ id, product }: { id?: string; product?: any }) => {
         label: "Warranty",
         content: <WarrantyTab warranty={product?.warranty || undefined} />
     });
-    
+
     tabContent.push({
         id: "reviews",
         label: `Reviews (${product?.reviewCount || 0})`,
@@ -136,7 +136,7 @@ const DesktopLayout = ({ id, product }: { id?: string; product?: any }) => {
                                 selectedImage={selectedImage}
                                 setSelectedImage={setSelectedImage}
                                 onOpenGallery={() => setShowGallery(true)}
-                                placeholderImage={product?.misc?.placeholder_image}
+                                placeholderImage={"/placeholder.jpg"}
                             />
 
 
@@ -203,7 +203,7 @@ const DesktopLayout = ({ id, product }: { id?: string; product?: any }) => {
                     onClose={() => setShowGallery(false)}
                 />
             )}
-                        <TopSellingProducts title="Recommended For Your Vehicle" />
+            <TopSellingProducts title="Recommended For Your Vehicle" />
 
         </section>
 

@@ -55,16 +55,22 @@ export default function ImageGallery({
           <div
             key={index}
             className="relative min-w-full aspect-square snap-center bg-white"
-            onClick={onOpenGallery}
+            onClick={() => {
+              const currentSrc = failedImages[index] ? placeholderImage : img;
+              const isPlaceholder = currentSrc === placeholderImage || currentSrc === "/placeholder.jpg";
+              if (!isPlaceholder) onOpenGallery();
+            }}
           >
-            <button
-              type="button"
-              aria-label="Zoom image"
-              className="absolute right-2 top-2 z-10 inline-flex items-center justify-center rounded-full bg-black/50 text-white p-2 hover:bg-black/60 focus:outline-none"
-              onClick={(e) => { e.stopPropagation(); onOpenGallery(); }}
-            >
-              <ZoomIn size={18} />
-            </button>
+            {((failedImages[index] ? placeholderImage : img) !== placeholderImage && (failedImages[index] ? placeholderImage : img) !== "/placeholder.jpg") && (
+              <button
+                type="button"
+                aria-label="Zoom image"
+                className="absolute right-2 top-2 z-10 inline-flex items-center justify-center rounded-full bg-black/50 text-white p-2 hover:bg-black/60 focus:outline-none"
+                onClick={(e) => { e.stopPropagation(); onOpenGallery(); }}
+              >
+                <ZoomIn size={18} />
+              </button>
+            )}
             <Image
               src={failedImages[index] ? placeholderImage : img}
               alt={`Product ${index + 1}`}
@@ -87,9 +93,8 @@ export default function ImageGallery({
                 setSelectedImage(index);
                 scrollToIndex(index);
               }}
-              className={`relative w-16 aspect-square shrink-0 rounded-md overflow-hidden border ${
-                selectedImage === index ? 'border-[#D35400]' : 'border-gray-200'
-              }`}
+              className={`relative w-16 aspect-square shrink-0 rounded-md overflow-hidden border ${selectedImage === index ? 'border-[#D35400]' : 'border-gray-200'
+                }`}
               aria-label={`Select image ${index + 1}`}
             >
               <Image
@@ -117,8 +122,7 @@ export default function ImageGallery({
               <button
                 key={index}
                 onClick={() => setSelectedImage(index)}
-                className={`relative w-20 aspect-square shrink-0 rounded-md overflow-hidden border ${
-                  selectedImage === index ? "border-[#D35400]" : "border-gray-200"}
+                className={`relative w-20 aspect-square shrink-0 rounded-md overflow-hidden border ${selectedImage === index ? "border-[#D35400]" : "border-gray-200"}
                 `}
                 aria-label={`Select image ${index + 1}`}
               >
@@ -155,17 +159,28 @@ export default function ImageGallery({
 
         {/* MAIN IMAGE (RIGHT) */}
         <div
-          className="relative aspect-square w-full rounded-lg overflow-hidden border border-gray-200 bg-[#fff]"
-          onClick={onOpenGallery}
+          className={`relative aspect-square w-full rounded-lg overflow-hidden border border-gray-200 bg-[#fff] ${(failedImages[selectedImage] ? placeholderImage : displayImages[selectedImage]) === placeholderImage ||
+            (failedImages[selectedImage] ? placeholderImage : displayImages[selectedImage]) === "/placeholder.jpg"
+            ? "cursor-default"
+            : "cursor-pointer"
+            }`}
+          onClick={() => {
+            const currentSrc = failedImages[selectedImage] ? placeholderImage : displayImages[selectedImage];
+            const isPlaceholder = currentSrc === placeholderImage || currentSrc === "/placeholder.jpg";
+            if (!isPlaceholder) onOpenGallery();
+          }}
         >
-          <button
-            type="button"
-            aria-label="Zoom image"
-            className="absolute right-3 top-3 z-10 inline-flex items-center justify-center rounded-full bg-black/50 text-white p-2 hover:bg-black/60 focus:outline-none"
-            onClick={(e) => { e.stopPropagation(); onOpenGallery(); }}
-          >
-            <ZoomIn size={18} />
-          </button>
+          {((failedImages[selectedImage] ? placeholderImage : displayImages[selectedImage]) !== placeholderImage && (failedImages[selectedImage] ? placeholderImage : displayImages[selectedImage]) !== "/placeholder.jpg") && (
+            <button
+              type="button"
+              aria-label="Zoom image"
+              className="absolute right-3 top-3 z-10 inline-flex items-center justify-center rounded-full bg-black/50 text-white p-2 hover:bg-black/60 focus:outline-none"
+              onClick={(e) => { e.stopPropagation(); onOpenGallery(); }}
+            >
+              <ZoomIn size={18} />
+            </button>
+          )}
+
           <Image
             src={failedImages[selectedImage] ? placeholderImage : displayImages[selectedImage]}
             alt="Product"

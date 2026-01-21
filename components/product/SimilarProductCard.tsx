@@ -29,8 +29,8 @@ const SimilarProductCard = ({
   const { isAuthenticated, isLoading } = useAuth();
   const [imgError, setImgError] = useState(false);
   const placeholder = "/placeholder.jpg";
-  
-  const displayImage = imgError ? placeholder : (image ?? placeholder); 
+
+  const displayImage = imgError ? placeholder : (image ?? placeholder);
   const displayName = name ?? "Product name";
   const displayRating = rating ?? "4.7";
   const reviewsCount = Number(reviews ?? 0);
@@ -47,23 +47,23 @@ const SimilarProductCard = ({
 
   const handleNavigate = () => {
     if (id) {
-        router.push(`/product/${id}`);
+      router.push(`/product/${id}`);
     }
   };
 
   return (
     <div className="w-full max-w-[230px] rounded-xl shadow-sm border p-3 bg-[#EBE4D7] hover:shadow-md transition">
       {/* Product Image + Wishlist */}
-      <div 
-        className="relative w-full h-[160px] rounded-lg overflow-hidden bg-[#fff] cursor-pointer"
+      <div
+        className="relative w-full h-[160px] rounded-lg overflow-hidden bg-[#fff] cursor-pointer border-b border-[#E2DACB]"
         onClick={handleNavigate}
       >
-        <Image 
-            src={displayImage} 
-            alt={displayName} 
-            fill 
-            className="object-cover" 
-            onError={() => setImgError(true)}
+        <Image
+          src={displayImage}
+          alt={displayName}
+          fill
+          className="object-cover"
+          onError={() => setImgError(true)}
         />
 
         {/* Heart Icon */}
@@ -94,30 +94,30 @@ const SimilarProductCard = ({
       {/* Price - Conditional Display */}
       <div className="mt-1">
         {isLoading ? (
-             <span className="text-sm text-gray-400 font-semibold">—</span>
-          ) : isAuthenticated ? (
-             <div className="flex items-center justify-between w-full">
-                 <div className="text-[20px] font-semibold text-black">AED {Number(displayPrice).toLocaleString()}</div>
-                 {isControlled && (
-                    <div className="inline-block bg-red-100 text-red-600 text-[10px] px-2 py-0.5 font-bold uppercase tracking-wider border border-red-200">
-                        Controlled
-                    </div>
-                )}
-             </div>
-          ) : (
-             <span
-                onClick={() => router.push("/login")}
-                className="text-sm font-medium text-black cursor-pointer hover:underline"
-             >
-                Login to view price
-             </span>
-          )}
+          <span className="text-sm text-gray-400 font-semibold">—</span>
+        ) : isAuthenticated ? (
+          <div className="flex items-center justify-between w-full">
+            <div className="text-[20px] font-semibold text-black">AED {Number(displayPrice).toLocaleString()}</div>
+            {isControlled && (
+              <div className="inline-block bg-red-100 text-red-600 text-[10px] px-2 py-0.5 font-bold uppercase tracking-wider border border-red-200">
+                Controlled
+              </div>
+            )}
+          </div>
+        ) : (
+          <span
+            onClick={() => router.push("/login")}
+            className="text-sm font-medium text-black cursor-pointer hover:underline"
+          >
+            Login to view price
+          </span>
+        )}
       </div>
 
 
 
       {/* Title */}
-      <p 
+      <p
         className="text-sm text-black mt-1 leading-tight cursor-pointer hover:text-[#D35400] transition-colors"
         onClick={handleNavigate}
       >
@@ -125,7 +125,7 @@ const SimilarProductCard = ({
       </p>
 
       {/* BUY NOW */}
-      <button 
+      <button
         className="font-ruda mt-3 text-left text-[18px] font-semibold text-[#D35400]"
         onClick={handleNavigate}
       >
