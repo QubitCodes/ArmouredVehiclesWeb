@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { MapPin } from "lucide-react";
 import { createAddress, updateAddress } from "@/app/services/address";
 import { Address } from "@/lib/types";
 import { getStoredUser } from "@/lib/api";
@@ -88,6 +89,30 @@ export default function AddressForm({
       {error && <p className="text-[#D35400] text-sm">{error}</p>}
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+        {/* Address field (pin icon style display) */}
+        <div className="md:col-span-2">
+          <label className="block text-sm text-black mb-1">Delivery To</label>
+          {(() => {
+            const raw = form.addressLine1 || "";
+            const parts = raw.split(",").map((p) => p.trim()).filter(Boolean);
+            const title = parts[0] || raw || "Select a location";
+            const subtitle = parts.length > 1 ? parts.join(" - ") : raw;
+            return (
+              <div className="flex items-center gap-3 bg-[#F0EBE3] border border-[#C2B280] px-3 py-3">
+                <div className="w-10 h-10 rounded-md bg-[#E8E3D9] flex items-center justify-center shrink-0">
+                  <MapPin size={18} className="text-[#D35400]" />
+                </div>
+                <div className="min-w-0">
+                  <p className="font-inter font-semibold text-sm text-black truncate">{title}</p>
+                  {subtitle && (
+                    <p className="font-inter text-xs text-[#666] truncate">{subtitle}</p>
+                  )}
+                </div>
+              </div>
+            );
+          })()}
+        </div>
+
         <div>
           <label className="block text-sm text-black mb-1">Label</label>
           <input
@@ -111,16 +136,7 @@ export default function AddressForm({
           />
         </div>
 
-        <div className="md:col-span-2">
-          <label className="block text-sm text-black mb-1">Address Line 1</label>
-          <input
-            type="text"
-            value={form.addressLine1}
-            onChange={(e) => update("addressLine1", e.target.value)}
-            className="w-full bg-[#F0EBE3] border border-[#C2B280] px-3 py-2 text-sm text-black outline-none"
-            required
-          />
-        </div>
+        {/* Address Line 1 replaced by Address field above */}
 
         <div className="md:col-span-2">
           <label className="block text-sm text-black mb-1">Address Line 2 (optional)</label>

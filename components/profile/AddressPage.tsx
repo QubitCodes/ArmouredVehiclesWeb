@@ -8,6 +8,7 @@ import {
   setDefaultAddress,
 } from "@/app/services/address";
 import { Address } from "@/lib/types";
+import Link from "next/link";
 
 export default function AddressPage() {
   const [addresses, setAddresses] = useState<Address[]>([]);
@@ -100,7 +101,7 @@ export default function AddressPage() {
       </div>
 
       {/* Add New Address */}
-      {/* <div className="mb-8">
+      <div className="mb-8">
         <Link href="/address/new">
           <button className="bg-[#D35400] hover:bg-[#39482C] text-white h-10 px-6">
             <span className="font-black text-[13px] font-orbitron uppercase">
@@ -108,7 +109,7 @@ export default function AddressPage() {
             </span>
           </button>
         </Link>
-      </div> */}
+      </div>
 
       {/* Loading */}
       {loading && (

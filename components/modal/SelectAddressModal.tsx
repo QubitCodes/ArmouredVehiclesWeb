@@ -5,6 +5,7 @@ import { useEffect, useState } from "react";
 import { getAddresses } from "@/app/services/address";
 import { Address } from "@/lib/types";
 import AddEditAddressModal from "./AddEditAddressModal";
+import AddressMapModal from "./AddressMapModal";
 
 // ... existing imports
 
@@ -23,6 +24,7 @@ export default function SelectAddressModal({ onClose, onSelect }: { onClose: () 
   const selectAddress = useAddressStore((s) => s.selectAddress);
 
   const [showForm, setShowForm] = useState(false);
+  const [showMap, setShowMap] = useState(false);
   const [editingAddress, setEditingAddress] = useState<Address | undefined>(undefined);
 
   useEffect(() => {
@@ -72,6 +74,16 @@ export default function SelectAddressModal({ onClose, onSelect }: { onClose: () 
 
   const openNew = () => {
     setEditingAddress(undefined);
+    setShowMap(true);
+  };
+
+  const handleMapConfirmed = (selectedAddressText: string) => {
+    setShowMap(false);
+    // Prefill the address line 1 with selected text and open form
+    const prefill: any = {
+      addressLine1: selectedAddressText,
+    };
+    setEditingAddress(prefill as Address);
     setShowForm(true);
   };
 
@@ -84,6 +96,15 @@ export default function SelectAddressModal({ onClose, onSelect }: { onClose: () 
       onClose();
     }
   };
+
+  if (showMap) {
+    return (
+      <AddressMapModal
+        onClose={() => { setShowMap(false); }}
+        onConfirmLocation={handleMapConfirmed}
+      />
+    );
+  }
 
   if (showForm) {
     return (
