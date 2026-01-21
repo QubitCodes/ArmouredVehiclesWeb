@@ -2,6 +2,7 @@
 
 import Image from "next/image";
 import { useRef, useState } from "react";
+import { ZoomIn } from "lucide-react";
 
 type Props = {
   images: string[];
@@ -56,6 +57,14 @@ export default function ImageGallery({
             className="relative min-w-full aspect-square snap-center bg-white"
             onClick={onOpenGallery}
           >
+            <button
+              type="button"
+              aria-label="Zoom image"
+              className="absolute right-2 top-2 z-10 inline-flex items-center justify-center rounded-full bg-black/50 text-white p-2 hover:bg-black/60 focus:outline-none"
+              onClick={(e) => { e.stopPropagation(); onOpenGallery(); }}
+            >
+              <ZoomIn size={18} />
+            </button>
             <Image
               src={failedImages[index] ? placeholderImage : img}
               alt={`Product ${index + 1}`}
@@ -149,6 +158,14 @@ export default function ImageGallery({
           className="relative aspect-square w-full rounded-lg overflow-hidden border border-gray-200 bg-[#fff]"
           onClick={onOpenGallery}
         >
+          <button
+            type="button"
+            aria-label="Zoom image"
+            className="absolute right-3 top-3 z-10 inline-flex items-center justify-center rounded-full bg-black/50 text-white p-2 hover:bg-black/60 focus:outline-none"
+            onClick={(e) => { e.stopPropagation(); onOpenGallery(); }}
+          >
+            <ZoomIn size={18} />
+          </button>
           <Image
             src={failedImages[selectedImage] ? placeholderImage : displayImages[selectedImage]}
             alt="Product"
