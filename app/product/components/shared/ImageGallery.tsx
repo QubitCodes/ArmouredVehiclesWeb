@@ -19,7 +19,7 @@ export default function ImageGallery({
   placeholderImage = "/placeholder.jpg",
 }: Props) {
   const scrollRef = useRef<HTMLDivElement | null>(null);
-  const MAX_DESKTOP_THUMBS = 8;
+  const MAX_DESKTOP_THUMBS = 7;
 
   // If no images are provided, use placeholder
   const displayImages = images && images.length > 0 ? images : [placeholderImage];
