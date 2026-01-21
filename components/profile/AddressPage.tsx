@@ -1,8 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import Image from "next/image";
-import Link from "next/link";
+import AddEditAddressModal from "@/components/modal/AddEditAddressModal";
 import {
   getAddresses,
   deleteAddress,
@@ -14,6 +13,8 @@ export default function AddressPage() {
   const [addresses, setAddresses] = useState<Address[]>([]);
   const [loading, setLoading] = useState(true);
   const [updatingId, setUpdatingId] = useState<number | null>(null);
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [editingAddress, setEditingAddress] = useState<Address | null>(null);
 
   /* ---------------- LOAD ADDRESSES ---------------- */
   useEffect(() => {
@@ -61,6 +62,28 @@ export default function AddressPage() {
     }
   };
 
+  /* ---------------- EDIT MODAL HANDLERS ---------------- */
+  const openEditModal = (addr: Address) => {
+    setEditingAddress(addr);
+    setIsModalOpen(true);
+  };
+
+  const closeModal = () => {
+    setIsModalOpen(false);
+    setEditingAddress(null);
+  };
+
+  const handleModalSuccess = (updated: Address) => {
+    setAddresses(prev => {
+      const exists = prev.some(a => a.id === updated.id);
+      if (exists) {
+        return prev.map(a => (a.id === updated.id ? updated : a));
+      }
+      return [...prev, updated];
+    });
+    closeModal();
+  };
+
   const defaultAddress = addresses.find(a => a.isDefault);
   const otherAddresses = addresses.filter(a => !a.isDefault);
 
@@ -77,7 +100,7 @@ export default function AddressPage() {
       </div>
 
       {/* Add New Address */}
-      <div className="mb-8">
+      {/* <div className="mb-8">
         <Link href="/address/new">
           <button className="bg-[#D35400] hover:bg-[#39482C] text-white h-10 px-6">
             <span className="font-black text-[13px] font-orbitron uppercase">
@@ -85,7 +108,7 @@ export default function AddressPage() {
             </span>
           </button>
         </Link>
-      </div>
+      </div> */}
 
       {/* Loading */}
       {loading && (
@@ -106,6 +129,7 @@ export default function AddressPage() {
             updating={updatingId === defaultAddress.id}
             onDelete={handleDelete}
             onSetDefault={handleSetDefault}
+            onEdit={openEditModal}
           />
         </div>
       )}
@@ -130,11 +154,20 @@ export default function AddressPage() {
                   updating={updatingId === address.id}
                   onDelete={handleDelete}
                   onSetDefault={handleSetDefault}
+                  onEdit={openEditModal}
                 />
               ))}
             </div>
           )}
         </div>
+      )}
+
+      {isModalOpen && editingAddress && (
+        <AddEditAddressModal
+          onClose={closeModal}
+          onSuccess={handleModalSuccess}
+          initialData={editingAddress}
+        />
       )}
     </main>
   );
@@ -146,11 +179,13 @@ function AddressCard({
   onDelete,
   onSetDefault,
   updating,
+  onEdit,
 }: {
   address: Address;
   onDelete: (id: number) => void;
   onSetDefault: (id: number) => void;
   updating: boolean;
+  onEdit: (addr: Address) => void;
 }) {
   return (
     <div className="bg-[#EBE3D6] border border-[#E8E3D9] p-5">
@@ -167,12 +202,12 @@ function AddressCard({
             Delete
           </button>
 
-          <Link
-            href={`/address/edit/${address.id}`}
+          <button
+            onClick={() => onEdit(address)}
             className="text-sm underline text-[#666] hover:text-[#D35400]"
           >
             Edit
-          </Link>
+          </button>
 
           {!address.isDefault && (
             <button
