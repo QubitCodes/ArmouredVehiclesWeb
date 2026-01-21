@@ -46,6 +46,38 @@ export default function AddressForm({
     setForm((f) => ({ ...f, [key]: value }));
   };
 
+  // Prefill from last geocoded selection saved by the map modal
+  // Applies only to empty fields to avoid overriding user edits
+  useState(() => {
+    try {
+      const raw = typeof window !== "undefined" ? localStorage.getItem("lastGeocodeAddress") : null;
+      if (!raw) return undefined;
+      const geo = JSON.parse(raw || "null");
+      if (!geo || !geo.address) return undefined;
+      const a = geo.address || {};
+      const pickCity = a.city || a.town || a.village || a.county || "";
+      const pickState = a.state || a.region || a.province || "";
+      const pickCountry = a.country || "";
+      const pickPostcode = a.postcode || "";
+      const road = a.road || "";
+      const house = a.house_number || "";
+      const suburb = a.suburb || a.quarter || a.neighbourhood || "";
+      const line1 = [house, road].filter(Boolean).join(" ") || geo.displayName || form.addressLine1;
+      const line2 = suburb || form.addressLine2 || "";
+
+      setForm((prev) => ({
+        ...prev,
+        addressLine1: prev.addressLine1 || line1,
+        addressLine2: prev.addressLine2 || line2,
+        city: prev.city || pickCity,
+        state: prev.state || pickState,
+        postalCode: prev.postalCode || pickPostcode,
+        country: prev.country || pickCountry,
+      }));
+    } catch {}
+    return undefined;
+  });
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError(null);
@@ -139,7 +171,7 @@ export default function AddressForm({
         {/* Address Line 1 replaced by Address field above */}
 
         <div className="md:col-span-2">
-          <label className="block text-sm text-black mb-1">Address Line 2 (optional)</label>
+          <label className="block text-sm text-black mb-1">Address Line </label>
           <input
             type="text"
             value={form.addressLine2 || ""}

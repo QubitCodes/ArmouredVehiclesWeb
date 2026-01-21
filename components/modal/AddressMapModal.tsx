@@ -33,6 +33,12 @@ export default function AddressMapModal({ onClose, onConfirmLocation }: AddressM
       const data = await res.json();
       if (data?.display_name) {
         setSelectedAddress(data.display_name);
+        try {
+          localStorage.setItem(
+            "lastGeocodeAddress",
+            JSON.stringify({ displayName: data.display_name, lat, lon: lng, address: data.address })
+          );
+        } catch {}
       }
     } catch (e) {
       console.error("Reverse geocode failed", e);
@@ -171,6 +177,12 @@ export default function AddressMapModal({ onClose, onConfirmLocation }: AddressM
             markerInstanceRef.current.setLatLng([lat, lon]);
           }
           setSelectedAddress(display);
+          try {
+            localStorage.setItem(
+              "lastGeocodeAddress",
+              JSON.stringify({ displayName: display, lat, lon, address: (first as any)?.address })
+            );
+          } catch {}
         }
       }
     } catch (err) {
