@@ -62,9 +62,9 @@ export default function SellerInformation({
                 });
                 const uploadJson = await uploadRes.json();
 
-                if (uploadJson.success && uploadJson.data && uploadJson.data.length > 0) {
+                if (uploadJson.status && uploadJson.data && uploadJson.data.length > 0) {
                     vatCertificateUrl = uploadJson.data[0];
-                }
+                } else { }
             }
 
             const payload = {

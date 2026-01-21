@@ -22,6 +22,7 @@ export default function ContactPerson({
   const [contactMobile, setContactMobile] = useState("");
   const [termsAccepted, setTermsAccepted] = useState(false);
   const [idFile, setIdFile] = useState<File | null>(null);
+  const [existingFile, setExistingFile] = useState<string | null>(null);
 
   const [error, setError] = useState<string | null>(null);
   const [submitting, setSubmitting] = useState(false);
@@ -43,27 +44,38 @@ export default function ContactPerson({
 
     try {
       setSubmitting(true);
+      let contactIdDocumentUrl = existingFile;
 
-      const formData = new FormData();
-      formData.append("contactFullName", contactFullName);
-      formData.append("termsAccepted", "true");
-
-      if (contactJobTitle)
-        formData.append("contactJobTitle", contactJobTitle);
-
-      if (contactWorkEmail)
-        formData.append("contactWorkEmail", contactWorkEmail);
-
-      if (contactMobile) {
-        formData.append("contactMobile", contactMobile);
-        formData.append("contactMobileCountryCode", "+91");
-      }
-
+      // 1. Upload File if selected
       if (idFile) {
-        formData.append("contactIdDocumentFile", idFile);
+        const uploadData = new FormData();
+        uploadData.append("files", idFile);
+        uploadData.append("label", "CONTACT_ID_DOCUMENT"); // Use appropriate label
+
+        // Generic Upload API
+        const uploadRes = await API.post("/upload/files", uploadData, {
+          headers: { "Content-Type": "multipart/form-data" }
+        });
+
+        if (uploadRes.data.status && uploadRes.data.data.length > 0) {
+          contactIdDocumentUrl = uploadRes.data.data[0];
+        } else {
+          throw new Error("File upload failed");
+        }
       }
 
-      await API.post("/onboarding/step2", formData);
+      // 2. Submit Form Data as JSON
+      const payload = {
+        contactFullName,
+        termsAccepted,
+        contactJobTitle,
+        contactWorkEmail,
+        contactMobile,
+        contactMobileCountryCode: "+91", // Hardcoded per existing logic or improve if needed
+        contactIdDocumentUrl
+      };
+
+      await API.post("/onboarding/step2", payload);
 
       onNext();
     } catch (err: any) {
@@ -78,20 +90,72 @@ export default function ContactPerson({
 
   useEffect(() => {
     if (initialData) {
-        if (initialData.contact_full_name) setContactFullName(initialData.contact_full_name);
-        if (initialData.contact_job_title) setContactJobTitle(initialData.contact_job_title);
-        if (initialData.contact_work_email) setContactWorkEmail(initialData.contact_work_email);
-        
-        // Handle contact mobile if available. Similar to step 0, might conflict with hardcoded +91 in UI.
-        // If data has contact_mobile, set it. Country code might be separate.
-        if (initialData.contact_mobile) {
-            setContactMobile(initialData.contact_mobile);
-        }
-        
-        // If terms were accepted previously
-        if (initialData.terms_accepted) setTermsAccepted(true);
+      if (initialData.contact_full_name) setContactFullName(initialData.contact_full_name);
+      if (initialData.contact_job_title) setContactJobTitle(initialData.contact_job_title);
+      if (initialData.contact_work_email) setContactWorkEmail(initialData.contact_work_email);
+
+      if (initialData.contact_mobile) {
+        setContactMobile(initialData.contact_mobile);
+      }
+
+      if (initialData.terms_accepted) setTermsAccepted(true);
+      if (initialData.contact_id_document_url) setExistingFile(initialData.contact_id_document_url);
     }
   }, [initialData]);
+
+  // Handle file change
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (e.target.files && e.target.files[0]) {
+      setIdFile(e.target.files[0]);
+    }
+  };
+
+  // Helper for preview
+  const getPreviewContent = () => {
+    if (idFile) {
+      // New file selected
+      return (
+        <div className="mt-4 p-4 border rounded bg-white">
+          <p className="font-semibold text-green-600">New File Selected:</p>
+          <p className="text-sm">{idFile.name} ({(idFile.size / 1024).toFixed(2)} KB)</p>
+        </div>
+      );
+    }
+
+    if (existingFile) {
+      // Existing file
+      const isPdf = existingFile.toLowerCase().endsWith('.pdf');
+      const isImage = /\.(jpg|jpeg|png|webp)$/i.test(existingFile);
+
+      return (
+        <div className="mt-4">
+          <p className="mb-2 font-medium text-gray-700">Uploaded Document:</p>
+          <div className="border rounded overflow-hidden bg-gray-50 border-gray-200">
+            {isPdf ? (
+              <iframe
+                src={existingFile}
+                className="w-full h-[300px]"
+                title="Document Preview"
+              />
+            ) : isImage ? (
+              <img
+                src={existingFile}
+                alt="Document Preview"
+                className="max-w-full h-auto max-h-[300px] object-contain mx-auto"
+              />
+            ) : (
+              <div className="p-4 text-center">
+                <a href={existingFile} target="_blank" rel="noopener noreferrer" className="text-blue-600 underline">
+                  View Document
+                </a>
+              </div>
+            )}
+          </div>
+        </div>
+      );
+    }
+    return null;
+  };
 
   return (
     <div className="max-w-[1200px] mx-auto bg-[#EBE3D6] p-8 mt-8 text-black">
@@ -159,7 +223,6 @@ export default function ContactPerson({
             </label>
 
             <div
-              onClick={() => fileInputRef.current?.click()}
               className="border border-dashed border-[#C7B88A] bg-[#EBE3D6] p-6 text-center relative cursor-pointer"
             >
               <div className="flex justify-center mb-2">
@@ -167,7 +230,7 @@ export default function ContactPerson({
               </div>
 
               <p className="text-sm mb-1 text-black">
-                {idFile ? idFile.name : "Choose a File or Drag & Drop It Here."}
+                {idFile ? idFile.name : (existingFile ? "Current File Uploaded (Click to Change)" : "Choose a File or Drag & Drop It Here.")}
               </p>
 
               <p className="text-xs text-gray-600">
@@ -179,9 +242,12 @@ export default function ContactPerson({
                 type="file"
                 accept=".jpg,.jpeg,.png,.pdf,.mp4"
                 className="absolute inset-0 opacity-0 cursor-pointer"
-                onChange={(e) => setIdFile(e.target.files?.[0] || null)}
+                onChange={handleFileChange}
               />
             </div>
+
+            {/* Document Preview Section */}
+            {getPreviewContent()}
           </div>
 
           {/* Mobile */}
@@ -224,7 +290,7 @@ export default function ContactPerson({
         </label>
       </div>
 
-    
+
 
       {/* Buttons */}
       <div className="flex justify-center gap-6 mt-10">
@@ -244,7 +310,7 @@ export default function ContactPerson({
           {submitting ? "Submitting..." : "Next"}
         </button>
       </div>
-        {error && <p className="text-red-600 text-center mt-4">{error}</p>}
+      {error && <p className="text-red-600 text-center mt-4">{error}</p>}
     </div>
   );
 }
