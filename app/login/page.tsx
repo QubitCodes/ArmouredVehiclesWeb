@@ -35,7 +35,14 @@ function LoginForm() {
     };
 
     const handleContinue = async () => {
-        const email = identifier.trim();
+        let email = identifier.trim();
+        if (email.length > 0) {
+            const first = email.charAt(0);
+            // if first character is an uppercase letter, convert it to lowercase
+            if (first !== first.toLowerCase()) {
+            email = first.toLowerCase() + email.slice(1);
+            }
+        }
         if (!email) {
             alert("Please enter your email or phone number");
             return;
@@ -126,7 +133,17 @@ function LoginForm() {
     }, [authLoading, isAuthenticated, router, searchParams]);
 
     const handleVerify = async (manualEmail?: string, manualCode?: string) => {
-        const email = manualEmail || identifier.trim();
+        // Normalize email/identifier similar to handleContinue: prefer a provided manualEmail
+        // but fall back to the current identifier. Trim and ensure the first character is
+        // lowercased if it was uppercase.
+        let email = manualEmail && manualEmail.trim().length > 0 ? manualEmail.trim() : identifier.trim();
+        if (email.length > 0) {
+            const first = email.charAt(0);
+            if (first !== first.toLowerCase()) {
+                email = first.toLowerCase() + email.slice(1);
+            }
+        }
+
         const code = manualCode || otp.join("");
         
         if (code.length !== 6) {

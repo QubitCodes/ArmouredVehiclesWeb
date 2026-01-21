@@ -40,6 +40,8 @@ function CategoryContent() {
     const { isAuthenticated } = useAuth();
     const [placeholderImage, setPlaceholderImage] = useState<string>("/placeholder.jpg");
     const [childCategories, setChildCategories] = useState<Array<{ id: number; name: string; slug?: string; parent_id?: number; image?: string | null }>>([]);
+    // Sort selection -> API accepts values like 'price_asc' | 'price_desc'
+    const [selectedSort, setSelectedSort] = useState<string>("");
 
     // Fetch category details from backend using category id in URL
     useEffect(() => {
@@ -94,6 +96,9 @@ function CategoryContent() {
                 }
                 if (searchQueryParam && searchQueryParam.trim()) {
                     filters.search = searchQueryParam.trim();
+                }
+                if (selectedSort) {
+                    filters.sort = selectedSort;
                 }
 
                 const payload: any = await api.products.getAllWithMeta(Object.keys(filters).length ? filters : undefined);
@@ -150,7 +155,7 @@ function CategoryContent() {
         };
 
         fetchProductsInitial();
-    }, [categoryIdParam, searchQueryParam, placeholderImage]);
+    }, [categoryIdParam, searchQueryParam, placeholderImage, selectedSort]);
 
 
     // Filter states
@@ -222,6 +227,7 @@ function CategoryContent() {
 
                 if (priceRange.min > 0) filters.min_price = priceRange.min;
                 if (priceRange.max > 0 && priceRange.max < 1000000) filters.max_price = priceRange.max;
+                if (selectedSort) filters.sort = selectedSort;
                 console.log("Fetching products with filters:", filters);
                 const payload: any = await api.products.getAllWithMeta(filters);
 
@@ -283,7 +289,7 @@ function CategoryContent() {
             }
         };
         fetchProducts();
-    }, [categoryIdParam, searchQueryParam, selectedBrands, selectedCategoryId, priceRange, selectedConditions, selectedColors, selectedCountries, selectedSizes, placeholderImage]); // Dep array triggers update
+    }, [categoryIdParam, searchQueryParam, selectedBrands, selectedCategoryId, priceRange, selectedConditions, selectedColors, selectedCountries, selectedSizes, placeholderImage, selectedSort]); // Dep array triggers update
 
     const toggleBrand = (brand: string) => {
         setSelectedBrands(prev =>
@@ -895,12 +901,14 @@ function CategoryContent() {
                                 {/* Sort By - Desktop */}
                                 <div className="relative">
                                     <select
+                                        value={selectedSort}
+                                        onChange={(e) => setSelectedSort(e.target.value)}
                                         className="border border-[#D8D3C5] px-3 py-2 text-sm bg-[#F0EBE3] text-black cursor-pointer appearance-none pr-8"
                                     >
                                         <option value="">Sort By</option>
-                                        <option value="lth">Price: Low to High</option>
-                                        <option value="htl">Price: High to Low</option>
-                                        <option value="rating">Rating</option>
+                                        <option value="price_asc">Price: Low to High</option>
+                                        <option value="price_desc">Price: High to Low</option>
+                                        <option value="rating_desc">Rating</option>
                                     </select>
 
                                     {/* Down Arrow Icon */}

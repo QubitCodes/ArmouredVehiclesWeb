@@ -29,6 +29,7 @@ export default function RegisterPage() {
   const [phoneOtp, setPhoneOtp] = useState<string[]>(Array(6).fill(""));
   const emailRefs = useRef<HTMLInputElement[]>([]);
   const phoneRefs = useRef<HTMLInputElement[]>([]);
+  const prevDialCodeRef = useRef<string>("");
   const [debugOtp, setDebugOtp] = useState<string>("");
   const [phoneResendTimer, setPhoneResendTimer] = useState<number>(0);
 
@@ -88,11 +89,17 @@ export default function RegisterPage() {
       // Persist partial state
       localStorage.setItem("registration_userId", data.userId);
       localStorage.setItem("registration_email", form.email.trim());
-      localStorage.setItem("registration_stage", "verify_email");
-      
-      setStage("verify_email");
-      // Focus first OTP box
-      setTimeout(() => emailRefs.current[0]?.focus(), 0);
+
+      // If backend says continue to phone, skip email OTP stage
+      if (data?.continueToPhone) {
+        localStorage.setItem("registration_stage", "set_phone");
+        setStage("set_phone");
+      } else {
+        localStorage.setItem("registration_stage", "verify_email");
+        setStage("verify_email");
+        // Focus first OTP box
+        setTimeout(() => emailRefs.current[0]?.focus(), 0);
+      }
     } catch (err: any) {
       const msg = err?.response?.data?.message || err?.message || "Failed to start OTP registration";
       showError(msg);
@@ -304,7 +311,7 @@ export default function RegisterPage() {
       <div className="relative z-10 max-w-[1720px] mx-auto px-6 lg:px-[140px] flex items-center min-h-[calc(100vh-140px)]">
         <div className="bg-[#F3EDE3] w-full max-w-[420px] p-8 shadow-md text-center">
           <h2 className="text-[22px] font-bold mb-2 uppercase text-black font-orbitron">
-            Create Your Customer Account
+            Create Your <br /> Customer Account
           </h2>
 
           <p className="text-sm text-gray-700 mb-6">
@@ -478,7 +485,7 @@ export default function RegisterPage() {
              <button
                onClick={handleSetPhone}
                disabled={loading}
-               className="w-full h-[52px] bg-[#D35400] text-white font-black text-[16px] clip-path-supplier hover:bg-[#39482C] transition-colors uppercase"
+               className="w-full h-[52px] bg-[#D35400] text-white font-black text-[16px] clip-path-supplier hover:bg-[#39482C] transition-colors uppercase mt-5"
              >
                {loading ? "Sending..." : "Send OTP"}
              </button>

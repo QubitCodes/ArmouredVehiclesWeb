@@ -286,7 +286,7 @@ export default function CartPage() {
                   onClick={() => setShowAddressModal(true)}
                   className="bg-[#D34D24] text-white font-orbitron font-bold text-[14px] uppercase px-6 py-2 relative clip-path-[polygon(10%_0%,100%_0%,90%_100%,0%_100%)] hover:bg-[#B84A00] transition-colors shrink-0"
                 >
-                  CHANGE
+                  ADD SHIPPING ADDRESS
                 </button>
               </div>
               {/* 

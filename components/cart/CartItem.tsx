@@ -2,6 +2,7 @@ import QuantitySelector from "./QuantitySelector";
 import Link from 'next/link';
 import { Bookmark } from "lucide-react";
 import Image from "next/image";
+import { syncRemoveFromServer } from "@/lib/cart-sync";
 
 export default function CartItem({ data, updateQty, removeItem, saveForLater }: any) {
   return (
@@ -138,7 +139,19 @@ export default function CartItem({ data, updateQty, removeItem, saveForLater }: 
 
         <div className="flex gap-3 lg:ml-auto">
           <button
-            onClick={() => removeItem(data.id)}
+            onClick={async () => {
+              try {
+                // Optimistic local removal
+                removeItem(data.id);
+                const pid = Number(data.id);
+                if (Number.isFinite(pid)) {
+                  // Ensure server-side cart item is deleted
+                  await syncRemoveFromServer(pid);
+                }
+              } catch (e) {
+                console.error("Backend cart delete failed", e);
+              }
+            }}
             className="flex items-center gap-1 hover:text-red-600"
           >
             <Image src="/icons/delete.svg" width={12} height={12} alt="Delete" />
