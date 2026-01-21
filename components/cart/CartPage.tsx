@@ -263,17 +263,36 @@ export default function CartPage() {
                 <div className="w-full">
                   {address ? (
                     <>
-                      <p className="text-sm font-semibold">Deliver to: {address.label}</p>
+                      <p className="text-sm font-semibold">Deliver to: {address.full_name}</p>
                       <div className="text-[14px] text-[#6E6E6E] mt-1 break-words">
-                        <p>{address.addressLine1 || (address as any).address_line1}</p>
-                        {(address.addressLine2 || (address as any).address_line2) && (
-                          <p>{address.addressLine2 || (address as any).address_line2}</p>
-                        )}
                         <p>
-                          {[address.city, address.state].filter(Boolean).join(", ")}
-                          {(address.postalCode || (address as any).postal_code) ? ` - ${address.postalCode || (address as any).postal_code}` : ""}
+                          {
+                            // Render address parts individually so we can highlight the pincode
+                            (() => {
+                              const addr1 = address.addressLine1 || (address as any).address_line1;
+                              const addr2 = address.addressLine2 || (address as any).address_line2;
+                              const cityState = [address.city, address.state].filter(Boolean).join(" ");
+                              const postal = address.postalCode || (address as any).postal_code;
+                              const country = address.country;
+
+                              const parts = [addr1, addr2, cityState, postal, country].filter(Boolean);
+
+                              return parts.map((part, idx) => {
+                                const isPostal = postal && part === postal;
+                                return (
+                                  <span key={idx}>
+                                    {isPostal ? (
+                                      <span className="px-1 py-0.5 font-bold text-[#333] rounded">{part}</span>
+                                    ) : (
+                                      <span>{part}</span>
+                                    )}
+                                    {idx < parts.length - 1 ? ", " : ""}
+                                  </span>
+                                );
+                              });
+                            })()
+                          }
                         </p>
-                        <p>{address.country}</p>
                       </div>
                     </>
                   ) : (
@@ -286,7 +305,7 @@ export default function CartPage() {
                   onClick={() => setShowAddressModal(true)}
                   className="bg-[#D34D24] text-white font-orbitron font-bold text-[14px] uppercase px-6 py-2 relative clip-path-[polygon(10%_0%,100%_0%,90%_100%,0%_100%)] hover:bg-[#B84A00] transition-colors shrink-0"
                 >
-                  ADD SHIPPING ADDRESS
+                  {address ? "CHANGE SHIPPING ADDRESS" : "ADD SHIPPING ADDRESS"}
                 </button>
               </div>
               {/* 
