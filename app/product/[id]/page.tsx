@@ -29,6 +29,7 @@ type ProductDisplay = {
   category?: { id: number; name: string } | null;
   similarProducts?: any[];
   misc?: any;
+  isControlled?: boolean;
 };
 
 export default function ProductDetailsPage() {
@@ -127,7 +128,8 @@ export default function ProductDetailsPage() {
             ? productData.review_count
             : typeof productData.reviewCount === "number"
               ? productData.reviewCount
-              : Number(productData.review_count ?? productData.reviewCount) || 0
+              : Number(productData.review_count ?? productData.reviewCount) || 0,
+          isControlled: productData.is_controlled ?? false,
         });
 
         // 1.1 Fetch Similar Products if category exists

@@ -145,19 +145,7 @@ export default function CartItem({ data, updateQty, removeItem, saveForLater }: 
 
         <div className="flex gap-3 lg:ml-auto">
           <button
-            onClick={async () => {
-              try {
-                // Optimistic local removal
-                removeItem(data.id);
-                const pid = Number(data.id);
-                if (Number.isFinite(pid)) {
-                  // Ensure server-side cart item is deleted
-                  await syncRemoveFromServer(pid);
-                }
-              } catch (e) {
-                console.error("Backend cart delete failed", e);
-              }
-            }}
+            onClick={() => removeItem(data.id)}
             className="flex items-center gap-1 hover:text-red-600"
           >
             <Image src="/icons/delete.svg" width={12} height={12} alt="Delete" />

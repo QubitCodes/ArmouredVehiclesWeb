@@ -185,7 +185,7 @@ async function fetchJson<T>(endpoint: string, options: RequestInit = {}, retry =
     ...options.headers,
   };
 
-  const response = await fetch(url, { ...options, headers });
+  const response = await fetch(url, { cache: 'no-store', ...options, headers });
 
   // 2. Error handling: If 401 Unauthorized, try to refresh and retry ONCE
   if (response.status === 401) {

@@ -7,9 +7,10 @@ type Props = {
   rating?: number | string | null;
   reviewCount?: number | null;
   sku?: string | null;
+  isControlled?: boolean;
 };
 
-export default function ProductHeader({ name, rating, reviewCount, sku }: Props) {
+export default function ProductHeader({ name, rating, reviewCount, sku, isControlled }: Props) {
   const numericRating = typeof rating === "string" ? parseFloat(rating) : rating ?? 0;
   const showRating = Number.isFinite(numericRating) && numericRating! > 0;
   const stars = Math.round(Math.max(0, Math.min(5, Number(numericRating) || 0)));
@@ -37,7 +38,16 @@ export default function ProductHeader({ name, rating, reviewCount, sku }: Props)
           </span>
         )}
 
-        {sku && <span className="text-sm text-gray-500">SKU #{sku}</span>}
+        {sku && (
+          <div className="flex items-center gap-2">
+            <span className="text-sm text-gray-500">SKU #{sku}</span>
+            {isControlled && (
+              <div className="inline-block bg-red-100 text-red-600 text-[10px] md:text-xs px-2 py-0.5 font-bold uppercase tracking-wider border border-red-200 w-fit">
+                Controlled
+              </div>
+            )}
+          </div>
+        )}
       </div>
     </div>
   );

@@ -2,7 +2,7 @@
 
 import Image from "next/image";
 import Link from "next/link";
-import { Check, Info } from "lucide-react";
+import { Check, Info, Plus, Minus } from "lucide-react";
 import { Heart } from "lucide-react";
 import { Star, ShieldCheck } from "lucide-react";
 import { useRouter } from "next/navigation";
@@ -42,7 +42,7 @@ export default function ProductPurchaseSection({
     const displayPrice = price != null && price !== '' ? String(price) : undefined;
     const router = useRouter();
     const { isAuthenticated, isLoading } = useAuth();
-    
+
     const { isInWishlist, toggleWishlist } = useWishlist();
     const isLiked = isInWishlist(productId);
 
@@ -153,52 +153,40 @@ export default function ProductPurchaseSection({
 
             {/* QUANTITY */}
             {isAuthenticated && (
-            <div className="relative w-full">
-                <select
-                    id="quantity"
-                    value={quantity}
-                    onChange={(e) => setQuantity(Number(e.target.value))}
-                    className="
-      w-full
-      h-12
-      appearance-none
-      border border-[#B7B1A8]
-      bg-[#EBE4D7]
-      px-4
-      pr-10
-      text-black
-      text-sm
-      focus:outline-none
-    "
-                >
-                    {[...Array(10)].map((_, i) => (
-                        <option key={i + 1} value={i + 1}>
-                            Quantity: {i + 1}
-                        </option>
-                    ))}
-                </select>
-
-                {/* Chevron */}
-                <div className="pointer-events-none absolute inset-y-0 right-3 flex items-center">
-                    <svg
-                        xmlns="http://www.w3.org/2000/svg"
-                        className="w-4 h-4 text-black"
-                        fill="none"
-                        viewBox="0 0 24 24"
-                        stroke="currentColor"
-                        strokeWidth={2}
-                    >
-                        <path strokeLinecap="round" strokeLinejoin="round" d="M19 9l-7 7-7-7" />
-                    </svg>
+                <div className="flex items-center gap-3">
+                    <span className="text-black font-medium">Quantity:</span>
+                    <div className="flex items-center border border-[#B7B1A8] bg-[#EBE4D7] h-10 w-32">
+                        <button
+                            onClick={() => setQuantity(Math.max(1, quantity - 1))}
+                            className="w-10 h-full flex items-center justify-center text-black hover:bg-[#D8D1C5] transition"
+                        >
+                            <Minus size={16} />
+                        </button>
+                        <input
+                            type="number"
+                            value={quantity}
+                            onChange={(e) => {
+                                const val = parseInt(e.target.value);
+                                if (!isNaN(val) && val >= 1) setQuantity(val);
+                            }}
+                            className="flex-1 w-full h-full bg-transparent text-center text-black outline-none appearance-none [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none"
+                            min={1}
+                        />
+                        <button
+                            onClick={() => setQuantity(quantity + 1)}
+                            className="w-10 h-full flex items-center justify-center text-black hover:bg-[#D8D1C5] transition"
+                        >
+                            <Plus size={16} />
+                        </button>
+                    </div>
                 </div>
-            </div>
             )}
 
             {/* DELIVERY OPTIONS */}
             {isAuthenticated && (
-            <div className="grid grid-cols-2 gap-4">
+                <div className="grid grid-cols-2 gap-4">
 
-                {/* <div className="relative border-2 border-[#FF7A00] bg-white text-center py-6 px-4">
+                    {/* <div className="relative border-2 border-[#FF7A00] bg-white text-center py-6 px-4">
 
                     <div className="absolute top-0 left-0">
                         <div className="w-10 h-10 bg-[#FF7A00] clip-triangle flex items-center justify-center">
@@ -226,16 +214,16 @@ export default function ProductPurchaseSection({
                     </div>
                 </div> */}
 
-            </div>
+                </div>
             )}
 
 
             {/* ACTION BUTTONS – RESPONSIVE */}
             {isAuthenticated && (
-            <div className="flex flex-col gap-3 md:grid md:grid-cols-3 md:gap-4">
+                <div className="flex flex-col gap-3 md:grid md:grid-cols-3 md:gap-4">
 
-                {/* BUY IT NOW */}
-                {/* <button
+                    {/* BUY IT NOW */}
+                    {/* <button
                     onClick={() => {
                         if (!isAuthenticated) {
                             router.push(`/login?redirect=/checkout`);
@@ -251,49 +239,49 @@ export default function ProductPurchaseSection({
                     </span>
                 </button> */}
 
-                {/* ADD TO CART */}
-                <button
-                    className="w-full h-11 bg-[#2F3A1D] clip-path-supplier
+                    {/* ADD TO CART */}
+                    <button
+                        className="w-full h-11 bg-[#2F3A1D] clip-path-supplier
                flex items-center justify-center
                hover:bg-[#3D4A26] transition-colors"
-                    onClick={onAddToCart}
-                >
-                    <span className="font-orbitron font-black text-[16px] uppercase text-white">
-                        Add To Cart
-                    </span>
-                </button>
+                        onClick={onAddToCart}
+                    >
+                        <span className="font-orbitron font-black text-[16px] uppercase text-white">
+                            Add To Cart
+                        </span>
+                    </button>
 
-                {/* ADD TO WISHLIST */}
-                <button 
-                    className="relative w-full h-10 bg-transparent md:col-span-1"
-                    onClick={async () => {
-                        await toggleWishlist(productId);
-                    }}
-                >
-                    {/* BORDER */}
-                    <span
+                    {/* ADD TO WISHLIST */}
+                    <button
+                        className="relative w-full h-10 bg-transparent md:col-span-1"
+                        onClick={async () => {
+                            await toggleWishlist(productId);
+                        }}
+                    >
+                        {/* BORDER */}
+                        <span
                             className="absolute inset-0 clip-path-supplier bg-[#3D4A26]"
                             aria-hidden
-                    />
+                        />
 
-                    {/* INNER WHITE */}
-                    <span
+                        {/* INNER WHITE */}
+                        <span
                             className="absolute inset-[1px] clip-path-supplier bg-white"
                             aria-hidden
-                    />
+                        />
 
-                    {/* CONTENT */}
-                    <span
+                        {/* CONTENT */}
+                        <span
                             className="relative z-10 flex items-center justify-center gap-1
                                      h-full w-full font-orbitron font-black
                                      text-sm uppercase text-[#3D4A26]"
-                    >
+                        >
                             <Heart size={14} strokeWidth={2} className={isLiked ? "fill-[#3D4A26] text-[#3D4A26]" : ""} />
                             {isLiked ? "Saved" : "Add To Wishlist"}
-                    </span>
-                </button>
+                        </span>
+                    </button>
 
-            </div>
+                </div>
             )}
 
 

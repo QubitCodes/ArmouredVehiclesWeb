@@ -5,13 +5,30 @@ import { useCartStore, CartItemLocal } from "@/lib/cart-store";
 
 // Helper: find server cart item id by productId (for update/delete)
 async function findServerCartItemId(productId: number) {
-  const items = await api.cart.get();
-  // Check common key variations
-  const match = (items || []).find((ci: any) => {
-      const pId = ci.productId ?? ci.product_id ?? ci.product?.id;
-      return Number(pId) === Number(productId);
-  });
-  return match?.id as number | undefined;
+  try {
+    const response: any = await api.cart.get();
+    const items = Array.isArray(response) ? response : (response.data?.items || response.items || []);
+
+    // Check common key variations
+    // The server cart item usually has an 'id' (cart item id) and 'productId' (product id).
+    // Sometimes it might be nested in 'product'. 
+    const match = items.find((ci: any) => {
+        const pId = ci.productId ?? ci.product_id ?? ci.product?.id;
+        // console.log(`Debug: Checking item ${ci.id}, pId found: ${pId}`);
+        return String(pId) === String(productId);
+    });
+    
+    if (!match) {
+        console.warn(`Cart sync warning: Could not find server cart item for product ID ${productId}`);
+    } else {
+        // console.log(`Debug: Found match, cart item ID: ${match.id}`);
+    }
+    
+    return match?.id as number | undefined;
+  } catch (e) {
+    console.error("Error finding server cart item id", e);
+    return undefined;
+  }
 }
 
 export async function syncAddToServer(productId: number, quantity: number) {
@@ -43,9 +60,15 @@ export async function syncRemoveFromServer(productId: number) {
   // if (!token) return;
   try {
     const cartItemId = await findServerCartItemId(productId);
-    if (cartItemId) await api.cart.remove(cartItemId);
+    console.log(`[SyncRemove] ProductId: ${productId} -> CartItemId: ${cartItemId}`);
+    if (cartItemId) {
+        const res = await api.cart.remove(cartItemId);
+        console.log(`[SyncRemove] Remove result:`, res);
+    } else {
+        console.warn(`[SyncRemove] Could not find cart item to remove for product ${productId}`);
+    }
   } catch (e) {
-    // console.warn("Cart remove sync failed", e);
+    console.error("Cart remove sync failed", e);
   }
 }
 

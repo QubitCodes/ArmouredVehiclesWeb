@@ -30,7 +30,7 @@ import ReviewsTab from "@/components/product/tabs/ReviewsTab";
 
 const DesktopLayout = ({ id, product }: { id?: string; product?: any }) => {
     const [selectedImage, setSelectedImage] = useState(0);
-    const [quantity, setQuantity] = useState(1);
+    const [quantity, setQuantity] = useState(10);
     const [showGallery, setShowGallery] = useState(false);
     const [expandedVehicle, setExpandedVehicle] = useState<string | null>("genesis");
     const addItem = useCartStore((s) => s.addItem);
@@ -150,6 +150,7 @@ const DesktopLayout = ({ id, product }: { id?: string; product?: any }) => {
                                 rating={product?.rating}
                                 reviewCount={product?.reviewCount ?? 0}
                                 sku={product?.sku}
+                                isControlled={product?.isControlled}
                             />
                             <ProductPurchaseSection
                                 quantity={quantity}

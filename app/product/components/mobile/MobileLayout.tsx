@@ -87,7 +87,7 @@ export default function MobileLayout({ id, product }: { id?: string; product?: a
 
 
     const [selectedImage, setSelectedImage] = useState(0);
-    const [quantity, setQuantity] = useState(1);
+    const [quantity, setQuantity] = useState(10);
     const [showGallery, setShowGallery] = useState(false);
 
     // `id` is available when rendering via `/product/[id]`.
@@ -111,6 +111,7 @@ export default function MobileLayout({ id, product }: { id?: string; product?: a
                     rating={product?.rating}
                     reviewCount={product?.reviewCount ?? 0}
                     sku={product?.sku}
+                    isControlled={product?.isControlled}
                 />
 
                 {/* 2️⃣ GALLERY */}
