@@ -10,16 +10,16 @@ const paymentMethods = [
         label: "Credit or debit card",
         icons: ["/icons/payment/credictcard.svg"],
     },
-    {
-        id: "tamara",
-        label: "Tamara",
-        icons: ["/icons/payment/tamara.svg"],
-    },
-    {
-        id: "tabby",
-        label: "Tabby",
-        icons: ["/icons/payment/tabby.svg"],
-    },
+    // {
+    //     id: "tamara",
+    //     label: "Tamara",
+    //     icons: ["/icons/payment/tamara.svg"],
+    // },
+    // {
+    //     id: "tabby",
+    //     label: "Tabby",
+    //     icons: ["/icons/payment/tabby.svg"],
+    // },
     {
         id: "apple",
         label: "Apple Pay",

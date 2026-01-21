@@ -72,8 +72,8 @@ const Footer = ({ disableMobileBottomSpace = false }: FooterProps) => {
   const paymentMethods = [
     { icon: "/icons/payment/mastercard.svg", alt: "Mastercard" },
     { icon: "/icons/payment/visa.svg", alt: "Visa" },
-    { icon: "/icons/payment/tabby.svg", alt: "Tabby" },
-    { icon: "/icons/payment/tamara.svg", alt: "Tamara" },
+    // { icon: "/icons/payment/tabby.svg", alt: "Tabby" },
+    // { icon: "/icons/payment/tamara.svg", alt: "Tamara" },
     { icon: "/icons/payment/apple-pay.svg", alt: "Apple Pay" },
   ];
 
@@ -102,7 +102,7 @@ const Footer = ({ disableMobileBottomSpace = false }: FooterProps) => {
           </div>
 
           {/* Currency Selector - Mobile */}
-          <div className="shrink-0 relative mb-6">
+          {/* <div className="shrink-0 relative mb-6">
             <button
               className="w-[115px] h-[45px] flex items-center justify-center bg-white border border-gray-200 hover:bg-gray-50 gap-3 px-3 rounded"
               onClick={() => setCurrencyOpen((s) => !s)}
@@ -127,7 +127,7 @@ const Footer = ({ disableMobileBottomSpace = false }: FooterProps) => {
                 </button>
               </div>
             )}
-          </div>
+          </div> */}
 
           {([
             { id: "about", title: "ABOUT US", items: aboutUs },
@@ -180,7 +180,7 @@ const Footer = ({ disableMobileBottomSpace = false }: FooterProps) => {
               <div>
                 <Image src="/icons/final-logo-white.svg" alt="logo" width={220} height={120} />
                 {/* Currency Selector - Between Logo and Social Icons */}
-                <div className="shrink-0 relative mt-4" ref={currencyRef}>
+                {/* <div className="shrink-0 relative mt-4" ref={currencyRef}>
                   <button
                     className="w-[115px] h-[45px] flex items-center justify-center bg-white border border-gray-200 hover:bg-gray-50 gap-3 px-3 rounded"
                     onClick={() => setCurrencyOpen((s) => !s)}
@@ -205,7 +205,7 @@ const Footer = ({ disableMobileBottomSpace = false }: FooterProps) => {
                       </button>
                     </div>
                   )}
-                </div>
+                </div> */}
 
                 {/* Social Icons */}
                 <div className="flex gap-6 mt-12">
