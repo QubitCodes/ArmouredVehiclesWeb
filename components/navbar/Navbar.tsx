@@ -320,8 +320,8 @@ const Navbar = () => {
 
           {/* MOBILE SEARCH BAR */}
           <div
-            className={`lg:hidden mt-2 pb-3 overflow-hidden transition-[max-height,opacity] duration-300 ease-in-out ${
-              showMobileSearch ? "opacity-100 max-h-[60px]" : "opacity-0 max-h-0"
+            className={`lg:hidden mt-2 overflow-hidden transition-[max-height,opacity] duration-300 ease-in-out ${
+              showMobileSearch ? "opacity-100 max-h-[60px] pb-3" : "opacity-0 max-h-0 pb-0"
             }`}
           >
             <div className="relative h-12">
