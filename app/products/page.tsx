@@ -489,29 +489,31 @@ function CategoryContent() {
                     </h1>
 
                     {/* Filter Buttons - Mobile View */}
-                    <div className="flex lg:hidden items-center gap-2 mb-4 text-black overflow-x-auto pb-2">
-                        <button
-                            onClick={() => openMobileFilters()}
-                            className="px-4 py-2.5 border border-gray-300 bg-[#EBE3D6] text-xs font-semibold whitespace-nowrap flex items-center gap-2 font-[Orbitron] uppercase"
-                        >
-                            CATEGORY
-                            <ChevronDown size={14} />
-                        </button>
-                        <button
-                            onClick={() => openMobileFilters()}
-                            className="px-4 py-2.5 border border-gray-300 bg-[#EBE3D6] text-xs font-semibold whitespace-nowrap flex items-center gap-2 font-[Orbitron] uppercase"
-                        >
-                            BRAND
-                            <ChevronDown size={14} />
-                        </button>
-                        <button
-                            onClick={() => openMobileFilters()}
-                            className="px-4 py-2.5 border border-gray-300 bg-[#EBE3D6] text-xs font-semibold whitespace-nowrap flex items-center gap-2 font-[Orbitron] uppercase"
-                        >
-                            PRICE
-                            <ChevronDown size={14} />
-                        </button>
-                    </div>
+                    {(() => {
+                        const mobileTabs = [
+                            { label: 'CATEGORY', show: true },
+                            { label: 'BRAND', show: (filterOptions?.brands?.length ?? 0) > 0 },
+                            { label: 'PRICE', show: !!isAuthenticated },
+                            { label: 'CONDITION', show: (filterOptions?.conditions?.length ?? 0) > 0 },
+                            { label: 'COLOR', show: (filterOptions?.colors?.length ?? 0) > 0 },
+                            { label: 'SIZE', show: (filterOptions?.sizes?.length ?? 0) > 0 },
+                            { label: 'COUNTRY', show: (filterOptions?.countries?.length ?? 0) > 0 },
+                        ].filter(t => t.show);
+                        return (
+                            <div className="flex lg:hidden items-center gap-2 mb-4 text-black overflow-x-auto pb-2">
+                                {mobileTabs.map((tab) => (
+                                    <button
+                                        key={tab.label}
+                                        onClick={() => openMobileFilters()}
+                                        className="px-4 py-2.5 border border-gray-300 bg-[#EBE3D6] text-xs font-semibold whitespace-nowrap flex items-center gap-2 font-[Orbitron] uppercase shrink-0"
+                                    >
+                                        {tab.label}
+                                        <ChevronDown size={14} />
+                                    </button>
+                                ))}
+                            </div>
+                        );
+                    })()}
                 </div>
             </Container>
 
