@@ -26,6 +26,7 @@ import ProductDetailsTab from "@/components/product/tabs/ProductDetailsTab";
 import WarrantyTab from "@/components/product/tabs/WarrantyTab";
 import ReviewsTab from "@/components/product/tabs/ReviewsTab";
 import PopularProducts from "../shared/PopularItems";
+import ProductSpecificationsTable from "../shared/ProductSpecificationsTable";
 
 
 
@@ -185,6 +186,12 @@ const DesktopLayout = ({ id, product }: { id?: string; product?: any }) => {
                 </div>
             </Container>
 
+            {product?.id && (
+                <Container className="mb-6">
+                    <ProductSpecificationsTable productId={Number(product.id)} />
+                </Container>
+            )}
+
             <Container className="my-8">
                 {similarProducts.length > 0 && (
                     <SimilarItemsSection products={similarProducts} />
@@ -207,7 +214,7 @@ const DesktopLayout = ({ id, product }: { id?: string; product?: any }) => {
             )}
             <Container className="my-8">
 
-                <PopularProducts  />
+                <PopularProducts />
             </Container>
         </section>
 

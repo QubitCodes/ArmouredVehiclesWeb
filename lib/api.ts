@@ -426,6 +426,10 @@ export const api = {
     },
     getSimilar: (id: number) => fetchJson<Product[]>(`/products/${id}/similar`),
     getRecommended: (id: number) => fetchJson<Product[]>(`/products/${id}/recommended`),
+    getSpecifications: async (id: number) => {
+      const res = await fetchJson<any>(`/products/${id}/specifications`);
+      return Array.isArray(res) ? res : res?.data ?? [];
+    },
   },
 
   // --- Categories ---
