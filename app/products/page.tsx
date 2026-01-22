@@ -384,7 +384,7 @@ function CategoryContent() {
         || (categoryNameParam || 'All Products');
 
     return (
-        <section className='bg-[#F0EBE3] relative px-4'>
+        <section className='bg-[#F0EBE3] relative px-0 md:px-4'>
             {/* ---------------- BREADCRUMB BAR ---------------- */}
             {/* <div className="bg-[#E8E3D6] border-b border-[#D8D3C5]">
                 
@@ -397,20 +397,20 @@ function CategoryContent() {
                     <div className="flex items-center gap-2 text-xs py-3 text-[#737373]">
                         <Link
                             href="/products"
-                            className="font-[Inter, sans-serif] font-semibold text-[12px] leading-[100%] tracking-[0%] uppercase cursor-pointer hover:text-black transition-colors"
+                            className="font-[Inter, sans-serif] font-semibold text-[12px] leading-[100%] tracking-[0%] cursor-pointer hover:text-black transition-colors"
                         >
                             Home
                         </Link>
                         {currentCategory && (
                             <>
-                                <span className="font-[Inter, sans-serif] font-semibold text-[12px] leading-[100%] tracking-[0%] uppercase">
+                                <span className="font-[Inter, sans-serif] font-semibold text-[12px] leading-[100%] tracking-[0%]">
                                     /
                                 </span>
                                 <Link
                                     href={`/products?category_id=${currentCategory.id}`}
-                                    className="font-[Inter, sans-serif] font-semibold text-[12px] leading-[100%] tracking-[0%] uppercase cursor-pointer hover:text-black transition-colors"
+                                    className="font-[Inter, sans-serif] font-semibold text-[12px] leading-[100%] tracking-[0%] cursor-pointer hover:text-black transition-colors"
                                 >
-                                    {currentCategory.name.toUpperCase()}
+                                    {currentCategory.name}
                                 </Link>
                             </>
                         )}
@@ -1047,7 +1047,13 @@ function CategoryContent() {
 
 export default function ProductListingPage() {
     return (
-        <Suspense fallback={<section className='bg-[#F0EBE3] relative px-4'><Container><div className="py-10 text-center text-black">Loading category...</div></Container></section>}>
+        <Suspense fallback={
+                <section className='bg-[#F0EBE3] relative px-0 md:px-4'>
+                <Container>
+                    <div className="py-10 text-center text-black">Loading category...</div>
+                </Container>
+            </section>
+        }>
             <CategoryContent />
         </Suspense>
     );
