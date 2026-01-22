@@ -95,9 +95,9 @@ export default function MobileLayout({ id, product }: { id?: string; product?: a
     // used to fetch product-specific data later.
     return (
         <section className="bg-[#F0EBE3]">
-            <div className="p-4 space-y-6">
+            <div className="pt-2 p-4 space-y-3">
                 {/* Breadcrumb - Mobile */}
-                <div className="flex items-center gap-2 text-xs py-2 text-[#737373] overflow-x-auto whitespace-nowrap">
+                <div className="flex items-center gap-2 text-xs pt-2 text-[#737373] overflow-x-auto whitespace-nowrap">
                     <span className="font-semibold cursor-pointer">Home</span>
                     <span className="font-semibold">{">"}</span>
                     <span className="font-semibold cursor-pointer">{product?.category?.name ? product.category.name : "Products"}</span>
@@ -127,6 +127,7 @@ export default function MobileLayout({ id, product }: { id?: string; product?: a
                 <ProductPurchaseSection
                     quantity={quantity}
                     setQuantity={setQuantity}
+                    sku={product?.sku}
                     price={product?.price}
                     originalPrice={product?.originalPrice}
                     currency={product?.currency}

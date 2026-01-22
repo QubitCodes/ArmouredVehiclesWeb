@@ -17,7 +17,7 @@ export default function ProductHeader({ name, rating, reviewCount, sku, isContro
 
   return (
     <div>
-      <Typography variant="h1" className=" text-black text-[24px] font-bold mb-2">
+      <Typography variant="h1" className=" text-black text-[18px] md:text-[24px] font-bold mb-2 leading-tight">
         {name || "Product"}
       </Typography>
 
@@ -39,7 +39,7 @@ export default function ProductHeader({ name, rating, reviewCount, sku, isContro
         )}
 
         {sku && (
-          <div className="flex items-center gap-2">
+          <div className="hidden md:flex items-center gap-2">
             <span className="text-sm text-gray-500">SKU #{sku}</span>
             {isControlled && (
               <div className="inline-block bg-red-100 text-red-600 text-[10px] md:text-xs px-2 py-0.5 font-bold uppercase tracking-wider border border-red-200 w-fit">

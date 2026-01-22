@@ -19,6 +19,7 @@ import { useWishlist } from "@/hooks/use-wishlist";
 type Props = {
     quantity: number;
     setQuantity: (qty: number) => void;
+    sku?: string | null;
     price?: string | number | null;
     originalPrice?: string | null;
     currency?: string | null;
@@ -31,6 +32,7 @@ type Props = {
 export default function ProductPurchaseSection({
     quantity,
     setQuantity,
+    sku,
     price,
     originalPrice,
     currency,
@@ -100,6 +102,7 @@ export default function ProductPurchaseSection({
                                     </div>
                                 </div>
                             )}
+                           
                         </>
                     ) : (
                         <span className="text-3xl font-bold font-[inter, sans-serif] text-black">
@@ -117,6 +120,12 @@ export default function ProductPurchaseSection({
                         Login to Purchase
                     </span>
                 )}
+                 {/* SKU - visible only on mobile */}
+                            {sku && (
+                                <div className="text-sm text-[#6F6F6F] mt-1 md:hidden">
+                                    SKU: {String(sku)}
+                                </div>
+                            )}
             </div>
 
 
