@@ -40,7 +40,14 @@ export function getRefreshToken(): string | null {
 export function getStoredUser(): User | null {
   if (typeof window === 'undefined') return null;
   const user = localStorage.getItem(USER_KEY);
-  return user ? JSON.parse(user) : null;
+  if (!user || user === 'undefined' || user === 'null') return null;
+  
+  try {
+    return JSON.parse(user);
+  } catch (e) {
+    console.error('Error parsing stored user:', e);
+    return null;
+  }
 }
 
 export function storeTokens(accessToken: string, refreshToken: string, expiresIn: number) {
@@ -57,6 +64,7 @@ export function storeTokens(accessToken: string, refreshToken: string, expiresIn
 
 export function storeUser(user: User) {
   if (typeof window === 'undefined') return;
+  if (!user) return;
   localStorage.setItem(USER_KEY, JSON.stringify(user));
 }
 

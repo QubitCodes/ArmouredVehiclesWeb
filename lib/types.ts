@@ -1,4 +1,3 @@
-// User Types
 export interface User {
   id: string;
   name: string;
@@ -8,7 +7,16 @@ export interface User {
   phone?: string;
   avatar?: string;
   completionPercentage?: number;
-  profile?: any;
+  profile?: {
+    mobile?: string;
+    mobile_country_code?: string;
+    job_title?: string;
+    country?: string;
+    country_of_registration?: string;
+    contact_full_name?: string;
+    contact_email?: string;
+    [key: string]: any;
+  };
 }
 
 export interface AuthResponse {

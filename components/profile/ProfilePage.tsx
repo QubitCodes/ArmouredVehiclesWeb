@@ -4,6 +4,7 @@ import { useState, useEffect } from "react";
 import Image from "next/image";
 import { FileText, ShieldCheck, Pencil, CheckCircle, ShieldAlert } from "lucide-react";
 import api from "@/lib/api";
+import API from "@/app/services/api"; // Direct Axios instance for references
 import { User } from "@/lib/types";
 
 // Country codes data
@@ -75,33 +76,43 @@ export default function ProfilePage() {
             setPhoneNumber(userData.phone);
           }
 
-          // If profile data exists (nested)
-          if (userData.profile) {
-            const p = userData.profile;
+          // Populate documents and other profile fields from the flattened userData
+          const p: any = userData; // Use userData directly as the profile source
 
-            // Map Documents
-            // MOD -> Defense Approval
-            if (p.defenseApprovalUrl) {
-              setModFileName(getFileName(p.defenseApprovalUrl));
-            }
-            // ECON -> Business License
-            if (p.businessLicenseUrl) {
-              setEconFileName(getFileName(p.businessLicenseUrl));
-            }
-            // ID -> Contact ID
-            if (p.contactIdDocumentUrl) {
-              setIdFileName(getFileName(p.contactIdDocumentUrl));
-            }
+          // Phone State (if not already set from user root)
+          if (!phoneNumber && p.mobile) setPhoneNumber(p.mobile);
+          if (p.mobile_country_code) setPhoneCountryCode(p.mobile_country_code);
 
-            // Map Status
-            // Using global onboarding status as proxy for document verification status for now
-            const isApproved = p.onboardingStatus && p.onboardingStatus.includes('approved');
-            const status = isApproved ? "APPROVED" : "PENDING";
-
-            setModStatus(status);
-            setEconStatus(status);
-            setIdStatus(status);
+          // Map Documents
+          // MOD -> Defense Approval
+          if (p.defenseApprovalUrl || p.defense_approval_url) {
+            setModFileName(getFileName(p.defenseApprovalUrl || p.defense_approval_url));
+            setModStatus("APPROVED"); // Assuming existence means approved/submitted for now
           }
+          // ECON -> Business License (or Govt Compliance)
+          // The backend might return govt_compliance_reg_url OR business_license_url
+          if (p.businessLicenseUrl || p.business_license_url) {
+            setEconFileName(getFileName(p.businessLicenseUrl || p.business_license_url));
+            setEconStatus("APPROVED");
+          } else if (p.govt_compliance_reg_url) {
+            setEconFileName(getFileName(p.govt_compliance_reg_url));
+            setEconStatus("APPROVED");
+          }
+
+          // ID -> Contact ID
+          if (p.contactIdDocumentUrl || p.contact_id_document_url) {
+            setIdFileName(getFileName(p.contactIdDocumentUrl || p.contact_id_document_url));
+            setIdStatus("APPROVED");
+          }
+
+          // Map Status
+          // Using global onboarding status as proxy for document verification status for now
+          const isApproved = (p.onboardingStatus && p.onboardingStatus.includes('approved')) || (p.onboarding_status && p.onboarding_status.includes('approved'));
+          const status = isApproved ? "APPROVED" : "PENDING";
+
+          setModStatus(status);
+          setEconStatus(status);
+          setIdStatus(status);
         }
       } catch (error) {
         console.error("Failed to fetch profile", error);
@@ -114,7 +125,7 @@ export default function ProfilePage() {
   }, []);
 
   const validateForm = () => {
-    const newErrors: typeof errors = {};
+    const newErrors: any = {};
     if (!fullName.trim()) {
       newErrors.fullName = "Full name is required";
     } else if (fullName.trim().length < 2) {
@@ -153,6 +164,29 @@ export default function ProfilePage() {
     setIdStatus("PENDING");
   };
 
+  // Reference Data
+  const [buyerTypes, setBuyerTypes] = useState<{ value: string, label: string }[]>([]);
+
+  useEffect(() => {
+    const fetchReferences = async () => {
+      try {
+        const res = await API.get("/references/type-of-buyer");
+        if (res?.data?.data) {
+          setBuyerTypes(res.data.data);
+        }
+      } catch (err) {
+        console.error("Failed to fetch buyer types", err);
+      }
+    };
+    fetchReferences();
+  }, []);
+
+  const getBuyerTypeLabel = (value?: string) => {
+    if (!value) return "N/A";
+    const found = buyerTypes.find(t => t.value === value || t.value === String(value));
+    return found ? found.label : value;
+  };
+
   if (loading) {
     return (
       <main className="flex-1 p-10 flex justify-center text-black">
@@ -173,43 +207,218 @@ export default function ProfilePage() {
   }
 
   // Safe accessors - Map camelCase API response to UI
-  const profile = user.profile || {};
-  const companyName = profile.companyName || profile.registeredCompanyName || "N/A";
-  const buyerType = profile.companyType || profile.typeOfBuyer || "N/A";
-  const country = profile.country || "N/A";
-  const city = profile.city || "N/A";
-  const yearEst = profile.foundedYear || profile.yearOfEstablishment || "N/A";
-  const address = profile.addressLine1 ? `${profile.addressLine1}, ${profile.city || ""}` : (profile.address || "N/A");
-  const website = profile.companyWebsite || profile.website || "N/A";
+  // Flattened User object IS the profile
+  const p: any = user || {};
 
-  const contactJob = profile.authorizedContactRole || profile.contactJobTitle || "N/A";
-  const contactEmail = profile.authorizedContactEmail || profile.contactWorkEmail || user.email;
-  const contactPhone = profile.authorizedContactPhone || profile.contactMobile || user.phone || "N/A";
+  // Use p directly for fields
+  const companyName = p.company_name || p.companyName || p.registeredCompanyName || "N/A";
+  const buyerType = p.buyerType?.name || p.type_of_buyer || p.buyer_type || p.companyType || "N/A"; // Prioritize relation then column
+  const country = p.country || p.country_of_registration || "N/A";
+  const city = p.city || "N/A";
+  const yearEst = p.founded_year || p.foundedYear || p.yearOfEstablishment || p.year_of_establishment || "N/A";
+  const address = p.address_line1 ? `${p.address_line1}, ${p.city || ""}` : (p.address || "N/A");
+  const website = p.official_website || p.company_website || p.website || "N/A";
+
+  const contactJob = p.job_title || p.authorizedContactRole || p.contactJobTitle || "N/A";
+  const contactEmail = p.contact_email || p.authorizedContactEmail || p.contactWorkEmail || user.email;
+
+  // Construct full phone with country code if available
+  const contactPhoneRaw = p.mobile || p.authorizedContactPhone || p.contactMobile || user.phone;
+  const contactCountryCode = p.mobile_country_code || "";
+  const contactPhone = contactPhoneRaw ? (contactCountryCode ? `${contactCountryCode} ${contactPhoneRaw}` : contactPhoneRaw) : "N/A";
 
   // Compliance
-  const procurement = profile.natureOfBusiness ? profile.natureOfBusiness.join(', ') : "Internal Use";
-  const endUserType = profile.companyType || "N/A";
+  const procurement = p.procurement_purpose || (p.nature_of_business && typeof p.nature_of_business === 'string' ? p.nature_of_business : "N/A");
+  const endUserType = p.end_user_type || "N/A";
 
   return (
     <main className="flex-1">
       {/* Header */}
-      <div className="mb-6">
-        <h1 className="font-orbitron font-black text-xl lg:text-[32px] uppercase tracking-wide text-black">
-          Profile
-        </h1>
-        <a href="#" className="font-inter text-sm text-[#D35400] underline hover:text-[#B84700]">
-          View & Update Your Personal and Contact Information
-        </a>
+      <div className="mb-6 flex justify-between items-end">
+        <div>
+          <h1 className="font-orbitron font-black text-xl lg:text-[32px] uppercase tracking-wide text-black">
+            My Profile
+          </h1>
+          <a href="#" className="font-inter text-sm text-[#D35400] underline hover:text-[#B84700]">
+            Manage your account settings
+          </a>
+        </div>
+        <div className={`inline-flex items-center px-3 py-1 rounded-full border ${p.onboarding_status === 'approved_general' ? 'bg-[#EAFBF1] border-[#27AE60] text-[#27AE60]' :
+          p.onboarding_status === 'rejected' ? 'bg-red-50 border-red-500 text-red-600' :
+            'bg-[#FFF5EC] border-[#E67E22] text-[#E67E22]'
+          }`}>
+          <span className="text-xs font-bold uppercase tracking-wider">
+            {p.onboarding_status?.replace('_', ' ') || "PENDING VERIFICATION"}
+          </span>
+        </div>
       </div>
 
-      {/* Contact Information */}
+      {/* Organization Details */}
       <div className="bg-[#EBE3D6] p-5 lg:p-6 mb-6">
         <h2 className="font-orbitron font-black text-base lg:text-lg uppercase tracking-wide text-black mb-4">
-          Contact Information
+          Organization Details
         </h2>
 
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 lg:gap-6">
-          {/* Email */}
+
+          {/* Company Name */}
+          <div>
+            <label className="block font-inter font-semibold text-[16px] leading-[24px] text-black mb-2">
+              Company Name
+            </label>
+            <div className="bg-[#F0EBE3] border border-[#E8E3D9] px-4 py-3">
+              <span className="font-inter text-sm text-black">
+                {companyName}
+              </span>
+            </div>
+          </div>
+
+          {/* Type of Buyer */}
+          <div>
+            <label className="block font-inter font-semibold text-[16px] leading-[24px] text-black mb-2">
+              Type of Buyer
+            </label>
+            <div className="bg-[#F0EBE3] border border-[#E8E3D9] px-4 py-3">
+              <span className="font-inter text-sm text-black">
+                {getBuyerTypeLabel(buyerType)}
+              </span>
+            </div>
+          </div>
+
+          {/* Year of Establishment */}
+          <div>
+            <label className="block font-inter font-semibold text-[16px] leading-[24px] text-black mb-2">
+              Year of Establishment
+            </label>
+            <div className="bg-[#F0EBE3] border border-[#E8E3D9] px-4 py-3">
+              <span className="font-inter text-sm text-black">
+                {yearEst}
+              </span>
+            </div>
+          </div>
+
+          {/* Website */}
+          <div>
+            <label className="block font-inter font-semibold text-[16px] leading-[24px] text-black mb-2">
+              Website
+            </label>
+            <div className="bg-[#F0EBE3] border border-[#E8E3D9] px-4 py-3">
+              {website !== "N/A" ? (
+                <a href={website.startsWith('http') ? website : `https://${website}`} target="_blank" rel="noopener noreferrer" className="font-inter text-sm text-[#D35400] underline">
+                  {website}
+                </a>
+              ) : (
+                <span className="font-inter text-sm text-black">N/A</span>
+              )}
+            </div>
+          </div>
+
+          {/* Business Address */}
+          <div>
+            <label className="block font-inter font-semibold text-[16px] leading-[24px] text-black mb-2">
+              Office Address
+            </label>
+            <div className="bg-[#F0EBE3] border border-[#E8E3D9] px-4 py-3">
+              <span className="font-inter text-sm text-black truncate max-w-full block" title={p.city_office_address || address}>
+                {p.city_office_address || address}
+              </span>
+            </div>
+          </div>
+
+          {/* Country */}
+          <div>
+            <label className="block font-inter font-semibold text-[16px] leading-[24px] text-black mb-2">
+              Country
+            </label>
+            <div className="bg-[#F0EBE3] border border-[#E8E3D9] px-4 py-3">
+              <span className="font-inter text-sm text-black">
+                {country}
+              </span>
+            </div>
+          </div>
+
+          {/* Purpose of Procurement */}
+          <div>
+            <label className="block font-inter font-semibold text-[16px] leading-[24px] text-black mb-2">
+              Purpose of Procurement
+            </label>
+            <div className="bg-[#F0EBE3] border border-[#E8E3D9] px-4 py-3">
+              <span className="font-inter text-sm text-black">
+                {procurement}
+              </span>
+            </div>
+          </div>
+
+          {/* End-User Type */}
+          <div>
+            <label className="block font-inter font-semibold text-[16px] leading-[24px] text-black mb-2">
+              End-User Type
+            </label>
+            <div className="bg-[#F0EBE3] border border-[#E8E3D9] px-4 py-3">
+              <span className="font-inter text-sm text-black">
+                {endUserType}
+              </span>
+            </div>
+          </div>
+
+        </div>
+      </div>
+
+      {/* Personal Information */}
+      <div className="bg-[#EBE3D6] p-5 lg:p-6 mb-6">
+        <h2 className="font-orbitron font-black text-base lg:text-lg uppercase tracking-wide text-black mb-4">
+          Personal Information
+        </h2>
+
+        {/* Grid Container */}
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 lg:gap-6">
+
+          {/* Row 1: Full Name */}
+          <div>
+            <label className="block font-inter font-semibold text-[16px] leading-[24px] text-black mb-2">Full Name</label>
+            <div className={`flex items-center bg-[#F0EBE3] border ${errors.fullName ? 'border-[#D35400]' : 'border-[#E8E3D9]'}`}>
+              <input
+                type="text"
+                value={fullName}
+                onChange={(e) => {
+                  setFullName(e.target.value);
+                  if (errors.fullName) setErrors(prev => ({ ...prev, fullName: undefined }));
+                }}
+                className="flex-1 px-4 py-3 font-inter text-sm text-black bg-transparent outline-none"
+                readOnly={!editingFullName}
+              />
+              {!editingFullName && (
+                <button onClick={() => setEditingFullName(true)} className="px-3 text-[#D35400]">
+                  <Pencil size={14} />
+                </button>
+              )}
+            </div>
+            {errors.fullName && (
+              <p className="font-inter text-xs text-[#D35400] mt-1">{errors.fullName}</p>
+            )}
+          </div>
+
+          {/* Row 1: Username */}
+          <div>
+            <label className="block font-inter font-semibold text-[16px] leading-[24px] text-black mb-2">
+              Username
+            </label>
+
+            <div className="flex items-center bg-[#F0EBE3] border border-[#E8E3D9]">
+              <input
+                type="text"
+                value={user.username || ""}
+                readOnly
+                className="flex-1 px-4 py-3 font-inter text-sm text-black bg-transparent outline-none cursor-not-allowed"
+              />
+            </div>
+
+            <p className="font-inter text-xs text-[#666] mt-1">
+              Username was set during registration and can be changed only once.
+            </p>
+          </div>
+
+          {/* Row 2: Email */}
           <div>
             <label className="block font-inter font-semibold text-[16px] leading-[24px] text-black mb-2">
               Email
@@ -222,7 +431,7 @@ export default function ProfilePage() {
             </div>
           </div>
 
-          {/* Phone Number */}
+          {/* Row 2: Phone Number */}
           <div>
             <label className="block font-inter font-semibold text-[16px] leading-[24px] text-black mb-2">
               Phone Number
@@ -247,61 +456,6 @@ export default function ProfilePage() {
             </p>
           </div>
 
-        </div>
-      </div>
-
-      {/* Personal Information */}
-      <div className="bg-[#EBE3D6] p-5 lg:p-6 mb-6">
-        <h2 className="font-orbitron font-black text-base lg:text-lg uppercase tracking-wide text-black mb-4">
-          Personal Information
-        </h2>
-
-        {/* Full Name and Username Row */}
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-4 lg:gap-6 mb-4 lg:mb-6">
-          {/* Full Name */}
-          <div className="lg:col-span-8">
-            <label className="block font-inter font-semibold text-[16px] leading-[24px] text-black mb-2">Full Name</label>
-            <div className={`flex items-center bg-[#F0EBE3] border ${errors.fullName ? 'border-[#D35400]' : 'border-[#E8E3D9]'}`}>
-              <input
-                type="text"
-                value={fullName}
-                onChange={(e) => {
-                  setFullName(e.target.value);
-                  if (errors.fullName) setErrors(prev => ({ ...prev, fullName: undefined }));
-                }}
-                className="flex-1 px-4 py-3 font-inter text-sm text-black bg-transparent outline-none"
-                readOnly={!editingFullName}
-              />
-              {!editingFullName && (
-                <button onClick={() => setEditingFullName(true)} className="px-3 text-[#D35400]">
-                  <Pencil size={14} />
-                </button>
-              )}
-            </div>
-            {errors.fullName && (
-              <p className="font-inter text-xs text-[#D35400] mt-1">{errors.fullName}</p>
-            )}
-          </div>
-
-          {/* Username */}
-          <div className="lg:col-span-4">
-            <label className="block font-inter font-semibold text-[16px] leading-[24px] text-black mb-2">
-              Username
-            </label>
-
-            <div className="flex items-center bg-[#F0EBE3] border border-[#E8E3D9]">
-              <input
-                type="text"
-                value={user.username || ""}
-                readOnly
-                className="flex-1 px-4 py-3 font-inter text-sm text-black bg-transparent outline-none cursor-not-allowed"
-              />
-            </div>
-
-            <p className="font-inter text-xs text-[#666] mt-1">
-              Username was set during registration and can be changed only once.
-            </p>
-          </div>
         </div>
       </div>
 
@@ -331,8 +485,13 @@ export default function ProfilePage() {
           </div>
 
           <div>
-            <label className="profile-label font-semibold">Country & City of Registration</label>
-            <div className="profile-view">{country}, {city}</div>
+            <label className="profile-label font-semibold">Country</label>
+            <div className="profile-view">{country}</div>
+          </div>
+
+          <div>
+            <label className="profile-label font-semibold">Physical Address</label>
+            <div className="profile-view">{p.city_office_address || p.address_line1 || "N/A"}</div>
           </div>
 
           <div>
@@ -340,10 +499,10 @@ export default function ProfilePage() {
             <div className="profile-view">{yearEst}</div>
           </div>
 
-          <div className="lg:col-span-2">
-            <label className="profile-label font-semibold">Physical Address</label>
+          <div>
+            <label className="profile-label font-semibold">Company Phone</label>
             <div className="profile-view">
-              {address}
+              {p.company_phone ? `${p.company_phone_country_code || ""} ${p.company_phone}` : "N/A"}
             </div>
           </div>
 
@@ -354,98 +513,44 @@ export default function ProfilePage() {
         </div>
 
         <div className="mt-4">
-          <label className="profile-label font-semibold">
-            Govt. / Compliance Registration Documents
+          <label className="profile-label font-semibold mb-2 block">
+            Registration Documents
           </label>
-          <div className="mt-2 space-y-2">
-            {/* MOD License */}
+          <div className="space-y-2">
+
+            {/* Govt Registration (Step 0) */}
             <div className="flex items-center gap-3 bg-[#F0EBE3] border border-dashed border-[#E8E3D9] px-4 py-3 rounded-md">
               <FileText className="w-5 h-5 text-[#D35400]" />
-
               <div className="flex-1 text-sm">
-                <p className="font-medium text-black">{modFileName}</p>
+                <p className="font-medium text-black">
+                  {p.govt_compliance_reg_url ? getFileName(p.govt_compliance_reg_url) : "Govt. Compliance Registration"}
+                </p>
                 <p className="text-xs text-gray-500">
-                  {modStatus === "APPROVED"
-                    ? "Government approved document"
-                    : "New document submitted — awaiting admin verification"}
+                  {p.govt_compliance_reg_url ? "Uploaded" : "Not uploaded"}
                 </p>
               </div>
-
-              {modStatus === "APPROVED" ? (
-                <ShieldCheck className="w-4 h-4 text-green-600" />
-              ) : (
-                <span className="text-xs font-semibold text-yellow-700 bg-yellow-100 px-2 py-1 rounded">
-                  Under Review
-                </span>
+              {p.govt_compliance_reg_url && (
+                <a href={p.govt_compliance_reg_url} target="_blank" className="text-xs text-[#D35400] underline">View</a>
               )}
-
-              <label
-                className={`ml-3 text-sm ${modStatus === "PENDING"
-                  ? "text-gray-400 cursor-not-allowed"
-                  : "text-[#D35400] cursor-pointer hover:underline"
-                  }`}
-              >
-                edit
-                <input
-                  type="file"
-                  accept=".pdf"
-                  disabled={modStatus === "PENDING"}
-                  className="hidden"
-                  onChange={(e) => {
-                    const file = e.target.files?.[0];
-                    if (file) handleModReplace(file);
-                  }}
-                />
-              </label>
             </div>
 
-            {/* ECON Certificate */}
+            {/* Business License (Step 3) */}
             <div className="flex items-center gap-3 bg-[#F0EBE3] border border-dashed border-[#E8E3D9] px-4 py-3 rounded-md">
               <FileText className="w-5 h-5 text-[#D35400]" />
-
               <div className="flex-1 text-sm">
-                <p className="font-medium text-black">{econFileName}</p>
+                <p className="font-medium text-black">
+                  {p.business_license_url ? getFileName(p.business_license_url) : "Business License"}
+                </p>
                 <p className="text-xs text-gray-500">
-                  {econStatus === "APPROVED"
-                    ? "Compliance registration document"
-                    : "New document submitted — awaiting admin verification"}
+                  {p.business_license_url ? "Uploaded" : "Not uploaded"}
                 </p>
               </div>
-
-              {econStatus === "APPROVED" ? (
-                <ShieldCheck className="w-4 h-4 text-green-600" />
-              ) : (
-                <span className="text-xs font-semibold text-yellow-700 bg-yellow-100 px-2 py-1 rounded">
-                  Under Review
-                </span>
+              {p.business_license_url && (
+                <a href={p.business_license_url} target="_blank" className="text-xs text-[#D35400] underline">View</a>
               )}
-
-              <label
-                className={`ml-3 text-sm ${econStatus === "PENDING"
-                  ? "text-gray-400 cursor-not-allowed"
-                  : "text-[#D35400] cursor-pointer hover:underline"
-                  }`}
-              >
-                edit
-                <input
-                  type="file"
-                  accept=".pdf"
-                  disabled={econStatus === "PENDING"}
-                  className="hidden"
-                  onChange={(e) => {
-                    const file = e.target.files?.[0];
-                    if (file) handleEconReplace(file);
-                  }}
-                />
-              </label>
             </div>
 
           </div>
-
-          <p className="text-xs text-[#666] mt-2">
-            Uploading a new document requires admin verification.
-            The currently verified document remains active until approval.
-          </p>
         </div>
       </div>
 
@@ -462,7 +567,7 @@ export default function ProfilePage() {
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 lg:gap-6">
           <div className="lg:col-span-2">
             <label className="profile-label font-semibold">Full Name:</label>
-            <div className="profile-view">{user.name}</div>
+            <div className="profile-view">{p.contact_full_name || user.name}</div>
           </div>
 
           <div>
@@ -484,48 +589,18 @@ export default function ProfilePage() {
               <div className="flex items-center gap-3">
                 <FileText className="w-5 h-5 text-[#D35400]" />
                 <div className="text-sm">
-                  <p className="font-medium text-black">{idFileName}</p>
+                  <p className="font-medium text-black">
+                    {p.contact_id_document_url ? getFileName(p.contact_id_document_url) : "ID Document"}
+                  </p>
                   <p className="text-xs text-gray-500">
-                    {idStatus === "APPROVED"
-                      ? "Verified document"
-                      : "New document submitted — awaiting admin verification"}
+                    {p.contact_id_document_url ? "Verified document" : "Not uploaded"}
                   </p>
                 </div>
               </div>
-
-              <div className="flex items-center gap-3">
-                {idStatus === "APPROVED" ? (
-                  <ShieldCheck className="w-4 h-4 text-green-600" />
-                ) : (
-                  <span className="text-xs font-semibold text-yellow-700 bg-yellow-100 px-2 py-1 rounded">
-                    Under Review
-                  </span>
-                )}
-
-                <label
-                  className={`text-sm ${idStatus === "PENDING"
-                    ? "text-gray-400 cursor-not-allowed"
-                    : "text-[#D35400] cursor-pointer hover:underline"
-                    }`}
-                >
-                  edit
-                  <input
-                    type="file"
-                    accept=".pdf,.jpg,.png"
-                    disabled={idStatus === "PENDING"}
-                    className="hidden"
-                    onChange={(e) => {
-                      const file = e.target.files?.[0];
-                      if (file) handleIdReplace(file);
-                    }}
-                  />
-                </label>
-              </div>
+              {p.contact_id_document_url && (
+                <a href={p.contact_id_document_url} target="_blank" className="text-xs text-[#D35400] underline">View</a>
+              )}
             </div>
-            <p className="text-xs text-[#666] mt-2">
-              Uploading a new ID document requires admin verification.
-              The currently verified document remains active until approval.
-            </p>
           </div>
 
           <div>
@@ -546,21 +621,29 @@ export default function ProfilePage() {
         </h2>
 
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 lg:gap-6">
+          {/* Note: Procurement Purpose might be missing in DB/API if not mapped, showing Nature if available fallback */}
           <div>
             <label className="profile-label font-semibold">Purpose of Procurement</label>
-            <div className="profile-view">{procurement}</div>
+            <div className="profile-view">{p.procurement_purpose || procurement || "N/A"}</div>
           </div>
 
           <div>
             <label className="profile-label font-semibold">End-User Type</label>
-            <div className="profile-view">{endUserType}</div>
+            <div className="profile-view">{p.end_user_type || endUserType}</div>
+          </div>
+
+          <div>
+            <label className="profile-label font-semibold">Controlled Items Required?</label>
+            <div className="profile-view">{p.controlled_items ? "Yes" : "No"}</div>
           </div>
         </div>
 
         <div className="mt-5">
           <label className="profile-label font-semibold">Countries of Use / Export</label>
           <div className="bg-[#F0EBE3] border border-[#E8E3D9] p-4 mt-2 rounded-md">
-            <p>{profile.service_regions || "All Regions"}</p>
+            <p>
+              {Array.isArray(p.end_use_markets) ? p.end_use_markets.join(", ") : (p.end_use_markets || p.service_regions || "All Regions")}
+            </p>
           </div>
         </div>
 
@@ -586,19 +669,33 @@ export default function ProfilePage() {
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 lg:gap-6">
           <div>
             <label className="profile-label font-semibold">Registered As</label>
-            <div className="profile-view uppercase">{user.userType}</div>
+            <div className="profile-view uppercase">{p.register_as || user.userType}</div>
           </div>
 
           <div>
             <label className="profile-label font-semibold">Preferred Currency</label>
-            <div className="profile-view">AED</div>
+            <div className="profile-view">{p.preferred_currency || "AED"}</div>
+          </div>
+        </div>
+
+        <div className="mt-5">
+          <label className="profile-label font-semibold">Categories of Interest</label>
+          <div className="bg-[#F0EBE3] border border-[#E8E3D9] p-4 mt-2 rounded-md">
+            <div className="flex flex-wrap gap-2">
+              {Array.isArray(p.selling_categories) && p.selling_categories.length > 0
+                ? p.selling_categories.map((cat: string) => (
+                  <span key={cat} className="px-2 py-1 bg-[#EBE3D6] border border-[#D3CFBC] text-xs rounded">{cat}</span>
+                ))
+                : <span className="text-sm text-gray-500">None Selected</span>
+              }
+            </div>
           </div>
         </div>
 
         <div className="mt-5">
           <label className="profile-label font-semibold">Account Status</label>
-          <div className="profile-view text-green-700 font-semibold">
-            Approved
+          <div className="profile-view text-green-700 font-semibold uppercase">
+            {p.onboarding_status ? p.onboarding_status.replace('_', ' ') : "Approved"}
           </div>
         </div>
       </div>
