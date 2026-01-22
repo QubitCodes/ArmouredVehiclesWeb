@@ -5,6 +5,9 @@ import { Heart } from "lucide-react";
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { useAuth } from "@/lib/auth-context";
+import { syncAddToServer } from "@/lib/cart-sync";
+import { useCartStore } from "@/lib/cart-store";
+
 
 interface SimilarProductProps {
   image?: string;
@@ -14,7 +17,7 @@ interface SimilarProductProps {
   price?: number | string;
   id?: number | string;
   isControlled?: boolean;
-}
+  action?: "ADD TO CART" | "SUBMIT AN INQUIRY";}
 
 const SimilarProductCard = ({
   image,
@@ -24,6 +27,7 @@ const SimilarProductCard = ({
   price,
   id,
   isControlled = false,
+  action="ADD TO CART",
 }: SimilarProductProps) => {
   const router = useRouter();
   const { isAuthenticated, isLoading } = useAuth();
@@ -36,6 +40,9 @@ const SimilarProductCard = ({
   const reviewsCount = Number(reviews ?? 0);
   const hasReviews = Number.isFinite(reviewsCount) && reviewsCount > 0;
   const displayPrice = price ?? "99.9";
+    const addItem = useCartStore((s) => s.addItem);
+    console.log('SimilarProductCard action:', action);
+  
 
   const ratingValue = (() => {
     if (!hasReviews) return 0;
@@ -73,7 +80,7 @@ const SimilarProductCard = ({
       </div>
 
       {/* Rating */}
-      <div className="flex items-center gap-2 mt-2">
+      <div className={`flex items-center ${hasReviews ? 'gap-2' : ''} mt-2`}>
         <div className="relative leading-none">
           {/* <div className="text-gray-300">★★★★★</div> */}
           <div
@@ -90,6 +97,14 @@ const SimilarProductCard = ({
           <span className="text-sm text-[#D35400]">No reviews yet</span>
         )}
       </div>
+
+      {/* Title */}
+      <p
+        className="text-sm text-black mt-1 leading-tight cursor-pointer hover:text-[#D35400] transition-colors"
+        onClick={handleNavigate}
+      >
+        {displayName}
+      </p>
 
       {/* Price - Conditional Display */}
       <div className="mt-1">
@@ -116,21 +131,34 @@ const SimilarProductCard = ({
 
 
 
-      {/* Title */}
-      <p
-        className="text-sm text-black mt-1 leading-tight cursor-pointer hover:text-[#D35400] transition-colors"
-        onClick={handleNavigate}
-      >
-        {displayName}
-      </p>
+      
 
-      {/* BUY NOW */}
-      <button
-        className="font-ruda mt-3 text-left text-[18px] font-semibold text-[#D35400]"
-        onClick={handleNavigate}
-      >
-        BUY NOW
-      </button>
+       {isAuthenticated && action === "ADD TO CART" && (
+              <button
+                className="w-full py-2 md:py-3 font-black font-[Orbitron] uppercase text-sm md:text-[18px] tracking-wide transition bg-[#000000] text-white hover:bg-[#D35400]"
+                onClick={async (e) => {
+                  e.preventDefault();
+                  if (action === "ADD TO CART" && id) {
+                    addItem(
+                      {
+                        id: String(id ?? name + "-" + price),
+                        name,
+                        price: Number(price) ?? 0,
+                        image: (images && images.length > 0 ? images[0] : "/product/rim.png"),
+                      },
+                      1
+                    );
+      
+                    const pid = id ? Number(id) : NaN;
+                    if (Number.isFinite(pid)) {
+                      await syncAddToServer(pid, 1);
+                    }
+                  }
+                }}
+              >
+                {action}
+              </button>
+            )}
     </div>
   );
 };

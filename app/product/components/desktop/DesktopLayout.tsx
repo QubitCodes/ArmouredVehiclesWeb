@@ -25,6 +25,7 @@ import FeaturesTab from "@/components/product/tabs/FeaturesTab";
 import ProductDetailsTab from "@/components/product/tabs/ProductDetailsTab";
 import WarrantyTab from "@/components/product/tabs/WarrantyTab";
 import ReviewsTab from "@/components/product/tabs/ReviewsTab";
+import PopularProducts from "../shared/PopularItems";
 
 
 
@@ -204,8 +205,10 @@ const DesktopLayout = ({ id, product }: { id?: string; product?: any }) => {
                     onClose={() => setShowGallery(false)}
                 />
             )}
-            <TopSellingProducts title="Recommended For Your Vehicle" />
+            <Container className="my-8">
 
+                <PopularProducts  />
+            </Container>
         </section>
 
     );

@@ -20,6 +20,7 @@ import FeaturesTab from "@/components/product/tabs/FeaturesTab";
 import ProductDetailsTab from "@/components/product/tabs/ProductDetailsTab";
 import WarrantyTab from "@/components/product/tabs/WarrantyTab";
 import ReviewsTab from "@/components/product/tabs/ReviewsTab";
+import PopularProducts from "../shared/PopularItems";
 
 
 export default function MobileLayout({ id, product }: { id?: string; product?: any }) {
@@ -173,7 +174,12 @@ export default function MobileLayout({ id, product }: { id?: string; product?: a
                     onClose={() => setShowGallery(false)}
                 />
             )}
-            <TopSellingProducts title="Recommended For Your Vehicle" />
+            <div className="pt-2 p-4 space-y-3">
+
+            {/* {similarProducts.length > 0 && ( */}
+                <PopularProducts  />
+            {/* )} */}
+            </div>
 
         </section>
     );

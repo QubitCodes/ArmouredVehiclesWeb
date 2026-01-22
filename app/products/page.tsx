@@ -206,6 +206,8 @@ function CategoryContent() {
         size: true
     });
     const [showFilters, setShowFilters] = useState(false);
+    type MobileFilterKey = 'type' | 'brand' | 'price' | 'condition' | 'color' | 'size' | 'country';
+    const [mobileActiveFilter, setMobileActiveFilter] = useState<MobileFilterKey | null>(null);
 
     // Mobile draft state to apply changes on Apply button
     const [mobileDraft, setMobileDraft] = useState<{ 
@@ -226,7 +228,7 @@ function CategoryContent() {
         categoryId: null,
     });
 
-    const openMobileFilters = () => {
+    const openMobileFilters = (filter: MobileFilterKey) => {
         setMobileDraft({
             brands: [...selectedBrands],
             price: { ...priceRange },
@@ -236,7 +238,16 @@ function CategoryContent() {
             sizes: [...selectedSizes],
             categoryId: selectedCategoryId,
         });
+        setMobileActiveFilter(filter);
         setShowFilters(true);
+
+        // Ensure first category is expanded when opening Category filter
+        if (filter === 'type' && Array.isArray(childCategories) && childCategories.length > 0) {
+            const firstId = Number(childCategories[0]?.id);
+            if (!expandedCategories[firstId]) {
+                toggleCategoryExpand(firstId);
+            }
+        }
     };
 
     const applyMobileFilters = () => {
@@ -491,20 +502,20 @@ function CategoryContent() {
                     {/* Filter Buttons - Mobile View */}
                     {(() => {
                         const mobileTabs = [
-                            { label: 'CATEGORY', show: true },
-                            { label: 'BRAND', show: (filterOptions?.brands?.length ?? 0) > 0 },
-                            { label: 'PRICE', show: !!isAuthenticated },
-                            { label: 'CONDITION', show: (filterOptions?.conditions?.length ?? 0) > 0 },
-                            { label: 'COLOR', show: (filterOptions?.colors?.length ?? 0) > 0 },
-                            { label: 'SIZE', show: (filterOptions?.sizes?.length ?? 0) > 0 },
-                            { label: 'COUNTRY', show: (filterOptions?.countries?.length ?? 0) > 0 },
+                            { key: 'type', label: 'CATEGORY', show: true },
+                            { key: 'brand', label: 'BRAND', show: true },
+                            { key: 'price', label: 'PRICE', show: !!isAuthenticated },
+                            { key: 'condition', label: 'CONDITION', show: true },
+                            { key: 'color', label: 'COLOR', show: true },
+                            { key: 'size', label: 'SIZE', show: true },
+                            { key: 'country', label: 'COUNTRY', show: true },
                         ].filter(t => t.show);
                         return (
                             <div className="flex lg:hidden items-center gap-2 mb-4 text-black overflow-x-auto pb-2">
                                 {mobileTabs.map((tab) => (
                                     <button
                                         key={tab.label}
-                                        onClick={() => openMobileFilters()}
+                                        onClick={() => openMobileFilters(tab.key as MobileFilterKey)}
                                         className="px-4 py-2.5 border border-gray-300 bg-[#EBE3D6] text-xs font-semibold whitespace-nowrap flex items-center gap-2 font-[Orbitron] uppercase shrink-0"
                                     >
                                         {tab.label}
@@ -1037,33 +1048,67 @@ function CategoryContent() {
                     {/* Backdrop */}
                     <div
                         className="absolute inset-0 bg-black/40"
-                        onClick={() => setShowFilters(false)}
+                        onClick={() => { setShowFilters(false); setMobileActiveFilter(null); }}
                     />
                     {/* Sheet */}
                     <div className="absolute bottom-0 left-0 right-0 bg-[#F0EBE3] rounded-t-2xl shadow-xl max-h-[85vh] overflow-hidden animate-[slideUp_250ms_ease-out]">
                         <div className="flex items-center justify-between px-4 py-3 border-b border-[#D8D3C5]">
                             <h3 className="text-base font-[Orbitron] uppercase font-bold text-black">Filters</h3>
-                            <button className="text-sm text-gray-700" onClick={() => setShowFilters(false)}>Close</button>
+                            <button className="text-sm text-gray-700" onClick={() => { setShowFilters(false); setMobileActiveFilter(null); }}>Close</button>
                         </div>
                         <div className="overflow-y-auto filter-scrollbar px-4 py-4 space-y-6 max-h-[65vh]">
                             {/* Category */}
+                            {mobileActiveFilter === 'type' && (
                             <div>
                                 <div className="flex justify-between items-center cursor-pointer text-black" onClick={() => toggleFilter('type')}>
                                     <h4 className="text-sm font-bold font-[Orbitron] uppercase mb-2">Category</h4>
                                     <ChevronDown size={18} className={`transition-transform duration-300 ${openFilters.type ? 'rotate-180' : ''}`} />
                                 </div>
                                 {openFilters.type && (
-                                    <div className="space-y-2">
+                                    <div className="space-y-2 text-black">
                                         {childCategories?.length > 0 ? (
                                             childCategories.map((cat: any) => (
                                                 <div key={cat.id} className={`border ${mobileDraft.categoryId === String(cat.id) ? 'border-[#D35400] bg-[#fae3d1]' : 'border-[#D8D3C5] bg-[#EBE3D6]'} rounded-sm`}>
-                                                    <div
-                                                        onClick={() => setMobileDraft(prev => ({ ...prev, categoryId: prev.categoryId === String(cat.id) ? null : String(cat.id) }))}
-                                                        className="flex items-center justify-between p-3 cursor-pointer hover:bg-[#F9F7F2] transition"
-                                                    >
-                                                        <p className="text-[14px] font-bold text-black">{cat.name}</p>
-                                                        {mobileDraft.categoryId === String(cat.id) && <div className="w-2 h-2 bg-[#D35400] rounded-full"></div>}
+                                                    <div className="flex items-center justify-between p-3">
+                                                        <div
+                                                            onClick={() => setMobileDraft(prev => ({ ...prev, categoryId: prev.categoryId === String(cat.id) ? null : String(cat.id) }))}
+                                                            className="flex items-center justify-between flex-1 cursor-pointer hover:bg-[#F9F7F2] transition px-1 py-0.5"
+                                                        >
+                                                            <p className="text-[14px] font-bold text-black">{cat.name}</p>
+                                                        </div>
+                                                        <div className="flex items-center gap-3">
+                                                            {mobileDraft.categoryId === String(cat.id) && <div className="w-2 h-2 bg-[#D35400] rounded-full"></div>}
+                                                            <button
+                                                                type="button"
+                                                                aria-label="Toggle subcategories"
+                                                                className="p-1 hover:opacity-80"
+                                                                onClick={(e) => { e.stopPropagation(); toggleCategoryExpand(Number(cat.id)); }}
+                                                            >
+                                                                <ChevronDown size={16} className={`transition-transform ${expandedCategories[cat.id] ? 'rotate-180' : ''}`} />
+                                                            </button>
+                                                        </div>
                                                     </div>
+
+                                                    {expandedCategories[cat.id] && (
+                                                        <div className="pl-2 pr-3 pb-3 space-y-2">
+                                                            {loadingSubCategoryId === cat.id ? (
+                                                                <p className="text-xs text-gray-500">Loading...</p>
+                                                            ) : subcategoriesByParent[cat.id]?.length ? (
+                                                                subcategoriesByParent[cat.id].map((sub: any) => (
+                                                                    <div
+                                                                        key={sub.id}
+                                                                        onClick={() => setMobileDraft(prev => ({ ...prev, categoryId: prev.categoryId === String(sub.id) ? null : String(sub.id) }))}
+                                                                        className={`flex items-center justify-between border ${mobileDraft.categoryId === String(sub.id) ? 'border-[#D35400] bg-[#f9d9c3]' : 'border-[#D8D3C5] bg-[#F0EBE3]'} p-2 cursor-pointer hover:bg-[#F9F7F2] transition rounded-sm`}
+                                                                    >
+                                                                        <p className="text-[13px]">{sub.name}</p>
+                                                                        {mobileDraft.categoryId === String(sub.id) && <div className="w-2 h-2 bg-[#D35400] rounded-full"></div>}
+                                                                    </div>
+                                                                ))
+                                                            ) : (
+                                                                <p className="text-xs text-gray-500">No subcategories</p>
+                                                            )}
+                                                        </div>
+                                                    )}
                                                 </div>
                                             ))
                                         ) : (
@@ -1072,8 +1117,10 @@ function CategoryContent() {
                                     </div>
                                 )}
                             </div>
+                            )}
 
                             {/* Brand */}
+                            {mobileActiveFilter === 'brand' && (
                             <div>
                                 <div className="flex justify-between items-center cursor-pointer text-black" onClick={() => toggleFilter('brand')}>
                                     <h4 className="text-sm font-bold font-[Orbitron] uppercase mb-2">Brand</h4>
@@ -1101,9 +1148,10 @@ function CategoryContent() {
                                     </div>
                                 )}
                             </div>
+                            )}
 
                             {/* Price */}
-                            {isAuthenticated && (
+                            {isAuthenticated && mobileActiveFilter === 'price' && (
                                 <div>
                                     <div className="flex justify-between items-center cursor-pointer text-black" onClick={() => toggleFilter('price')}>
                                         <h4 className="text-sm font-bold font-[Orbitron] uppercase mb-2">Price</h4>
@@ -1141,6 +1189,7 @@ function CategoryContent() {
                             )}
 
                             {/* Condition */}
+                            {mobileActiveFilter === 'condition' && (
                             <div>
                                 <div className="flex justify-between items-center cursor-pointer text-black" onClick={() => toggleFilter('condition')}>
                                     <h4 className="text-sm font-bold font-[Orbitron] uppercase mb-2">Condition</h4>
@@ -1168,8 +1217,10 @@ function CategoryContent() {
                                     </div>
                                 )}
                             </div>
+                            )}
 
                             {/* Color */}
+                            {mobileActiveFilter === 'color' && (
                             <div>
                                 <div className="flex justify-between items-center cursor-pointer text-black" onClick={() => toggleFilter('color')}>
                                     <h4 className="text-sm font-bold font-[Orbitron] uppercase mb-2">Color</h4>
@@ -1197,8 +1248,10 @@ function CategoryContent() {
                                     </div>
                                 )}
                             </div>
+                            )}
 
                             {/* Size */}
+                            {mobileActiveFilter === 'size' && (
                             <div>
                                 <div className="flex justify-between items-center cursor-pointer text-black" onClick={() => toggleFilter('size')}>
                                     <h4 className="text-sm font-bold font-[Orbitron] uppercase mb-2">Size</h4>
@@ -1226,8 +1279,10 @@ function CategoryContent() {
                                     </div>
                                 )}
                             </div>
+                            )}
 
                             {/* Country */}
+                            {mobileActiveFilter === 'country' && (
                             <div>
                                 <div className="flex justify-between items-center cursor-pointer text-black" onClick={() => toggleFilter('country')}>
                                     <h4 className="text-sm font-bold font-[Orbitron] uppercase mb-2">Country</h4>
@@ -1255,6 +1310,7 @@ function CategoryContent() {
                                     </div>
                                 )}
                             </div>
+                            )}
                         </div>
 
                         {/* Apply Bar */}

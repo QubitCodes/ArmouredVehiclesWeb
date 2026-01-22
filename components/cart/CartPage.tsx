@@ -6,7 +6,6 @@ import CartItem from "./CartItem";
 import OrderSummary from "./OrderSummary";
 import { useEffect, useMemo, useState } from "react";
 import { Typography } from "../ui";
-import SimilarProductCard from "../product/SimilarProductCard";
 import { Container } from "../ui";
 import SelectAddressModal from "../modal/SelectAddressModal";
 import api from "@/lib/api";

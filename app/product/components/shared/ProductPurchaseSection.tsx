@@ -162,9 +162,9 @@ export default function ProductPurchaseSection({
 
             {/* QUANTITY */}
             {isAuthenticated && (
-                <div className="flex items-center gap-3">
-                    <span className="text-black font-medium">Quantity:</span>
-                    <div className="flex items-center border border-[#B7B1A8] bg-[#EBE4D7] h-10 w-32">
+                <div className=" items-center gap-3">
+                    <span className="text-black ">Minimum order quantity: <span className="text-black font-medium">1 kit / 4 rims</span></span>
+                    <div className="flex items-center border border-[#B7B1A8] bg-[#EBE4D7] mt-1 h-10 w-40">
                         <button
                             onClick={() => setQuantity(Math.max(1, quantity - 1))}
                             className="w-10 h-full flex items-center justify-center text-black hover:bg-[#D8D1C5] transition"
@@ -190,6 +190,35 @@ export default function ProductPurchaseSection({
                     </div>
                 </div>
             )}
+            {/* {isAuthenticated && (
+                <div className=" items-center gap-3">
+                    <span className="text-black font-medium">Minimum order quantity:</span>
+                    <div className="flex items-center border border-[#B7B1A8] bg-[#EBE4D7] h-10 w-32">
+                        <button
+                            onClick={() => setQuantity(Math.max(1, quantity - 1))}
+                            className="w-10 h-full flex items-center justify-center text-black hover:bg-[#D8D1C5] transition"
+                        >
+                            <Minus size={16} />
+                        </button>
+                        <input
+                            type="number"
+                            value={quantity}
+                            onChange={(e) => {
+                                const val = parseInt(e.target.value);
+                                if (!isNaN(val) && val >= 1) setQuantity(val);
+                            }}
+                            className="flex-1 w-full h-full bg-transparent text-center text-black outline-none appearance-none [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none"
+                            min={1}
+                        />
+                        <button
+                            onClick={() => setQuantity(quantity + 1)}
+                            className="w-10 h-full flex items-center justify-center text-black hover:bg-[#D8D1C5] transition"
+                        >
+                            <Plus size={16} />
+                        </button>
+                    </div>
+                </div>
+            )} */}
 
             {/* DELIVERY OPTIONS */}
             {isAuthenticated && (
@@ -353,7 +382,7 @@ export default function ProductPurchaseSection({
                     <span className="font-medium">Returns:</span>
                     <div>
                         7 days returns. Seller pays for return shipping.{" "}
-                        <Link href="/terms-conditions" className="text-[#D35400] underline cursor-pointer">
+                        <Link href="/warranty-policy" className="text-[#D35400] underline cursor-pointer">
                             See details
                         </Link>
                     </div>
