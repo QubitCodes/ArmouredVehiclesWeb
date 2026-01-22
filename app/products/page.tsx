@@ -449,7 +449,7 @@ function CategoryContent() {
             </Container>
 
             <Container>
-                <div className="flex flex-col lg:flex-row gap-8 py-5">
+                <div className="flex flex-col lg:flex-row gap-8 py-2">
                     {/* ---------------- FILTER SIDEBAR ---------------- */}
                     <aside className={`w-full lg:w-1/4 bg-[#F0EBE3] rounded-md lg:sticky lg:top-4 lg:self-start ${showFilters ? 'block' : 'hidden lg:block'}`}>
                         <div className="p-5 space-y-8">
