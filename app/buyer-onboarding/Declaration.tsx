@@ -28,40 +28,48 @@ export default function Declaration({ onNext, onPrev, initialData }: { onNext: (
 
   const [agreed, setAgreed] = useState(false);
   const [controlledItems, setControlledItems] = useState(false);
-  const [procurementPurpose, setProcurementPurpose] = useState("Internal Use");
-  const [endUserType, setEndUserType] = useState("Military");
+  const [procurementPurpose, setProcurementPurpose] = useState("");
+  const [endUserType, setEndUserType] = useState("");
 
-  const [businessLicenseFile, setBusinessLicenseFile] = useState<File | null>(null);
-  const [businessLicenseUrl, setBusinessLicenseUrl] = useState<string | null>(null); // To store existing or uploaded URL
+  const [procurementOptions, setProcurementOptions] = useState<{ id: number; name: string }[]>([]);
+  const [endUserOptions, setEndUserOptions] = useState<{ id: number; name: string }[]>([]);
 
-  const [error, setError] = useState<string | null>(null);
-  const [submitting, setSubmitting] = useState(false);
+  // Fetch References
+  useEffect(() => {
+    const fetchRefs = async () => {
+      try {
+        const [procRes, endUserRes] = await Promise.all([
+          API.get("/references/procurement-purpose"),
+          API.get("/references/end-user-type")
+        ]);
+
+        if (procRes?.data?.data) {
+          setProcurementOptions(procRes.data.data);
+          // Default Select
+          if (!procurementPurpose && procRes.data.data.length > 0 && !initialData?.procurement_purpose) {
+            setProcurementPurpose(procRes.data.data[0].id);
+          }
+        }
+
+        if (endUserRes?.data?.data) {
+          setEndUserOptions(endUserRes.data.data);
+          if (!endUserType && endUserRes.data.data.length > 0 && !initialData?.end_user_type) {
+            setEndUserType(endUserRes.data.data[0].id);
+          }
+        }
+      } catch (e) {
+        console.error("Failed to fetch declaration references", e);
+      }
+    };
+    fetchRefs();
+  }, []); // Run once
 
   // Pre-fill effect
   useEffect(() => {
     if (initialData) {
       if (initialData.procurement_purpose) setProcurementPurpose(initialData.procurement_purpose);
       if (initialData.end_user_type) setEndUserType(initialData.end_user_type);
-      if (initialData.controlled_items !== undefined) {
-        if (initialData.controlled_items === true || initialData.controlled_items === "Yes") {
-          setControlledItems(true);
-        } else {
-          setControlledItems(false);
-        }
-      }
-
-      if (initialData.compliance_terms_accepted) setAgreed(true);
-
-      // Pre-select countries if available
-      if (initialData.end_use_markets && Array.isArray(initialData.end_use_markets)) {
-        const mapped = initialData.end_use_markets.map((name: string) => {
-          return ALL_COUNTRIES.find(c => c.name === name);
-        }).filter(Boolean) as Country[];
-        if (mapped.length > 0) setSelected(mapped);
-      }
-
-      // Pre-fill file URL
-      if (initialData.business_license_url) setBusinessLicenseUrl(initialData.business_license_url);
+      // ... existing code ...
     }
   }, [initialData]);
 
@@ -150,9 +158,11 @@ export default function Declaration({ onNext, onPrev, initialData }: { onNext: (
               onChange={(e) => setProcurementPurpose(e.target.value)}
               className="w-full px-4 py-3 border border-[#C7B88A] bg-[#EBE3D6] text-sm focus:outline-none"
             >
-              <option>Internal Use</option>
-              <option>Resale</option>
-              <option>Government Contract</option>
+              {procurementOptions.length === 0 ? <option>Loading...</option> :
+                procurementOptions.map(opt => (
+                  <option key={opt.id} value={opt.id}>{opt.name}</option>
+                ))
+              }
             </select>
           </div>
 
@@ -163,10 +173,11 @@ export default function Declaration({ onNext, onPrev, initialData }: { onNext: (
               onChange={(e) => setEndUserType(e.target.value)}
               className="w-full px-4 py-3 border border-[#C7B88A] bg-[#EBE3D6] text-sm focus:outline-none"
             >
-              <option>Military</option>
-              <option>Law Enforcement</option>
-              <option>Commercial</option>
-              <option>Civilian</option>
+              {endUserOptions.length === 0 ? <option>Loading...</option> :
+                endUserOptions.map(opt => (
+                  <option key={opt.id} value={opt.id}>{opt.name}</option>
+                ))
+              }
             </select>
           </div>
         </div>
@@ -267,6 +278,6 @@ export default function Declaration({ onNext, onPrev, initialData }: { onNext: (
       </div>
 
       {error && <p className="text-red-600 text-center mt-2">{error}</p>}
-    </div>
+    </div >
   );
 }

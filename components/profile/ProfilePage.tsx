@@ -228,8 +228,18 @@ export default function ProfilePage() {
   const contactPhone = contactPhoneRaw ? (contactCountryCode ? `${contactCountryCode} ${contactPhoneRaw}` : contactPhoneRaw) : "N/A";
 
   // Compliance
-  const procurement = p.procurement_purpose || (p.nature_of_business && typeof p.nature_of_business === 'string' ? p.nature_of_business : "N/A");
-  const endUserType = p.end_user_type || "N/A";
+  let procurement = "N/A";
+  if (p.procurementPurpose && p.procurementPurpose.name) {
+    procurement = p.procurementPurpose.name;
+  } else if (typeof p.procurement_purpose === 'string' && p.procurement_purpose !== '{}') {
+    procurement = p.procurement_purpose;
+  } else if (Array.isArray(p.nature_of_business) && p.nature_of_business.length > 0) {
+    procurement = p.nature_of_business.join(", ");
+  } else if (typeof p.nature_of_business === 'string' && p.nature_of_business !== '{}') {
+    procurement = p.nature_of_business;
+  }
+
+  const endUserType = p.endUserType?.name || p.end_user_type || "N/A";
 
   return (
     <main className="flex-1">
@@ -337,29 +347,7 @@ export default function ProfilePage() {
             </div>
           </div>
 
-          {/* Purpose of Procurement */}
-          <div>
-            <label className="block font-inter font-semibold text-[16px] leading-[24px] text-black mb-2">
-              Purpose of Procurement
-            </label>
-            <div className="bg-[#F0EBE3] border border-[#E8E3D9] px-4 py-3">
-              <span className="font-inter text-sm text-black">
-                {procurement}
-              </span>
-            </div>
-          </div>
 
-          {/* End-User Type */}
-          <div>
-            <label className="block font-inter font-semibold text-[16px] leading-[24px] text-black mb-2">
-              End-User Type
-            </label>
-            <div className="bg-[#F0EBE3] border border-[#E8E3D9] px-4 py-3">
-              <span className="font-inter text-sm text-black">
-                {endUserType}
-              </span>
-            </div>
-          </div>
 
         </div>
       </div>
@@ -565,7 +553,7 @@ export default function ProfilePage() {
         </h2>
 
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 lg:gap-6">
-          <div className="lg:col-span-2">
+          <div>
             <label className="profile-label font-semibold">Full Name:</label>
             <div className="profile-view">{p.contact_full_name || user.name}</div>
           </div>
@@ -581,6 +569,11 @@ export default function ProfilePage() {
           </div>
 
           <div>
+            <label className="profile-label font-semibold">Mobile / WhatsApp Number:</label>
+            <div className="profile-view">{contactPhone}</div>
+          </div>
+
+          <div className="lg:col-span-2">
             <label className="profile-label font-semibold">
               Passport Copy / Emirates ID:
             </label>
@@ -602,11 +595,6 @@ export default function ProfilePage() {
               )}
             </div>
           </div>
-
-          <div>
-            <label className="profile-label font-semibold">Mobile / WhatsApp Number:</label>
-            <div className="profile-view">{contactPhone}</div>
-          </div>
         </div>
       </div>
 
@@ -624,7 +612,11 @@ export default function ProfilePage() {
           {/* Note: Procurement Purpose might be missing in DB/API if not mapped, showing Nature if available fallback */}
           <div>
             <label className="profile-label font-semibold">Purpose of Procurement</label>
-            <div className="profile-view">{p.procurement_purpose || procurement || "N/A"}</div>
+            <div className="bg-[#F0EBE3] border border-[#E8E3D9] p-4 mt-2 rounded-md">
+              <span className="px-2 py-1 bg-[#EBE3D6] border border-[#D3CFBC] text-xs rounded">
+                {procurement}
+              </span>
+            </div>
           </div>
 
           <div>
@@ -692,12 +684,6 @@ export default function ProfilePage() {
           </div>
         </div>
 
-        <div className="mt-5">
-          <label className="profile-label font-semibold">Account Status</label>
-          <div className="profile-view text-green-700 font-semibold uppercase">
-            {p.onboarding_status ? p.onboarding_status.replace('_', ' ') : "Approved"}
-          </div>
-        </div>
       </div>
 
       {/* Update Profile Button */}
