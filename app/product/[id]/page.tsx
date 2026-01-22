@@ -208,7 +208,7 @@ export default function ProductDetailsPage() {
   ---------------------------- */
   if (loading) {
     return (
-      <section className="bg-[#F0EBE3] pt-12 md:pt-0">
+      <section className="bg-[#F0EBE3] pt-2 md:pt-0">
         <div className="max-w-[1720px] mx-auto p-6">
           <div className="h-8 w-64 bg-gray-300 animate-pulse mb-6" />
           <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
@@ -229,7 +229,7 @@ export default function ProductDetailsPage() {
   ---------------------------- */
   if (!product) {
     return (
-      <section className="bg-[#F0EBE3] pt-12 md:pt-0">
+      <section className="bg-[#F0EBE3] pt-2 md:pt-0">
         <div className="p-6">Product not found or invalid ID.</div>
       </section>
     );
@@ -239,7 +239,7 @@ export default function ProductDetailsPage() {
      5️⃣ RENDER PAGE
   ---------------------------- */
   return (
-    <section className="bg-[#F0EBE3] pt-12 md:pt-0">
+    <section className="bg-[#F0EBE3] pt-2 md:pt-0">
       <div className="md:hidden">
         <MobileLayout
           product={{
