@@ -34,6 +34,14 @@ export default function Declaration({ onNext, onPrev, initialData }: { onNext: (
   const [procurementOptions, setProcurementOptions] = useState<{ id: number; name: string }[]>([]);
   const [endUserOptions, setEndUserOptions] = useState<{ id: number; name: string }[]>([]);
 
+  // Local UI state (errors, submission, files)
+  const [error, setError] = useState<string | null>(null);
+  const [submitting, setSubmitting] = useState(false);
+
+  const [businessLicenseFile, setBusinessLicenseFile] = useState<File | null>(null);
+  const [businessLicenseUrl, setBusinessLicenseUrl] = useState<string>(""
+  );
+
   // Fetch References
   useEffect(() => {
     const fetchRefs = async () => {
