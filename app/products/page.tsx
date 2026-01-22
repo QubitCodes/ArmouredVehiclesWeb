@@ -207,6 +207,73 @@ function CategoryContent() {
     });
     const [showFilters, setShowFilters] = useState(false);
 
+    // Mobile draft state to apply changes on Apply button
+    const [mobileDraft, setMobileDraft] = useState<{ 
+        brands: string[];
+        price: { min: number; max: number };
+        conditions: string[];
+        colors: string[];
+        countries: string[];
+        sizes: string[];
+        categoryId: string | null;
+    }>({
+        brands: [],
+        price: { min: 0, max: 100000 },
+        conditions: [],
+        colors: [],
+        countries: [],
+        sizes: [],
+        categoryId: null,
+    });
+
+    const openMobileFilters = () => {
+        setMobileDraft({
+            brands: [...selectedBrands],
+            price: { ...priceRange },
+            conditions: [...selectedConditions],
+            colors: [...selectedColors],
+            countries: [...selectedCountries],
+            sizes: [...selectedSizes],
+            categoryId: selectedCategoryId,
+        });
+        setShowFilters(true);
+    };
+
+    const applyMobileFilters = () => {
+        setSelectedBrands(mobileDraft.brands);
+        setPriceRange({ ...mobileDraft.price });
+        setSelectedConditions(mobileDraft.conditions);
+        setSelectedColors(mobileDraft.colors);
+        setSelectedCountries(mobileDraft.countries);
+        setSelectedSizes(mobileDraft.sizes);
+        setSelectedCategoryId(mobileDraft.categoryId);
+        setShowFilters(false);
+    };
+
+    const clearMobileDraft = () => {
+        setMobileDraft({
+            brands: [],
+            price: {
+                min: (filterOptions?.price?.min ?? 0),
+                max: (filterOptions?.price?.max ?? 100000),
+            },
+            conditions: [],
+            colors: [],
+            countries: [],
+            sizes: [],
+            categoryId: null,
+        });
+    };
+
+    useEffect(() => {
+        if (showFilters) {
+            document.body.style.overflow = 'hidden';
+        } else {
+            document.body.style.overflow = '';
+        }
+        return () => { document.body.style.overflow = ''; };
+    }, [showFilters]);
+
     // Initial Fetch & Update on Filter Change
     useEffect(() => {
         const fetchProducts = async () => {
@@ -424,21 +491,21 @@ function CategoryContent() {
                     {/* Filter Buttons - Mobile View */}
                     <div className="flex lg:hidden items-center gap-2 mb-4 text-black overflow-x-auto pb-2">
                         <button
-                            onClick={() => setShowFilters(!showFilters)}
+                            onClick={() => openMobileFilters()}
                             className="px-4 py-2.5 border border-gray-300 bg-[#EBE3D6] text-xs font-semibold whitespace-nowrap flex items-center gap-2 font-[Orbitron] uppercase"
                         >
                             CATEGORY
                             <ChevronDown size={14} />
                         </button>
                         <button
-                            onClick={() => setShowFilters(!showFilters)}
+                            onClick={() => openMobileFilters()}
                             className="px-4 py-2.5 border border-gray-300 bg-[#EBE3D6] text-xs font-semibold whitespace-nowrap flex items-center gap-2 font-[Orbitron] uppercase"
                         >
                             BRAND
                             <ChevronDown size={14} />
                         </button>
                         <button
-                            onClick={() => setShowFilters(!showFilters)}
+                            onClick={() => openMobileFilters()}
                             className="px-4 py-2.5 border border-gray-300 bg-[#EBE3D6] text-xs font-semibold whitespace-nowrap flex items-center gap-2 font-[Orbitron] uppercase"
                         >
                             PRICE
@@ -451,7 +518,7 @@ function CategoryContent() {
             <Container>
                 <div className="flex flex-col lg:flex-row gap-8 py-2">
                     {/* ---------------- FILTER SIDEBAR ---------------- */}
-                    <aside className={`w-full lg:w-1/4 bg-[#F0EBE3] rounded-md lg:sticky lg:top-4 lg:self-start ${showFilters ? 'block' : 'hidden lg:block'}`}>
+                    <aside className={`w-full lg:w-1/4 bg-[#F0EBE3] rounded-md lg:sticky lg:top-4 lg:self-start hidden lg:block`}>
                         <div className="p-5 space-y-8">
                             <div>
                                 <div
@@ -479,7 +546,7 @@ function CategoryContent() {
                                                         className="flex items-center justify-between p-3 cursor-pointer hover:bg-[#F9F7F2] transition"
                                                     >
                                                         <div className="flex items-center space-x-4">
-                                                            <p className="text-[14px] font-bold">{cat.name}</p>
+                                                            <p className="text-[14px] font-bold text-black">{cat.name}</p>
                                                         </div>
                                                         <div className="flex items-center gap-3">
                                                             {selectedCategoryId === String(cat.id) && <div className="w-2 h-2 bg-[#D35400] rounded-full"></div>}
@@ -961,6 +1028,248 @@ function CategoryContent() {
                     <DescriptionSection />
                 </div> */}
             </Container>
+
+            {/* Mobile Bottom Sheet Filters */}
+            {showFilters && (
+                <div className="lg:hidden fixed inset-0 z-50" style={{ zIndex: 60 }}>
+                    {/* Backdrop */}
+                    <div
+                        className="absolute inset-0 bg-black/40"
+                        onClick={() => setShowFilters(false)}
+                    />
+                    {/* Sheet */}
+                    <div className="absolute bottom-0 left-0 right-0 bg-[#F0EBE3] rounded-t-2xl shadow-xl max-h-[85vh] overflow-hidden animate-[slideUp_250ms_ease-out]">
+                        <div className="flex items-center justify-between px-4 py-3 border-b border-[#D8D3C5]">
+                            <h3 className="text-base font-[Orbitron] uppercase font-bold text-black">Filters</h3>
+                            <button className="text-sm text-gray-700" onClick={() => setShowFilters(false)}>Close</button>
+                        </div>
+                        <div className="overflow-y-auto filter-scrollbar px-4 py-4 space-y-6 max-h-[65vh]">
+                            {/* Category */}
+                            <div>
+                                <div className="flex justify-between items-center cursor-pointer text-black" onClick={() => toggleFilter('type')}>
+                                    <h4 className="text-sm font-bold font-[Orbitron] uppercase mb-2">Category</h4>
+                                    <ChevronDown size={18} className={`transition-transform duration-300 ${openFilters.type ? 'rotate-180' : ''}`} />
+                                </div>
+                                {openFilters.type && (
+                                    <div className="space-y-2">
+                                        {childCategories?.length > 0 ? (
+                                            childCategories.map((cat: any) => (
+                                                <div key={cat.id} className={`border ${mobileDraft.categoryId === String(cat.id) ? 'border-[#D35400] bg-[#fae3d1]' : 'border-[#D8D3C5] bg-[#EBE3D6]'} rounded-sm`}>
+                                                    <div
+                                                        onClick={() => setMobileDraft(prev => ({ ...prev, categoryId: prev.categoryId === String(cat.id) ? null : String(cat.id) }))}
+                                                        className="flex items-center justify-between p-3 cursor-pointer hover:bg-[#F9F7F2] transition"
+                                                    >
+                                                        <p className="text-[14px] font-bold text-black">{cat.name}</p>
+                                                        {mobileDraft.categoryId === String(cat.id) && <div className="w-2 h-2 bg-[#D35400] rounded-full"></div>}
+                                                    </div>
+                                                </div>
+                                            ))
+                                        ) : (
+                                            <p className="text-gray-500 text-sm">No categories available</p>
+                                        )}
+                                    </div>
+                                )}
+                            </div>
+
+                            {/* Brand */}
+                            <div>
+                                <div className="flex justify-between items-center cursor-pointer text-black" onClick={() => toggleFilter('brand')}>
+                                    <h4 className="text-sm font-bold font-[Orbitron] uppercase mb-2">Brand</h4>
+                                    <ChevronDown size={18} className={`transition-transform duration-300 ${openFilters.brand ? 'rotate-180' : ''}`} />
+                                </div>
+                                {openFilters.brand && (
+                                    <div className="space-y-2">
+                                        {filterOptions?.brands?.length > 0 ? (
+                                            filterOptions.brands.map((b: any) => (
+                                                <label key={b.name} className="flex items-center justify-between text-black cursor-pointer text-sm">
+                                                    <div className="flex items-center space-x-2">
+                                                        <input
+                                                            type="checkbox"
+                                                            checked={mobileDraft.brands.includes(b.name)}
+                                                            onChange={() => setMobileDraft(prev => ({ ...prev, brands: prev.brands.includes(b.name) ? prev.brands.filter(x => x !== b.name) : [...prev.brands, b.name] }))}
+                                                            className="w-4 h-4 border border-gray-400 rounded-sm accent-[#D35400]"
+                                                        />
+                                                        <span>{b.name} ({b.count})</span>
+                                                    </div>
+                                                </label>
+                                            ))
+                                        ) : (
+                                            <p className="text-gray-500 text-sm">No brands available</p>
+                                        )}
+                                    </div>
+                                )}
+                            </div>
+
+                            {/* Price */}
+                            {isAuthenticated && (
+                                <div>
+                                    <div className="flex justify-between items-center cursor-pointer text-black" onClick={() => toggleFilter('price')}>
+                                        <h4 className="text-sm font-bold font-[Orbitron] uppercase mb-2">Price</h4>
+                                        <ChevronDown size={18} className={`transition-transform duration-300 ${openFilters.price ? 'rotate-180' : ''}`} />
+                                    </div>
+                                    {openFilters.price && (
+                                        <div className="space-y-2 text-sm">
+                                            <div>
+                                                <p className="text-[13px] mb-1 text-gray-700">Minimum</p>
+                                                <div className="flex items-center border border-[#D8D3C5] bg-[#EBE3D6] rounded-sm px-2 py-1">
+                                                    <Image src="/icons/currency/dirham.svg" className='m-1' alt="Currency" width={13} height={13} />
+                                                    <input
+                                                        type="number"
+                                                        value={mobileDraft.price.min}
+                                                        onChange={e => setMobileDraft(prev => ({ ...prev, price: { ...prev.price, min: parseInt(e.target.value || '0') } }))}
+                                                        className="w-full outline-none text-gray-700 bg-[#EBE3D6]"
+                                                    />
+                                                </div>
+                                            </div>
+                                            <div>
+                                                <p className="text-[13px] mb-1 text-gray-700">Maximum</p>
+                                                <div className="flex items-center border border-[#D8D3C5] bg-[#EBE3D6] rounded-sm px-2 py-1">
+                                                    <Image src="/icons/currency/dirham.svg" className='m-1' alt="Currency" width={13} height={13} />
+                                                    <input
+                                                        type="number"
+                                                        value={mobileDraft.price.max}
+                                                        onChange={e => setMobileDraft(prev => ({ ...prev, price: { ...prev.price, max: parseInt(e.target.value || '0') } }))}
+                                                        className="w-full outline-none text-gray-700 bg-[#EBE3D6]"
+                                                    />
+                                                </div>
+                                            </div>
+                                        </div>
+                                    )}
+                                </div>
+                            )}
+
+                            {/* Condition */}
+                            <div>
+                                <div className="flex justify-between items-center cursor-pointer text-black" onClick={() => toggleFilter('condition')}>
+                                    <h4 className="text-sm font-bold font-[Orbitron] uppercase mb-2">Condition</h4>
+                                    <ChevronDown size={18} className={`transition-transform duration-300 ${openFilters.condition ? 'rotate-180' : ''}`} />
+                                </div>
+                                {openFilters.condition && (
+                                    <div className="space-y-2">
+                                        {filterOptions?.conditions?.length > 0 ? (
+                                            filterOptions.conditions.map((c: any) => (
+                                                <label key={c.name} className="flex items-center justify-between text-black cursor-pointer text-sm">
+                                                    <div className="flex items-center space-x-2">
+                                                        <input
+                                                            type="checkbox"
+                                                            checked={mobileDraft.conditions.includes(c.name)}
+                                                            onChange={() => setMobileDraft(prev => ({ ...prev, conditions: prev.conditions.includes(c.name) ? prev.conditions.filter(x => x !== c.name) : [...prev.conditions, c.name] }))}
+                                                            className="w-4 h-4 border border-gray-400 rounded-sm accent-[#D35400]"
+                                                        />
+                                                        <span>{c.name} ({c.count})</span>
+                                                    </div>
+                                                </label>
+                                            ))
+                                        ) : (
+                                            <p className="text-gray-500 text-sm">No conditions available</p>
+                                        )}
+                                    </div>
+                                )}
+                            </div>
+
+                            {/* Color */}
+                            <div>
+                                <div className="flex justify-between items-center cursor-pointer text-black" onClick={() => toggleFilter('color')}>
+                                    <h4 className="text-sm font-bold font-[Orbitron] uppercase mb-2">Color</h4>
+                                    <ChevronDown size={18} className={`transition-transform duration-300 ${openFilters.color ? 'rotate-180' : ''}`} />
+                                </div>
+                                {openFilters.color && (
+                                    <div className="space-y-2">
+                                        {filterOptions?.colors?.length > 0 ? (
+                                            filterOptions.colors.map((c: any) => (
+                                                <label key={c.name} className="flex items-center justify-between text-black cursor-pointer text-sm">
+                                                    <div className="flex items-center space-x-2">
+                                                        <input
+                                                            type="checkbox"
+                                                            checked={mobileDraft.colors.includes(c.name)}
+                                                            onChange={() => setMobileDraft(prev => ({ ...prev, colors: prev.colors.includes(c.name) ? prev.colors.filter(x => x !== c.name) : [...prev.colors, c.name] }))}
+                                                            className="w-4 h-4 border border-gray-400 rounded-sm accent-[#D35400]"
+                                                        />
+                                                        <span>{c.name} ({c.count})</span>
+                                                    </div>
+                                                </label>
+                                            ))
+                                        ) : (
+                                            <p className="text-gray-500 text-sm">No colors available</p>
+                                        )}
+                                    </div>
+                                )}
+                            </div>
+
+                            {/* Size */}
+                            <div>
+                                <div className="flex justify-between items-center cursor-pointer text-black" onClick={() => toggleFilter('size')}>
+                                    <h4 className="text-sm font-bold font-[Orbitron] uppercase mb-2">Size</h4>
+                                    <ChevronDown size={18} className={`transition-transform duration-300 ${openFilters.size ? 'rotate-180' : ''}`} />
+                                </div>
+                                {openFilters.size && (
+                                    <div className="space-y-2">
+                                        {filterOptions?.sizes?.length > 0 ? (
+                                            filterOptions.sizes.map((s: any) => (
+                                                <label key={s.name} className="flex items-center justify-between text-black cursor-pointer text-sm">
+                                                    <div className="flex items-center space-x-2">
+                                                        <input
+                                                            type="checkbox"
+                                                            checked={mobileDraft.sizes.includes(s.name)}
+                                                            onChange={() => setMobileDraft(prev => ({ ...prev, sizes: prev.sizes.includes(s.name) ? prev.sizes.filter(x => x !== s.name) : [...prev.sizes, s.name] }))}
+                                                            className="w-4 h-4 border border-gray-400 rounded-sm accent-[#D35400]"
+                                                        />
+                                                        <span>{s.name} ({s.count})</span>
+                                                    </div>
+                                                </label>
+                                            ))
+                                        ) : (
+                                            <p className="text-gray-500 text-sm">No sizes available</p>
+                                        )}
+                                    </div>
+                                )}
+                            </div>
+
+                            {/* Country */}
+                            <div>
+                                <div className="flex justify-between items-center cursor-pointer text-black" onClick={() => toggleFilter('country')}>
+                                    <h4 className="text-sm font-bold font-[Orbitron] uppercase mb-2">Country</h4>
+                                    <ChevronDown size={18} className={`transition-transform duration-300 ${openFilters.country ? 'rotate-180' : ''}`} />
+                                </div>
+                                {openFilters.country && (
+                                    <div className="space-y-2">
+                                        {filterOptions?.countries?.length > 0 ? (
+                                            filterOptions.countries.map((c: any) => (
+                                                <label key={c.name} className="flex items-center justify-between text-black cursor-pointer text-sm">
+                                                    <div className="flex items-center space-x-2">
+                                                        <input
+                                                            type="checkbox"
+                                                            checked={mobileDraft.countries.includes(c.name)}
+                                                            onChange={() => setMobileDraft(prev => ({ ...prev, countries: prev.countries.includes(c.name) ? prev.countries.filter(x => x !== c.name) : [...prev.countries, c.name] }))}
+                                                            className="w-4 h-4 border border-gray-400 rounded-sm accent-[#D35400]"
+                                                        />
+                                                        <span>{c.name} ({c.count})</span>
+                                                    </div>
+                                                </label>
+                                            ))
+                                        ) : (
+                                            <p className="text-gray-500 text-sm">No countries available</p>
+                                        )}
+                                    </div>
+                                )}
+                            </div>
+                        </div>
+
+                        {/* Apply Bar */}
+                        <div className="border-t border-[#D8D3C5] p-4 bg-[#EBE3D6]">
+                            <div className="flex gap-3">
+                                <button onClick={clearMobileDraft} className="flex-1 py-3 border border-[#D8D3C5] bg-[#F0EBE3] text-black font-semibold uppercase font-[Orbitron] tracking-wide">
+                                    Clear
+                                </button>
+                                <button onClick={applyMobileFilters} className="flex-1 py-3 bg-[#D35400] text-white font-semibold uppercase font-[Orbitron] tracking-wide">
+                                    Apply
+                                </button>
+                            </div>
+                            <div style={{ height: 'env(safe-area-inset-bottom)' }} />
+                        </div>
+                    </div>
+                </div>
+            )}
             {/* <section className="w-full bg-[#31332C] text-white py-10">
                 <div className="max-w-[1720px] mx-auto px-4 sm:px-8 lg:px-[140px]">
                     <div className="grid grid-cols-1 sm:grid-cols-3 gap-6 2xl:mt-[120px] xl:mt-[100px] mb-16">
