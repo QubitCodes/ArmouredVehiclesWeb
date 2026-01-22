@@ -169,6 +169,13 @@ export default function ProductCard({
           </button>
         )}
 
+        {/* Controlled badge overlapping the image - moved to bottom-right */}
+        {isControlled && (
+          <div className="absolute bottom-0 right-0 md:bottom-3 md:right-3 bg-red-100 text-red-600 text-[10px] md:text-xs px-2 py-0.5 font-bold uppercase tracking-wider border border-red-200 z-20 md:hidden">
+            Controlled
+          </div>
+        )}
+
         {/* No slider controls or indicators; hover cycles images */}
       </div>
 
@@ -200,7 +207,7 @@ export default function ProductCard({
                 {price.toLocaleString()}
               </p>
               {isControlled && (
-                <div className="inline-block bg-red-100 text-red-600 text-[10px] md:text-xs px-2 py-0.5 font-bold uppercase tracking-wider border border-red-200 w-fit">
+                <div className="hidden md:inline-block bg-red-100 text-red-600 text-[10px] md:text-xs px-2 py-0.5 font-bold uppercase tracking-wider border border-red-200 w-fit">
                   Controlled
                 </div>
               )}
