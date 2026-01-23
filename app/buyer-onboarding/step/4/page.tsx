@@ -11,7 +11,7 @@ export default function Step4Page() {
 
   return (
     <AccountSetup
-      onSubmit={() => router.push("/profile")} 
+      onSubmit={() => router.push("/buyer-onboarding/step/5")}
       onPrev={() => router.push("/buyer-onboarding/step/3")}
       initialData={profileData}
     />

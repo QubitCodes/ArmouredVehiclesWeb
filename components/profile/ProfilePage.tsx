@@ -219,7 +219,7 @@ export default function ProfilePage() {
   const address = p.address_line1 ? `${p.address_line1}, ${p.city || ""}` : (p.address || "N/A");
   const website = p.official_website || p.company_website || p.website || "N/A";
 
-  const contactJob = p.job_title || p.authorizedContactRole || p.contactJobTitle || "N/A";
+  const contactJob = p.contact_job_title || p.job_title || p.authorizedContactRole || p.contactJobTitle || "N/A";
   const contactEmail = p.contact_email || p.authorizedContactEmail || p.contactWorkEmail || user.email;
 
   // Construct full phone with country code if available
@@ -621,7 +621,7 @@ export default function ProfilePage() {
 
           <div>
             <label className="profile-label font-semibold">End-User Type</label>
-            <div className="profile-view">{p.end_user_type || endUserType}</div>
+            <div className="profile-view">{p.endUserType?.name || endUserType}</div>
           </div>
 
           <div>

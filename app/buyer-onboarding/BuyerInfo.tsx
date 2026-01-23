@@ -1,7 +1,6 @@
 "use client";
 
 import Image from "next/image";
-import Stepper from "./Stepper";
 import { useEffect, useState, useRef } from "react";
 import API from "../services/api";
 import PhoneInput from 'react-phone-input-2';
@@ -63,17 +62,18 @@ export default function BuyerInfo({ onNext, initialData }: Props) {
       }
 
       if (initialData.company_phone) {
-        if (initialData.company_phone_country_code) {
-          setCompanyPhoneCountryCode(initialData.company_phone_country_code);
-          setCompanyPhone(initialData.company_phone);
-        } else {
-          setCompanyPhone(initialData.company_phone);
-        }
+        const dialCode = initialData.company_phone_country_code?.replace('+', '') || '971';
+        const localPhone = initialData.company_phone.replace(/^\+/, '').replace(new RegExp(`^${dialCode}`), '');
+        // Combine for the component value
+        setCompanyPhone(`${dialCode}${localPhone}`);
+        setCompanyPhoneCountryCode(initialData.company_phone_country_code || '+971');
       } else if (initialData.phone) {
+        const dialCode = initialData.countryCode?.replace('+', '') || '971';
+        const localPhone = initialData.phone.replace(/^\+/, '').replace(new RegExp(`^${dialCode}`), '');
+        setCompanyPhone(`${dialCode}${localPhone}`);
         if (initialData.countryCode) {
           setCompanyPhoneCountryCode(initialData.countryCode);
         }
-        setCompanyPhone(initialData.phone);
       }
 
       // New fields

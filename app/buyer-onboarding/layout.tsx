@@ -1,12 +1,15 @@
 "use client";
 
-import React from "react";
+import React, { useEffect } from "react";
+import { useRouter, usePathname } from "next/navigation";
 import Stepper from "./Stepper";
 import { OnboardingProvider, useOnboarding } from "./context";
-import { usePathname } from "next/navigation";
 
 function OnboardingContent({ children }: { children: React.ReactNode }) {
+  const router = useRouter();
   const pathname = usePathname();
+  const { loading, profileData } = useOnboarding();
+
   // Determine step from URL
   let currentStep = 1;
   if (pathname.includes("/step/1")) currentStep = 1;
@@ -15,14 +18,25 @@ function OnboardingContent({ children }: { children: React.ReactNode }) {
   else if (pathname.includes("/step/4")) currentStep = 4;
   else if (pathname.includes("/step/5")) currentStep = 5;
 
-  const { loading } = useOnboarding();
+  // Redirect away from onboarding if onboarding_step is null (completed)
+  useEffect(() => {
+    if (!loading) {
+      const onboardingStep = profileData?.onboarding_step ?? profileData?.onboardingStep ?? profileData?.current_step;
+
+      // If onboarding is complete (null), redirect to home
+      // Exception: Allow step 5 to show the success message
+      if (onboardingStep === null && !pathname.includes("/step/5")) {
+        router.replace("/");
+      }
+    }
+  }, [loading, profileData, pathname, router]);
 
   if (loading) {
-     return (
-          <div className="min-h-screen bg-[#EBE3D6] flex items-center justify-center font-orbitron text-xl">
-              Loading Profile...
-          </div>
-      );
+    return (
+      <div className="min-h-screen bg-[#EBE3D6] flex items-center justify-center font-orbitron text-xl">
+        Loading Profile...
+      </div>
+    );
   }
 
   return (

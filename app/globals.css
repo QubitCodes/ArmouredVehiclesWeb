@@ -285,3 +285,14 @@ body {
   padding: 7px 12px !important;
   text-align: left !important;
 }
+
+/* ===== Profile Page Styles ===== */
+.profile-label {
+  @apply block text-[14px] leading-[24px] text-black mb-2;
+  font-family: Inter, system-ui, -apple-system, sans-serif;
+}
+
+.profile-view {
+  @apply bg-[#F0EBE3] border border-[#E8E3D9] px-4 py-3 text-sm text-black;
+  font-family: Inter, system-ui, -apple-system, sans-serif;
+}
