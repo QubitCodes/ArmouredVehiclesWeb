@@ -3,7 +3,7 @@
 
 
 import Image from "next/image";
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { Button } from "@/components/ui/Button";
 import { Typography } from "@/components/ui/Typography";
 import { Container } from "@/components/ui/Container";
@@ -27,6 +27,7 @@ import WarrantyTab from "@/components/product/tabs/WarrantyTab";
 import ReviewsTab from "@/components/product/tabs/ReviewsTab";
 import PopularProducts from "../shared/PopularItems";
 import ProductSpecificationsTable from "../shared/ProductSpecificationsTable";
+import api from "@/lib/api";
 
 
 
@@ -70,6 +71,23 @@ const DesktopLayout = ({ id, product }: { id?: string; product?: any }) => {
     const similarProducts = Array.isArray(product?.similarProducts) ? product.similarProducts : [];
 
     const tabContent: TabContent[] = [];
+    const [hasSpecs, setHasSpecs] = useState(false);
+
+    useEffect(() => {
+        let mounted = true;
+        if (!product?.id) {
+            return;
+        }
+        api.products.getSpecifications(Number(product.id))
+            .then((data) => {
+                const active = Array.isArray(data)
+                    ? data.filter((s: any) => s?.active)
+                    : [];
+                if (mounted) setHasSpecs(active.length > 0);
+            })
+            .catch(() => mounted && setHasSpecs(false));
+        return () => { mounted = false; };
+    }, [product?.id]);
 
     // -------------------------------------------------------------
     // DYNAMIC SECTIONS - If data exists, tabs will be displayed.
@@ -79,8 +97,8 @@ const DesktopLayout = ({ id, product }: { id?: string; product?: any }) => {
     // STATIC SECTIONS - Tabs are always displayed.
     // -------------------------------------------------------------
 
-    // Insert Technical Details table before Vehicle Fitment
-    if (product?.id) {
+    // Insert Technical Details table before Vehicle Fitment (only if API has data)
+    if (hasSpecs && product?.id) {
         tabContent.push({
             id: "technical-details",
             label: "Technical Details",
@@ -204,7 +222,7 @@ const DesktopLayout = ({ id, product }: { id?: string; product?: any }) => {
 
             {/* product tabs */}
             <div className="my-6">
-                <TabbedSection tabs={tabContent} defaultTab="vehicle-fitment" />
+                <TabbedSection tabs={tabContent} defaultTab="product-details" />
             </div>
 
             {showGallery && (

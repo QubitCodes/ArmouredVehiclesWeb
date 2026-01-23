@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import ProductHeader from "../shared/ProductHeader";
 // import ProductGallery from "../shared/ProductGallery";
 import ProductPurchaseSection from "../shared/ProductPurchaseSection";
@@ -22,6 +22,7 @@ import WarrantyTab from "@/components/product/tabs/WarrantyTab";
 import ReviewsTab from "@/components/product/tabs/ReviewsTab";
 import PopularProducts from "../shared/PopularItems";
 import ProductSpecificationsTable from "../shared/ProductSpecificationsTable";
+import api from "@/lib/api";
 
 
 export default function MobileLayout({ id, product }: { id?: string; product?: any }) {
@@ -41,6 +42,23 @@ export default function MobileLayout({ id, product }: { id?: string; product?: a
         return [fallback];
     })();
     const tabContent: TabContent[] = [];
+    const [hasSpecs, setHasSpecs] = useState(false);
+
+    useEffect(() => {
+        let mounted = true;
+        if (!product?.id) {
+            return;
+        }
+        api.products.getSpecifications(Number(product.id))
+            .then((data) => {
+                const active = Array.isArray(data)
+                    ? data.filter((s: any) => s?.active)
+                    : [];
+                if (mounted) setHasSpecs(active.length > 0);
+            })
+            .catch(() => mounted && setHasSpecs(false));
+        return () => { mounted = false; };
+    }, [product?.id]);
     // -------------------------------------------------------------
     // DYNAMIC SECTIONS - If data exists, tabs will be displayed.
     // If data is missing/null, the section is automatically hidden (not pushed to tabContent).
@@ -49,8 +67,8 @@ export default function MobileLayout({ id, product }: { id?: string; product?: a
     // STATIC SECTIONS - Tabs are always displayed.
     // -------------------------------------------------------------
 
-    // Insert Technical Details table before Vehicle Fitment
-    if (product?.id) {
+    // Insert Technical Details table before Vehicle Fitment (only if API has data)
+    if (hasSpecs && product?.id) {
         tabContent.push({
             id: "technical-details",
             label: "Technical Details",
