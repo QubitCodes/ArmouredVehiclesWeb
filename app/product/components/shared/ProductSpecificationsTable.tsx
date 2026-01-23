@@ -34,13 +34,14 @@ export default function ProductSpecificationsTable({ productId }: { productId: n
     if (loading || specs.length === 0) return null;
 
     return (
-        <div className="my-10 font-sans max-w-3xl">
-            <Typography variant="h2" className="text-xl font-bold text-black mb-4">
-                Technical Details
-            </Typography>
+        <div className="my-6 font-sans max-w-4xl">
+            <div className="bg-[#EBE3D6] p-6">
+                <Typography variant="h2" className="font-orbitron text-lg font-bold text-black mb-4 uppercase tracking-wider">
+                    Technical Details
+                </Typography>
 
-            <div className="border border-gray-300 rounded overflow-hidden">
-                <div className="flex flex-col">
+                <div className="border border-[#D8D0C0] rounded overflow-hidden">
+                    <div className="flex flex-col">
                     {(() => {
                         const sections: { title: Specification; items: Specification[] }[] = [];
                         let current: { title: Specification; items: Specification[] } | null = null;
@@ -68,8 +69,8 @@ export default function ProductSpecificationsTable({ productId }: { productId: n
                             return (
                                 <div key={section.title.id} className="flex flex-col">
                                     {/* Section Header */}
-                                    <div className="bg-gray-100 border-b border-gray-300 py-2.5 px-4">
-                                        <Typography className="text-xs font-bold text-gray-700 uppercase tracking-wider">
+                                    <div className="bg-[#F0EBE3] border-b border-[#D8D0C0] py-2.5 px-4">
+                                        <Typography className="text-xs font-bold text-black uppercase tracking-wider font-orbitron">
                                             {section.title.label}
                                         </Typography>
                                     </div>
@@ -86,9 +87,9 @@ export default function ProductSpecificationsTable({ productId }: { productId: n
                                             return (
                                                 <div
                                                     key={item.id}
-                                                    className={`w-full py-2 px-6 bg-white ${hasBorder ? 'border-b border-gray-300' : ''}`}
+                                                    className={`w-full py-2 px-6 bg-[#F6F1E9] ${hasBorder ? 'border-b border-[#D8D0C0]' : ''}`}
                                                 >
-                                                    <Typography className="text-sm text-gray-800 flex items-start">
+                                                    <Typography className="text-sm text-black flex items-start">
                                                         <span className="mr-2 text-primary mt-1 text-[8px]">●</span>
                                                         {item.value}
                                                     </Typography>
@@ -100,15 +101,15 @@ export default function ProductSpecificationsTable({ productId }: { productId: n
                                         return (
                                             <div
                                                 key={item.id}
-                                                className={`flex bg-white ${hasBorder ? 'border-b border-gray-300' : ''}`}
+                                                className={`flex bg-[#F6F1E9] ${hasBorder ? 'border-b border-[#D8D0C0]' : ''}`}
                                             >
-                                                <div className="w-1/3 min-w-[140px] bg-[#F9F9F9] py-3 px-4 border-r border-gray-300 flex items-center">
-                                                    <Typography className="text-sm font-bold text-gray-900">
+                                                <div className="w-1/3 min-w-40 bg-[#EBE3D6] py-3 px-4 border-r border-[#D8D0C0] flex items-center">
+                                                    <Typography className="text-sm font-bold text-black">
                                                         {item.label}
                                                     </Typography>
                                                 </div>
                                                 <div className="flex-1 py-3 px-4 flex items-center">
-                                                    <Typography className="text-sm text-gray-800">
+                                                    <Typography className="text-sm text-black">
                                                         {item.value}
                                                     </Typography>
                                                 </div>
@@ -119,6 +120,7 @@ export default function ProductSpecificationsTable({ productId }: { productId: n
                             );
                         });
                     })()}
+                    </div>
                 </div>
             </div>
         </div>

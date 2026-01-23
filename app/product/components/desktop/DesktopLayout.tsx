@@ -79,6 +79,15 @@ const DesktopLayout = ({ id, product }: { id?: string; product?: any }) => {
     // STATIC SECTIONS - Tabs are always displayed.
     // -------------------------------------------------------------
 
+    // Insert Technical Details table before Vehicle Fitment
+    if (product?.id) {
+        tabContent.push({
+            id: "technical-details",
+            label: "Technical Details",
+            content: <ProductSpecificationsTable productId={Number(product.id)} />
+        });
+    }
+
     tabContent.push({
         id: "vehicle-fitment",
         label: "Vehicle Fitment",
@@ -186,12 +195,6 @@ const DesktopLayout = ({ id, product }: { id?: string; product?: any }) => {
                 </div>
             </Container>
 
-            {product?.id && (
-                <Container className="mb-6">
-                    <ProductSpecificationsTable productId={Number(product.id)} />
-                </Container>
-            )}
-
             <Container className="my-8">
                 {similarProducts.length > 0 && (
                     <SimilarItemsSection products={similarProducts} />
@@ -199,11 +202,10 @@ const DesktopLayout = ({ id, product }: { id?: string; product?: any }) => {
             </Container>
 
 
-            {/* product specifications starts here */}
+            {/* product tabs */}
             <div className="my-6">
-                <TabbedSection tabs={tabContent} defaultTab={tabContent[0]?.id} />
+                <TabbedSection tabs={tabContent} defaultTab="vehicle-fitment" />
             </div>
-            {/* product specifications ends here */}
 
             {showGallery && (
                 <FullscreenGallery

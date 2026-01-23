@@ -21,6 +21,7 @@ import ProductDetailsTab from "@/components/product/tabs/ProductDetailsTab";
 import WarrantyTab from "@/components/product/tabs/WarrantyTab";
 import ReviewsTab from "@/components/product/tabs/ReviewsTab";
 import PopularProducts from "../shared/PopularItems";
+import ProductSpecificationsTable from "../shared/ProductSpecificationsTable";
 
 
 export default function MobileLayout({ id, product }: { id?: string; product?: any }) {
@@ -47,6 +48,15 @@ export default function MobileLayout({ id, product }: { id?: string; product?: a
     // -------------------------------------------------------------
     // STATIC SECTIONS - Tabs are always displayed.
     // -------------------------------------------------------------
+
+    // Insert Technical Details table before Vehicle Fitment
+    if (product?.id) {
+        tabContent.push({
+            id: "technical-details",
+            label: "Technical Details",
+            content: <ProductSpecificationsTable productId={Number(product.id)} />
+        });
+    }
 
     tabContent.push({
         id: "vehicle-fitment",
@@ -158,13 +168,12 @@ export default function MobileLayout({ id, product }: { id?: string; product?: a
                 )}
 
             </div>
-            {/* product specifications starts here */}
+            {/* product tabs */}
             <Container className="my-10">
                 {tabContent.length > 0 && (
-                    <TabbedSection tabs={tabContent} defaultTab={tabContent[0]?.id} />
+                    <TabbedSection tabs={tabContent} defaultTab="vehicle-fitment" />
                 )}
             </Container>
-            {/* product specifications ends here */}
 
             {/* FULLSCREEN GALLERY */}
             {showGallery && (
