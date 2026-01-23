@@ -67,6 +67,13 @@ export default function MobileLayout({ id, product }: { id?: string; product?: a
     // STATIC SECTIONS - Tabs are always displayed.
     // -------------------------------------------------------------
 
+    // Product Details should be first
+    tabContent.push({
+        id: "product-details",
+        label: "Product Details",
+        content: <ProductDetailsTab product={product} />
+    });
+
     // Insert Technical Details table before Vehicle Fitment (only if API has data)
     if (hasSpecs && product?.id) {
         tabContent.push({
@@ -92,12 +99,6 @@ export default function MobileLayout({ id, product }: { id?: string; product?: a
         id: "features",
         label: "Features",
         content: <FeaturesTab features={product?.features || []} />
-    });
-
-    tabContent.push({
-        id: "product-details",
-        label: "Product Details",
-        content: <ProductDetailsTab product={product} />
     });
 
     tabContent.push({
@@ -189,7 +190,7 @@ export default function MobileLayout({ id, product }: { id?: string; product?: a
             {/* product tabs */}
             <Container className="my-10">
                 {tabContent.length > 0 && (
-                    <TabbedSection tabs={tabContent} defaultTab="vehicle-fitment" />
+                    <TabbedSection tabs={tabContent} defaultTab="product-details" />
                 )}
             </Container>
 

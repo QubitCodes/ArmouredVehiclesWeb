@@ -97,6 +97,13 @@ const DesktopLayout = ({ id, product }: { id?: string; product?: any }) => {
     // STATIC SECTIONS - Tabs are always displayed.
     // -------------------------------------------------------------
 
+    // Product Details should be first
+    tabContent.push({
+        id: "product-details",
+        label: "Product Details",
+        content: <ProductDetailsTab product={product} />
+    });
+
     // Insert Technical Details table before Vehicle Fitment (only if API has data)
     if (hasSpecs && product?.id) {
         tabContent.push({
@@ -122,12 +129,6 @@ const DesktopLayout = ({ id, product }: { id?: string; product?: any }) => {
         id: "features",
         label: "Features",
         content: <FeaturesTab features={product?.features || []} />
-    });
-
-    tabContent.push({
-        id: "product-details",
-        label: "Product Details",
-        content: <ProductDetailsTab product={product} />
     });
 
     tabContent.push({
