@@ -61,6 +61,18 @@ export default function ProductPurchaseSection({
         return `${format(start)} – ${format(end)}`;
     }
 
+    const paymentIcons = [
+        { src: "/icons/payment/visa-dark.svg", alt: "Visa" },
+        { src: "/icons/payment/mastercard.svg", alt: "Mastercard" },
+        // { src: "/icons/payment/paypal.svg", alt: "PayPal" },
+        { src: "/icons/payment/apple-pay.svg", alt: "Apple Pay" },
+        // { src: "/icons/payment/tabby.svg", alt: "Tabby" },
+        // { src: "/icons/payment/tamara.svg", alt: "Tamara" },
+        { src: "/icons/payment/credictcard.svg", alt: "Credit Card" },
+        // { src: "/icons/payment/payment.svg", alt: "Payment" },
+        { src: "/icons/payment/american-express.svg", alt: "American Express" },
+    ];
+
 
     return (
         <div className="space-y-4">
@@ -391,16 +403,17 @@ export default function ProductPurchaseSection({
                 <div className="grid grid-cols-[90px_1fr] gap-2 items-start">
                     <span className="font-medium">Payments:</span>
 
-                    <div className="flex items-center">
-                        <Image
-                            src="/fullpaymenticons.svg"
-                            alt="Payment methods"
-                            width={360}
-                            height={40}
-                            className="object-contain"
-                            priority
-                        />
-
+                    <div className="flex items-center gap-4 flex-wrap">
+                        {paymentIcons.map((icon) => (
+                            <Image
+                                key={icon.src}
+                                src={icon.src}
+                                alt={icon.alt}
+                                width={56}
+                                height={28}
+                                className="h-6 w-auto md:h-7 object-contain"
+                            />
+                        ))}
                     </div>
 
                 </div>

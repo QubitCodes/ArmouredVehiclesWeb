@@ -57,7 +57,7 @@ export default function PopularProducts() {
       ) : error ? (
         <div className="text-sm text-red-500">Failed to load products.</div>
       ) : (
-        <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-7 gap-4">
+        <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-7 gap-4 items-stretch auto-rows-fr">
           {products.map((product) => (
             <SimilarProductCard
               key={product.id}
