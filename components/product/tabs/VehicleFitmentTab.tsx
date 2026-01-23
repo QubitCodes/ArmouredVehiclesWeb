@@ -33,22 +33,53 @@ export default function VehicleFitmentTab({ fitment }: VehicleFitmentTabProps) {
     if (!parsedFitment || (Array.isArray(parsedFitment) && parsedFitment.length === 0)) {
         return (
             <div className="bg-[#EBE3D6] p-4 space-y-2 font-sans text-black">
-                 <h3 className="font-orbitron font-bold text-lg mb-4 uppercase">VEHICLE FITMENT</h3>
-                 <div className="p-4 text-gray-500 italic">No vehicle fitment information available.</div>
+                 <h3 className="font-orbitron font-bold text-lg mb-4 uppercase">Key Attributes</h3>
+                 <div className="p-4 text-gray-500 italic">No Key Attributes information available.</div>
             </div>
         );
     }
 
-    // Handle Array (New Format)
+    // Handle Array (New Format) - Two Column Table Design
     if (Array.isArray(parsedFitment)) {
+        // Mock data structure - replace with actual API data
+        // Expected format: { label: string, value: string }[]
+        const mockTableData = parsedFitment.map((item, idx) => ({
+            label: `Attribute ${idx + 1}`,
+            value: item
+        }));
+
         return (
-            <div className="bg-[#EBE3D6] p-4 space-y-2 font-sans text-black">
-                <h3 className="font-orbitron font-bold text-lg mb-4 uppercase">VEHICLE FITMENT</h3>
-                <ul className="list-disc pl-5 space-y-1 marker:text-black">
-                    {parsedFitment.map((item, index) => (
-                        <li key={index} className="text-sm">{item}</li>
-                    ))}
-                </ul>
+            <div className="bg-[#EBE3D6] p-6 font-sans">
+                <h3 className="font-orbitron text-lg font-bold text-black mb-4 uppercase tracking-wider">
+                    Key Attributes
+                </h3>
+
+                <div className="border border-[#D8D0C0] rounded overflow-hidden">
+                    <div className="bg-[#F6F1E9]">
+                        <div className="grid grid-cols-1 md:grid-cols-2">
+                            {mockTableData.map((item, idx) => {
+                                const isRightCol = idx % 2 === 1;
+                                return (
+                                    <div
+                                        key={idx}
+                                        className={`flex border-b border-[#D8D0C0] ${isRightCol ? '' : 'md:border-r md:border-[#D8D0C0]'}`}
+                                    >
+                                        <div className="w-1/3 min-w-40 bg-[#EBE3D6] py-3 px-4 border-r border-[#D8D0C0] flex items-center">
+                                            <span className="text-sm font-bold text-black">
+                                                {item.label}
+                                            </span>
+                                        </div>
+                                        <div className="flex-1 py-3 px-4 flex items-center">
+                                            <span className="text-sm text-black">
+                                                {item.value}
+                                            </span>
+                                        </div>
+                                    </div>
+                                );
+                            })}
+                        </div>
+                    </div>
+                </div>
             </div>
         );
     }
@@ -59,7 +90,7 @@ export default function VehicleFitmentTab({ fitment }: VehicleFitmentTabProps) {
     
     return (
         <div className="bg-[#EBE3D6] p-4 space-y-2 font-sans text-black">
-             <h3 className="font-orbitron font-bold text-lg mb-4 uppercase">VEHICLE FITMENT</h3>
+             <h3 className="font-orbitron font-bold text-lg mb-4 uppercase">Key Attributes</h3>
              
              {/* Legacy/String Support: If string contains keys, show mock accordion, else raw */}
              {["Genesis", "Hyundai", "Kia"].some(b => (parsedFitment as string).includes(b)) ? (

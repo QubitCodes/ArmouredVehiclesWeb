@@ -76,46 +76,59 @@ export default function ProductSpecificationsTable({ productId }: { productId: n
                                     </div>
 
                                     {/* Section Items */}
-                                    {section.items.map((item, iIdx) => {
-                                        const isLastInGroup = iIdx === section.items.length - 1;
-                                        // No borders between value_only items in the same group
-                                        const hasBorder = isAllValueOnly
-                                            ? (isLastInGroup && !isLastSection)
-                                            : !isLastInGroup || !isLastSection;
+                                    {(() => {
+                                        const generalItems = section.items.filter(it => it.type !== 'value_only' && it.label && it.value);
+                                        const valueOnlyItems = section.items.filter(it => it.type === 'value_only' || (!it.label && it.value));
 
-                                        if (item.type === 'value_only') {
-                                            return (
-                                                <div
-                                                    key={item.id}
-                                                    className={`w-full py-2 px-6 bg-[#F6F1E9] ${hasBorder ? 'border-b border-[#D8D0C0]' : ''}`}
-                                                >
-                                                    <Typography className="text-sm text-black flex items-start">
-                                                        <span className="mr-2 text-primary mt-1 text-[8px]">●</span>
-                                                        {item.value}
-                                                    </Typography>
-                                                </div>
-                                            );
-                                        }
-
-                                        // General (Key-Value)
                                         return (
-                                            <div
-                                                key={item.id}
-                                                className={`flex bg-[#F6F1E9] ${hasBorder ? 'border-b border-[#D8D0C0]' : ''}`}
-                                            >
-                                                <div className="w-1/3 min-w-40 bg-[#EBE3D6] py-3 px-4 border-r border-[#D8D0C0] flex items-center">
-                                                    <Typography className="text-sm font-bold text-black">
-                                                        {item.label}
-                                                    </Typography>
-                                                </div>
-                                                <div className="flex-1 py-3 px-4 flex items-center">
-                                                    <Typography className="text-sm text-black">
-                                                        {item.value}
-                                                    </Typography>
-                                                </div>
-                                            </div>
+                                            <>
+                                                {/* Two-column grid for label+value items */}
+                                                {generalItems.length > 0 && (
+                                                    <div className="bg-[#F6F1E9]">
+                                                        <div className="grid grid-cols-1 md:grid-cols-2">
+                                                            {generalItems.map((item, idx) => {
+                                                                const isRightCol = idx % 2 === 1;
+                                                                return (
+                                                                    <div
+                                                                        key={item.id}
+                                                                        className={`flex border-b border-[#D8D0C0] ${isRightCol ? '' : 'md:border-r md:border-[#D8D0C0]'}`}
+                                                                    >
+                                                                        <div className="w-1/3 min-w-40 bg-[#EBE3D6] py-3 px-4 border-r border-[#D8D0C0] flex items-center">
+                                                                            <Typography className="text-sm font-bold text-black">
+                                                                                {item.label}
+                                                                            </Typography>
+                                                                        </div>
+                                                                        <div className="flex-1 py-3 px-4 flex items-center">
+                                                                            <Typography className="text-sm text-black">
+                                                                                {item.value}
+                                                                            </Typography>
+                                                                        </div>
+                                                                    </div>
+                                                                );
+                                                            })}
+                                                        </div>
+                                                    </div>
+                                                )}
+
+                                                {/* Bullet list for value-only items */}
+                                                {valueOnlyItems.map((item, iIdx) => {
+                                                    const isLastInValueOnly = iIdx === valueOnlyItems.length - 1;
+                                                    const shouldBorder = !isLastInValueOnly || !isLastSection;
+                                                    return (
+                                                        <div
+                                                            key={item.id}
+                                                            className={`w-full py-2 px-6 bg-[#F6F1E9] ${shouldBorder ? 'border-b border-[#D8D0C0]' : ''}`}
+                                                        >
+                                                            <Typography className="text-sm text-black flex items-start">
+                                                                <span className="mr-2 text-primary mt-1 text-[8px]">●</span>
+                                                                {item.value}
+                                                            </Typography>
+                                                        </div>
+                                                    );
+                                                })}
+                                            </>
                                         );
-                                    })}
+                                    })()}
                                 </div>
                             );
                         });

@@ -99,6 +99,12 @@ const DesktopLayout = ({ id, product }: { id?: string; product?: any }) => {
 
     // Product Details should be first
     tabContent.push({
+        id: "key-attributes",
+        label: "Attributes",
+        content: <VehicleFitmentTab fitment={product?.vehicle_fitment || product?.vehicleFitment || undefined} />
+    });
+
+    tabContent.push({
         id: "product-details",
         label: "Product Details",
         content: <ProductDetailsTab product={product} />
@@ -114,12 +120,6 @@ const DesktopLayout = ({ id, product }: { id?: string; product?: any }) => {
     }
 
     tabContent.push({
-        id: "vehicle-fitment",
-        label: "Vehicle Fitment",
-        content: <VehicleFitmentTab fitment={product?.vehicle_fitment || product?.vehicleFitment || undefined} />
-    });
-
-    tabContent.push({
         id: "specifications",
         label: "Specifications",
         content: <SpecificationsTab product={product} />
@@ -131,11 +131,11 @@ const DesktopLayout = ({ id, product }: { id?: string; product?: any }) => {
         content: <FeaturesTab features={product?.features || []} />
     });
 
-    tabContent.push({
-        id: "warranty",
-        label: "Warranty",
-        content: <WarrantyTab warranty={product?.warranty || undefined} />
-    });
+    // tabContent.push({
+    //     id: "warranty",
+    //     label: "Warranty",
+    //     content: <WarrantyTab warranty={product?.warranty || undefined} />
+    // });
 
     tabContent.push({
         id: "reviews",

@@ -69,6 +69,12 @@ export default function MobileLayout({ id, product }: { id?: string; product?: a
 
     // Product Details should be first
     tabContent.push({
+        id: "key-attributes",
+        label: "Attributes",
+        content: <VehicleFitmentTab fitment={product?.vehicleFitment || undefined} />
+    });
+
+    tabContent.push({
         id: "product-details",
         label: "Product Details",
         content: <ProductDetailsTab product={product} />
@@ -83,11 +89,7 @@ export default function MobileLayout({ id, product }: { id?: string; product?: a
         });
     }
 
-    tabContent.push({
-        id: "vehicle-fitment",
-        label: "Vehicle Fitment",
-        content: <VehicleFitmentTab fitment={product?.vehicleFitment || undefined} />
-    });
+    
 
     tabContent.push({
         id: "specifications",
@@ -101,11 +103,11 @@ export default function MobileLayout({ id, product }: { id?: string; product?: a
         content: <FeaturesTab features={product?.features || []} />
     });
 
-    tabContent.push({
-        id: "warranty",
-        label: "Warranty",
-        content: <WarrantyTab warranty={product?.warranty || undefined} />
-    });
+    // tabContent.push({
+    //     id: "warranty",
+    //     label: "Warranty",
+    //     content: <WarrantyTab warranty={product?.warranty || undefined} />
+    // });
 
     tabContent.push({
         id: "reviews",

@@ -15,7 +15,7 @@ export default function ProductDetailsTab({ product }: ProductDetailsTabProps) {
                  <p>{product?.description || "No product details available."}</p>
                  
                  {product?.country_of_origin && <p><strong>Country of Origin:</strong> {product.country_of_origin}</p>}
-                 {product?.condition && <p><strong>Condition:</strong> {product.condition}</p>}
+                 {/* {product?.condition && <p><strong>Condition:</strong> {product.condition}</p>} */}
                  {product?.certifications && <p><strong>Certifications:</strong> {product.certifications}</p>}
             </div>
 
