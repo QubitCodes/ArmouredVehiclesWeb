@@ -125,8 +125,8 @@ const DesktopLayout = ({ id, product }: { id?: string; product?: any }) => {
                     {/* Breadcrumb */}
                     {/* Breadcrumb - Dynamic */}
                     <div className="text-sm mb-6 mt-4">
-                        <span className="text-black uppercase">
-                            AUTO PARTS / {product?.category?.name ? product.category.name : "PRODUCTS"} / {product?.name || "DETAILS"}
+                        <span className="text-black">
+                            Auto parts / {product?.category?.name ? product.category.name : "PRODUCTS"} / {product?.name || "DETAILS"}
                         </span>
                     </div>
 
