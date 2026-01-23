@@ -403,7 +403,7 @@ export default function ProductPurchaseSection({
                 <div className="grid grid-cols-[90px_1fr] gap-2 items-start">
                     <span className="font-medium">Payments:</span>
 
-                    <div className="flex items-center gap-4 flex-wrap">
+                    <div className="flex items-center gap-2 flex-wrap">
                         {paymentIcons.map((icon) => (
                             <Image
                                 key={icon.src}
