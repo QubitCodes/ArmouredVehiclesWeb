@@ -19,10 +19,9 @@ import ImageGallery from "../shared/ImageGallery";
 import SimilarItemsSection from "../shared/SimilarItemsSection";
 import { syncAddToServer } from "@/lib/cart-sync";
 import { useRouter } from "next/navigation";
-import VehicleFitmentTab from "@/components/product/tabs/VehicleFitmentTab";
-import SpecificationsTab from "@/components/product/tabs/SpecificationsTab";
-import FeaturesTab from "@/components/product/tabs/FeaturesTab";
 import ProductDetailsTab from "@/components/product/tabs/ProductDetailsTab";
+import AttributesTab from "@/components/product/tabs/AttributesTab";
+import DescriptionTab from "@/components/product/tabs/DescriptionTab";
 import WarrantyTab from "@/components/product/tabs/WarrantyTab";
 import ReviewsTab from "@/components/product/tabs/ReviewsTab";
 import PopularProducts from "../shared/PopularItems";
@@ -71,23 +70,8 @@ const DesktopLayout = ({ id, product }: { id?: string; product?: any }) => {
     const similarProducts = Array.isArray(product?.similarProducts) ? product.similarProducts : [];
 
     const tabContent: TabContent[] = [];
-    const [hasSpecs, setHasSpecs] = useState(false);
 
-    useEffect(() => {
-        let mounted = true;
-        if (!product?.id) {
-            return;
-        }
-        api.products.getSpecifications(Number(product.id))
-            .then((data) => {
-                const active = Array.isArray(data)
-                    ? data.filter((s: any) => s?.active)
-                    : [];
-                if (mounted) setHasSpecs(active.length > 0);
-            })
-            .catch(() => mounted && setHasSpecs(false));
-        return () => { mounted = false; };
-    }, [product?.id]);
+    // Specs are rendered conditionally inside components; no pre-fetch for tab visibility needed.
 
     // -------------------------------------------------------------
     // DYNAMIC SECTIONS - If data exists, tabs will be displayed.
@@ -97,38 +81,25 @@ const DesktopLayout = ({ id, product }: { id?: string; product?: any }) => {
     // STATIC SECTIONS - Tabs are always displayed.
     // -------------------------------------------------------------
 
-    // Product Details should be first
+    // Attributes tab aggregates Technical Details, Specifications, Features, and Vehicle Fitment
     tabContent.push({
-        id: "key-attributes",
+        id: "attributes",
         label: "Attributes",
-        content: <VehicleFitmentTab fitment={product?.vehicle_fitment || product?.vehicleFitment || undefined} />
+        content: <AttributesTab product={product} />
     });
 
+    // Product Details tab
     tabContent.push({
         id: "product-details",
         label: "Product Details",
         content: <ProductDetailsTab product={product} />
     });
 
-    // Insert Technical Details table before Vehicle Fitment (only if API has data)
-    if (hasSpecs && product?.id) {
-        tabContent.push({
-            id: "technical-details",
-            label: "Technical Details",
-            content: <ProductSpecificationsTable productId={Number(product.id)} />
-        });
-    }
-
+    // Description tab
     tabContent.push({
-        id: "specifications",
-        label: "Specifications",
-        content: <SpecificationsTab product={product} />
-    });
-
-    tabContent.push({
-        id: "features",
-        label: "Features",
-        content: <FeaturesTab features={product?.features || []} />
+        id: "description",
+        label: "Description",
+        content: <DescriptionTab product={product} />
     });
 
     // tabContent.push({
