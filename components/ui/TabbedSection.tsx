@@ -24,7 +24,7 @@ const TabbedSection = ({
   const [expandedSections, setExpandedSections] = useState<Set<string>>(
     new Set([defaultTab || tabs[0]?.id])
   );
-  
+
   // Create refs for each section
   const sectionRefs = useRef<{ [key: string]: HTMLDivElement | null }>({});
 
@@ -55,39 +55,39 @@ const TabbedSection = ({
 
   return (
     <div className={`bg-[#EBE3D6] ${className}`}>
-      
+
       {/* ---------------- DESKTOP: STICKY TABS + STACKED CONTENT ---------------- */}
       <div className="hidden md:block">
         {/* Sticky Header - positioned below main navbar (navbar ~120px on desktop) */}
         <div className="sticky top-[120px] z-[51] bg-[#F0EBE3] border-b border-gray-300 shadow-sm pointer-events-auto">
-           <div className="flex container-figma relative">
+          <div className="flex container-figma relative">
             {tabs.map((tab) => (
               <button
                 key={tab.id}
                 type="button"
                 onClick={() => scrollToSection(tab.id)}
                 className={`flex-1 px-6 py-4 font-bold text-sm font-[Orbitron] uppercase tracking-wider transition-colors text-center flex items-center justify-center cursor-pointer relative z-10 ${activeTab === tab.id
-                    ? "text-black border-b-2 border-black bg-[#EBE3D6]"
-                    : "text-gray-600 hover:text-black bg-[#F0EBE3]"
+                  ? "text-black border-b-2 border-black bg-[#EBE3D6]"
+                  : "text-gray-600 hover:text-black bg-[#F0EBE3]"
                   }`}
               >
                 {tab.label}
               </button>
             ))}
-           </div>
+          </div>
         </div>
 
         {/* Stacked Content */}
         <div className="container-figma p-4 pb-12">
-            {tabs.map((tab) => (
-                <div 
-                  key={tab.id} 
-                  ref={(el) => { sectionRefs.current[tab.id] = el; }}
-                  className="mb-8 last:mb-0 border-b border-gray-300 pb-8 last:border-0 last:pb-0 scroll-mt-[180px]"
-                >
-                    {tab.content}
-                </div>
-            ))}
+          {tabs.map((tab) => (
+            <div
+              key={tab.id}
+              ref={(el) => { sectionRefs.current[tab.id] = el; }}
+              className="mb-8 last:mb-0 border-b border-gray-300 pb-8 last:border-0 last:pb-0 scroll-mt-[180px]"
+            >
+              {tab.content}
+            </div>
+          ))}
         </div>
       </div>
 
@@ -104,7 +104,7 @@ const TabbedSection = ({
                 className="w-full flex items-center justify-between
                      px-4 py-4
                      bg-[#F0EBE3]
-                     border border-[#3D4A26]
+                     border border-[#cecbc5]
                      font-bold text-sm uppercase tracking-wide
                      text-black"
               >
@@ -118,9 +118,9 @@ const TabbedSection = ({
 
               {/* CONTENT */}
               {isOpen && (
-                <div className="border border-t-0 border-[#3D4A26]
+                <div className="border border-t-0 border-[#cecbc5]
                           bg-[#F6F1E9]
-                          px-4 py-4">
+                          ">
                   {tab.content}
                 </div>
               )}
