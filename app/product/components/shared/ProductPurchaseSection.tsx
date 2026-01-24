@@ -27,6 +27,8 @@ type Props = {
     stock?: number | null;
     productId?: string | number;
     onAddToCart?: () => void;
+    status?: string | null;
+    approvalStatus?: string | null;
 };
 
 export default function ProductPurchaseSection({
@@ -40,6 +42,8 @@ export default function ProductPurchaseSection({
     stock,
     productId,
     onAddToCart,
+    status,
+    approvalStatus,
 }: Props) {
     const displayPrice = price != null && price !== '' ? String(price) : undefined;
     const router = useRouter();
@@ -114,7 +118,7 @@ export default function ProductPurchaseSection({
                                     </div>
                                 </div>
                             )}
-                           
+
                         </>
                     ) : (
                         <span className="text-3xl font-bold font-[inter, sans-serif] text-black">
@@ -132,12 +136,12 @@ export default function ProductPurchaseSection({
                         Login to Purchase
                     </span>
                 )}
-                 {/* SKU - visible only on mobile */}
-                            {sku && (
-                                <div className="text-sm text-[#6F6F6F] mt-1 md:hidden">
-                                    SKU: {String(sku)}
-                                </div>
-                            )}
+                {/* SKU - visible only on mobile */}
+                {sku && (
+                    <div className="text-sm text-[#6F6F6F] mt-1 md:hidden">
+                        SKU: {String(sku)}
+                    </div>
+                )}
             </div>
 
 
@@ -171,6 +175,33 @@ export default function ProductPurchaseSection({
                     )}
                 </div> */}
             </div>
+
+            {/* STATUS BADGES (Admin/Vendor only) */}
+            {(status || approvalStatus) && (
+                <div className="flex flex-col gap-2 mt-4 border-t pt-4 pb-2">
+                    {status && (
+                        <div className="flex justify-start items-center gap-2">
+                            <span className="font-semibold text-sm text-[#6F6F6F]">Status:</span>
+                            <span className={`px-2 py-0.5 rounded text-xs font-bold uppercase
+                                ${status === 'published' ? 'bg-[#E6F4EA] text-[#1E8E3E]' : 'bg-[#F1F3F4] text-[#5F6368]'}
+                            `}>
+                                {status}
+                            </span>
+                        </div>
+                    )}
+                    {approvalStatus && (
+                        <div className="flex justify-start items-center gap-2">
+                            <span className="font-semibold text-sm text-[#6F6F6F]">Approval:</span>
+                            <span className={`px-2 py-0.5 rounded text-xs font-bold uppercase
+                                ${approvalStatus === 'approved' ? 'bg-[#E6F4EA] text-[#1E8E3E]' :
+                                    approvalStatus === 'rejected' ? 'bg-[#FCE8E6] text-[#C5221F]' : 'bg-[#FEF7E0] text-[#B06000]'}
+                            `}>
+                                {approvalStatus.replace('_', ' ')}
+                            </span>
+                        </div>
+                    )}
+                </div>
+            )}
 
             {/* QUANTITY */}
             {isAuthenticated && (

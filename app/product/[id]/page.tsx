@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { useParams, useSearchParams } from "next/navigation";
+import { useParams, useSearchParams, notFound } from "next/navigation";
 import api from "@/lib/api";
 import DesktopLayout from "../components/desktop/DesktopLayout";
 import MobileLayout from "../components/mobile/MobileLayout";
@@ -30,6 +30,8 @@ type ProductDisplay = {
   similarProducts?: any[];
   misc?: any;
   isControlled?: boolean;
+  status?: string | null;
+  approvalStatus?: string | null;
 };
 
 export default function ProductDetailsPage() {
@@ -130,6 +132,8 @@ export default function ProductDetailsPage() {
               ? productData.reviewCount
               : Number(productData.review_count ?? productData.reviewCount) || 0,
           isControlled: productData.is_controlled ?? false,
+          status: productData.status ?? null,
+          approvalStatus: productData.approval_status ?? null,
         });
 
         // 1.1 Fetch Similar Products if category exists
@@ -227,12 +231,11 @@ export default function ProductDetailsPage() {
   /* ---------------------------
      4️⃣ NOT FOUND
   ---------------------------- */
+  /* ---------------------------
+     4️⃣ NOT FOUND
+  ---------------------------- */
   if (!product) {
-    return (
-      <section className="bg-[#F0EBE3] pt-2 md:pt-0">
-        <div className="p-6">Product not found or invalid ID.</div>
-      </section>
-    );
+    notFound();
   }
 
   /* ---------------------------

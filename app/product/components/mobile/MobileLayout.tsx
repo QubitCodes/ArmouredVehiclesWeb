@@ -110,6 +110,8 @@ export default function MobileLayout({ id, product }: { id?: string; product?: a
                     condition={product?.condition}
                     stock={product?.stock}
                     productId={product?.id}
+                    status={product?.status}
+                    approvalStatus={product?.approvalStatus}
                     onAddToCart={async () => {
                         if (!product) return;
                         addItem({
