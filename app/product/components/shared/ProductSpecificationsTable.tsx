@@ -67,7 +67,7 @@ export default function ProductSpecificationsTable({ productId }: { productId: n
                             const isLastSection = sIdx === sections.length - 1;
 
                             return (
-                                <div key={section.title.id} className="flex flex-col">
+                                <div key={section.title.id} className={`flex flex-col ${sIdx > 0 ? 'mt-3' : ''}`}>
                                     {/* Section Header */}
                                     <div className="bg-[#F0EBE3] border-b border-[#D8D0C0] py-2.5 px-4">
                                         <Typography className="text-xs font-bold text-black uppercase tracking-wider font-orbitron">
