@@ -299,9 +299,9 @@ export const api = {
       return data;
     },
 
-    logout: async (): Promise<void> => {
+    logout: async (refreshToken?: string): Promise<void> => {
       try {
-        await fetchJson('/auth/logout', { method: 'POST' });
+        await fetchJson('/auth/logout', { method: 'POST', body: JSON.stringify({ refreshToken }) });
       } catch (err) {
         console.error("Logout API failed", err);
       } finally {

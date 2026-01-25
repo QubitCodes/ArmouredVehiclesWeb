@@ -18,12 +18,12 @@ function LoginForm() {
     const searchParams = useSearchParams();
     const [identifier, setIdentifier] = useState("");
     const [stage, setStage] = useState<"start" | "verify">("start");
-        const { refreshUser } = useAuth();
+    const { refreshUser } = useAuth();
     const [otp, setOtp] = useState<string[]>(Array(6).fill(""));
     const [debugOtp, setDebugOtp] = useState<string>("");
     const [loading, setLoading] = useState(false);
     const inputRefs = useRef<HTMLInputElement[]>([]);
-  
+
 
 
     const isEmail = (value: string) => {
@@ -40,14 +40,14 @@ function LoginForm() {
             const first = email.charAt(0);
             // if first character is an uppercase letter, convert it to lowercase
             if (first !== first.toLowerCase()) {
-            email = first.toLowerCase() + email.slice(1);
+                email = first.toLowerCase() + email.slice(1);
             }
         }
         if (!email) {
             alert("Please enter your email or phone number");
             return;
         }
-        
+
         try {
             setLoading(true);
             const res = await startOtpLogin(email);
@@ -118,17 +118,19 @@ function LoginForm() {
         }
     }, [stage]);
 
+    const ignoreRedirectRef = useRef(false);
+
     // Redirect if already logged in
     const { isAuthenticated, isLoading: authLoading } = useAuth();
     useEffect(() => {
-        if (!authLoading && isAuthenticated) {
-             const returnUrl = searchParams.get('returnUrl') || '/';
-             // Prevent loop if returnUrl is login
-             if (returnUrl.includes('/login')) {
-                 router.replace('/');
-             } else {
-                 router.replace(returnUrl);
-             }
+        if (!authLoading && isAuthenticated && !ignoreRedirectRef.current) {
+            const returnUrl = searchParams.get('returnUrl') || '/';
+            // Prevent loop if returnUrl is login
+            if (returnUrl.includes('/login')) {
+                router.replace('/');
+            } else {
+                router.replace(returnUrl);
+            }
         }
     }, [authLoading, isAuthenticated, router, searchParams]);
 
@@ -145,7 +147,7 @@ function LoginForm() {
         }
 
         const code = manualCode || otp.join("");
-        
+
         if (code.length !== 6) {
             alert("Please enter the 6-digit OTP");
             return;
@@ -155,36 +157,68 @@ function LoginForm() {
             const res = await verifyOtpLogin(email, code);
             // API response is nested: res.data = { status, message, code, data: { user, accessToken, ... } }
             const { user, accessToken, refreshToken, expiresIn } = res.data.data;
+
+            // Set flag to ignore the auto-redirect effect, since we will handle it manually here
+            ignoreRedirectRef.current = true;
+
             // Store tokens (both legacy and lib/api.ts keys)
             // Store tokens using centralized logic (handles cookies for middleware)
             storeTokens(accessToken, refreshToken, expiresIn);
             storeUser(user);
-            
+
             console.log(`[CHECKOUT DEBUG] LOGIN SUCCESS. Token: ${accessToken.substring(0, 20)}...`);
 
             // Update auth context immediately so Navbar reflects logged-in state
             await refreshUser();
-            
+
             // Merge guest cart
             // await api.cart.merge();
-            
+
             // Redirection Logic
             const redirect = searchParams.get('redirect');
-            
-            // Check for incomplete onboarding
-            // Note: user object from API now includes onboardingStep
-            const onboardingStep = (user as any).onboardingStep;
-            
-            if (onboardingStep && onboardingStep > 0) {
-                 // Force redirect to onboarding if step is tracked (and not 0/null which implies done)
-                 router.push('/buyer-onboarding');
-            } else if (redirect) {
-                router.push(redirect);
-            } else {
-                router.push('/');
+
+            // Switch-case logic for redirection priority
+            switch (true) {
+                // 1. Email Verification
+                case !user.email_verified:
+                    router.push('/verify-email');
+                    break;
+
+                // 2. Phone Existence
+                case !user.phone:
+                    router.push('/add-phone');
+                    break;
+
+                // 3. Phone Verification
+                case !user.phone_verified:
+                    router.push('/verify-phone');
+                    break;
+
+                // 4. Profile Creation (Check if profile exists)
+                // Note: AuthController now returns nested profile object
+                case !user.profile:
+                    router.push('/create-account');
+                    break;
+
+                // 5. In-progress Onboarding ( Specific Step )
+                case (user.onboardingStep && (user as any).onboardingStep > 0):
+                    console.log(`Redirecting to onboarding step: ${user.onboardingStep}`);
+                    router.push(`/buyer-onboarding/step/${user.onboardingStep}`);
+                    break;
+
+                // 6. Redirect URL
+                case !!redirect:
+                    router.push(redirect!);
+                    break;
+
+                // 7. Default Dashboard/Home
+                default:
+                    router.push('/');
+                    break;
             }
         } catch (err: any) {
             alert(err?.response?.data?.message || err?.message || "Failed to verify OTP");
+            ignoreRedirectRef.current = false; // Reset on error
         } finally {
             setLoading(false);
         }

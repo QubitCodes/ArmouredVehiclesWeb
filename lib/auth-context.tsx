@@ -144,12 +144,23 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const logout = useCallback(async () => {
     setIsLoading(true);
     try {
-      await api.auth.logout();
+      const refreshToken = localStorage.getItem('refreshToken');
+      if (refreshToken) {
+        try {
+          await api.auth.logout(refreshToken);
+        } catch (e) {
+          console.error("Logout API failed", e);
+        }
+      }
     } finally {
+      // Clear local state regardless of API success
+      clearTokens();
       setUser(null);
       setIsLoading(false);
+      // Optional: redirect to login
+      router.push('/login');
     }
-  }, []);
+  }, [router]);
 
   const refreshUser = useCallback(async () => {
     try {

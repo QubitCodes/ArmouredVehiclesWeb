@@ -6,6 +6,10 @@ export interface User {
   userType: 'customer' | 'vendor' | 'admin' | 'super_admin';
   phone?: string;
   avatar?: string;
+  email_verified?: boolean;
+  phone_verified?: boolean;
+  country_code?: string;
+  onboardingStep?: number | null;
   completionPercentage?: number;
   profile?: {
     mobile?: string;

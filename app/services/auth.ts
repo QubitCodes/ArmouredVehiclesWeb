@@ -24,6 +24,10 @@ export const loginSeller = (data: { email: string; password: string }) => {
   });
 };
 
+export const logout = (refreshToken: string) => {
+  return API.post("/auth/logout", { refreshToken });
+};
+
 
 export const registerSeller = (data: {
   name: string;
