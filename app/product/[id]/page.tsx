@@ -32,6 +32,7 @@ type ProductDisplay = {
   isControlled?: boolean;
   status?: string | null;
   approvalStatus?: string | null;
+  individualProductPricing?: { name: string; amount: number }[] | null;
 };
 
 export default function ProductDetailsPage() {
@@ -134,6 +135,9 @@ export default function ProductDetailsPage() {
           isControlled: productData.is_controlled ?? false,
           status: productData.status ?? null,
           approvalStatus: productData.approval_status ?? null,
+          individualProductPricing: Array.isArray(productData?.individual_product_pricing)
+            ? productData.individual_product_pricing
+            : null,
         });
 
         // 1.1 Fetch Similar Products if category exists

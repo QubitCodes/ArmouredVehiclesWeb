@@ -29,6 +29,7 @@ type Props = {
     onAddToCart?: () => void;
     status?: string | null;
     approvalStatus?: string | null;
+    individualProductPricing?: { name: string; amount: number }[] | null;
 };
 
 export default function ProductPurchaseSection({
@@ -44,6 +45,7 @@ export default function ProductPurchaseSection({
     onAddToCart,
     status,
     approvalStatus,
+    individualProductPricing,
 }: Props) {
     const displayPrice = price != null && price !== '' ? String(price) : undefined;
     const router = useRouter();
@@ -115,6 +117,27 @@ export default function ProductPurchaseSection({
                                         <span className="text-[#3D4A26] line-through opacity-70">
                                             {originalPrice}
                                         </span>
+                                    </div>
+                                </div>
+                            )}
+
+                            {/* Individual Pricing Table */}
+                            {Array.isArray(individualProductPricing) && individualProductPricing.length > 0 && (
+                                <div className="mt-4 border border-[#D9D9D9] bg-white">
+                                    <div className="grid grid-cols-2 bg-[#EBE4D7] text-black text-sm font-medium">
+                                        <div className="px-3 py-2">Item</div>
+                                        <div className="px-3 py-2 text-right">Price</div>
+                                    </div>
+                                    <div>
+                                        {individualProductPricing.map((row, idx) => (
+                                            <div key={idx} className="grid grid-cols-2 items-center text-black text-sm border-t border-[#E8E8E8]">
+                                                <div className="px-3 py-2 truncate">{row?.name ?? "—"}</div>
+                                                <div className="px-3 py-2 flex items-center justify-end gap-1">
+                                                    <Image src="/icons/currency/dirham.svg" alt="Currency" width={16} height={16} />
+                                                    <span className="font-semibold text-right tabular-nums">{(typeof row?.amount === 'number' ? row.amount : Number(row?.amount || 0)).toLocaleString()}</span>
+                                                </div>
+                                            </div>
+                                        ))}
                                     </div>
                                 </div>
                             )}
