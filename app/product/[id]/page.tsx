@@ -96,10 +96,11 @@ export default function ProductDetailsPage() {
 
         setProduct({
           id: productData.id,
+          // basic fields
           name: productData.name ?? null,
           sku: productData.sku ?? null,
           price: productData.price ?? null,
-          originalPrice: productData.originalPrice ?? null,
+          originalPrice: productData.original_price ?? productData.originalPrice ?? null,
           currency: productData.currency ?? null,
           image:
             (Array.isArray(productData.media) && productData.media.find((m: any) => m?.is_cover)?.url) ||
@@ -115,7 +116,7 @@ export default function ProductDetailsPage() {
               ? productData.features.split("| ").map((s: string) => s.trim()).filter(Boolean)
               : null,
           specifications: productData.specifications ?? null,
-          vehicleFitment: productData.vehicle_fitment ?? productData.vehicleFitment ?? null,
+          vehicleFitment: productData.vehicle_compatibility ?? productData.vehicle_fitment ?? productData.vehicleFitment ?? null,
           warranty:
             productData.warranty ??
             (productData.has_warranty &&
@@ -124,7 +125,7 @@ export default function ProductDetailsPage() {
                 .filter(Boolean)
                 .join(" ")
               : null),
-          actionType: productData.actionType ?? null,
+          actionType: productData.action_type ?? productData.actionType ?? null,
           category: productData.category ?? null,
           misc: data.misc,
           reviewCount: typeof productData.review_count === "number"
@@ -132,13 +133,85 @@ export default function ProductDetailsPage() {
             : typeof productData.reviewCount === "number"
               ? productData.reviewCount
               : Number(productData.review_count ?? productData.reviewCount) || 0,
+          rating: productData.rating ?? null,
           isControlled: productData.is_controlled ?? false,
           status: productData.status ?? null,
           approvalStatus: productData.approval_status ?? null,
           individualProductPricing: Array.isArray(productData?.individual_product_pricing)
             ? productData.individual_product_pricing
             : null,
-        });
+
+          // extended / raw fields useful for full product view
+          vendorId: productData.vendor_id ?? null,
+          rejectionReason: productData.rejection_reason ?? null,
+          mainCategoryId: productData.main_category_id ?? null,
+          categoryId: productData.category_id ?? null,
+          subCategoryId: productData.sub_category_id ?? null,
+          certifications:
+            typeof productData.certifications === "string"
+              ? (() => {
+                  try {
+                    return JSON.parse(productData.certifications);
+                  } catch (e) {
+                    return [productData.certifications];
+                  }
+                })()
+              : productData.certifications ?? null,
+          countryOfOrigin: productData.country_of_origin ?? null,
+          dimension: {
+            length: productData.dimension_length ?? null,
+            width: productData.dimension_width ?? null,
+            height: productData.dimension_height ?? null,
+            unit: productData.dimension_unit ?? null,
+          },
+          materials: productData.materials ?? null,
+          performance: productData.performance ?? null,
+          technicalDescription: productData.technical_description ?? null,
+          driveTypes: productData.drive_types ?? null,
+          sizes: productData.sizes ?? null,
+          thickness: productData.thickness ?? null,
+          colors: productData.colors ?? null,
+          weight: {
+            value: productData.weight_value ?? null,
+            unit: productData.weight_unit ?? null,
+          },
+          packing: {
+            length: productData.packing_length ?? null,
+            width: productData.packing_width ?? null,
+            height: productData.packing_height ?? null,
+            unit: productData.packing_dimension_unit ?? null,
+            weight: productData.packing_weight ?? null,
+            weightUnit: productData.packing_weight_unit ?? null,
+          },
+          minOrderQuantity: productData.min_order_quantity ?? null,
+          basePrice: productData.base_price ?? null,
+          shippingCharge: productData.shipping_charge ?? null,
+          packingCharge: productData.packing_charge ?? null,
+          pricingTerms: productData.pricing_terms ?? null,
+          productionLeadTime: productData.production_lead_time ?? null,
+          readyStockAvailable: productData.ready_stock_available ?? null,
+          manufacturingSource: productData.manufacturing_source ?? null,
+          manufacturingSourceName: productData.manufacturing_source_name ?? null,
+          requiresExportLicense: productData.requires_export_license ?? null,
+          hasWarranty: productData.has_warranty ?? null,
+          warrantyDuration: productData.warranty_duration ?? null,
+          warrantyDurationUnit: productData.warranty_duration_unit ?? null,
+          warrantyTerms: productData.warranty_terms ?? null,
+          complianceConfirmed: productData.compliance_confirmed ?? null,
+          supplierSignature: productData.supplier_signature ?? null,
+          submissionDate: productData.submission_date ?? null,
+          createdAt: productData.created_at ?? null,
+          updatedAt: productData.updated_at ?? null,
+          deletedAt: productData.deleted_at ?? null,
+          media: Array.isArray(productData.media) ? productData.media : null,
+          pricingTiers: Array.isArray(productData.pricing_tiers) ? productData.pricing_tiers : null,
+          productSpecifications: Array.isArray(productData.product_specifications) ? productData.product_specifications : null,
+          mainCategory: productData.main_category ?? null,
+          subCategory: productData.sub_category ?? null,
+          galleryField: Array.isArray(productData.gallery) ? productData.gallery : null,
+          // keep raw payload for any additional needs
+          raw: productData,
+        } as any);
 
         // 1.1 Fetch Similar Products if category exists
 

@@ -3,6 +3,7 @@
 
 
 import Image from "next/image";
+import Link from "next/link";
 import { useEffect, useRef, useState } from "react";
 import { Button } from "@/components/ui/Button";
 import { Typography } from "@/components/ui/Typography";
@@ -124,9 +125,39 @@ const DesktopLayout = ({ id, product }: { id?: string; product?: any }) => {
                     {/* Breadcrumb */}
                     {/* Breadcrumb - Dynamic */}
                     <div className="text-sm mb-6 mt-4">
-                        <span className="text-black">
-                            Auto parts / {product?.category?.name ? product.category.name : "PRODUCTS"} / {product?.name || "DETAILS"}
-                        </span>
+                        <nav aria-label="breadcrumb">
+                            <span className="text-black">
+                                <Link href="/" className="text-black">Home</Link>
+                                {' '} / {' '}
+                                {product?.mainCategory?.name ? (
+                                    <>
+                                        <Link
+                                            href={product?.mainCategory?.id ? `/products?category_id=${product.mainCategory.id}` : "/products"}
+                                            className="text-black"
+                                        >
+                                            {product.mainCategory.name}
+                                        </Link>
+                                        {' '}/ {' '}
+                                    </>
+                                ) : null}
+
+                                {product?.category?.name ? (
+                                    <>
+                                        <Link
+                                            href={product?.category?.id ? `/products?category_id=${product.category.id}` : "/products"}
+                                            className="text-black"
+                                        >
+                                            {product.category.name}
+                                        </Link>
+                                        {' '}/ {' '}
+                                    </>
+                                ) : (
+                                    <Link href="/products" className="text-black underline">PRODUCTS</Link>
+                                )}
+
+                                <span>{product?.name || "DETAILS"}</span>
+                            </span>
+                        </nav>
                     </div>
 
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-8">

@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import Link from "next/link";
 import ProductHeader from "../shared/ProductHeader";
 import ProductPurchaseSection from "../shared/ProductPurchaseSection";
 import FullscreenGallery from "@/components/ui/FullscreenGallery";
@@ -75,11 +76,40 @@ export default function MobileLayout({ id, product }: { id?: string; product?: a
             <div className="pt-2 p-4 space-y-3">
                 {/* Breadcrumb - Mobile */}
                 <div className="flex items-center gap-2 text-xs pt-2 text-[#737373] overflow-x-auto whitespace-nowrap">
-                    <span className="font-semibold cursor-pointer">Home</span>
-                    <span className="font-semibold">{">"}</span>
-                    <span className="font-semibold cursor-pointer">{product?.category?.name ? product.category.name : "Products"}</span>
-                    <span className="font-semibold">{">"}</span>
-                    <span className="font-medium">{product?.name || "DETAILS"}</span>
+                    <nav aria-label="breadcrumb" className="flex items-center gap-2">
+                        <Link href="/" className="font-semibold text-[#737373] underline">Home</Link>
+                        <span className="font-semibold">{">"}</span>
+                        {product?.mainCategory?.name ? (
+                            <>
+                                <Link
+                                    href={product?.mainCategory?.id ? `/products?category_id=${product.mainCategory.id}` : "/products"}
+                                    className="font-semibold text-[#737373] underline"
+                                >
+                                    {product.mainCategory.name}
+                                </Link>
+                                <span className="font-semibold">{">"}</span>
+                            </>
+                        ) : null}
+
+                        {product?.category?.name ? (
+                            <>
+                                <Link
+                                    href={product?.category?.id ? `/products?category_id=${product.category.id}` : "/products"}
+                                    className="font-semibold text-[#737373] underline"
+                                >
+                                    {product.category.name}
+                                </Link>
+                                <span className="font-semibold">{">"}</span>
+                            </>
+                        ) : (
+                            <>
+                                <Link href="/products" className="font-semibold text-[#737373] underline">Products</Link>
+                                <span className="font-semibold">{">"}</span>
+                            </>
+                        )}
+
+                        <span className="font-medium">{product?.name || "DETAILS"}</span>
+                    </nav>
                 </div>
 
                 {/* 1️⃣ HEADER */}
