@@ -4,6 +4,8 @@ import Image from "next/image";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
+import PhoneInput from 'react-phone-input-2';
+import 'react-phone-input-2/lib/style.css';
 import { useAuth } from "@/lib/auth-context";
 import { setPhone } from "@/app/services/auth";
 import { toast } from "sonner";
@@ -27,12 +29,23 @@ export default function AddPhonePage() {
 
     try {
       setLoading(true);
-      const fullPhone = phone.replace(/^0+/, ''); // clean leading zeros
+
+      // Prepare split phone number
+      // countryCode is set by onChange (e.g. "971")
+      let dialCode = countryCode ? countryCode.replace('+', '') : '';
+      let fullPhone = phone.replace('+', ''); // phone state contains full digits now
+      let localPhone = fullPhone;
+
+      // Remove dial code from start of phone if present
+      if (dialCode && fullPhone.startsWith(dialCode)) {
+        localPhone = fullPhone.substring(dialCode.length);
+      }
+      localPhone = localPhone.replace(/^0+/, ''); // clean leading zeros
 
       await setPhone({
         userId: user?.id || '',
-        phone: fullPhone,
-        countryCode: countryCode
+        phone: localPhone,
+        countryCode: dialCode ? `+${dialCode}` : '+971'
       });
 
       toast.success("OTP Sent!");
@@ -77,27 +90,50 @@ export default function AddPhonePage() {
         </p>
 
         {/* Phone Input */}
-        <div className="flex items-center border border-[#C7B88A] bg-transparent mb-3 h-[50px]">
-
-          {/* Country - simplified for now, can use react-phone-input-2 if needed but keeping styling consistent */}
-          <div className="flex items-center gap-2 px-3 border-r border-[#C7B88A] h-full bg-[#EBE3D6]">
-            <Image
-              src="/icons/flags/uae.svg"
-              alt="UAE"
-              width={24}
-              height={16}
-            />
-            <span className="text-sm font-medium">+971</span>
-          </div>
-
-          {/* Number */}
-          <input
-            type="tel"
-            placeholder="Phone number"
+        <div className="mb-6">
+          <PhoneInput
+            country={'ae'}
             value={phone}
-            onChange={(e) => setPhoneInput(e.target.value.replace(/[^0-9]/g, ""))}
-            className="flex-1 px-4 py-3 bg-transparent text-sm text-black 
-                       placeholder:text-[#9D9A95] focus:outline-none h-full"
+            onChange={(value, data: any) => {
+              setPhoneInput(value);
+              setCountryCode(data.dialCode);
+            }}
+            enableSearch={true}
+            disableSearchIcon={true}
+            searchPlaceholder="Search Country..."
+            searchStyle={{
+              width: '94%',
+              height: '36px',
+              margin: '4px auto',
+              backgroundColor: '#F0EBE3',
+              border: '1px solid #C7B88A',
+              borderRadius: '2px',
+              padding: '8px',
+              color: 'black'
+            }}
+            inputStyle={{
+              width: '100%',
+              height: '50px',
+              backgroundColor: 'transparent',
+              border: '1px solid #C7B88A',
+              fontFamily: 'inherit',
+              color: '#000000',
+              paddingLeft: '65px',
+              borderRadius: '0px'
+            }}
+            buttonStyle={{
+              border: '1px solid #C7B88A',
+              borderRight: '1px solid #C7B88A', // Ensure separator visible
+              backgroundColor: '#EBE3D6',
+              justifyContent: 'flex-start',
+              padding: '8px',
+              borderRadius: '0px'
+            }}
+            dropdownStyle={{
+              backgroundColor: '#F0EBE3',
+              color: 'black',
+              width: '300px'
+            }}
           />
         </div>
 

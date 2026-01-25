@@ -92,27 +92,55 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   useEffect(() => {
     if (isLoading) return; // Wait for auth to load
 
-    if (user) {
-      // Check if onboarding is incomplete
-      // Note: API returns onboardingStep via user object if it was added. 
-      // Need to make sure User type has it or we cast it.
-      // Assuming onboarding_step is the DB field name, api.ts maps it?
-      // Let's check 'user' object structure. Usually it matches API response.
+    // Skip checks for public routes
+    // But be careful: Some public routes are also destinations (e.g. /register, /login)
+    // We want to force logged-in users out of these flows into the correction flow, 
+    // EXCEPT if they are explicitly logging out or in the middle of the correction.
 
+    if (user) {
+      // 1. Phone Verification Check
+      if (!user.phone_verified) {
+        // Allow access to: /add-phone, /verify-phone, /logout
+        if (!pathname.startsWith('/add-phone') &&
+          !pathname.startsWith('/verify-phone') &&
+          !pathname.startsWith('/logout')) {
+
+          // If phone is missing, go to add-phone
+          if (!user.phone) {
+            console.log(`[AuthMiddleware] Redirecting to /add-phone`);
+            router.replace('/add-phone');
+          } else {
+            // If phone exists but not verified, go to verify-phone
+            console.log(`[AuthMiddleware] Redirecting to /verify-phone`);
+            router.replace('/verify-phone');
+          }
+          return; // Stop further checks
+        }
+      }
+
+      // 2. Profile Existence/Creation Check (Step 0)
+      // Determining if profile exists depends on how API returns it.
+      // Usually checking onboarding_step is safer. If step is undefined/null, maybe profile is missing?
+      // Or if onboarding_step === 0.
       const onboardingStep = (user as any).onboarding_step ?? (user as any).onboardingStep;
 
+      if (onboardingStep === 0) {
+        // Allow access to: /create-account, /logout
+        if (!pathname.startsWith('/create-account') && !pathname.startsWith('/logout')) {
+          console.log(`[AuthMiddleware] Redirecting to /create-account`);
+          router.replace('/create-account');
+          return;
+        }
+      }
+
+      // 3. Onboarding Completion Check (Steps 1-4)
       if (onboardingStep && onboardingStep > 0 && onboardingStep < 5) {
         // User needs to complete onboarding
-
-        // Allowed paths for incomplete users:
-        // 1. /buyer-onboarding (and its subpaths if any)
-        // 2. /logout (handled via button usually)
-        // 3. /login (to switch account)
+        // Allowed paths: /buyer-onboarding, /seller-onboarding (if applicable), /logout
 
         if (!pathname.startsWith('/buyer-onboarding') &&
-          !pathname.startsWith('/login') &&
-          !pathname.startsWith('/register') &&
-          !pathname.startsWith('/contact')) {
+          !pathname.startsWith('/seller-onboarding') &&
+          !pathname.startsWith('/logout')) {
 
           console.log(`[AuthMiddleware] Redirecting incomplete user from ${pathname} to /buyer-onboarding`);
           router.replace(`/buyer-onboarding/step/${onboardingStep}`);

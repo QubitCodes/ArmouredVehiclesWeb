@@ -24,7 +24,7 @@ export default function VerifyPhonePage() {
         const init = async () => {
             if (user && user.phone_verified) {
                 // Check onboarding
-                const nextStep = (user as any).onboardingStep;
+                const nextStep = (user as any).onboarding_step ?? (user as any).onboardingStep;
                 if (nextStep === 0) router.push('/create-account');
                 else if (nextStep > 0) router.push('/buyer-onboarding');
                 else router.push('/dashboard');
