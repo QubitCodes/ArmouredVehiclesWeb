@@ -20,15 +20,11 @@ export default function AttributesTab({ product }: AttributesTabProps) {
             {product?.id != null && (
                 <ProductSpecificationsTable productId={Number(product.id)} />
             )}
+            {/* <SpecificationsTab product={product} />
 
-            {/* Item Specifics (derived from product fields) */}
-            <SpecificationsTab product={product} />
-
-            {/* Features list */}
             <FeaturesTab features={product?.features || []} />
 
-            {/* Vehicle Fitment */}
-            <VehicleFitmentTab fitment={product?.vehicle_fitment || product?.vehicleFitment || undefined} />
+            <VehicleFitmentTab fitment={product?.vehicle_fitment || product?.vehicleFitment || undefined} /> */}
         </div>
     );
 }
