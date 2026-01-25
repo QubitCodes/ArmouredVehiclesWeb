@@ -20,6 +20,9 @@ function getExpectedDeliveryDate(daysToAdd: number) {
 }
 
 export default function ShippingSummary({ onChange }: Props) {
+  // Hiding FedEx details for now per user request
+  return null;
+  /*
   return (
     <div className="bg-[#F5F5F5] p-4 rounded-md text-black">
       <div className="flex justify-between items-start gap-4">
@@ -59,4 +62,5 @@ export default function ShippingSummary({ onChange }: Props) {
       </div>
     </div>
   );
+  */
 }
