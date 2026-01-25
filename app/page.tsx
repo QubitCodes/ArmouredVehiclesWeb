@@ -1,11 +1,11 @@
-import { ImageSlider, Categories, FeaturedProducts, TopSellingProducts, SponsoredAd } from "@/components/home";
+import { ImageSlider, Categories, FeaturedProducts, FeaturedCarousel, TopSellingProducts, SponsoredAd } from "@/components/home";
 
 export default function Home() {
   return (
     <main className="min-h-screen">
       <ImageSlider />
       <Categories />
-      <FeaturedProducts />
+      <FeaturedCarousel />
       <TopSellingProducts title="Top Selling Products" />
       <SponsoredAd />
     </main>

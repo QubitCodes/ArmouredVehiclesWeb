@@ -373,20 +373,20 @@ export const FeaturedProducts = () => {
                         </div>
 
                         {/* NAME */}
-                        <div className="w-full h-[42px] flex items-center px-3 border-b border-white">
+                        <div className="w-full min-h-[50px] flex items-center px-3 border-b border-white">
                           <h3
                             ref={(el) => {
                               if (el) nameRefs.current[uniqueKey] = el; else delete nameRefs.current[uniqueKey];
                             }}
-                            className={`text-white font-orbitron text-[12px] font-semibold leading-tight two-line-clamp ${nameOverflow[uniqueKey] ? 'mobile-dots' : ''}`}
+                            className={`text-white font-orbitron text-[12px] font-semibold leading-tight line-clamp-2 ${nameOverflow[uniqueKey] ? 'mobile-dots' : ''}`}
                           >
                             {product.name}
                           </h3>
                         </div>
 
                         {/* PRICE */}
-                        <div className="w-full h-[42px] flex items-center px-3">
-                          <p className="text-white font-orbitron flex items-center gap-1 select-none">
+                        <div className="w-full min-h-[50px] flex items-center px-3">
+                          <p className="text-white font-orbitron flex items-center gap-1 select-none w-full">
                             {isLoading ? (
                               <span className="opacity-70">...</span>
                             ) : isAuthenticated ? (
@@ -395,13 +395,15 @@ export const FeaturedProducts = () => {
                                 <span className="text-sm">{product.price.toLocaleString()}</span>
                               </>
                             ) : (
-                              <span className="text-white/80 text-xs tracking-wider"><span className="font-bold">Login</span> to <span className="font-bold">access</span> product pricing.</span>
+                              <span className="text-white/80 text-[10px] leading-tight tracking-wider w-full block">
+                                <span className="font-bold">Login</span> to <span className="font-bold">access</span> product pricing.
+                              </span>
                             )}
                           </p>
                         </div>
 
                         {/* BUTTON */}
-                        <div className="w-full grow">
+                        <div className="w-full grow min-h-[40px]">
                           <button
                             onClick={(e) => {
                               e.stopPropagation();
@@ -478,20 +480,20 @@ export const FeaturedProducts = () => {
                               </div>
 
                               {/* NAME */}
-                              <div className="w-full h-[42px] md:h-[60px] 3xl:h-[70px] flex items-center px-3 md:px-6 3xl:px-8 border-b border-white">
+                              <div className="w-full min-h-[50px] md:min-h-[60px] 3xl:min-h-[70px] flex items-center px-3 md:px-6 3xl:px-8 border-b border-white">
                                 <h3
                                   ref={(el) => {
                                     if (el) nameRefs.current[uniqueKey] = el; else delete nameRefs.current[uniqueKey];
                                   }}
-                                  className={`text-white font-orbitron text-[12px] md:text-[16px] 3xl:text-[18px] font-semibold leading-tight ${isMobile ? 'two-line-clamp' : ''} ${isMobile && nameOverflow[uniqueKey] ? 'mobile-dots' : ''}`}
+                                  className={`text-white font-orbitron text-[12px] md:text-[16px] 3xl:text-[18px] font-semibold leading-tight line-clamp-2 ${isMobile && nameOverflow[uniqueKey] ? 'mobile-dots' : ''}`}
                                 >
                                   {product.name}
                                 </h3>
                               </div>
 
                               {/* PRICE */}
-                              <div className="w-full h-[42px] md:h-[60px] 3xl:h-[70px] flex items-center px-3 md:px-6 3xl:px-8">
-                                <p className="text-white font-orbitron flex items-center gap-1 md:gap-2 select-none">
+                              <div className="w-full min-h-[50px] md:min-h-[60px] 3xl:min-h-[70px] flex items-center px-3 md:px-6 3xl:px-8">
+                                <p className="text-white font-orbitron flex items-center gap-1 md:gap-2 select-none w-full">
                                   {isLoading ? (
                                     <span className="opacity-70">...</span>
                                   ) : isAuthenticated ? (
@@ -500,13 +502,16 @@ export const FeaturedProducts = () => {
                                       <span className="text-sm md:text-lg 3xl:text-xl">{product.price.toLocaleString()}</span>
                                     </>
                                   ) : (
-                                    <span className="text-white/80 text-xs md:text-sm 3xl:text-base tracking-wider"><span className="font-bold">Login</span> to <span className="font-bold">access</span> product pricing.</span>
+                                    // Adjusted font size for desktop to prevent overflow
+                                    <span className="text-white/80 text-[10px] md:text-[11px] 3xl:text-sm tracking-wider w-full block leading-tight">
+                                      <span className="font-bold">Login</span> to <span className="font-bold">access</span> product pricing.
+                                    </span>
                                   )}
                                 </p>
                               </div>
 
                               {/* BUTTON */}
-                              <div className="w-full grow">
+                              <div className="w-full grow min-h-[40px] md:min-h-[50px]">
                                 <button
                                   onClick={(e) => {
                                     e.stopPropagation();
