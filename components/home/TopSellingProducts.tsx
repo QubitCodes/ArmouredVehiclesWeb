@@ -132,7 +132,9 @@ export function TopSellingProducts({ title }: { title: string }) {
   if (error || !selectedProduct) {
     return (
       <section className="bg-[#F0EBE3] min-h-[400px] flex items-center justify-center font-sans">
-        <p className="text-red-500">{error || "No products found."}</p>
+        <div className="px-4 py-2 rounded-full border border-black/20 bg-black/5 text-black/60 font-orbitron text-sm md:text-base">
+          {error || "No top selling products found."}
+        </div>
       </section>
     );
   }
@@ -157,8 +159,8 @@ export function TopSellingProducts({ title }: { title: string }) {
               key={product.id}
               onClick={() => selectProduct(product)}
               className={`min-w-[130px] bg-[#F0EBE3] border flex flex-col items-center p-1 snap-start transition-colors ${selectedProduct?.id === product.id
-                  ? "border-[#D35400]"
-                  : "border-[#ccc] active:border-[#D35400]"
+                ? "border-[#D35400]"
+                : "border-[#ccc] active:border-[#D35400]"
                 }`}
             >
               <div className="relative w-[110px] h-[90px] mx-auto">
@@ -236,8 +238,8 @@ export function TopSellingProducts({ title }: { title: string }) {
                 key={product.id}
                 onClick={() => selectProduct(product)}
                 className={`border cursor-pointer flex flex-col items-center justify-start text-center transition-colors bg-[#EBE3D6] h-[220px] sm:h-[240px] md:h-[260px] lg:h-[270px] xl:h-[250px] 2xl:h-[281px] ${selectedProduct.id === product.id
-                    ? "border-[#D35400] ring-2 ring-[#D35400] ring-inset relative z-10"
-                    : "border-[#CCCCCC] hover:border-[#D35400]"
+                  ? "border-[#D35400] ring-2 ring-[#D35400] ring-inset relative z-10"
+                  : "border-[#CCCCCC] hover:border-[#D35400]"
                   }`}
               >
                 <div className="relative w-[120px] h-[120px] sm:w-[140px] sm:h-[140px] lg:w-[160px] lg:h-[160px] xl:w-[155px] xl:h-[140px] 2xl:w-[190px] 2xl:h-[190px] mt-6">

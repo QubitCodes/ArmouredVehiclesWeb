@@ -403,11 +403,11 @@ export const api = {
       return fetchJson<any>(`/products${queryString ? `?${queryString}` : ''}`);
     },
     getFeatured: async () => {
-      const res = await fetchJson<any>('/products/featured');
+      const res = await fetchJson<any>('/products/featured', { cache: 'no-store' });
       return Array.isArray(res) ? res : res?.data ?? [];
     },
     getTopSelling: async () => {
-      const res = await fetchJson<any>('/products/top-selling');
+      const res = await fetchJson<any>('/products/top-selling', { cache: 'no-store' });
       return Array.isArray(res) ? res : res?.data ?? [];
     },
     getCategories: async () => {

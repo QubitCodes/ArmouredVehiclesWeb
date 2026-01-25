@@ -15,32 +15,7 @@ interface Product {
 }
 
 // Fallback products when API returns empty or fails
-const FALLBACK_PRODUCTS: Product[] = [
-  {
-    id: 1,
-    name: "Armoured Vehicle Component",
-    price: 15000,
-    image: "/featured products/product1.png",
-    gallery: ["/featured products/product1.png"],
-    action: "BUY NOW",
-  },
-  {
-    id: 2,
-    name: "Tactical Communication System",
-    price: 25000,
-    image: "/featured products/product2.png",
-    gallery: ["/featured products/product2.png"],
-    action: "BUY NOW",
-  },
-  {
-    id: 3,
-    name: "Ballistic Protection Kit",
-    price: 35000,
-    image: "/featured products/product3.png",
-    gallery: ["/featured products/product3.png"],
-    action: "SUBMIT AN INQUIRY",
-  },
-];
+// Fallback products removed to reflect actual API state
 
 export const FeaturedProducts = () => {
   const router = useRouter();
@@ -95,15 +70,11 @@ export const FeaturedProducts = () => {
                 : "BUY NOW",
         }));
         // If API returned no items, use fallback products
-        if (!mappedProducts || mappedProducts.length === 0) {
-          setProducts(FALLBACK_PRODUCTS);
-        } else {
-          setProducts(mappedProducts);
-        }
+        setProducts(mappedProducts || []);
       } catch (err) {
         console.error("Failed to fetch featured products:", err);
         // On fetch failure, use fallback products
-        setProducts(FALLBACK_PRODUCTS);
+        setProducts([]);
       } finally {
         setIsLoadingProducts(false);
       }
