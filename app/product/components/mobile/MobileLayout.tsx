@@ -159,7 +159,7 @@ export default function MobileLayout({ id, product }: { id?: string; product?: a
                         }
                         router.push("/cart");
                     }}
-                    minOrderQuantity={product.minOrderQuantity}
+                    minOrderQuantity={product?.minOrderQuantity}
                 />
 
                 {/* 4️⃣ SIMILAR ITEMS - Only show if data exists */}
