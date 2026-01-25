@@ -122,10 +122,12 @@ const DesktopLayout = ({ id, product }: { id?: string; product?: any }) => {
                             <span className="text-black">
                                 <Link href="/" className="text-black">Home</Link>
                                 {' '} / {' '}
+                                <Link href="/products" className="text-black">Products</Link>
+                                {' '} / {' '}
                                 {product?.mainCategory?.name ? (
                                     <>
                                         <Link
-                                            href={product?.mainCategory?.id ? `/products?category_id=${product.mainCategory.id}` : "/products"}
+                                            href={product?.mainCategory?.id ? `/products?category=${product.mainCategory.id}` : "/products"}
                                             className="text-black"
                                         >
                                             {product.mainCategory.name}
@@ -137,16 +139,14 @@ const DesktopLayout = ({ id, product }: { id?: string; product?: any }) => {
                                 {product?.category?.name ? (
                                     <>
                                         <Link
-                                            href={product?.category?.id ? `/products?category_id=${product.category.id}` : "/products"}
+                                            href={product?.category?.id ? `/products?category=${product.category.id}` : "/products"}
                                             className="text-black"
                                         >
                                             {product.category.name}
                                         </Link>
                                         {' '}/ {' '}
                                     </>
-                                ) : (
-                                    <Link href="/products" className="text-black underline">PRODUCTS</Link>
-                                )}
+                                ) : null}
 
                                 <span>{product?.name || "DETAILS"}</span>
                             </span>
@@ -176,6 +176,7 @@ const DesktopLayout = ({ id, product }: { id?: string; product?: any }) => {
                                 reviewCount={product?.reviewCount ?? 0}
                                 sku={product?.sku}
                                 isControlled={product?.isControlled}
+                                brand={product?.brand}
                             />
                             <ProductPurchaseSection
                                 quantity={quantity}
@@ -226,18 +227,20 @@ const DesktopLayout = ({ id, product }: { id?: string; product?: any }) => {
                 <TabbedSection tabs={tabContent} defaultTab="technical-details" />
             </div>
 
-            {showGallery && (
-                <FullscreenGallery
-                    images={images}
-                    index={selectedImage}
-                    onClose={() => setShowGallery(false)}
-                />
-            )}
+            {
+                showGallery && (
+                    <FullscreenGallery
+                        images={images}
+                        index={selectedImage}
+                        onClose={() => setShowGallery(false)}
+                    />
+                )
+            }
             <Container className="my-8">
 
                 <PopularProducts />
             </Container>
-        </section>
+        </section >
 
     );
 };

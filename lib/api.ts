@@ -367,7 +367,7 @@ export const api = {
       if ((filters as any)?.need_filters !== undefined)
         params.set('need_filters', String((filters as any).need_filters));
 
-      // Pass-through any additional filter keys (e.g., colors, condition, country_of_origin, make, category_id)
+      // Pass-through any additional filter keys (e.g., colors, condition, countr_of_origin, brand, category_id)
       if (filters) {
         Object.entries(filters).forEach(([key, value]) => {
           if (

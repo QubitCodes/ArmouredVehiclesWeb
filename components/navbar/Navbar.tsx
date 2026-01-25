@@ -158,9 +158,9 @@ const Navbar = () => {
       try {
         const categories = await import("@/lib/api").then((m) => m.default.categories.getAll());
         if (Array.isArray(categories)) {
-           // Filter for top-level categories (parent_id is null/undefined)
-           const topLevel = categories.filter((c: any) => !c.parent_id);
-           setNavItems(topLevel.map((c: any) => ({ id: c.id, name: c.name })));
+          // Filter for top-level categories (parent_id is null/undefined)
+          const topLevel = categories.filter((c: any) => !c.parent_id);
+          setNavItems(topLevel.map((c: any) => ({ id: c.id, name: c.name })));
         }
       } catch (error) {
         console.error("Failed to load navbar categories", error);
@@ -204,7 +204,7 @@ const Navbar = () => {
 
       setShowMenuButton(visible < navItems.length || window.innerWidth < 1024);
     };
-    
+
     // Initial calculation with a small delay to ensure DOM is ready/fonts loaded
     requestAnimationFrame(calc);
 
@@ -320,9 +320,8 @@ const Navbar = () => {
 
           {/* MOBILE SEARCH BAR */}
           <div
-            className={`lg:hidden mt-2 overflow-hidden transition-[max-height,opacity] duration-100 ease-in-out ${
-              showMobileSearch ? "opacity-100 max-h-[60px] pb-3" : "opacity-0 max-h-0 pb-0"
-            }`}
+            className={`lg:hidden mt-2 overflow-hidden transition-[max-height,opacity] duration-100 ease-in-out ${showMobileSearch ? "opacity-100 max-h-[60px] pb-3" : "opacity-0 max-h-0 pb-0"
+              }`}
           >
             <div className="relative h-12">
               <input
@@ -334,7 +333,7 @@ const Navbar = () => {
                 className="w-full h-full px-4 border border-[#000000] focus:outline-none placeholder-[#6E6E6E] text-black"
                 suppressHydrationWarning
               />
-              <button 
+              <button
                 onClick={handleSearch}
                 disabled={isSearching}
                 className="absolute right-0 top-0 h-full w-[50px] flex items-center justify-center bg-[#D35400] text-white disabled:opacity-50"
@@ -349,12 +348,12 @@ const Navbar = () => {
           {menuOpen && (
             <>
               {/* Dark Overlay - covers the page behind the menu */}
-              <div 
+              <div
                 className="lg:hidden fixed inset-0 top-0 bg-white z-40"
                 onClick={() => setMenuOpen(false)}
                 aria-hidden="true"
               />
-              
+
               {/* Menu Content - Categories Only */}
               <div className="lg:hidden absolute left-0 right-0 top-7 bg-white z-50 max-h-[70vh] overflow-y-auto">
                 {/* Close Button */}
@@ -370,7 +369,7 @@ const Navbar = () => {
                     </svg>
                   </button>
                 </div>
-                
+
                 {/* Categories Header */}
                 {/* <div className="px-4 py-3 bg-[#39482C]">
                   <span className="text-sm font-bold text-white uppercase tracking-wider font-orbitron">Categories</span>
@@ -383,10 +382,9 @@ const Navbar = () => {
                   navItems.map((item, index) => (
                     <Link
                       key={item.id}
-                      href={`/products?category_id=${item.id}`}
-                      className={`flex items-center justify-between px-4 py-3 bg-white text-black leading-6 hover:bg-gray-50 transition-colors ${
-                        index !== navItems.length - 1 ? 'border-b border-gray-100' : ''
-                      }`}
+                      href={`/products?category=${item.id}`}
+                      className={`flex items-center justify-between px-4 py-3 bg-white text-black leading-6 hover:bg-gray-50 transition-colors ${index !== navItems.length - 1 ? 'border-b border-gray-100' : ''
+                        }`}
                       onClick={() => setMenuOpen(false)}
                     >
                       <span className="font-medium text-[14px]">{item.name}</span>
@@ -440,7 +438,7 @@ const Navbar = () => {
                   className="w-full h-full px-4 border border-[#000000] focus:outline-none placeholder-[#6E6E6E] text-black"
                   suppressHydrationWarning
                 />
-                <button 
+                <button
                   onClick={handleSearch}
                   disabled={isSearching}
                   className="absolute right-0 top-0 h-full w-[50px] flex items-center justify-center bg-[#D35400] text-white hover:bg-black disabled:opacity-50"
@@ -511,27 +509,27 @@ const Navbar = () => {
                               ].includes(item.name)
                             )
                             .map((item, index, arr) => (
-                            <Link
-                              key={item.name}
-                              href={item.href}
-                              className={`flex items-center justify-between px-4 py-2.5 hover:bg-[#F5F5F5] transition-colors ${index < arr.length - 1 ? 'border-b border-[#E5E5E5]' : ''
-                                }`}
-                              onClick={() => setProfileDropdownOpen(false)}
-                            >
-                              <div className="flex items-center gap-3">
-                                <Image
-                                  src={item.iconImg}
-                                  alt={item.name}
-                                  width={18}
-                                  height={18}
-                                />
-                                <span className="font-inter text-[14px] text-black">{item.name}</span>
-                              </div>
-                              <svg width="6" height="10" viewBox="0 0 6 10" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                <path d="M1 1L5 5L1 9" stroke="#999" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
-                              </svg>
-                            </Link>
-                          ))}
+                              <Link
+                                key={item.name}
+                                href={item.href}
+                                className={`flex items-center justify-between px-4 py-2.5 hover:bg-[#F5F5F5] transition-colors ${index < arr.length - 1 ? 'border-b border-[#E5E5E5]' : ''
+                                  }`}
+                                onClick={() => setProfileDropdownOpen(false)}
+                              >
+                                <div className="flex items-center gap-3">
+                                  <Image
+                                    src={item.iconImg}
+                                    alt={item.name}
+                                    width={18}
+                                    height={18}
+                                  />
+                                  <span className="font-inter text-[14px] text-black">{item.name}</span>
+                                </div>
+                                <svg width="6" height="10" viewBox="0 0 6 10" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                  <path d="M1 1L5 5L1 9" stroke="#999" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
+                                </svg>
+                              </Link>
+                            ))}
                         </div>
 
                         {/* Logout */}
@@ -606,7 +604,7 @@ const Navbar = () => {
                 {navItems.slice(0, visibleCount).map((item) => (
                   <Link
                     key={item.id}
-                    href={`/products?category_id=${item.id}`}
+                    href={`/products?category=${item.id}`}
                     className="flex items-center h-full px-4 text-[15.5px] font-medium whitespace-nowrap 
               transition-all duration-200 hover:bg-[#D35400] hover:text-white"
                   >
@@ -622,7 +620,7 @@ const Navbar = () => {
               aria-hidden
               className="invisible absolute left-[-9999px] top-[-9999px] whitespace-nowrap flex items-center"
             >
-                {navItems.map((item) => (
+              {navItems.map((item) => (
                 <div
                   key={item.id}
                   className="h-[50px] px-4 text-[13px] font-medium whitespace-nowrap"

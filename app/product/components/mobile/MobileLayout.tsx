@@ -71,10 +71,12 @@ export default function MobileLayout({ id, product }: { id?: string; product?: a
                     <nav aria-label="breadcrumb" className="flex items-center gap-2">
                         <Link href="/" className="font-semibold text-[#737373] underline">Home</Link>
                         <span className="font-semibold">{">"}</span>
+                        <Link href="/products" className="font-semibold text-[#737373] underline">Products</Link>
+                        <span className="font-semibold">{">"}</span>
                         {product?.mainCategory?.name ? (
                             <>
                                 <Link
-                                    href={product?.mainCategory?.id ? `/products?category_id=${product.mainCategory.id}` : "/products"}
+                                    href={product?.mainCategory?.id ? `/products?category=${product.mainCategory.id}` : "/products"}
                                     className="font-semibold text-[#737373] underline"
                                 >
                                     {product.mainCategory.name}
@@ -86,19 +88,14 @@ export default function MobileLayout({ id, product }: { id?: string; product?: a
                         {product?.category?.name ? (
                             <>
                                 <Link
-                                    href={product?.category?.id ? `/products?category_id=${product.category.id}` : "/products"}
+                                    href={product?.category?.id ? `/products?category=${product.category.id}` : "/products"}
                                     className="font-semibold text-[#737373] underline"
                                 >
                                     {product.category.name}
                                 </Link>
                                 <span className="font-semibold">{">"}</span>
                             </>
-                        ) : (
-                            <>
-                                <Link href="/products" className="font-semibold text-[#737373] underline">Products</Link>
-                                <span className="font-semibold">{">"}</span>
-                            </>
-                        )}
+                        ) : null}
 
                         <span className="font-medium">{product?.name || "DETAILS"}</span>
                     </nav>
@@ -111,6 +108,7 @@ export default function MobileLayout({ id, product }: { id?: string; product?: a
                     reviewCount={product?.reviewCount ?? 0}
                     sku={product?.sku}
                     isControlled={product?.isControlled}
+                    brand={product?.brand}
                 />
 
                 {/* 2️⃣ GALLERY */}

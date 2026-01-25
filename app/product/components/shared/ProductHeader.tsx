@@ -1,6 +1,7 @@
 "use client";
 
 import { Typography } from "@/components/ui/Typography";
+import Link from "next/link";
 
 type Props = {
   name?: string | null;
@@ -8,9 +9,10 @@ type Props = {
   reviewCount?: number | null;
   sku?: string | null;
   isControlled?: boolean;
+  brand?: { id: string | number; name: string } | null;
 };
 
-export default function ProductHeader({ name, rating, reviewCount, sku, isControlled }: Props) {
+export default function ProductHeader({ name, rating, reviewCount, sku, isControlled, brand }: Props) {
   const numericRating = typeof rating === "string" ? parseFloat(rating) : rating ?? 0;
   const showRating = Number.isFinite(numericRating) && numericRating! > 0;
   const stars = Math.round(Math.max(0, Math.min(5, Number(numericRating) || 0)));
@@ -20,6 +22,15 @@ export default function ProductHeader({ name, rating, reviewCount, sku, isContro
       <Typography variant="h1" className=" text-black text-[18px] md:text-[24px] font-bold mb-2 leading-tight">
         {name || "Product"}
       </Typography>
+
+      {brand && (
+        <Link
+          href={`/products?brand=${brand.id}`}
+          className="text-[#D35400] text-sm font-medium hover:underline mb-2 block"
+        >
+          {brand.name}
+        </Link>
+      )}
 
       <div className="flex flex-col items-start gap-2">
         {showRating && (

@@ -24,7 +24,7 @@ export default function CategoryPage() {
         if (data && data.length > 0) {
           // Filter for top-level categories only
           const topLevel = data.filter((item: any) => !item.parent_id);
-          
+
           const mapped = topLevel.map((item: any) => ({
             id: item.id,
             title: item.name || "Unknown Category",
@@ -62,7 +62,7 @@ export default function CategoryPage() {
             {categories.map((category, index) => (
               <Link
                 key={category.id || index}
-                href={`/products?category_id=${category.id}`}
+                href={`/products?category=${category.id}`}
                 className="block"
               >
                 <div className="relative w-full aspect-[4/5] overflow-hidden rounded-lg shadow-md bg-black/80">
@@ -80,7 +80,7 @@ export default function CategoryPage() {
                   ) : (
                     <div className="absolute inset-0 bg-gray-800" />
                   )}
-                  
+
                   {/* Gradient Overlay */}
                   <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-transparent to-transparent" />
 

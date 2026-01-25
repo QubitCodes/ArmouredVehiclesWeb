@@ -27,6 +27,7 @@ type ProductDisplay = {
   warranty?: string | null;
   actionType?: string | null;
   category?: { id: number; name: string } | null;
+  brand?: { id: number | string; name: string } | null;
   similarProducts?: any[];
   misc?: any;
   isControlled?: boolean;
@@ -127,6 +128,7 @@ export default function ProductDetailsPage() {
               : null),
           actionType: productData.action_type ?? productData.actionType ?? null,
           category: productData.category ?? null,
+          brand: productData.brand ?? null,
           misc: data.misc,
           reviewCount: typeof productData.review_count === "number"
             ? productData.review_count
@@ -150,12 +152,12 @@ export default function ProductDetailsPage() {
           certifications:
             typeof productData.certifications === "string"
               ? (() => {
-                  try {
-                    return JSON.parse(productData.certifications);
-                  } catch (e) {
-                    return [productData.certifications];
-                  }
-                })()
+                try {
+                  return JSON.parse(productData.certifications);
+                } catch (e) {
+                  return [productData.certifications];
+                }
+              })()
               : productData.certifications ?? null,
           countryOfOrigin: productData.country_of_origin ?? null,
           dimension: {

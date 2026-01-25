@@ -54,7 +54,7 @@ export const Categories = () => {
         if (data && data.length > 0) {
           // Filter for top-level categories only
           const topLevel = data.filter((item: any) => !item.parent_id);
-          
+
           const mapped = topLevel.map((item: any) => ({
             id: item.id,
             title: item.name || "Unknown Category",
@@ -106,7 +106,7 @@ export const Categories = () => {
   // Auto play - runs every 5 seconds (desktop only)
   useEffect(() => {
     if (categories.length === 0 || isMobile) return;
-    
+
     const timer = setInterval(() => {
       setCurrentIndex((prev) => {
         // Infinite loop: if at last position, go back to 0
@@ -196,7 +196,7 @@ export const Categories = () => {
                   key={index}
                   className="shrink-0 snap-start"
                   style={{ width: `${mobileCardWidth}px` }}>
-                  <Link href={`/products?category_id=${category.id}`}
+                  <Link href={`/products?category=${category.id}`}
                     className="block relative w-full h-52 overflow-hidden group bg-black/60">
                     {category.image ? (
                       <Image
@@ -325,7 +325,7 @@ export const Categories = () => {
             style={slideStyle}>
             {categories.map((category, index) => (
               <div key={index} className="flex-none">
-                <Link href={`/products?category_id=${category.id}`}
+                <Link href={`/products?category=${category.id}`}
                   className="flex flex-col group w-[258px] no-underline"
                   data-aos="fade-up"
                   data-aos-delay={index * 100}>

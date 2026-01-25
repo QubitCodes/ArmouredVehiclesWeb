@@ -75,7 +75,7 @@ export interface Product {
     type: string;
     is_cover: boolean;
   }[];
-  make: string;
+  brand?: { id: number; name: string } | null;
   model: string;
   year: number;
   rating?: string;

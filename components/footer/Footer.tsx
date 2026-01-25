@@ -17,7 +17,7 @@ const Footer = ({ disableMobileBottomSpace = false }: FooterProps) => {
   const currencyRef = useRef<HTMLDivElement | null>(null);
 
   const usefulLinks = [
-   
+
     { title: "FAQ", href: "/faq" },
     { title: "Terms & Conditions", href: "/terms-conditions" },
     { title: "Terms of Use", href: "/terms-of-use" },
@@ -37,7 +37,7 @@ const Footer = ({ disableMobileBottomSpace = false }: FooterProps) => {
         const topLevel = data.filter((item: any) => !item.parent_id);
         const mapped = topLevel.map((item: any) => ({
           title: item.name || "Unknown Category",
-          href: `/products?category_id=${item.id}`,
+          href: `/products?category=${item.id}`,
         }));
         setFooterCategories(mapped);
       } catch (err) {
@@ -55,7 +55,7 @@ const Footer = ({ disableMobileBottomSpace = false }: FooterProps) => {
     { title: "About Armored Mart", href: "/about" },
     { title: "Sell with Us", href: "/sell-with-us" },
     { title: "Consumer Rights", href: "/consumer-rights" },
-     { title: "Careers", href: "/https://linkedin.com/company/armoredmart" },
+    { title: "Careers", href: "/https://linkedin.com/company/armoredmart" },
   ];
 
 
@@ -171,10 +171,10 @@ const Footer = ({ disableMobileBottomSpace = false }: FooterProps) => {
             desktopSections.length === 4
               ? "grid-cols-5"
               : desktopSections.length === 3
-              ? "grid-cols-4"
-              : desktopSections.length === 2
-              ? "grid-cols-3"
-              : "grid-cols-5"; // default
+                ? "grid-cols-4"
+                : desktopSections.length === 2
+                  ? "grid-cols-3"
+                  : "grid-cols-5"; // default
           return (
             <div className={`hidden lg:grid ${gridColsClass} gap-8 mb-5`}>
               <div>
