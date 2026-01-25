@@ -35,12 +35,12 @@ export default function ProductSpecificationsTable({ productId }: { productId: n
 
     return (
         <div className="my-1 font-sans max-w-4xl">
-            <div className="bg-[#EBE3D6] p-4">
-                <Typography variant="h2" className="font-orbitron text-lg font-bold text-black mb-4 uppercase tracking-wider">
+            <div className="bg-[#EBE3D6] p-3 sm:p-4">
+                <Typography variant="h2" className="font-orbitron text-base sm:text-lg font-bold text-black mb-3 sm:mb-4 uppercase tracking-wider">
                     Technical Details
                 </Typography>
 
-                <div className="border border-[#D8D0C0] rounded overflow-hidden">
+                <div className="border border-[#D8D0C0] rounded-md overflow-hidden">
                     <div className="flex flex-col">
                     {(() => {
                         const sections: { title: Specification; items: Specification[] }[] = [];
@@ -69,8 +69,8 @@ export default function ProductSpecificationsTable({ productId }: { productId: n
                             return (
                                 <div key={section.title.id} className={`flex flex-col ${sIdx > 0 ? 'mt-3' : ''}`}>
                                     {/* Section Header */}
-                                    <div className="bg-[#F0EBE3] border-b border-[#D8D0C0] py-2.5 px-4">
-                                        <Typography className="text-xs font-bold text-black uppercase tracking-wider font-orbitron">
+                                    <div className="bg-[#F0EBE3] border-b border-[#D8D0C0] py-2 sm:py-2.5 px-3 sm:px-4">
+                                        <Typography className="text-xs sm:text-xs font-bold text-black uppercase tracking-wider font-orbitron">
                                             {section.title.label}
                                         </Typography>
                                     </div>
@@ -85,7 +85,7 @@ export default function ProductSpecificationsTable({ productId }: { productId: n
                                                 {/* Two-column grid for label+value items */}
                                                 {generalItems.length > 0 && (
                                                     <div className="bg-[#F6F1E9]">
-                                                        <div className="grid grid-cols-1 md:grid-cols-2">
+                                                        <div className="grid grid-cols-1 lg:grid-cols-2">
                                                             {generalItems.map((item, idx) => {
                                                                 const isRightCol = idx % 2 === 1;
                                                                 const isLastRow = idx === generalItems.length - 1;
@@ -93,15 +93,15 @@ export default function ProductSpecificationsTable({ productId }: { productId: n
                                                                 return (
                                                                     <div
                                                                         key={item.id}
-                                                                        className={`flex ${shouldBorderBottom ? 'border-b border-[#D8D0C0]' : ''} ${isRightCol ? '' : 'md:border-r md:border-[#D8D0C0]'}`}
+                                                                        className={`flex flex-col sm:flex-row ${shouldBorderBottom ? 'border-b border-[#D8D0C0]' : ''} ${isRightCol ? '' : 'lg:border-r lg:border-[#D8D0C0]'}`}
                                                                     >
-                                                                        <div className="w-1/3 min-w-40 bg-[#EBE3D6] py-3 px-4 border-r border-[#D8D0C0] flex items-center">
-                                                                            <Typography className="text-sm font-bold text-black">
+                                                                        <div className="w-full sm:w-1/3 sm:min-w-40 bg-[#EBE3D6] py-2.5 sm:py-3 px-3 sm:px-4 sm:border-r border-[#D8D0C0] flex items-center">
+                                                                            <Typography className="text-xs sm:text-sm font-bold text-black">
                                                                                 {item.label}
                                                                             </Typography>
                                                                         </div>
-                                                                        <div className="flex-1 py-3 px-4 flex items-center">
-                                                                            <Typography className="text-sm text-black">
+                                                                        <div className="w-full sm:flex-1 py-2.5 sm:py-3 px-3 sm:px-4 flex items-center">
+                                                                            <Typography className="text-xs sm:text-sm text-black wrap-break-word whitespace-normal">
                                                                                 {item.value}
                                                                             </Typography>
                                                                         </div>
@@ -121,10 +121,10 @@ export default function ProductSpecificationsTable({ productId }: { productId: n
                                                             return (
                                                                 <div
                                                                     key={item.id}
-                                                                    className={`w-full py-2 px-6 ${shouldBorder ? 'border-b border-[#D8D0C0]' : ''}`}
+                                                                    className={`w-full py-2 sm:py-2 px-3 sm:px-4 md:px-6 ${shouldBorder ? 'border-b border-[#D8D0C0]' : ''}`}
                                                                 >
-                                                                    <Typography className="text-sm text-black flex items-start">
-                                                                        <span className="mr-2 text-primary mt-1 text-[8px]">●</span>
+                                                                    <Typography className="text-xs sm:text-sm text-black flex items-start wrap-break-word whitespace-normal">
+                                                                        <span className="mr-2 text-primary mt-0.5 sm:mt-1 text-[10px]">➤</span>
                                                                         {item.value}
                                                                     </Typography>
                                                                 </div>
