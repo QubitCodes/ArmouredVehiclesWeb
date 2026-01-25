@@ -160,7 +160,7 @@ export default function ProductPurchaseSection({
                             {/* Individual Pricing Table */}
                             {Array.isArray(individualProductPricing) && individualProductPricing.length > 0 && (
                                 <div className="mt-4">
-                                    <div className="mb-2 text-sm font-semibold text-black">Individual Pricing</div>
+                                    <div className="mb-2 text-sm font-semibold text-black">EXW Price:</div>
                                     <div className="border border-[#D9D9D9] bg-white">
                                         <div className="grid grid-cols-2 bg-[#EBE4D7] text-black text-sm font-medium">
                                             <div className="px-3 py-2">Item</div>
