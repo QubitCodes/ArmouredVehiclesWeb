@@ -44,11 +44,11 @@ export default function ProductDetailsTab({ product }: ProductDetailsTabProps) {
             </div> */}
 
             <div className="grid grid-cols-2 max-w-sm gap-y-1 text-sm text-gray-500 mt-6">
-                <div>Part Number:</div>
+                {/* <div>Part Number:</div>
                 <div className="text-black font-medium">{product?.identifiers?.partNumber ?? product?.sku ?? "N/A"}</div>
 
                 <div>Make/Model:</div>
-                <div className="text-black font-medium">{product?.make} {product?.model} {product?.year ? `(${product.year})` : ''}</div>
+                <div className="text-black font-medium">{product?.make} {product?.model} {product?.year ? `(${product.year})` : ''}</div> */}
                 {/*                 
                 <div>MPN:</div>
                 <div className="text-black font-medium">{product?.sku ?? "N/A"}</div> */}

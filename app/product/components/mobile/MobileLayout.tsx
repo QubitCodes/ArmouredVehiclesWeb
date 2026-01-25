@@ -16,7 +16,6 @@ import ProductDetailsTab from "@/components/product/tabs/ProductDetailsTab";
 import AttributesTab from "@/components/product/tabs/AttributesTab";
 import ReviewsTab from "@/components/product/tabs/ReviewsTab";
 import PopularProducts from "../shared/PopularItems";
-import DescriptionTab from "@/components/product/tabs/DescriptionTab";
 
 export default function MobileLayout({ id, product }: { id?: string; product?: any }) {
     const addItem = useCartStore((s) => s.addItem);
@@ -36,25 +35,18 @@ export default function MobileLayout({ id, product }: { id?: string; product?: a
 
     const tabContent: TabContent[] = [];
 
-    // Attributes tab aggregates Technical Details, Specifications, Features, and Vehicle Fitment
+    // Technical Details tab (formerly Attributes)
     tabContent.push({
-        id: "attributes",
-        label: "Attributes",
+        id: "technical-details",
+        label: "Technical",
         content: <AttributesTab product={product} />
     });
 
-    // Product Details tab
-    tabContent.push({
-        id: "product-details",
-        label: "Product Details",
-        content: <ProductDetailsTab product={product} />
-    });
-
-    // Description tab
+    // Description tab (mapped from Product Details)
     tabContent.push({
         id: "description",
         label: "Description",
-        content: <DescriptionTab product={product} />
+        content: <ProductDetailsTab product={product} />
     });
 
     // Reviews tab
@@ -171,7 +163,7 @@ export default function MobileLayout({ id, product }: { id?: string; product?: a
             {/* product tabs */}
             <Container className="my-10">
                 {tabContent.length > 0 && (
-                    <TabbedSection tabs={tabContent} defaultTab="attributes" />
+                    <TabbedSection tabs={tabContent} defaultTab="technical-details" />
                 )}
             </Container>
 

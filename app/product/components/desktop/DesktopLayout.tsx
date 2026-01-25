@@ -22,7 +22,6 @@ import { syncAddToServer } from "@/lib/cart-sync";
 import { useRouter } from "next/navigation";
 import ProductDetailsTab from "@/components/product/tabs/ProductDetailsTab";
 import AttributesTab from "@/components/product/tabs/AttributesTab";
-import DescriptionTab from "@/components/product/tabs/DescriptionTab";
 import WarrantyTab from "@/components/product/tabs/WarrantyTab";
 import ReviewsTab from "@/components/product/tabs/ReviewsTab";
 import PopularProducts from "../shared/PopularItems";
@@ -82,25 +81,18 @@ const DesktopLayout = ({ id, product }: { id?: string; product?: any }) => {
     // STATIC SECTIONS - Tabs are always displayed.
     // -------------------------------------------------------------
 
-    // Attributes tab aggregates Technical Details, Specifications, Features, and Vehicle Fitment
+    // Technical Details tab (formerly Attributes)
     tabContent.push({
-        id: "attributes",
-        label: "Attributes",
+        id: "technical-details",
+        label: "Technical",
         content: <AttributesTab product={product} />
     });
 
-    // Product Details tab
-    tabContent.push({
-        id: "product-details",
-        label: "Product Details",
-        content: <ProductDetailsTab product={product} />
-    });
-
-    // Description tab
+    // Description tab (mapped from Product Details)
     tabContent.push({
         id: "description",
         label: "Description",
-        content: <DescriptionTab product={product} />
+        content: <ProductDetailsTab product={product} />
     });
 
     // tabContent.push({
@@ -231,7 +223,7 @@ const DesktopLayout = ({ id, product }: { id?: string; product?: any }) => {
 
             {/* product tabs */}
             <div className="my-6">
-                <TabbedSection tabs={tabContent} defaultTab="attributes" />
+                <TabbedSection tabs={tabContent} defaultTab="technical-details" />
             </div>
 
             {showGallery && (

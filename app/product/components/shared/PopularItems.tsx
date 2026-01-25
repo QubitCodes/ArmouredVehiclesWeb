@@ -46,7 +46,7 @@ export default function PopularProducts() {
       <div className="flex justify-between items-center mb-4">
         <div>
           <Typography variant="h2" className="text-lg font-extrabold text-black">
-            Supplier&apos;s popular products
+            Recommended popular products
           </Typography>
           <span className="text-sm text-gray-600">Sponsored</span>
         </div>
