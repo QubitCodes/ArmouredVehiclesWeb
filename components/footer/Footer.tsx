@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useState, useRef, useEffect } from "react";
+import { useCategories } from "@/hooks/use-categories";
 import Link from "next/link";
 import Image from "next/image";
 import { Container } from "../ui";
@@ -16,37 +17,52 @@ const Footer = ({ disableMobileBottomSpace = false }: FooterProps) => {
   const [currencyOpen, setCurrencyOpen] = useState(false);
   const currencyRef = useRef<HTMLDivElement | null>(null);
 
-  const usefulLinks = [
+  const { data: categories = [] } = useCategories();
 
-    { title: "FAQ", href: "/faq" },
-    { title: "Terms & Conditions", href: "/terms-conditions" },
-    { title: "Terms of Use", href: "/terms-of-use" },
-    { title: "Terms of Sale", href: "/terms-of-sale" },
-    { title: "Privacy Policy", href: "/privacy-policy" },
-    { title: "Warranty Policy", href: "/warranty-policy" },
-  ];
-
-
-  const [footerCategories, setFooterCategories] = useState<{ title: string; href: string }[]>([]);
-
-  useEffect(() => {
-    const fetchCategories = async () => {
-      try {
-        const res = await api.products.getCategories();
-        const data = Array.isArray(res) ? res : res?.data ?? [];
-        const topLevel = data.filter((item: any) => !item.parent_id);
-        const mapped = topLevel.map((item: any) => ({
+  const footerLinks = [
+    {
+      title: "Categories",
+      links: categories
+        .filter((item: any) => !item.parent_id)
+        .slice(0, 5) // Limit to 5 for footer
+        .map((item: any) => ({
           title: item.name || "Unknown Category",
           href: `/products?category=${item.id}`,
-        }));
-        setFooterCategories(mapped);
-      } catch (err) {
-        console.error("Footer categories fetch failed", err);
-        setFooterCategories([]);
-      }
-    };
-    fetchCategories();
-  }, []);
+        })),
+    },
+    {
+      title: "Customer Service",
+      links: [
+        { title: "Contact Us", href: "/contact" },
+        { title: "Shipping Policy", href: "/contact-legal" },
+        { title: "Returns & Refunds", href: "/returns" },
+        { title: "Warranty", href: "/warranty-policy" },
+        { title: "FAQs", href: "/contact-legal" },
+      ],
+    },
+    {
+      title: "Company",
+      links: [
+        { title: "About Us", href: "/about" },
+        { title: "Careers", href: "#" },
+        { title: "Terms & Conditions", href: "/terms-conditions" },
+        { title: "Privacy Policy", href: "/privacy-policy" },
+        { title: "Investor Relations", href: "#" },
+      ],
+    },
+    {
+      title: "Useful Links",
+      links: [
+        { title: "FAQ", href: "/faq" },
+        { title: "Terms & Conditions", href: "/terms-conditions" },
+        { title: "Terms of Use", href: "/terms-of-use" },
+        { title: "Terms of Sale", href: "/terms-of-sale" },
+        { title: "Privacy Policy", href: "/privacy-policy" },
+        { title: "Warranty Policy", href: "/warranty-policy" },
+      ],
+    },
+  ];
+
 
   // Help section removed per request
 
@@ -131,8 +147,12 @@ const Footer = ({ disableMobileBottomSpace = false }: FooterProps) => {
 
           {([
             { id: "about", title: "ABOUT US", items: aboutUs },
-            { id: "categories", title: "CATEGORIES", items: footerCategories },
-            { id: "useful", title: "USEFUL LINKS", items: usefulLinks },
+            // Map footerLinks to the expected format
+            ...footerLinks.map((section, idx) => ({
+              id: section.title.toLowerCase().replace(" ", "-"),
+              title: section.title.toUpperCase(),
+              items: section.links
+            }))
           ] as { id: string; title: string; items: { title: string; href: string }[] }[]).map((section) => (
             <div key={section.id} className="border-t border-gray-700">
               <button
@@ -148,7 +168,7 @@ const Footer = ({ disableMobileBottomSpace = false }: FooterProps) => {
               {openSection === section.id && (
                 <ul className="pb-4 space-y-1">
                   {section.items.map((i) => (
-                    <li key={i.href}>
+                    <li key={i.title}>
                       <Link href={i.href} className="text-sm text-gray-300">
                         {i.title}
                       </Link>
@@ -164,8 +184,7 @@ const Footer = ({ disableMobileBottomSpace = false }: FooterProps) => {
         {(() => {
           const desktopSections = [
             { title: "About Us", items: aboutUs },
-            { title: "Categories", items: footerCategories },
-            { title: "Useful Links", items: usefulLinks },
+            ...footerLinks.map(link => ({ title: link.title, items: link.links }))
           ];
           const gridColsClass =
             desktopSections.length === 4
@@ -222,7 +241,7 @@ const Footer = ({ disableMobileBottomSpace = false }: FooterProps) => {
                   <h3 className="font-orbitron text-[#D35400] mb-2 uppercase">{group.title}</h3>
                   <ul className="space-y-1">
                     {group.items.map((item) => (
-                      <li key={item.href}>
+                      <li key={item.title}>
                         <Link href={item.href} className="text-sm">
                           {item.title}
                         </Link>

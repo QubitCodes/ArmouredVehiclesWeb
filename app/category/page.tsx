@@ -19,8 +19,8 @@ export default function CategoryPage() {
     const fetchCategories = async () => {
       try {
         setLoading(true);
-        const res = await api.products.getCategories();
-        const data = Array.isArray(res) ? res : res?.data ?? [];
+        const categories = await api.categories.getAll();
+        const data = Array.isArray(categories) ? categories : categories?.data ?? [];
         if (data && data.length > 0) {
           // Filter for top-level categories only
           const topLevel = data.filter((item: any) => !item.parent_id);

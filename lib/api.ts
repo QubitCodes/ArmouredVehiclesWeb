@@ -410,12 +410,8 @@ export const api = {
       const res = await fetchJson<any>('/products/top-selling', { cache: 'no-store' });
       return Array.isArray(res) ? res : res?.data ?? [];
     },
-    getCategories: async () => {
-      const res = await fetchJson<any>('/categories');
-      // Unwrap common API envelope { status, message, code, data }
-      return Array.isArray(res) ? res : res?.data ?? [];
-    },
-        getSliderProduct:() => fetchJson<Product[]>('/api/products'),
+    // getCategories moved to api.categories.getAll
+    getSliderProduct:() => fetchJson<Product[]>('/api/products'),
 
     getById: (id: number) => fetchJson<Product>(`/products/${id}`),
     

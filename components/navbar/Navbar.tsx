@@ -9,6 +9,7 @@ import { useAuth } from '@/lib/auth-context';
 import { profileMenuItems } from '@/lib/constants/profileMenu';
 import { searchProducts } from '@/app/services/auth';
 import { useRouter } from 'next/navigation';
+import { useCategories } from "@/hooks/use-categories";
 
 
 
@@ -149,25 +150,15 @@ const Navbar = () => {
 
   // Profile dropdown menu items - using icons from icons/profile folder (pf0-pf9)
 
+  // Use cached categories hook
+  const { data: categories = [] } = useCategories();
 
-
-  const [navItems, setNavItems] = useState<{ id: number; name: string }[]>([]);
-
-  useEffect(() => {
-    async function fetchCategories() {
-      try {
-        const categories = await import("@/lib/api").then((m) => m.default.categories.getAll());
-        if (Array.isArray(categories)) {
-          // Filter for top-level categories (parent_id is null/undefined)
-          const topLevel = categories.filter((c: any) => !c.parent_id);
-          setNavItems(topLevel.map((c: any) => ({ id: c.id, name: c.name })));
-        }
-      } catch (error) {
-        console.error("Failed to load navbar categories", error);
-      }
-    }
-    fetchCategories();
-  }, []);
+  const navItems = useMemo(() => {
+    if (!categories || !Array.isArray(categories)) return [];
+    return categories
+      .filter((c: any) => !c.parent_id)
+      .map((c: any) => ({ id: c.id, name: c.name }));
+  }, [categories]);
 
   // Auto-resize menu calculation
   useEffect(() => {

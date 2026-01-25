@@ -2,7 +2,8 @@
 import Image from "next/image";
 import Link from "next/link";
 import api from "@/lib/api";
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useCategories } from "@/hooks/use-categories";
+import { useState, useRef, useEffect, useMemo, useCallback } from "react";
 
 interface Category {
   id?: number;
@@ -37,24 +38,47 @@ const FALLBACK_CATEGORIES: Category[] = [
   },
 ];
 
-
 export const Categories = () => {
-  const [categories, setCategories] = useState<Category[]>([]);
+  const { data: fetchedCategories = [], isLoading } = useCategories();
+
+  const categories = useMemo(() => {
+    if (!fetchedCategories || !Array.isArray(fetchedCategories)) return [];
+
+    return fetchedCategories
+      .filter((item: any) => !item.parent_id)
+      .map((item: any) => {
+        const name = item.name.toLowerCase();
+        let icon = "/icons/cat/protection-gear.svg"; // fallback
+        if (name.includes("vehicle")) icon = "/icons/cat/armored-vehicle.svg";
+        else if (name.includes("parts") || name.includes("spare")) icon = "/icons/cat/spare-parts.svg";
+        else if (name.includes("accessory") || name.includes("accessories")) icon = "/icons/cat/accessories.svg";
+
+        return {
+          id: item.id,
+          title: item.name,
+          icon,
+          image: item.image || icon,
+          link: `/category?id=${item.id}`,
+        };
+      });
+  }, [fetchedCategories]);
+
   const [currentIndex, setCurrentIndex] = useState(0);
   const [isMobile, setIsMobile] = useState(false);
   const containerRef = useRef<HTMLDivElement>(null);
   const [measuredWidth, setMeasuredWidth] = useState<number>(0);
   const [scrollProgress, setScrollProgress] = useState(0);
 
+  /*
   useEffect(() => {
     const fetchCategories = async () => {
       try {
-        const res = await api.products.getCategories();
-        const data = Array.isArray(res) ? res : res?.data ?? [];
-        if (data && data.length > 0) {
+        const fetchedCategories = await api.categories.getAll();
+        // Assuming api.categories.getAll() returns an array directly
+        if (fetchedCategories && fetchedCategories.length > 0) {
           // Filter for top-level categories only
-          const topLevel = data.filter((item: any) => !item.parent_id);
-
+          const topLevel = fetchedCategories.filter((item: any) => !item.parent_id);
+  
           const mapped = topLevel.map((item: any) => ({
             id: item.id,
             title: item.name || "Unknown Category",
@@ -70,9 +94,10 @@ export const Categories = () => {
         setCategories([]);
       }
     };
-
+  
     fetchCategories();
   }, []);
+  */
 
   useEffect(() => {
     const checkMobile = () => {
