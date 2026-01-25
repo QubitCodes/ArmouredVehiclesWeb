@@ -115,6 +115,7 @@ const DesktopLayout = ({ id, product }: { id?: string; product?: any }) => {
         content: <ReviewsTab reviews={product?.reviews || []} rating={product?.rating || 0} reviewCount={product?.reviewCount || 0} />
     });
 
+
     // `id` is available when rendering via `/product/[id]`.
     // Currently not used inside this component, but provided so it can be
     // used to fetch product-specific data later.
@@ -212,6 +213,7 @@ const DesktopLayout = ({ id, product }: { id?: string; product?: any }) => {
                                     }
                                     router.push("/cart");
                                 }}
+                                minOrderQuantity={product?.minOrderQuantity}
                             />
 
 
@@ -229,7 +231,7 @@ const DesktopLayout = ({ id, product }: { id?: string; product?: any }) => {
 
             {/* product tabs */}
             <div className="my-6">
-                <TabbedSection tabs={tabContent} defaultTab="product-details" />
+                <TabbedSection tabs={tabContent} defaultTab="attributes" />
             </div>
 
             {showGallery && (

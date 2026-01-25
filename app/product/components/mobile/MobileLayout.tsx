@@ -159,6 +159,7 @@ export default function MobileLayout({ id, product }: { id?: string; product?: a
                         }
                         router.push("/cart");
                     }}
+                    minOrderQuantity={product.minOrderQuantity}
                 />
 
                 {/* 4️⃣ SIMILAR ITEMS - Only show if data exists */}
@@ -170,7 +171,7 @@ export default function MobileLayout({ id, product }: { id?: string; product?: a
             {/* product tabs */}
             <Container className="my-10">
                 {tabContent.length > 0 && (
-                    <TabbedSection tabs={tabContent} defaultTab="product-details" />
+                    <TabbedSection tabs={tabContent} defaultTab="attributes" />
                 )}
             </Container>
 

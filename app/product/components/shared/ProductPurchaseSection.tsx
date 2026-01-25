@@ -31,6 +31,7 @@ type Props = {
     approvalStatus?: string | null;
     individualProductPricing?: { name: string; amount: number }[] | null;
     vendorId?: string | null;
+    minOrderQuantity?: number | null;
 };
 
 export default function ProductPurchaseSection({
@@ -48,6 +49,7 @@ export default function ProductPurchaseSection({
     approvalStatus,
     individualProductPricing,
     vendorId,
+    minOrderQuantity,
 }: Props) {
     const displayPrice = price != null && price !== '' ? String(price) : undefined;
     const router = useRouter();
@@ -123,23 +125,58 @@ export default function ProductPurchaseSection({
                                 </div>
                             )}
 
+                            {/* MOQ & Quantity Controls */}
+                            <div className=" items-center gap-3 mt-2">
+                                {typeof minOrderQuantity === 'number' && minOrderQuantity > 0 && (
+                                    <span className="text-black ">Minimum order quantity: <span className="text-black font-medium">{minOrderQuantity}</span></span>
+                                )}
+                                <div className="flex items-center border border-[#B7B1A8] bg-[#EBE4D7] mt-1 h-10 w-40">
+                                    <button
+                                        onClick={() => setQuantity(Math.max(typeof minOrderQuantity === 'number' && minOrderQuantity > 0 ? minOrderQuantity : 1, quantity - 1))}
+                                        className="w-10 h-full flex items-center justify-center text-black hover:bg-[#D8D1C5] transition"
+                                    >
+                                        <Minus size={16} />
+                                    </button>
+                                    <input
+                                        type="number"
+                                        value={quantity}
+                                        onChange={(e) => {
+                                            const val = parseInt(e.target.value);
+                                            const min = (typeof minOrderQuantity === 'number' && minOrderQuantity > 0) ? minOrderQuantity : 1;
+                                            if (!isNaN(val) && val >= min) setQuantity(val);
+                                        }}
+                                        className="flex-1 w-full h-full bg-transparent text-center text-black outline-none appearance-none [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none"
+                                        min={(typeof minOrderQuantity === 'number' && minOrderQuantity > 0) ? minOrderQuantity : 1}
+                                    />
+                                    <button
+                                        onClick={() => setQuantity(quantity + 1)}
+                                        className="w-10 h-full flex items-center justify-center text-black hover:bg-[#D8D1C5] transition"
+                                    >
+                                        <Plus size={16} />
+                                    </button>
+                                </div>
+                            </div>
+
                             {/* Individual Pricing Table */}
                             {Array.isArray(individualProductPricing) && individualProductPricing.length > 0 && (
-                                <div className="mt-4 border border-[#D9D9D9] bg-white">
-                                    <div className="grid grid-cols-2 bg-[#EBE4D7] text-black text-sm font-medium">
-                                        <div className="px-3 py-2">Item</div>
-                                        <div className="px-3 py-2 text-right">Price</div>
-                                    </div>
-                                    <div>
-                                        {individualProductPricing.map((row, idx) => (
-                                            <div key={idx} className="grid grid-cols-2 items-center text-black text-sm border-t border-[#E8E8E8]">
-                                                <div className="px-3 py-2 truncate">{row?.name ?? "—"}</div>
-                                                <div className="px-3 py-2 flex items-center justify-end gap-1">
-                                                    <Image src="/icons/currency/dirham.svg" alt="Currency" width={16} height={16} />
-                                                    <span className="font-semibold text-right tabular-nums">{(typeof row?.amount === 'number' ? row.amount : Number(row?.amount || 0)).toLocaleString()}</span>
+                                <div className="mt-4">
+                                    <div className="mb-2 text-sm font-semibold text-black">Individual Pricing</div>
+                                    <div className="border border-[#D9D9D9] bg-white">
+                                        <div className="grid grid-cols-2 bg-[#EBE4D7] text-black text-sm font-medium">
+                                            <div className="px-3 py-2">Item</div>
+                                            <div className="px-3 py-2 text-right">Price</div>
+                                        </div>
+                                        <div>
+                                            {individualProductPricing.map((row, idx) => (
+                                                <div key={idx} className="grid grid-cols-2 items-center text-black text-sm border-t border-[#E8E8E8]">
+                                                    <div className="px-3 py-2 truncate">{row?.name ?? "—"}</div>
+                                                    <div className="px-3 py-2 flex items-center justify-end gap-1">
+                                                        <Image src="/icons/currency/dirham.svg" alt="Currency" width={16} height={16} />
+                                                        <span className="font-semibold text-right tabular-nums">{(typeof row?.amount === 'number' ? row.amount : Number(row?.amount || 0)).toLocaleString()}</span>
+                                                    </div>
                                                 </div>
-                                            </div>
-                                        ))}
+                                            ))}
+                                        </div>
                                     </div>
                                 </div>
                             )}
@@ -168,6 +205,8 @@ export default function ProductPurchaseSection({
                     </div>
                 )}
             </div>
+
+           
 
 
             {/* CONDITION & AVAILABILITY */}
@@ -241,36 +280,6 @@ export default function ProductPurchaseSection({
                 </div>
             )}
 
-            {/* QUANTITY */}
-            {isAuthenticated && (
-                <div className=" items-center gap-3">
-                    <span className="text-black ">Minimum order quantity: <span className="text-black font-medium">1 kit / 4 rims</span></span>
-                    <div className="flex items-center border border-[#B7B1A8] bg-[#EBE4D7] mt-1 h-10 w-40">
-                        <button
-                            onClick={() => setQuantity(Math.max(1, quantity - 1))}
-                            className="w-10 h-full flex items-center justify-center text-black hover:bg-[#D8D1C5] transition"
-                        >
-                            <Minus size={16} />
-                        </button>
-                        <input
-                            type="number"
-                            value={quantity}
-                            onChange={(e) => {
-                                const val = parseInt(e.target.value);
-                                if (!isNaN(val) && val >= 1) setQuantity(val);
-                            }}
-                            className="flex-1 w-full h-full bg-transparent text-center text-black outline-none appearance-none [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none"
-                            min={1}
-                        />
-                        <button
-                            onClick={() => setQuantity(quantity + 1)}
-                            className="w-10 h-full flex items-center justify-center text-black hover:bg-[#D8D1C5] transition"
-                        >
-                            <Plus size={16} />
-                        </button>
-                    </div>
-                </div>
-            )}
             {/* {isAuthenticated && (
                 <div className=" items-center gap-3">
                     <span className="text-black font-medium">Minimum order quantity:</span>
