@@ -34,8 +34,8 @@ export default function ProductSpecificationsTable({ productId }: { productId: n
     if (loading || specs.length === 0) return null;
 
     return (
-        <div className="my-6 font-sans max-w-4xl">
-            <div className="bg-[#EBE3D6] p-6">
+        <div className="my-1 font-sans max-w-4xl">
+            <div className="bg-[#EBE3D6] p-4">
                 <Typography variant="h2" className="font-orbitron text-lg font-bold text-black mb-4 uppercase tracking-wider">
                     Technical Details
                 </Typography>
