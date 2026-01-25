@@ -196,6 +196,7 @@ const DesktopLayout = ({ id, product }: { id?: string; product?: any }) => {
                                 status={product?.status}
                                 approvalStatus={product?.approvalStatus}
                                 individualProductPricing={product?.individualProductPricing}
+                                vendorId={product?.vendorId}
                                 onAddToCart={async () => {
                                     if (!product) return;
                                     addItem({

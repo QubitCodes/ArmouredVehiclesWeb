@@ -143,6 +143,7 @@ export default function MobileLayout({ id, product }: { id?: string; product?: a
                     status={product?.status}
                     approvalStatus={product?.approvalStatus}
                     individualProductPricing={product?.individualProductPricing}
+                    vendorId={product?.vendorId}
                     onAddToCart={async () => {
                         if (!product) return;
                         addItem({

@@ -30,6 +30,7 @@ type Props = {
     status?: string | null;
     approvalStatus?: string | null;
     individualProductPricing?: { name: string; amount: number }[] | null;
+    vendorId?: string | null;
 };
 
 export default function ProductPurchaseSection({
@@ -46,10 +47,11 @@ export default function ProductPurchaseSection({
     status,
     approvalStatus,
     individualProductPricing,
+    vendorId,
 }: Props) {
     const displayPrice = price != null && price !== '' ? String(price) : undefined;
     const router = useRouter();
-    const { isAuthenticated, isLoading } = useAuth();
+    const { isAuthenticated, isLoading, user } = useAuth();
 
     const { isInWishlist, toggleWishlist } = useWishlist();
     const isLiked = isInWishlist(productId);
@@ -169,7 +171,7 @@ export default function ProductPurchaseSection({
 
 
             {/* CONDITION & AVAILABILITY */}
-            <div className="space-y-2 text-black">
+            {/* <div className="space-y-2 text-black">
                 <div className="flex justify-start">
                     <span>Condition: </span>
                     <div className="flex items-center gap-1">
@@ -182,7 +184,7 @@ export default function ProductPurchaseSection({
                     </div>
 
                 </div>
-                {/* <div className="flex justify-start">
+                <div className="flex justify-start">
                     <span>Availability:</span>
                     {typeof stock === 'number' ? (
                         stock > 0 ? (
@@ -196,11 +198,24 @@ export default function ProductPurchaseSection({
                     ) : (
                         <span>—</span>
                     )}
-                </div> */}
-            </div>
+                </div>
+            </div> */}
 
             {/* STATUS BADGES (Admin/Vendor only) */}
-            {(status || approvalStatus) && (
+            {(() => {
+                const currentVendorId =
+                    (user as any)?.vendor_id ||
+                    (user as any)?.vendorId ||
+                    (user?.profile as any)?.vendor_id ||
+                    (user?.profile as any)?.vendorId ||
+                    null;
+
+                const isAdmin = user?.userType === 'admin' || user?.userType === 'super_admin';
+                const isMatchingVendor = user?.userType === 'vendor' && !!vendorId && !!currentVendorId && String(vendorId) === String(currentVendorId);
+                const canSeeBadges = isAuthenticated && (isAdmin || isMatchingVendor);
+
+                return canSeeBadges && (status || approvalStatus);
+            })() && (
                 <div className="flex flex-col gap-2 mt-4 border-t pt-4 pb-2">
                     {status && (
                         <div className="flex justify-start items-center gap-2">
