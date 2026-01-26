@@ -1,39 +1,34 @@
 "use client";
 
-import PhoneInput from 'react-phone-input-2';
-import 'react-phone-input-2/lib/style.css';
 import Image from "next/image";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { startOtpRegister, verifyEmailOtp, setPhone, verifyPhoneOtp, resendPhoneOtp } from "@/app/services/auth";
 import { useAuth } from "@/lib/auth-context";
-// import { api } from "@/lib/api";
-import { useEffect, useRef, useState } from "react";
-
+import { api } from "@/lib/api";
+import { useFirebaseAuth } from "@/hooks/useFirebaseAuth";
+import { useEffect, useState } from "react";
 import { toast } from "sonner";
 
 export default function RegisterPage() {
   const router = useRouter();
   const { refreshUser } = useAuth();
 
+  // Firebase Hook
+  const { sendMagicLink, verifyMagicLink, isMagicLink, loading: firebaseLoading } = useFirebaseAuth();
+
   const [form, setForm] = useState({
     name: "",
     email: "",
     username: "",
     phone: "",
-    countryCode: "+971",
+    countryCode: "971",
   });
-  const [stage, setStage] = useState<"start" | "verify_email" | "set_phone" | "verify_phone">("start");
-  const [userId, setUserId] = useState<string>("");
-  const [emailOtp, setEmailOtp] = useState<string[]>(Array(6).fill(""));
-  const [phoneOtp, setPhoneOtp] = useState<string[]>(Array(6).fill(""));
-  const emailRefs = useRef<HTMLInputElement[]>([]);
-  const phoneRefs = useRef<HTMLInputElement[]>([]);
-  const prevDialCodeRef = useRef<string>("");
-  const [debugOtp, setDebugOtp] = useState<string>("");
-  const [phoneResendTimer, setPhoneResendTimer] = useState<number>(0);
+
+  // Stages: start -> magic_link_sent
+  const [stage, setStage] = useState<"start" | "magic_link_sent">("start");
 
   const [loading, setLoading] = useState(false);
+  const loadingState = loading || firebaseLoading;
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setForm({ ...form, [e.target.name]: e.target.value });
@@ -41,32 +36,71 @@ export default function RegisterPage() {
 
   const showError = (msg: string) => {
     toast.error(msg, {
-        style: { background: '#EF4444', color: 'white', border: 'none' } // Explicit red styling
+      style: { background: '#EF4444', color: 'white', border: 'none' }
     });
   };
 
-  // Helper to save auth data
-  const saveAuthToLocal = (data: any) => {
-    if (data.user) localStorage.setItem("user", JSON.stringify(data.user));
-    if (data.accessToken) {
-        localStorage.setItem("accessToken", data.accessToken);
-        localStorage.setItem("access_token", data.accessToken);
-    }
-    if (data.refreshToken) {
-        localStorage.setItem("refreshToken", data.refreshToken);
-        localStorage.setItem("refresh_token", data.refreshToken);
-    }
-    if (data.expiresIn) {
-        const ttl = typeof data.expiresIn === 'number' ? data.expiresIn : 3600;
-        localStorage.setItem("expiresIn", String(ttl));
-        localStorage.setItem("token_expiry", String(Date.now() + ttl * 1000));
-    }
-    if (data.nextStep) {
-        localStorage.setItem("nextStep", data.nextStep);
-    }
-  };
+  // 1. Handle Magic Link Return
+  useEffect(() => {
+    const checkMagicLink = async () => {
+      if (isMagicLink(window.location.href)) {
+        setLoading(true);
+        try {
+          // Retrieve email
+          // 1. Try URL Query Params (Robust cross-device)
+          const urlParams = new URLSearchParams(window.location.search);
+          let email = urlParams.get('email');
 
-  // Start registration: send email OTP
+          // 2. Try LocalStorage (Firebase default)
+          if (!email) {
+            email = window.localStorage.getItem('emailForSignIn');
+          }
+
+          // 3. Try Saved Form (Fallback)
+          if (!email) {
+            const savedForm = localStorage.getItem('reg_form');
+            if (savedForm) {
+              try {
+                const parsed = JSON.parse(savedForm);
+                if (parsed.email) {
+                  email = parsed.email;
+                  console.log("Recovered email from reg_form");
+                }
+              } catch (e) { console.error("Failed to parse reg_form"); }
+            }
+          }
+
+          if (!email) {
+            email = window.prompt("Please enter your email to confirm registration");
+          }
+
+          if (!email) {
+            showError("Email required to verify.");
+            setLoading(false);
+            return;
+          }
+
+          await verifyMagicLink(email);
+
+          // User is now signed in with Email.
+          // Save form data for recovery in next step
+          // const savedForm = localStorage.getItem('reg_form');
+
+          // Redirect to Phone Linking Step
+          toast.success("Email Verified! Redirecting to add phone...");
+          router.push('/add-phone');
+
+        } catch (err: any) {
+          showError(err.message || "Failed to verify email link");
+          setLoading(false);
+        }
+      }
+    };
+
+    checkMagicLink();
+  }, []);
+
+  // 2. Start Registration (Send Magic Link)
   const handleStart = async () => {
     if (!form.email || !form.name || !form.username) {
       showError("Name, username and email are required");
@@ -74,227 +108,27 @@ export default function RegisterPage() {
     }
     try {
       setLoading(true);
-      const res = await startOtpRegister({
-        identifier: form.email.trim(),
-        email: form.email.trim(),
-        username: form.username.trim(),
-        name: form.name.trim(),
-        userType: 'customer',
-      });
-      const data = res.data.data || res.data; // Handle potentially unwrapped or wrapped
-      
-      setUserId(data.userId);
-      setDebugOtp(data.debugOtp || "");
-      
-      // Persist partial state
-      localStorage.setItem("registration_userId", data.userId);
-      localStorage.setItem("registration_email", form.email.trim());
 
-      // If backend says continue to phone, skip email OTP stage
-      if (data?.continueToPhone) {
-        localStorage.setItem("registration_stage", "set_phone");
-        setStage("set_phone");
-      } else {
-        localStorage.setItem("registration_stage", "verify_email");
-        setStage("verify_email");
-        // Focus first OTP box
-        setTimeout(() => emailRefs.current[0]?.focus(), 0);
-      }
-    } catch (err: any) {
-      const msg = err?.response?.data?.message || err?.message || "Failed to start OTP registration";
-      showError(msg);
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const handleEmailOtpChange = (index: number, value: string) => {
-    const val = value.replace(/[^0-9]/g, "").slice(0, 1);
-    const updated = [...emailOtp];
-    updated[index] = val;
-    setEmailOtp(updated);
-    if (val && index < emailOtp.length - 1) emailRefs.current[index + 1]?.focus();
-  };
-
-  const handleEmailOtpKeyDown = (index: number, e: React.KeyboardEvent<HTMLInputElement>) => {
-    if (e.key === "Backspace") {
-      if (emailOtp[index]) {
-        const updated = [...emailOtp];
-        updated[index] = "";
-        setEmailOtp(updated);
+      // Check if user exists first
+      const { exists } = await api.auth.checkUser(form.email);
+      if (exists) {
+        showError("User with this email already exists. Please login.");
         return;
       }
-      if (index > 0) emailRefs.current[index - 1]?.focus();
-    }
-    if (e.key === "ArrowLeft" && index > 0) emailRefs.current[index - 1]?.focus();
-    if (e.key === "ArrowRight" && index < emailOtp.length - 1) emailRefs.current[index + 1]?.focus();
-    if (e.key === "Enter") handleVerifyEmail();
-  };
 
-  const handleVerifyEmail = async () => {
-    const code = emailOtp.join("");
-    if (code.length !== 6) {
-      showError("Please enter the 6-digit email OTP");
-      return;
-    }
-    try {
-      setLoading(true);
-      const res = await verifyEmailOtp({ userId, email: form.email.trim(), code });
-      const data = res.data.data || res.data;
-      
-      // Store tokens and user data
-      saveAuthToLocal(data);
-      localStorage.setItem("registration_stage", "set_phone");
+      // Save form for recovery
+      localStorage.setItem('reg_form', JSON.stringify(form));
 
-      setStage('set_phone');
+      // Send Magic Link
+      await sendMagicLink(form.email);
+      setStage('magic_link_sent');
+
     } catch (err: any) {
-      const msg = err?.response?.data?.message || err?.message || "Failed to verify email";
-      showError(msg);
+      showError(err.message || "Failed to start registration");
     } finally {
       setLoading(false);
     }
   };
-
-  const handleSetPhone = async () => {
-    // PhoneInput returns full phone with country code (e.g. 97150...)
-    if (!form.phone) {
-      showError("Please enter phone number");
-      return;
-    }
-    try {
-      setLoading(true);
-
-      // Prepare split phone number
-      // form.countryCode is set by onChange (e.g. "971")
-      let dialCode = form.countryCode ? form.countryCode.replace('+', '') : '';
-      let fullPhone = form.phone.replace('+', '');
-      let localPhone = fullPhone;
-      
-      // Remove dial code from start of phone if present
-      if (dialCode && fullPhone.startsWith(dialCode)) {
-          localPhone = fullPhone.substring(dialCode.length);
-      }
-      localPhone = localPhone.replace(/^0+/, ''); // Remove leading zeros
-
-      // Send separated values
-      const res = await setPhone({ 
-          userId, 
-          phone: localPhone, 
-          countryCode: dialCode ? `+${dialCode}` : '+1' 
-      }); 
-      
-      const data = (res.data.data || res.data) as { debugOtp?: string; expiresIn?: number };
-      
-      setStage('verify_phone');
-      localStorage.setItem("registration_stage", "verify_phone");
-      localStorage.setItem("registration_phone", form.phone); // Keep full phone for recovery
-      
-      setTimeout(() => phoneRefs.current[0]?.focus(), 0);
-      setDebugOtp(data?.debugOtp || "");
-      setPhoneResendTimer(typeof data?.expiresIn === 'number' ? data.expiresIn : 0);
-    } catch (err: any) {
-      const msg = err?.response?.data?.message || err?.message || "Failed to set phone";
-      showError(msg);
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const handlePhoneOtpChange = (index: number, value: string) => {
-    const val = value.replace(/[^0-9]/g, "").slice(0, 1);
-    const updated = [...phoneOtp];
-    updated[index] = val;
-    setPhoneOtp(updated);
-    if (val && index < phoneOtp.length - 1) phoneRefs.current[index + 1]?.focus();
-  };
-
-  const handlePhoneOtpKeyDown = (index: number, e: React.KeyboardEvent<HTMLInputElement>) => {
-    if (e.key === "Backspace") {
-      if (phoneOtp[index]) {
-        const updated = [...phoneOtp];
-        updated[index] = "";
-        setPhoneOtp(updated);
-        return;
-      }
-      if (index > 0) phoneRefs.current[index - 1]?.focus();
-    }
-    if (e.key === "ArrowLeft" && index > 0) phoneRefs.current[index - 1]?.focus();
-    if (e.key === "ArrowRight" && index < phoneOtp.length - 1) phoneRefs.current[index + 1]?.focus();
-    if (e.key === "Enter") handleVerifyPhone();
-  };
-
-  const handleVerifyPhone = async () => {
-    const code = phoneOtp.join("");
-    if (code.length !== 6) {
-      showError("Please enter the 6-digit phone OTP");
-      return;
-    }
-    try {
-      setLoading(true);
-      // Compose E.164-like phone for verify: +<countryCode><number>
-      const fullPhone = `${form.countryCode.trim()}${form.phone.trim()}`.replace(/\s+/g, "");
-      console.log('[DEBUG] Verifying phone OTP...', { userId, phone: fullPhone, code });
-      
-      const res = await verifyPhoneOtp({ userId, phone: fullPhone, code });
-      console.log('[DEBUG] verifyPhoneOtp response:', res);
-      
-      const data = res.data.data || res.data;
-      console.log('[DEBUG] Extracted data:', data);
-      
-      saveAuthToLocal(data);
-      console.log('[DEBUG] Auth data saved to localStorage');
-      
-      // Clear registration temporary state
-      localStorage.removeItem("registration_stage");
-      localStorage.removeItem("registration_userId");
-      localStorage.removeItem("registration_email");
-      localStorage.removeItem("registration_phone");
-      console.log('[DEBUG] Registration temp state cleared');
-
-      console.log('[DEBUG] Calling refreshUser()...');
-      try {
-        await refreshUser();
-        console.log('[DEBUG] refreshUser() completed successfully');
-      } catch (refreshErr) {
-        console.error('[DEBUG] refreshUser() failed:', refreshErr);
-        // Continue anyway - don't block redirect
-      }
-      
-      console.log('[DEBUG] Redirecting to /create-account...');
-      router.push('/create-account');
-      console.log('[DEBUG] router.push called');
-    } catch (err: any) {
-      console.error('[DEBUG] handleVerifyPhone error:', err);
-      const msg = err?.response?.data?.message || err?.message || "Failed to verify phone";
-      showError(msg);
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  // Resend Phone OTP
-  const handleResendPhone = async () => {
-    if (!userId || !form.phone) return;
-    try {
-      setLoading(true);
-      const res = await resendPhoneOtp({ userId, phone: form.phone.trim() });
-      const data = res.data.data || res.data;
-      setDebugOtp(data.debugOtp || "");
-      setPhoneResendTimer(typeof data.expiresIn === 'number' ? data.expiresIn : 60);
-    } catch (err: any) {
-      const msg = err?.response?.data?.message || err?.message || "Failed to resend OTP";
-      showError(msg);
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  // Countdown for resend availability
-  useEffect(() => {
-    if (phoneResendTimer <= 0) return;
-    const t = setInterval(() => setPhoneResendTimer((s) => (s > 0 ? s - 1 : 0)), 1000);
-    return () => clearInterval(t);
-  }, [phoneResendTimer]);
 
   return (
     <section className="relative w-full min-h-[calc(100vh-140px)] bg-[#EFE8DC]">
@@ -316,9 +150,7 @@ export default function RegisterPage() {
 
           <p className="text-sm text-gray-700 mb-6">
             {stage === 'start' && 'Enter your details to get started'}
-            {stage === 'verify_email' && `Enter the OTP sent to ${form.email}`}
-            {stage === 'set_phone' && 'Add your phone number'}
-            {stage === 'verify_phone' && `Enter the OTP sent to ${form.phone}`}
+            {stage === 'magic_link_sent' && 'Please check your email'}
           </p>
 
           {stage === 'start' && (
@@ -347,158 +179,26 @@ export default function RegisterPage() {
                 onChange={handleChange}
                 className="w-full mb-5 px-4 py-3 border border-[#D6CFC2] bg-transparent text-sm text-black focus:outline-none"
               />
+              <button
+                onClick={handleStart}
+                disabled={loadingState}
+                className="w-full h-[52px] bg-[#D35400] text-white font-black text-[16px] clip-path-supplier hover:bg-[#39482C] transition-colors uppercase"
+              >
+                {loadingState ? "Processing..." : "Continue"}
+              </button>
             </>
           )}
 
-          {stage === 'verify_email' && (
-            <div className="mb-5">
-              <div className="flex gap-2 justify-center mb-2">
-                {emailOtp.map((digit, index) => (
-                  <input
-                    key={index}
-                    type="text"
-                    inputMode="numeric"
-                    pattern="[0-9]*"
-                    maxLength={1}
-                    value={digit}
-                    onChange={(e) => handleEmailOtpChange(index, e.target.value)}
-                    onKeyDown={(e) => handleEmailOtpKeyDown(index, e)}
-                    ref={(el) => { if (el) emailRefs.current[index] = el; }}
-                    className="w-10 h-12 text-center border border-[#C7B88A] bg-transparent text-sm text-black focus:outline-none"
-                  />
-                ))}
-              </div>
-              {debugOtp && (
-                <p className="text-xs text-gray-600 text-center">Debug OTP: {debugOtp}</p>
-              )}
+          {stage === 'magic_link_sent' && (
+            <div className="mb-5 p-4 bg-white/50 rounded text-sm text-gray-800">
+              <p className="font-bold mb-2">Check your inbox!</p>
+              <p>We sent a verification link to:</p>
+              <p className="font-mono my-2">{form.email}</p>
+              <p>Click the link to verify your email and continue registration.</p>
+              <p className="text-xs text-gray-500 mt-4">
+                Can't find it? Check spam or <button onClick={handleStart} className="text-blue-600 underline">resend</button>.
+              </p>
             </div>
-          )}
-
-          {stage === 'set_phone' && (
-            <div className="w-full">
-               <label className="block text-sm font-bold mb-2">PHONE NUMBER</label>
-               <PhoneInput
-                  country={'ae'}
-                  value={form.phone}
-                  onChange={(phone, data: any) => {
-                    // phone is the full number digits (e.g. 971501234567)
-                    // data.dialCode is the country code (e.g. 971)
-                    setForm({ 
-                        ...form, 
-                        phone: `+${phone}`, 
-                        countryCode: data.dialCode 
-                    });
-                  }}
-                  enableSearch={true}
-                  disableSearchIcon={true}
-                  searchPlaceholder="Search Country..."
-                  searchStyle={{
-                      width: '94%',
-                      height: '36px',
-                      margin: '4px auto',
-                      backgroundColor: '#F3EDE3',
-                      border: '1px solid #C7B88A',
-                      borderRadius: '2px',
-                      padding: '8px',
-                      color: 'black'
-                  }}
-                  inputStyle={{
-                      width: '100%',
-                      height: '42px',
-                      backgroundColor: '#F3EDE3',
-                      border: '1px solid #C7B88A',
-                      fontFamily: 'inherit',
-                      color: '#000000',
-                      paddingLeft: '65px'
-                  }}
-                  buttonStyle={{
-                      border: '1px solid #C7B88A',
-                      backgroundColor: '#C7B88A',
-                      // width: '70px',
-                      justifyContent: 'flex-start',
-                      padding: '8px'
-                  }}
-                  dropdownStyle={{
-                      backgroundColor: '#F3EDE3',
-                      color: 'black',
-                      width: '300px'
-                  }}
-               />
-             </div>
-           )}
- 
-           {stage === 'verify_phone' && (
-             <div className="mb-5">
-               <div className="flex gap-2 justify-center mb-2">
-                 {phoneOtp.map((digit, index) => (
-                   <input
-                     key={index}
-                     type="text"
-                     inputMode="numeric"
-                     pattern="[0-9]*"
-                     maxLength={1}
-                     value={digit}
-                     onChange={(e) => handlePhoneOtpChange(index, e.target.value)}
-                     onKeyDown={(e) => handlePhoneOtpKeyDown(index, e)}
-                     ref={(el) => { if (el) phoneRefs.current[index] = el; }}
-                     className="w-10 h-12 text-center border border-[#C7B88A] bg-transparent text-sm text-black focus:outline-none"
-                   />
-                 ))}
-               </div>
-               <div className="flex items-center justify-center gap-3 mt-2">
-                 <button
-                   type="button"
-                   onClick={handleResendPhone}
-                   disabled={loading || phoneResendTimer > 0}
-                   className="text-sm font-semibold text-[#D35400] disabled:text-gray-400"
-                 >
-                   {phoneResendTimer > 0 ? `Resend in ${phoneResendTimer}s` : 'Resend OTP'}
-                 </button>
-               </div>
-               {debugOtp && (
-                 <p className="text-xs text-gray-600 text-center mt-1">Debug OTP: {debugOtp}</p>
-               )}
-             </div>
-           )}
- 
-           {stage === 'start' && (
-             <button
-               onClick={handleStart}
-               disabled={loading}
-               className="w-full h-[52px] bg-[#D35400] text-white font-black text-[16px] clip-path-supplier hover:bg-[#39482C] transition-colors uppercase"
-             >
-               {loading ? "Sending OTP..." : "Continue"}
-             </button>
-           )}
- 
-           {stage === 'verify_email' && (
-             <button
-               onClick={handleVerifyEmail}
-               disabled={loading}
-               className="w-full h-[52px] bg-[#D35400] text-white font-black text-[16px] clip-path-supplier hover:bg-[#39482C] transition-colors uppercase"
-             >
-               {loading ? "Verifying..." : "Verify Email"}
-             </button>
-           )}
- 
-           {stage === 'set_phone' && (
-             <button
-               onClick={handleSetPhone}
-               disabled={loading}
-               className="w-full h-[52px] bg-[#D35400] text-white font-black text-[16px] clip-path-supplier hover:bg-[#39482C] transition-colors uppercase mt-5"
-             >
-               {loading ? "Sending..." : "Send OTP"}
-             </button>
-           )}
-
-          {stage === 'verify_phone' && (
-            <button
-              onClick={handleVerifyPhone}
-              disabled={loading}
-              className="w-full h-[52px] bg-[#D35400] text-white font-black text-[16px] clip-path-supplier hover:bg-[#39482C] transition-colors uppercase"
-            >
-              {loading ? "Verifying..." : "Verify & Create Account"}
-            </button>
           )}
 
           <p className="text-xs mt-4 text-gray-700">

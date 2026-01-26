@@ -299,6 +299,71 @@ export const api = {
       return data;
     },
 
+    // --- Firebase Auth ---
+    checkUser: async (identifier: string): Promise<{ exists: boolean; data?: any }> => {
+      // POST /auth/user-exists
+      try {
+        const response = await fetch(`${API_BASE}/auth/user-exists`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ identifier }),
+        });
+        const data = await response.json();
+        // 200 = Exists, 404 = Not found
+        if (response.status === 200) return { exists: true, data: data.data };
+        if (response.status === 404) return { exists: false };
+        throw new Error(data.message || 'Check user failed');
+      } catch (err) {
+        // If 404 was thrown as error by fetchJson wrapper (if we used it), handle it.
+        // But here we use raw fetch. 
+        console.error('Check user error', err);
+        return { exists: false }; // Conservative fallback
+      }
+    },
+
+    verifyFirebase: async (idToken: string): Promise<AuthResponse> => {
+        const response = await fetch(`${API_BASE}/auth/firebase/verify`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ idToken }),
+        });
+
+        const res = await response.json();
+        if (!response.ok) {
+            const error = new Error(res.message || 'Firebase verification failed');
+            (error as any).status = response.status;
+            (error as any).data = res.data || res.misc; 
+            throw error;
+        }
+
+        // Unwrap data envelope (BaseController returns { data: ... })
+        const payload = res.data ?? res;
+
+        storeTokens(payload.accessToken, payload.refreshToken, payload.expiresIn);
+        storeUser(payload.user);
+        return payload;
+    },
+
+    registerFirebase: async (data: { idToken: string; name: string; username: string; userType?: string; phone?: string; countryCode?: string }): Promise<AuthResponse> => {
+        const response = await fetch(`${API_BASE}/auth/firebase/register`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(data),
+        });
+
+        const resData = await response.json();
+        if (!response.ok) {
+            throw new Error(resData.message || 'Registration failed');
+        }
+
+        // Unwrap
+        const payload = resData.data ?? resData;
+
+        storeTokens(payload.accessToken, payload.refreshToken, payload.expiresIn);
+        storeUser(payload.user);
+        return payload;
+    },
+
     logout: async (refreshToken?: string): Promise<void> => {
       try {
         await fetchJson('/auth/logout', { method: 'POST', body: JSON.stringify({ refreshToken }) });

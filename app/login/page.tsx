@@ -4,58 +4,166 @@ import Image from "next/image";
 import Link from "next/link";
 import Navbar from "@/components/navbar/Navbar";
 import Footer from "@/components/footer/Footer";
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState, Suspense } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { startOtpLogin, verifyOtpLogin } from "../services/auth";
 import { useAuth } from "@/lib/auth-context";
-import { storeTokens, storeUser } from "@/lib/api";
-
-
-import { Suspense } from 'react';
+import { storeTokens, storeUser, api } from "@/lib/api"; // Added api
+import { useFirebaseAuth } from "@/hooks/useFirebaseAuth"; // Added hook
 
 function LoginForm() {
     const router = useRouter();
     const searchParams = useSearchParams();
     const [identifier, setIdentifier] = useState("");
-    const [stage, setStage] = useState<"start" | "verify">("start");
+    const [stage, setStage] = useState<"start" | "verify" | "magic_link_sent">("start");
     const { refreshUser } = useAuth();
     const [otp, setOtp] = useState<string[]>(Array(6).fill(""));
     const [debugOtp, setDebugOtp] = useState<string>("");
     const [loading, setLoading] = useState(false);
     const inputRefs = useRef<HTMLInputElement[]>([]);
 
+    // Firebase Hook
+    const { sendPhoneOtp, verifyPhoneOtp, sendMagicLink, verifyMagicLink, isMagicLink } = useFirebaseAuth();
+    const [confirmationResult, setConfirmationResult] = useState<any>(null); // Store Firebase confirmation result
 
+    const isEmail = (value: string) => value.includes("@");
+    const isPhone = (value: string) => /^[+0-9\s]+$/.test(value);
 
-    const isEmail = (value: string) => {
-        return value.includes("@");
+    // Magic Link Verification Effect
+    useEffect(() => {
+        const checkMagicLink = async () => {
+            if (isMagicLink(window.location.href)) {
+                setLoading(true);
+                try {
+                    // Try to get email from storage
+                    let email = window.localStorage.getItem('emailForSignIn');
+                    if (!email) {
+                        email = window.prompt('Please provide your email for confirmation');
+                    }
+                    if (!email) return; // User cancelled
+
+                    const credential = await verifyMagicLink(email);
+                    const idToken = await credential.user.getIdToken();
+                    await completeLogin(idToken, credential.user);
+                } catch (err: any) {
+                    alert(err.message || "Failed to verify magic link");
+                } finally {
+                    setLoading(false);
+                }
+            }
+        };
+        checkMagicLink();
+    }, []);
+
+    const completeLogin = async (idToken: string, firebaseUser: any) => {
+        try {
+            const res = await api.auth.verifyFirebase(idToken);
+            // res = { status: true, data: { user, accessToken, ... } }
+            // Note: api.auth.verifyFirebase returns AuthResponse which has user, accessToken, etc. directly at top level 
+            // OR nested in data depending on how we standardized it. 
+            // Looking at api.ts storeTokens() usage inside it, it seems to return data object directly.
+            // Let's rely on api.ts doing storeTokens internaly as per my recent edit?
+            // Wait, api.ts verifyFirebase calls storeTokens internaly.
+
+            // Just refresh user context
+            await refreshUser();
+
+            console.log(`[LOGIN] Success. User: ${res.user.email}`);
+
+            // Handle Redirection
+            handleRedirect(res.user);
+        } catch (err: any) {
+            console.error(err);
+            alert(err.message || "Login failed on server");
+        }
     };
 
-    const isPhone = (value: string) => {
-        return /^[+0-9\s]+$/.test(value);
+    const handleRedirect = (user: any) => {
+        const returnUrl = searchParams.get('returnUrl');
+        if (returnUrl && !returnUrl.includes('/login')) {
+            router.replace(returnUrl);
+            return;
+        }
+
+        switch (true) {
+            case !user.email_verified && user.email: router.push('/verify-email'); break;
+            case !user.phone: router.push('/add-phone'); break;
+            case !user.phone_verified: router.push('/verify-phone'); break;
+            case !user.profile: router.push('/create-account'); break;
+            case (user.onboardingStep && user.onboardingStep > 0):
+                router.push(`/buyer-onboarding/step/${user.onboardingStep}`);
+                break;
+            default: router.push('/'); break;
+        }
     };
 
     const handleContinue = async () => {
-        let email = identifier.trim();
-        if (email.length > 0) {
-            const first = email.charAt(0);
-            // if first character is an uppercase letter, convert it to lowercase
-            if (first !== first.toLowerCase()) {
-                email = first.toLowerCase() + email.slice(1);
+        let input = identifier.trim();
+        if (input.length > 0) {
+            const first = input.charAt(0);
+            if (isEmail(input) && first !== first.toLowerCase()) {
+                input = first.toLowerCase() + input.slice(1);
             }
         }
-        if (!email) {
+        if (!input) {
             alert("Please enter your email or phone number");
             return;
         }
 
         try {
             setLoading(true);
-            const res = await startOtpLogin(email);
-            const { message, expiresIn, debugOtp } = res.data;
-            setStage("verify");
-            setDebugOtp(debugOtp || "");
+
+            // 1. Check if user exists
+            const { exists, data } = await api.auth.checkUser(input);
+            if (!exists) {
+                alert("User not found. Please create an account first.");
+                router.push('/register');
+                return;
+            }
+
+            // 2. Trigger Firebase Auth
+            if (isEmail(input)) {
+                await sendMagicLink(input);
+                setStage("magic_link_sent");
+                alert(`Magic link sent to ${input}. Please check your inbox.`);
+            } else {
+                // Phone
+                // Use the standardized identifier from backend (e.g. +97150...)
+                const phoneToUse = data.identifier || (input.startsWith('+') ? input : `+${input.replace(/\D/g, '')}`);
+
+                // We need a recaptcha container
+                const res = await sendPhoneOtp(phoneToUse, 'recaptcha-container');
+                setConfirmationResult(res);
+                setStage("verify");
+            }
         } catch (err: any) {
-            alert(err?.response?.data?.message || err?.message || "Failed to start OTP login");
+            console.error(err);
+            alert(err.message || "Failed to start login");
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    const handleVerify = async () => {
+        const code = otp.join("");
+        if (code.length !== 6) {
+            alert("Please enter the 6-digit OTP");
+            return;
+        }
+
+        if (!confirmationResult) {
+            alert("Session expired. Please try again.");
+            setStage('start');
+            return;
+        }
+
+        try {
+            setLoading(true);
+            const credential = await verifyPhoneOtp(confirmationResult, code);
+            const idToken = await credential.user.getIdToken();
+            await completeLogin(idToken, credential.user);
+        } catch (err: any) {
+            alert(err.message || "Invalid Code");
         } finally {
             setLoading(false);
         }
@@ -74,22 +182,15 @@ function LoginForm() {
     const handleOtpKeyDown = (index: number, e: React.KeyboardEvent<HTMLInputElement>) => {
         if (e.key === "Backspace") {
             if (otp[index]) {
-                // Clear current value
                 const updated = [...otp];
                 updated[index] = "";
                 setOtp(updated);
-                return; // keep focus
+                return;
             }
-            if (index > 0) {
-                inputRefs.current[index - 1]?.focus();
-            }
+            if (index > 0) inputRefs.current[index - 1]?.focus();
         }
-        if (e.key === "ArrowLeft" && index > 0) {
-            inputRefs.current[index - 1]?.focus();
-        }
-        if (e.key === "ArrowRight" && index < otp.length - 1) {
-            inputRefs.current[index + 1]?.focus();
-        }
+        if (e.key === "ArrowLeft" && index > 0) inputRefs.current[index - 1]?.focus();
+        if (e.key === "ArrowRight" && index < otp.length - 1) inputRefs.current[index + 1]?.focus();
         if (e.key === "Enter" && stage === "verify") {
             e.preventDefault();
             handleVerify();
@@ -113,138 +214,23 @@ function LoginForm() {
 
     useEffect(() => {
         if (stage === "verify") {
-            // Autofocus first OTP input
             setTimeout(() => inputRefs.current[0]?.focus(), 0);
         }
     }, [stage]);
 
-    const ignoreRedirectRef = useRef(false);
-
-    // Redirect if already logged in
-    const { isAuthenticated, isLoading: authLoading } = useAuth();
-    useEffect(() => {
-        if (!authLoading && isAuthenticated && !ignoreRedirectRef.current) {
-            const returnUrl = searchParams.get('returnUrl') || '/';
-            // Prevent loop if returnUrl is login
-            if (returnUrl.includes('/login')) {
-                router.replace('/');
-            } else {
-                router.replace(returnUrl);
-            }
-        }
-    }, [authLoading, isAuthenticated, router, searchParams]);
-
-    const handleVerify = async (manualEmail?: string, manualCode?: string) => {
-        // Normalize email/identifier similar to handleContinue: prefer a provided manualEmail
-        // but fall back to the current identifier. Trim and ensure the first character is
-        // lowercased if it was uppercase.
-        let email = manualEmail && manualEmail.trim().length > 0 ? manualEmail.trim() : identifier.trim();
-        if (email.length > 0) {
-            const first = email.charAt(0);
-            if (first !== first.toLowerCase()) {
-                email = first.toLowerCase() + email.slice(1);
-            }
-        }
-
-        const code = manualCode || otp.join("");
-
-        if (code.length !== 6) {
-            alert("Please enter the 6-digit OTP");
-            return;
-        }
-        try {
-            setLoading(true);
-            const res = await verifyOtpLogin(email, code);
-            // API response is nested: res.data = { status, message, code, data: { user, accessToken, ... } }
-            const { user, accessToken, refreshToken, expiresIn } = res.data.data;
-
-            // Set flag to ignore the auto-redirect effect, since we will handle it manually here
-            ignoreRedirectRef.current = true;
-
-            // Store tokens (both legacy and lib/api.ts keys)
-            // Store tokens using centralized logic (handles cookies for middleware)
-            storeTokens(accessToken, refreshToken, expiresIn);
-            storeUser(user);
-
-            console.log(`[CHECKOUT DEBUG] LOGIN SUCCESS. Token: ${accessToken.substring(0, 20)}...`);
-
-            // Update auth context immediately so Navbar reflects logged-in state
-            await refreshUser();
-
-            // Merge guest cart
-            // await api.cart.merge();
-
-            // Redirection Logic
-            const redirect = searchParams.get('redirect');
-
-            // Switch-case logic for redirection priority
-            switch (true) {
-                // 1. Email Verification
-                case !user.email_verified:
-                    router.push('/verify-email');
-                    break;
-
-                // 2. Phone Existence
-                case !user.phone:
-                    router.push('/add-phone');
-                    break;
-
-                // 3. Phone Verification
-                case !user.phone_verified:
-                    router.push('/verify-phone');
-                    break;
-
-                // 4. Profile Creation (Check if profile exists)
-                // Note: AuthController now returns nested profile object
-                case !user.profile:
-                    router.push('/create-account');
-                    break;
-
-                // 5. In-progress Onboarding ( Specific Step )
-                case (user.onboardingStep && (user as any).onboardingStep > 0):
-                    console.log(`Redirecting to onboarding step: ${user.onboardingStep}`);
-                    router.push(`/buyer-onboarding/step/${user.onboardingStep}`);
-                    break;
-
-                // 6. Redirect URL
-                case !!redirect:
-                    router.push(redirect!);
-                    break;
-
-                // 7. Default Dashboard/Home
-                default:
-                    router.push('/');
-                    break;
-            }
-        } catch (err: any) {
-            alert(err?.response?.data?.message || err?.message || "Failed to verify OTP");
-            ignoreRedirectRef.current = false; // Reset on error
-        } finally {
-            setLoading(false);
-        }
-    };
-
-
     return (
         <>
-            {/* HERO SECTION */}
             <section className="relative w-full min-h-[calc(100vh-140px)] bg-[#EFE8DC]">
-                {/* Background Image */}
                 <Image
-                    src="/images/register-bg.jpg" // same image as register
+                    src="/images/register-bg.jpg"
                     alt="Login Background"
                     fill
                     priority
                     className="object-cover hidden md:block"
                 />
-
-                {/* Light overlay */}
                 <div className="absolute inset-0 bg-black/10 pointer-events-none" />
 
-                {/* Content */}
                 <div className="relative z-10 max-w-[1720px] mx-auto px-6 lg:px-[140px] flex items-start lg:items-center min-h-[calc(100vh-140px)] top-28 lg:mt-0">
-
-                    {/* Login Card */}
                     <div className="bg-[#F0EBE3] w-full max-w-[420px] p-8 shadow-md text-center pointer-events-auto">
                         <h2
                             className="text-[22px] font-bold mb-2 uppercase text-black"
@@ -262,16 +248,18 @@ function LoginForm() {
                             </Link>
                         </p>
 
-                        {/* Email or Phone */}
                         <input
                             type="text"
-                            placeholder="Email or Phone"
+                            placeholder="Email or Phone (e.g. +91 999...)"
                             value={identifier}
+                            disabled={stage !== 'start'}
                             onChange={(e) => setIdentifier(e.target.value)}
-                            className="w-full mb-3 px-4 py-3 border border-[#C7B88A] bg-transparent text-sm text-black placeholder:text-[#9D9A95] focus:outline-none"
+                            className="w-full mb-3 px-4 py-3 border border-[#C7B88A] bg-transparent text-sm text-black placeholder:text-[#9D9A95] focus:outline-none disabled:opacity-50"
                         />
 
-                        {/* OTP Inputs (shown after starting login) */}
+                        {/* Hidden Recaptcha Container */}
+                        <div id="recaptcha-container"></div>
+
                         {stage === "verify" && (
                             <div className="mb-3">
                                 <div className="flex gap-2 justify-center mb-2">
@@ -286,21 +274,21 @@ function LoginForm() {
                                             onChange={(e) => handleOtpChange(index, e.target.value)}
                                             onKeyDown={(e) => handleOtpKeyDown(index, e)}
                                             onPaste={index === 0 ? handleOtpPaste : undefined}
-                                            ref={(el) => {
-                                                if (el) inputRefs.current[index] = el;
-                                            }}
+                                            ref={(el) => { if (el) inputRefs.current[index] = el; }}
                                             className="w-10 h-12 text-center border border-[#C7B88A] bg-transparent text-sm text-black placeholder:text-[#9D9A95] focus:outline-none"
                                         />
                                     ))}
                                 </div>
-                                {debugOtp && (
-                                    <p className="text-xs text-gray-600 text-center">Debug OTP: {debugOtp}</p>
-                                )}
                             </div>
                         )}
 
+                        {stage === "magic_link_sent" && (
+                            <div className="mb-4 p-3 bg-green-100 text-green-800 text-sm rounded">
+                                We have sent a login link to <strong>{identifier}</strong>.
+                                Please check your email and click the link to continue.
+                            </div>
+                        )}
 
-                        {/* Privacy Policy Confirmation */}
                         <div className="flex items-start gap-2 text-xs text-gray-700 mb-5 text-center">
                             <p>
                                 By continuing, I confirm that I have read the{" "}
@@ -314,16 +302,15 @@ function LoginForm() {
                             </p>
                         </div>
 
-                        {/* Continue / Verify Button */}
                         {stage === "start" ? (
                             <button
                                 onClick={handleContinue}
                                 disabled={loading}
                                 className="w-full h-[52px] bg-[#D35400] text-white font-black font-orbitron clip-path-supplier text-[16px] hover:bg-[#39482C] transition-colors uppercase disabled:opacity-60"
                             >
-                                {loading ? "Sending OTP..." : "Continue"}
+                                {loading ? "Checking..." : "Continue"}
                             </button>
-                        ) : (
+                        ) : stage === 'verify' ? (
                             <button
                                 onClick={() => handleVerify()}
                                 disabled={loading}
@@ -331,57 +318,9 @@ function LoginForm() {
                             >
                                 {loading ? "Verifying..." : "Verify & Login"}
                             </button>
-                        )}
-
-                        {/* Quick Login Buttons (Dev Only) */}
-                        {/* <div className="mt-4 grid grid-cols-2 gap-2">
-                             <button
-                                type="button"
-                                onClick={async () => {
-                                    const phone = "9400143527";
-                                    setIdentifier(phone);
-                                    try {
-                                        setLoading(true);
-                                        await startOtpLogin(phone);
-                                        setStage("verify");
-                                        setOtp(['1','2','3','4','5','6']);
-                                        // Auto Verify
-                                        await handleVerify(phone, '123456');
-                                    } catch (err: any) {
-                                        alert(err?.response?.data?.message || err?.message || "Failed");
-                                        setLoading(false);
-                                    }
-                                }}
-                                className="text-xs bg-gray-200 text-gray-700 py-1 px-2 rounded hover:bg-gray-300"
-                            >
-                                Dev: 9400143527
-                            </button>
-                            <button
-                                type="button"
-                                onClick={async () => {
-                                    const phone = "8281300882";
-                                    setIdentifier(phone);
-                                    try {
-                                        setLoading(true);
-                                        await startOtpLogin(phone);
-                                        setStage("verify");
-                                        setOtp(['1','2','3','4','5','6']);
-                                        // Auto Verify
-                                        await handleVerify(phone, '123456');
-                                    } catch (err: any) {
-                                        alert(err?.response?.data?.message || err?.message || "Failed");
-                                        setLoading(false);
-                                    }
-                                }}
-                                className="text-xs bg-gray-200 text-gray-700 py-1 px-2 rounded hover:bg-gray-300"
-                            >
-                                Dev: 8281300882
-                            </button>
-                        </div> */}
-
+                        ) : null}
                     </div>
                 </div>
-
             </section>
         </>
     );

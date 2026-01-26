@@ -11,25 +11,29 @@ function Director() {
 
     useEffect(() => {
         if (!loading) {
-            let nextStep = 1;
-            
-            // If profile is empty (no id), force step 1 regardless of user.onboardingStep
-            if (!profileData?.id && !profileData?.profile?.id) { // checking nested profile just in case structure differs
-                 nextStep = 1;
-            } else if (profileData?.current_step) {
-                nextStep = profileData.current_step;
-            } else if (profileData?.onboardingStep) {
-                nextStep = profileData.onboardingStep;
-            } else if (profileData?.onboarding_step) {
-                 nextStep = profileData.onboarding_step;
+            // Priority: user.onboardingStep -> profile.current_step
+            // We check undefined strictly to allow 0 or null
+            let stepFromUser = profileData?.onboardingStep;
+            if (stepFromUser === undefined) stepFromUser = profileData?.onboarding_step;
+
+            let stepFromProfile = profileData?.current_step;
+
+            // If user step is null, it means COMPLETED -> Dashboard
+            if (stepFromUser === null) {
+                router.replace('/dashboard');
+                return;
             }
 
-            // If done (0), go to dashboard
-            if (nextStep === 0) {
-                 router.replace('/dashboard');
-            } else {
-                 router.replace(`/buyer-onboarding/step/${nextStep}`);
+            // If 0, it means New User -> Step 1
+            if (stepFromUser === 0) {
+                router.replace('/buyer-onboarding/step/1');
+                return;
             }
+
+            // Otherwise use the step, falling back to profile or 1
+            let nextStep = stepFromUser || stepFromProfile || 1;
+
+            router.replace(`/buyer-onboarding/step/${nextStep}`);
         }
     }, [loading, profileData, router]);
 

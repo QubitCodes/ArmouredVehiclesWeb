@@ -101,21 +101,24 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       // 1. Phone Verification Check
       if (!user.phone_verified) {
         // Allow access to: /add-phone, /verify-phone, /logout
-        if (!pathname.startsWith('/add-phone') &&
-          !pathname.startsWith('/verify-phone') &&
-          !pathname.startsWith('/logout')) {
+        const isPhoneRoute = pathname.startsWith('/add-phone') || pathname.startsWith('/verify-phone');
 
-          // If phone is missing, go to add-phone
-          if (!user.phone) {
-            console.log(`[AuthMiddleware] Redirecting to /add-phone`);
+        if (!pathname.startsWith('/logout') && !isPhoneRoute) {
+          // If phone is missing (null, undefined, or empty string after trim), go to add-phone
+          // We check for length < 3 (min country code length usually) to be safe against garbage like "+"
+          if (!user.phone || user.phone.trim().length < 3) {
+            console.log(`[AuthMiddleware] Redirecting to /add-phone (Phone missing or invalid). User Phone Value: '${user.phone}'`);
             router.replace('/add-phone');
           } else {
             // If phone exists but not verified, go to verify-phone
-            console.log(`[AuthMiddleware] Redirecting to /verify-phone`);
+            console.log(`[AuthMiddleware] Redirecting to /verify-phone (Phone exists but unverified). User:`, JSON.stringify(user));
             router.replace('/verify-phone');
           }
-          return; // Stop further checks
         }
+        // CRITICAL FIX: Stop execution here if we are dealing with phone verification
+        // This prevents falling through to 'Profile Existence Check' which redirects to /create-account
+        // causing a loop.
+        return;
       }
 
       // 2. Profile Existence/Creation Check (Step 0)
@@ -127,10 +130,10 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       if (onboardingStep === 0) {
         // Allow access to: /create-account, /logout
         if (!pathname.startsWith('/create-account') && !pathname.startsWith('/logout')) {
-          console.log(`[AuthMiddleware] Redirecting to /create-account`);
+          console.log(`[AuthMiddleware] Redirecting to /create-account. User State:`, { step: onboardingStep, verified: user.phone_verified });
           router.replace('/create-account');
-          return;
         }
+        return; // Stop checks
       }
 
       // 3. Onboarding Completion Check (Steps 1-4)

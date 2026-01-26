@@ -19,6 +19,7 @@ const protectedRoutes = [
   '/vendor/products',
   '/vendor/orders',
   '/vendor/settings',
+  '/buyer-onboarding',
 ];
 
 export function middleware(request: NextRequest) {
