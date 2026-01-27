@@ -491,6 +491,11 @@ export const api = {
       const res = await fetchJson<any>(`/products/${id}/specifications`);
       return Array.isArray(res) ? res : res?.data ?? [];
     },
+    getCategories: async () => {
+      const res = await fetchJson<any>("/categories");
+      // Unwrap common API envelope { status, message, code, data }
+      return Array.isArray(res) ? res : (res?.data ?? []);
+    },
   },
 
   // --- Categories ---
