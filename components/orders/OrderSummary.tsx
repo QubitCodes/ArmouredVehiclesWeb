@@ -228,18 +228,27 @@ export default function OrderSummary({ orderId }: OrderSummaryProps) {
 
                 <div className="p-3 lg:p-5 space-y-3">
                   {order.items?.map((item: any, i: number) => {
+                    const getImageUrl = (path: string | undefined | null) => {
+                      if (!path) return "/placeholder.jpg";
+                      if (path.startsWith("http")) return path;
+                      // Remove leading slash if present to avoid double slashes if base has trailing slash
+                      const cleanPath = path.startsWith('/') ? path.slice(1) : path;
+                      return `${process.env.NEXT_PUBLIC_API_BASE_URL}/${cleanPath}`;
+                    };
+
                     const itemName = item.product?.name || item.product_name || item.name || "Product";
-                    const itemImage = item.product?.image || item.image || "/placeholder.jpg";
+                    const itemImage = getImageUrl(item.product?.image || item.image);
                     const itemPrice = item.price ? parseFloat(item.price) : 0;
                     return (
                       <div key={item.id || i} className="flex items-start gap-3 lg:gap-5 border-b border-[#C2B280] last:border-0 pb-3 last:pb-0 cursor-pointer hover:bg-black/5 p-2 rounded transition-colors"
-                        onClick={() => router.push(`/products/${item.product_id || item.product?.id}`)}>
+                        onClick={() => router.push(`/product/${item.product_id || item.product?.id}`)}>
                         <img
                           src={itemImage}
                           alt={itemName}
                           className="w-16 h-16 lg:w-20 lg:h-20 object-contain flex-shrink-0 bg-white"
                           onError={(e) => {
-                            (e.target as HTMLImageElement).src = 'https://placehold.co/80x80?text=No+Image';
+                            // If full URL fails, might be a different issue, but fallback is safe
+                            (e.target as HTMLImageElement).src = '/placeholder.jpg';
                           }}
                         />
                         <div className="flex-1 min-w-0 flex flex-col">
