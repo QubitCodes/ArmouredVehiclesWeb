@@ -8,7 +8,7 @@ import { useAuth } from "@/lib/auth-context";
 import { syncAddToServer } from "@/lib/cart-sync";
 import { useCartStore } from "@/lib/cart-store";
 
-xxxxxxx
+
 interface SimilarProductProps {
   image?: string;
   name?: string;
