@@ -33,12 +33,13 @@ export const FeaturedCarousel = () => {
         align: 'start',
         skipSnaps: false,
         dragFree: false, // Set to false to enforce snap points/pages
+        containScroll: 'trimSnaps', // ensure last slide can align fully
         slidesToScroll: 1,
         breakpoints: {
             '(min-width: 768px)': { slidesToScroll: 2 },
-            '(min-width: 1024px)': { slidesToScroll: 3 }
+            '(min-width: 1024px)': { slidesToScroll: 4 }
         }
-    }, [Autoplay({ delay: 5000, stopOnInteraction: false })]);
+    }, [Autoplay({ delay: 500000, stopOnInteraction: false })]);
 
     const scrollPrev = useCallback(() => emblaApi && emblaApi.scrollPrev(), [emblaApi]);
     const scrollNext = useCallback(() => emblaApi && emblaApi.scrollNext(), [emblaApi]);
@@ -131,11 +132,11 @@ export const FeaturedCarousel = () => {
 
                 {/* Carousel Viewport */}
                 <div className="overflow-hidden" ref={emblaRef}>
-                    <div className="flex -ml-4 md:-ml-6 py-4 items-start">
+                    <div className="flex -ml-4 md:-ml-6 py-4 items-start pr-4 md:pr-5 md:mr-1">
                         {products.map((product, index) => (
                             <div
                                 key={product.id}
-                                className={` flex-[0_0_80%] md:flex-[0_0_40%] lg:flex-[0_0_28%] pl-4 md:pl-6 min-w-0 transition-all duration-500 ease-in-out ${index % 2 !== 0 ? (isAuthenticated ? 'mt-16 md:mt-22' : 'mt-[60px]') : ''}`}
+                                className={` flex-[0_0_80%] md:flex-[0_0_40%] lg:flex-[0_0_25%] pl-4 md:pl-6 min-w-0 transition-all duration-500 ease-in-out ${index % 2 !== 0 ? (isAuthenticated ? 'mt-16 md:mt-22' : 'mt-[60px]') : ''}`}
                             >
                                 <div
                                     className=" bg-transparent border border-b-0 border-white  flex flex-col h-full shadow-lg group cursor-pointer transition-transform hover:-translate-y-1 duration-300"
@@ -165,7 +166,7 @@ export const FeaturedCarousel = () => {
                                     </div>
 
                                     {/* Price / Login Bar (Dark Gray/Black Border Top) */}
-                                    <div className="p-3 md:p-4 border-t border-b border-b-white border-white/10 flex items-center min-h-[50px]">
+                                    <div className="p-3 md:p-4 border-t border-b border-b-white border-white flex items-center min-h-[50px]">
                                         {isLoading ? (
                                             <span className="text-white/50 text-xs">Loading...</span>
                                         ) : isAuthenticated ? (
