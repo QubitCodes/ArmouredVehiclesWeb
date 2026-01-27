@@ -221,6 +221,13 @@ const Navbar = () => {
     return () => document.removeEventListener('mousedown', handler);
   }, []);
 
+  // Close mobile menu when other mobile components request it (e.g. bottom nav)
+  useEffect(() => {
+    const handleClose = () => setMenuOpen(false);
+    window.addEventListener('closeMobileMenu', handleClose as EventListener);
+    return () => window.removeEventListener('closeMobileMenu', handleClose as EventListener);
+  }, []);
+
   return (
     <nav className="fixed top-0 left-0 w-full z-50">
 

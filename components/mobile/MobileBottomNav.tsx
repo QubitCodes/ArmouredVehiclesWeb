@@ -54,6 +54,7 @@ const MobileBottomNav = () => {
             <Link
               key={item.name}
               href={item.href}
+              onClick={() => window.dispatchEvent(new Event('closeMobileMenu'))}
               className="flex flex-col items-center gap-1"
             >
               <Image
@@ -73,7 +74,10 @@ const MobileBottomNav = () => {
 
           {/* MY ACCOUNT – ALWAYS */}
           <button
-            onClick={() => setAccountOpen(true)}
+            onClick={() => {
+              window.dispatchEvent(new Event('closeMobileMenu'));
+              setAccountOpen(true);
+            }}
             className="flex flex-col items-center gap-1"
           >
             <Image
