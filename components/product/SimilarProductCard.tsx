@@ -70,7 +70,13 @@ const SimilarProductCard = ({
           src={displayImage}
           alt={displayName}
           fill
-          className="object-cover"
+          className="object-cover rounded-lg"
+          style={{
+            backgroundColor: "transparent",
+            WebkitTransform: "translateZ(0)",
+            WebkitBackfaceVisibility: "hidden",
+            WebkitMaskImage: "linear-gradient(white, white)",
+          }}
           onError={() => setImgError(true)}
         />
 
