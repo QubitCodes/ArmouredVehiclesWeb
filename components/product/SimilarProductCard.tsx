@@ -8,7 +8,7 @@ import { useAuth } from "@/lib/auth-context";
 import { syncAddToServer } from "@/lib/cart-sync";
 import { useCartStore } from "@/lib/cart-store";
 
-
+xxxxxxx
 interface SimilarProductProps {
   image?: string;
   name?: string;
@@ -33,17 +33,15 @@ const SimilarProductCard = ({
   const router = useRouter();
   const { isAuthenticated, isLoading } = useAuth();
   const [imgError, setImgError] = useState(false);
-  const placeholder = "/placeholder.jpg";
+  const addItem = useCartStore((s) => s.addItem);
 
-  const displayImage = imgError ? placeholder : (image ?? placeholder);
+  const placeholder = "/placeholder.jpg";
+  const displayImage = imgError ? placeholder : image ?? placeholder;
   const displayName = name ?? "Product name";
   const displayRating = rating ?? "4.7";
   const reviewsCount = Number(reviews ?? 0);
   const hasReviews = Number.isFinite(reviewsCount) && reviewsCount > 0;
   const displayPrice = price ?? "99.9";
-  const addItem = useCartStore((s) => s.addItem);
-  console.log('SimilarProductCard action:', action);
-
 
   const ratingValue = (() => {
     if (!hasReviews) return 0;
@@ -51,79 +49,84 @@ const SimilarProductCard = ({
     if (Number.isNaN(n)) return 0;
     return Math.min(5, Math.max(0, n));
   })();
+
   const ratingPercent = (ratingValue / 5) * 100;
 
   const handleNavigate = () => {
-    if (id) {
-      router.push(`/product/${id}`);
-    }
+    if (id) router.push(`/product/${id}`);
   };
 
   return (
     <div className="w-full max-w-[230px] rounded-xl shadow-sm border p-3 bg-[#EBE4D7] hover:shadow-md transition">
-      {/* Product Image + Wishlist */}
-      <div
-        className="relative w-full h-[160px] rounded-lg overflow-hidden bg-[#fff] cursor-pointer border-b border-[#E2DACB]"
-        onClick={handleNavigate}
-      >
-        <Image
-          src={displayImage}
-          alt={displayName}
-          fill
-          className="object-cover rounded-lg"
-          style={{
-            backgroundColor: "transparent",
-            WebkitTransform: "translateZ(0)",
-            WebkitBackfaceVisibility: "hidden",
-            WebkitMaskImage: "linear-gradient(white, white)",
-          }}
-          onError={() => setImgError(true)}
-        />
+      {/* IMAGE WRAPPER (border moved here to avoid iOS bug) */}
+      <div className="rounded-lg overflow-hidden border-b border-[#E2DACB]">
+        <div
+          className="relative w-full h-[160px] bg-white cursor-pointer"
+          onClick={handleNavigate}
+        >
+          <Image
+            src={displayImage}
+            alt={displayName}
+            fill
+            className="object-cover block"
+            onError={() => setImgError(true)}
+            style={{
+              transform: "translateZ(0)",
+              WebkitTransform: "translateZ(0)",
+              backfaceVisibility: "hidden",
+              WebkitBackfaceVisibility: "hidden",
+            }}
+          />
 
-        {/* Heart Icon */}
-        <button className="absolute top-2 right-2 bg-white p-1.5 rounded-full shadow">
-          <Heart size={18} className="text-gray-700" />
-        </button>
+          {/* Wishlist */}
+          <button className="absolute top-2 right-2 bg-white p-1.5 rounded-full shadow">
+            <Heart size={18} className="text-gray-700" />
+          </button>
+        </div>
       </div>
 
-      {/* Rating */}
-      <div className={`flex items-center ${hasReviews ? 'gap-2' : ''} mt-2`}>
-        <div className="relative leading-none">
-          {/* <div className="text-gray-300">★★★★★</div> */}
+      {/* RATING */}
+      <div className={`flex items-center mt-2 ${hasReviews ? "gap-2" : ""}`}>
+        <div className="relative leading-none text-gray-300">
+          ★★★★★
           <div
             className="absolute top-0 left-0 overflow-hidden text-[#D35400]"
             style={{ width: `${ratingPercent}%` }}
-            aria-hidden="true"
           >
             ★★★★★
           </div>
         </div>
         {hasReviews ? (
-          <span className="text-sm text-[#D35400]">{displayRating} ({reviewsCount})</span>
+          <span className="text-sm text-[#D35400]">
+            {displayRating} ({reviewsCount})
+          </span>
         ) : (
           <span className="text-sm text-[#D35400]">No reviews yet</span>
         )}
       </div>
 
-      {/* Title */}
+      {/* TITLE */}
       <p
-        className="text-sm text-black mt-1 leading-tight cursor-pointer hover:text-[#D35400] transition-colors"
+        className="text-sm text-black mt-1 leading-tight cursor-pointer hover:text-[#D35400]"
         onClick={handleNavigate}
       >
         {displayName}
       </p>
 
-      {/* Price - Conditional Display */}
+      {/* PRICE */}
       <div className="mt-1">
         {isLoading ? (
           <span className="text-sm text-gray-400 font-semibold">—</span>
         ) : isAuthenticated ? (
-          <div className="flex items-center justify-between w-full">
-            <div className="text-[20px] font-semibold text-black">AED {Number(displayPrice).toLocaleString()}</div>
+          <div className="flex items-center justify-between">
+            <div className="text-[20px] font-semibold text-black">
+              AED {Number(displayPrice).toLocaleString()}
+            </div>
+
             {isControlled && (
-              <div className="inline-block bg-red-100 text-red-600 text-[10px] px-2 py-0.5 font-bold uppercase tracking-wider border border-red-200">
+              <span className="bg-red-100 text-red-600 text-[10px] px-2 py-0.5 font-bold uppercase border border-red-200">
                 Controlled
-              </div>
+              </span>
             )}
           </div>
         ) : (
@@ -136,30 +139,27 @@ const SimilarProductCard = ({
         )}
       </div>
 
-
-
-
-
+      {/* ADD TO CART */}
       {isAuthenticated && action === "ADD TO CART" && (
         <button
-          className="w-full py-2 md:py-3 font-black font-[Orbitron] uppercase text-sm md:text-[18px] tracking-wide transition bg-[#000000] text-white hover:bg-[#D35400]"
+          className="w-full py-2 md:py-3 mt-2 font-black font-[Orbitron] uppercase text-sm md:text-[18px] tracking-wide transition bg-black text-white hover:bg-[#D35400]"
           onClick={async (e) => {
             e.preventDefault();
-            if (action === "ADD TO CART" && id) {
-              addItem(
-                {
-                  id: String(id ?? displayName + "-" + price),
-                  name: displayName,
-                  price: Number(displayPrice),
-                  image: displayImage,
-                },
-                1
-              );
+            if (!id) return;
 
-              const pid = id ? Number(id) : NaN;
-              if (Number.isFinite(pid)) {
-                await syncAddToServer(pid, 1);
-              }
+            addItem(
+              {
+                id: String(id),
+                name: displayName,
+                price: Number(displayPrice),
+                image: displayImage,
+              },
+              1
+            );
+
+            const pid = Number(id);
+            if (Number.isFinite(pid)) {
+              await syncAddToServer(pid, 1);
             }
           }}
         >
