@@ -29,7 +29,7 @@ export const FeaturedCarousel = () => {
     const [scrollSnaps, setScrollSnaps] = useState<number[]>([]);
 
     const [emblaRef, emblaApi] = useEmblaCarousel({
-        loop: true,
+        loop: false,
         align: 'start',
         skipSnaps: false,
         dragFree: false, // Set to false to enforce snap points/pages
@@ -135,10 +135,10 @@ export const FeaturedCarousel = () => {
                         {products.map((product, index) => (
                             <div
                                 key={product.id}
-                                className={`flex-[0_0_80%] md:flex-[0_0_40%] lg:flex-[0_0_28%] pl-4 md:pl-6 min-w-0 transition-all duration-500 ease-in-out ${index % 2 !== 0 ? (isAuthenticated ? 'mt-16 md:mt-22' : 'mt-[60px]') : ''}`}
+                                className={` flex-[0_0_80%] md:flex-[0_0_40%] lg:flex-[0_0_28%] pl-4 md:pl-6 min-w-0 transition-all duration-500 ease-in-out ${index % 2 !== 0 ? (isAuthenticated ? 'mt-16 md:mt-22' : 'mt-[60px]') : ''}`}
                             >
                                 <div
-                                    className="bg-[#1a1a1a] flex flex-col h-full shadow-lg group cursor-pointer transition-transform hover:-translate-y-1 duration-300"
+                                    className=" bg-transparent border border-b-0 border-white  flex flex-col h-full shadow-lg group cursor-pointer transition-transform hover:-translate-y-1 duration-300"
                                     onMouseEnter={() => setHoveredId(product.id)}
                                     onMouseLeave={() => setHoveredId(null)}
                                     onClick={() => router.push(`/product/${product.id}`)}
@@ -158,14 +158,14 @@ export const FeaturedCarousel = () => {
                                     </div>
 
                                     {/* Title Bar (Black) */}
-                                    <div className="bg-black p-3 md:p-4 min-h-[60px] flex items-center">
+                                    <div className="p-3 md:p-4 min-h-[60px] flex items-center">
                                         <h3 className="text-white font-orbitron font-semibold text-sm md:text-base leading-tight line-clamp-2">
                                             {product.name}
                                         </h3>
                                     </div>
 
                                     {/* Price / Login Bar (Dark Gray/Black Border Top) */}
-                                    <div className="bg-[#1a1a1a] p-3 md:p-4 border-t border-white/10 flex items-center min-h-[50px]">
+                                    <div className="p-3 md:p-4 border-t border-b border-b-white border-white/10 flex items-center min-h-[50px]">
                                         {isLoading ? (
                                             <span className="text-white/50 text-xs">Loading...</span>
                                         ) : isAuthenticated ? (
