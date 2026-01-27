@@ -93,14 +93,14 @@ export default function ProductSpecificationsTable({ productId }: { productId: n
                                                                 return (
                                                                     <div
                                                                         key={item.id}
-                                                                        className={`flex flex-col sm:flex-row ${shouldBorderBottom ? 'border-b border-[#D8D0C0]' : ''} ${isRightCol ? '' : 'lg:border-r lg:border-[#D8D0C0]'}`}
+                                                                        className={`flex flex-row ${shouldBorderBottom ? 'border-b border-[#D8D0C0]' : ''} ${isRightCol ? '' : 'lg:border-r lg:border-[#D8D0C0]'}`}
                                                                     >
-                                                                        <div className="w-full sm:w-1/3 sm:min-w-40 bg-[#EBE3D6] py-2.5 sm:py-3 px-3 sm:px-4 sm:border-r border-[#D8D0C0] flex items-center">
+                                                                        <div className="w-1/3 sm:w-1/3 sm:min-w-40 bg-[#EBE3D6] py-2.5 sm:py-3 px-3 sm:px-4 sm:border-r border-[#D8D0C0] flex items-center">
                                                                             <Typography className="text-xs sm:text-sm font-bold text-black">
                                                                                 {item.label}
                                                                             </Typography>
                                                                         </div>
-                                                                        <div className="w-full sm:flex-1 py-2.5 sm:py-3 px-3 sm:px-4 flex items-center">
+                                                                        <div className="flex-1 py-2.5 sm:py-3 px-3 sm:px-4 flex items-center">
                                                                             <Typography className="text-xs sm:text-sm text-black wrap-break-word whitespace-normal">
                                                                                 {item.value}
                                                                             </Typography>
