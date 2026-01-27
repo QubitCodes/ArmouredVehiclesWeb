@@ -72,7 +72,7 @@ export default function CartPage() {
 
     setIsCheckoutLoading(true);
     try {
-      const res: any = await api.checkout.createSession();
+      const res: any = await api.checkout.createSession({ addressId: address.id });
       const data = res.data || res;
 
       if (data.paymentUrl) {

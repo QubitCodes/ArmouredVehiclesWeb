@@ -232,24 +232,22 @@ export default function OrderSummary({ orderId }: OrderSummaryProps) {
                     const itemImage = item.product?.image || item.image || "/placeholder.jpg";
                     const itemPrice = item.price ? parseFloat(item.price) : 0;
                     return (
-                      <div key={item.id || i} className="flex items-start gap-3 lg:gap-5 border-b border-[#C2B280] last:border-0 pb-3 last:pb-0">
+                      <div key={item.id || i} className="flex items-start gap-3 lg:gap-5 border-b border-[#C2B280] last:border-0 pb-3 last:pb-0 cursor-pointer hover:bg-black/5 p-2 rounded transition-colors"
+                        onClick={() => router.push(`/products/${item.product_id || item.product?.id}`)}>
                         <img
                           src={itemImage}
                           alt={itemName}
                           className="w-16 h-16 lg:w-20 lg:h-20 object-contain flex-shrink-0 bg-white"
+                          onError={(e) => {
+                            (e.target as HTMLImageElement).src = 'https://placehold.co/80x80?text=No+Image';
+                          }}
                         />
                         <div className="flex-1 min-w-0 flex flex-col">
-                          <h3 className="text-xs lg:text-sm font-medium text-black mb-1 line-clamp-2">
+                          <h3 className="text-xs lg:text-sm font-medium text-black mb-1 line-clamp-2 hover:text-[#D35400] transition-colors">
                             {itemName}
                           </h3>
                           <div className="flex items-center gap-1">
-                            <Image
-                              src="/icons/currency/dirham.svg"
-                              alt="AED"
-                              width={12}
-                              height={10}
-                              className="lg:w-[14px] lg:h-[12px]"
-                            />
+                            <span className="text-[10px] lg:text-xs font-bold text-black">AED</span>
                             <span className="font-semibold text-xs lg:text-sm text-black">
                               {itemPrice.toFixed(2)}
                             </span>
@@ -283,12 +281,7 @@ export default function OrderSummary({ orderId }: OrderSummaryProps) {
               <div className="flex items-center justify-between">
                 <span className="font-inter font-normal text-[14px] leading-[100%] tracking-[0%] text-[#666]">Items value <span className="text-[#666]">({allItemsCount} items)</span></span>
                 <div className="flex items-center gap-1">
-                  <Image
-                    src="/icons/currency/dirham.svg"
-                    alt="AED"
-                    width={14}
-                    height={12}
-                  />
+                  <span className="text-xs font-bold text-black">AED</span>
                   <span className="text-sm text-black">{totalAmount.toFixed(2)}</span>
                 </div>
               </div>
@@ -312,12 +305,7 @@ export default function OrderSummary({ orderId }: OrderSummaryProps) {
               <div className="flex items-center justify-between pt-3">
                 <span className="font-inter font-semibold text-[16px] leading-[100%] tracking-[0%] text-[#6E6E6E]">Order total <span className="font-normal text-[#666]">inc. VAT</span></span>
                 <div className="flex items-center gap-1">
-                  <Image
-                    src="/icons/currency/dirham.svg"
-                    alt="AED"
-                    width={14}
-                    height={12}
-                  />
+                  <span className="text-[#6E6E6E] font-bold text-xs">AED</span>
                   <span className="font-inter font-semibold text-[16px] leading-[100%] tracking-[0%] text-[#6E6E6E]">{totalAmount.toFixed(2)}</span>
                 </div>
               </div>
@@ -331,37 +319,56 @@ export default function OrderSummary({ orderId }: OrderSummaryProps) {
             </h2>
 
             <div className="space-y-4 font-inter text-sm text-[#666]">
-              <div className="flex flex-col">
-                <span className="font-bold text-black uppercase text-xs mb-1">Name:</span>
-                <span className="font-medium text-[#6E6E6E]">{address.name || "N/A"}</span>
-              </div>
+              {(() => {
+                // Prioritize shipment_details (stored snapshot), fallback to current user address relation
+                const shipping = (primaryOrder as any).shipment_details || {};
+                // Use address from order relation if shipment_details is empty/invalid
+                const addr = (Object.keys(shipping).length > 0) ? shipping : (address || {});
 
-              <div className="flex flex-col">
-                <span className="font-bold text-black uppercase text-xs mb-1">Address:</span>
-                <div className="font-normal leading-relaxed text-[#6E6E6E]">
-                  <p>{address.address_line1 || address.addressLine1 || "N/A"}</p>
-                  {(address.address_line2 || address.addressLine2) && (
-                    <p>{address.address_line2 || address.addressLine2}</p>
-                  )}
-                  <p>
-                    {[address.city, address.state].filter(Boolean).join(", ")}
-                    {(address.postalCode || address.postal_code) ? ` - ${address.postalCode || address.postal_code}` : ""}
-                  </p>
-                  <p>{address.country}</p>
-                </div>
-              </div>
+                const name = addr.name || addr.full_name || "N/A";
+                const addressLine1 = addr.address_line1 || addr.addressLine1 || "N/A";
+                const addressLine2 = addr.address_line2 || addr.addressLine2;
+                const city = addr.city;
+                const state = addr.state;
+                const postalCode = addr.postal_code || addr.postalCode;
+                const country = addr.country || "UAE";
+                const phone = addr.phone || addr.mobile_number || "N/A";
+                const email = addr.email;
 
-              <div className="flex flex-col">
-                <span className="font-bold text-black uppercase text-xs mb-1">Phone:</span>
-                <span className="font-medium text-[#6E6E6E]">{address.phone || "N/A"}</span>
-              </div>
+                return (
+                  <>
+                    <div className="flex flex-col">
+                      <span className="font-bold text-black uppercase text-xs mb-1">Name:</span>
+                      <span className="font-medium text-[#6E6E6E]">{name}</span>
+                    </div>
 
-              {address.email && (
-                <div className="flex flex-col">
-                  <span className="font-bold text-black uppercase text-xs mb-1">Email:</span>
-                  <span className="font-medium text-[#6E6E6E]">{address.email}</span>
-                </div>
-              )}
+                    <div className="flex flex-col">
+                      <span className="font-bold text-black uppercase text-xs mb-1">Address:</span>
+                      <div className="font-normal leading-relaxed text-[#6E6E6E]">
+                        <p>{addressLine1}</p>
+                        {addressLine2 && <p>{addressLine2}</p>}
+                        <p>
+                          {[city, state].filter(Boolean).join(", ")}
+                          {postalCode ? ` - ${postalCode}` : ""}
+                        </p>
+                        <p>{country}</p>
+                      </div>
+                    </div>
+
+                    <div className="flex flex-col">
+                      <span className="font-bold text-black uppercase text-xs mb-1">Phone:</span>
+                      <span className="font-medium text-[#6E6E6E]">{phone}</span>
+                    </div>
+
+                    {email && (
+                      <div className="flex flex-col">
+                        <span className="font-bold text-black uppercase text-xs mb-1">Email:</span>
+                        <span className="font-medium text-[#6E6E6E]">{email}</span>
+                      </div>
+                    )}
+                  </>
+                );
+              })()}
             </div>
           </div>
         </div>
