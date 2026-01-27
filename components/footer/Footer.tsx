@@ -53,9 +53,9 @@ const Footer = ({ disableMobileBottomSpace = false }: FooterProps) => {
 
   const aboutUs = [
     { title: "About Armored Mart", href: "/about" },
-    { title: "Sell with Us", href: "/sell-with-us" },
+    { title: "Sell with Us", href: "https://amadmin.vercel.app/vendor/login" },
     { title: "Consumer Rights", href: "/consumer-rights" },
-     { title: "Careers", href: "/https://linkedin.com/company/armoredmart" },
+    //  { title: "Careers", href: "/https://linkedin.com/company/armoredmart" },
   ];
 
 
