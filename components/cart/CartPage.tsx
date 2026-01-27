@@ -78,7 +78,8 @@ export default function CartPage() {
       if (data.paymentUrl) {
         window.location.href = data.paymentUrl;
       } else if (data.requiresApproval) {
-        router.push('/profile/orders');
+        const targetId = data.orderId || (data as any).id;
+        router.push(`/orders/summary/${targetId}?approval_required=true`);
       } else {
         console.error("Unknown checkout response", res);
         setError("Unexpected response from server");
