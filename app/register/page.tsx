@@ -24,14 +24,29 @@ export default function RegisterPage() {
     countryCode: "971",
   });
 
-  // Stages: start -> magic_link_sent
-  const [stage, setStage] = useState<"start" | "magic_link_sent">("start");
+  // Stages: start -> magic_link_sent -> verifying
+  const [stage, setStage] = useState<"start" | "magic_link_sent" | "verifying">("start");
 
   const [loading, setLoading] = useState(false);
   const loadingState = loading || firebaseLoading;
 
+  // Restore form from localStorage on mount
+  useEffect(() => {
+    const saved = localStorage.getItem('reg_form');
+    if (saved) {
+      try {
+        const parsed = JSON.parse(saved);
+        setForm(prev => ({ ...prev, ...parsed }));
+      } catch (e) {
+        // ignore
+      }
+    }
+  }, []);
+
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setForm({ ...form, [e.target.name]: e.target.value });
+    const updated = { ...form, [e.target.name]: e.target.value };
+    setForm(updated);
+    localStorage.setItem('reg_form', JSON.stringify(updated));
   };
 
   const showError = (msg: string) => {
@@ -44,6 +59,7 @@ export default function RegisterPage() {
   useEffect(() => {
     const checkMagicLink = async () => {
       if (isMagicLink(window.location.href)) {
+        setStage("verifying"); // Show verifying UI immediately
         setLoading(true);
         try {
           // Retrieve email
@@ -71,11 +87,16 @@ export default function RegisterPage() {
           }
 
           if (!email) {
-            email = window.prompt("Please enter your email to confirm registration");
+            // If we can't find email, ask user or fail
+            // Failing is safer than prompting in a "verifying" view, 
+            // but prompt works if we want to be persistent.
+            // Let's stick to prompt for now as fallback.
+            email = window.prompt("Please confirm your email address to complete verification");
           }
 
           if (!email) {
             showError("Email required to verify.");
+            setStage("start"); // Go back to start if failed
             setLoading(false);
             return;
           }
@@ -92,6 +113,7 @@ export default function RegisterPage() {
 
         } catch (err: any) {
           showError(err.message || "Failed to verify email link");
+          setStage("start");
           setLoading(false);
         }
       }
@@ -151,7 +173,16 @@ export default function RegisterPage() {
           <p className="text-sm text-gray-700 mb-6">
             {stage === 'start' && 'Enter your details to get started'}
             {stage === 'magic_link_sent' && 'Please check your email'}
+            {stage === 'verifying' && 'Verifying credentials...'}
           </p>
+
+          {stage === 'verifying' && (
+            <div className="py-10 flex flex-col items-center justify-center">
+              <div className="animate-spin rounded-full h-10 w-10 border-b-2 border-[#D35400] mb-4"></div>
+              <p className="font-semibold text-gray-800">Verifying Email Link...</p>
+              <p className="text-xs text-gray-500 mt-2">Please wait while we log you in.</p>
+            </div>
+          )}
 
           {stage === 'start' && (
             <>
