@@ -250,7 +250,7 @@ function LoginForm() {
 
                         <input
                             type="text"
-                            placeholder="Email or Phone (e.g. +91 999...)"
+                            placeholder="Email or Phone (e.g. +971 55...)"
                             value={identifier}
                             disabled={stage !== 'start'}
                             onChange={(e) => setIdentifier(e.target.value)}
