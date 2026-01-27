@@ -128,8 +128,10 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       const onboardingStep = (user as any).onboarding_step ?? (user as any).onboardingStep;
 
       if (onboardingStep === 0) {
-        // Allow access to: /create-account, /logout
-        if (!pathname.startsWith('/create-account') && !pathname.startsWith('/logout')) {
+        // Allow access to: /create-account, /buyer-onboarding, /logout
+        if (!pathname.startsWith('/create-account') &&
+          !pathname.startsWith('/buyer-onboarding') &&
+          !pathname.startsWith('/logout')) {
           console.log(`[AuthMiddleware] Redirecting to /create-account. User State:`, { step: onboardingStep, verified: user.phone_verified });
           router.replace('/create-account');
         }
