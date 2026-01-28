@@ -49,7 +49,7 @@ export default function ReviewsTab({ reviews = [], rating = 0, reviewCount = 0 }
                     </div>
                     <div className="text-sm text-gray-600 mb-6">Based on {reviewCount} ratings</div>
 
-                    {/* <div className="space-y-2">
+                    <div className="space-y-2 hidden sm:block">
                         {distribution.map((item) => (
                             <div key={item.stars} className="flex items-center gap-2 text-xs">
                                 <span className="w-4 font-bold">{item.stars} ★</span>
@@ -62,7 +62,7 @@ export default function ReviewsTab({ reviews = [], rating = 0, reviewCount = 0 }
                                 <span className="w-8 text-right text-gray-500">{Math.round(item.percentage)}%</span>
                             </div>
                         ))}
-                    </div> */}
+                    </div>
 
                     <div className="mt-8 space-y-4">
                        <div className="space-y-1">
