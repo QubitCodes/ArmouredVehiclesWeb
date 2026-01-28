@@ -190,8 +190,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       clearTokens();
       setUser(null);
       setIsLoading(false);
-      // Optional: redirect to login
-      router.push('/login');
+      // Redirect to home page
+      router.push('/');
     }
   }, [router]);
 
