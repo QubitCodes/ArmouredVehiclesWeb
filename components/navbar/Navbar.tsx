@@ -3,7 +3,7 @@
 import { useCartStore } from '@/lib/cart-store';
 import Link from 'next/link';
 import Image from 'next/image';
-import { Search } from 'lucide-react';
+import { Search, ChevronLeft, ChevronRight } from 'lucide-react';
 import { useState, useEffect, useRef, useMemo } from 'react';
 import { useAuth } from '@/lib/auth-context';
 import { profileMenuItems } from '@/lib/constants/profileMenu';
@@ -99,7 +99,10 @@ const Navbar = () => {
   const containerRef = useRef<HTMLDivElement | null>(null);
   const measureRef = useRef<HTMLDivElement | null>(null);
   const profileRef = useRef<HTMLDivElement | null>(null);
+  const scrollContainerRef = useRef<HTMLDivElement | null>(null);
   const [profileDropdownOpen, setProfileDropdownOpen] = useState(false);
+  const [canScrollLeft, setCanScrollLeft] = useState(false);
+  const [canScrollRight, setCanScrollRight] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
   const [isSearching, setIsSearching] = useState(false);
   const router = useRouter();
@@ -228,6 +231,48 @@ const Navbar = () => {
     window.addEventListener('closeMobileMenu', handleClose as EventListener);
     return () => window.removeEventListener('closeMobileMenu', handleClose as EventListener);
   }, []);
+
+  // Check scroll position for arrow visibility
+  const checkScrollPosition = () => {
+    const container = scrollContainerRef.current;
+    if (!container) return;
+
+    const { scrollLeft, scrollWidth, clientWidth } = container;
+    setCanScrollLeft(scrollLeft > 0);
+    setCanScrollRight(scrollLeft < scrollWidth - clientWidth - 1);
+  };
+
+  // Scroll handler
+  const scroll = (direction: 'left' | 'right') => {
+    const container = scrollContainerRef.current;
+    if (!container) return;
+
+    const scrollAmount = 300;
+    const targetScroll = direction === 'left'
+      ? container.scrollLeft - scrollAmount
+      : container.scrollLeft + scrollAmount;
+
+    container.scrollTo({
+      left: targetScroll,
+      behavior: 'smooth'
+    });
+  };
+
+  // Update scroll position on scroll and resize
+  useEffect(() => {
+    const container = scrollContainerRef.current;
+    if (!container) return;
+
+    checkScrollPosition();
+
+    container.addEventListener('scroll', checkScrollPosition);
+    window.addEventListener('resize', checkScrollPosition);
+
+    return () => {
+      container.removeEventListener('scroll', checkScrollPosition);
+      window.removeEventListener('resize', checkScrollPosition);
+    };
+  }, [navItems]);
 
   return (
     <nav className="fixed top-0 left-0 w-full z-50">
@@ -587,22 +632,38 @@ const Navbar = () => {
 
         </div>
       </div>
-      {/* SECONDARY NAVBAR (Desktop Only) */}
+      {/* SECONDARY NAVBAR (Desktop Only) - Horizontal Slider */}
       <div
         className={`bg-[#39482C] text-white relative hidden lg:block
   transition-all duration-300 ease-in-out
   ${showSecondaryNav ? "translate-y-0 opacity-100" : "-translate-y-full opacity-0"}
   `}
       >
-        <div className="container-figma">
-          <div className="flex items-center h-[50px]" ref={containerRef}>
-
-            {visibleCount > 0 && (
-              <div
-                ref={desktopMenuRef}
-                className="items-center ml-6 h-[50px] flex justify-start"
+        <div className="container-figma relative">
+          <div className="flex items-center h-[50px] relative" ref={containerRef}>
+            
+            {/* Left Scroll Button */}
+            {canScrollLeft && (
+              <button
+                onClick={() => scroll('left')}
+                className="absolute left-0 z-10 h-full px-2 bg-gradient-to-r from-[#39482C] via-[#39482C] to-transparent hover:from-[#2d3722] flex items-center justify-center transition-colors"
+                aria-label="Scroll left"
               >
-                {navItems.slice(0, visibleCount).map((item) => (
+                <ChevronLeft className="w-6 h-6 text-white" />
+              </button>
+            )}
+
+            {/* Scrollable Container */}
+            <div
+              ref={scrollContainerRef}
+              className="flex items-center h-[50px] overflow-x-auto scrollbar-hide scroll-smooth flex-1"
+              style={{
+                scrollbarWidth: 'none',
+                msOverflowStyle: 'none',
+              }}
+            >
+              <div className="flex items-center h-full">
+                {navItems.map((item) => (
                   <Link
                     key={item.id}
                     href={`/products?category=${item.id}`}
@@ -613,26 +674,28 @@ const Navbar = () => {
                   </Link>
                 ))}
               </div>
-            )}
-
-            {/* Hidden measurer */}
-            <div
-              ref={measureRef}
-              aria-hidden
-              className="invisible absolute left-[-9999px] top-[-9999px] whitespace-nowrap flex items-center"
-            >
-              {navItems.map((item) => (
-                <div
-                  key={item.id}
-                  className="h-[50px] px-4 text-[13px] font-medium whitespace-nowrap"
-                >
-                  {item.name}
-                </div>
-              ))}
             </div>
+
+            {/* Right Scroll Button */}
+            {canScrollRight && (
+              <button
+                onClick={() => scroll('right')}
+                className="absolute right-0 z-10 h-full px-2 bg-gradient-to-l from-[#39482C] via-[#39482C] to-transparent hover:from-[#2d3722] flex items-center justify-center transition-colors"
+                aria-label="Scroll right"
+              >
+                <ChevronRight className="w-6 h-6 text-white" />
+              </button>
+            )}
 
           </div>
         </div>
+
+        {/* Add custom CSS to hide scrollbar */}
+        <style jsx>{`
+          .scrollbar-hide::-webkit-scrollbar {
+            display: none;
+          }
+        `}</style>
 
       </div>
 
