@@ -171,8 +171,10 @@ export const FeaturedCarousel = () => {
                                             <span className="text-white/50 text-xs">Loading...</span>
                                         ) : isAuthenticated ? (
                                             <div className="flex items-center gap-2">
-                                                <span className="text-[#FF5C00] font-orbitron font-bold text-lg">
-                                                    AED {product.price.toLocaleString()}
+                                                <Image src="/icons/currency/dirham-white.svg" alt="Currency" width={16} height={16} className="opacity-60 md:w-5 md:h-5 3xl:w-6 3xl:h-6" />
+
+                                                <span className="text-white font-orbitron font-bold text-lg">
+                                                    {product.price.toLocaleString()}
                                                 </span>
                                             </div>
                                         ) : (
