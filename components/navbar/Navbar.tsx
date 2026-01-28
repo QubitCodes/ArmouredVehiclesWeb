@@ -8,7 +8,7 @@ import { useState, useEffect, useRef, useMemo } from 'react';
 import { useAuth } from '@/lib/auth-context';
 import { profileMenuItems } from '@/lib/constants/profileMenu';
 import { searchProducts } from '@/app/services/auth';
-import { useRouter } from 'next/navigation';
+import { useRouter, usePathname } from 'next/navigation';
 import { useCategories } from "@/hooks/use-categories";
 
 
@@ -103,6 +103,7 @@ const Navbar = () => {
   const [searchQuery, setSearchQuery] = useState('');
   const [isSearching, setIsSearching] = useState(false);
   const router = useRouter();
+  const pathname = usePathname();
   const cartCount = useCartStore((s) => s.count());
 
   // Handle search
@@ -569,15 +570,17 @@ const Navbar = () => {
                   </Link>
                 </>
               ) : (
-                <>
-                  <Link href="/login">
-                    <div className="bg-[#D35400] hover:bg-[#39482C] text-white clip-path-supplier flex items-center justify-center w-[140px] h-[45px]">
-                      <span className="font-black text-[20px] font-orbitron uppercase">
-                        LOGIN
-                      </span>
-                    </div>
-                  </Link>
-                </>
+                pathname === '/login' ? null : (
+                  <>
+                    <Link href="/login">
+                      <div className="bg-[#D35400] hover:bg-[#39482C] text-white clip-path-supplier flex items-center justify-center w-[140px] h-[45px]">
+                        <span className="font-black text-[20px] font-orbitron uppercase">
+                          LOGIN
+                        </span>
+                      </div>
+                    </Link>
+                  </>
+                )
               )}
             </div>
           </div>
