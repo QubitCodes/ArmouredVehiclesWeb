@@ -221,7 +221,7 @@ export default function ProductCard({
               }}
               className="text-sm font-medium text-black cursor-pointer hover:underline"
             >
-              Login to Purchase
+              Login to access product pricing
             </span>
           )}
 

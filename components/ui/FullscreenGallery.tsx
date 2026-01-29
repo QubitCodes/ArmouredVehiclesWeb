@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useRef } from "react";
+import React, { useRef, useEffect } from "react";
 import { X, ChevronLeft, ChevronRight } from "lucide-react";
 import Image from "next/image";
 
@@ -44,6 +44,23 @@ export default function FullscreenGallery({
       prev();
     }
   };
+
+  useEffect(() => {
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key === "ArrowRight") {
+        e.preventDefault();
+        setCurrent((c) => (c === images.length - 1 ? 0 : c + 1));
+      } else if (e.key === "ArrowLeft") {
+        e.preventDefault();
+        setCurrent((c) => (c === 0 ? images.length - 1 : c - 1));
+      } else if (e.key === "Escape") {
+        onClose();
+      }
+    };
+
+    window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
+  }, [images.length, onClose]);
 
   return (
     <div className="fixed inset-0 bg-black/90 z-[9999] flex items-center justify-center">

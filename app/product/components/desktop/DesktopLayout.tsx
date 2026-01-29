@@ -360,7 +360,7 @@ const DesktopLayout = ({ id, product }: { id?: string; product?: any }) => {
                             </div>
                                 </>
                             ) : (
-                                <div className="text-center py-8">
+                                <div className="text-start py-8">
                                     <span
                                         onClick={() => {
                                             const currentPath = window.location.pathname;
@@ -368,7 +368,7 @@ const DesktopLayout = ({ id, product }: { id?: string; product?: any }) => {
                                         }}
                                         className="text-[20px] font-medium text-black cursor-pointer hover:underline"
                                     >
-                                        Login to Purchase
+                                        Login to access product pricing
                                     </span>
                                 </div>
                             )}

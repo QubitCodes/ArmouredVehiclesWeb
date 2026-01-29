@@ -125,7 +125,7 @@ const SimilarProductCard = ({
             onClick={() => router.push("/login")}
             className="text-sm font-medium text-black cursor-pointer hover:underline"
           >
-            Login to view price
+            Login to access product pricing
           </span>
         )}
       </div>

@@ -195,7 +195,7 @@ export default function ProductPurchaseSection({
                         }}
                         className="text-[20px] font-medium text-black cursor-pointer hover:underline"
                     >
-                        Login to Purchase
+                        Login to access product pricing
                     </span>
                 )}
                 {/* SKU - visible only on mobile */}
