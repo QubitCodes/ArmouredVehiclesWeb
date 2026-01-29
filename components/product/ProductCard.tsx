@@ -169,9 +169,9 @@ export default function ProductCard({
           </button>
         )}
 
-        {/* Controlled badge overlapping the image - moved to bottom-right */}
+        {/* Controlled badge overlapping the image - show on all sizes (match mobile) */}
         {isControlled && (
-          <div className="absolute bottom-0 right-0 md:bottom-3 md:right-3 bg-red-100 text-red-600 text-[10px] md:text-xs px-2 py-0.5 font-bold uppercase tracking-wider border border-red-200 z-20 md:hidden">
+          <div className="absolute bottom-0 right-0 md:bottom-0 md:right-0 bg-red-100 text-red-600 text-[10px] md:text-xs px-2 py-0.5 font-bold uppercase tracking-wider border border-red-200 z-20">
             Controlled
           </div>
         )}
@@ -206,11 +206,7 @@ export default function ProductCard({
                 <Image src="/icons/currency/dirham.svg" alt="Currency" width={16} height={16} />
                 {price.toLocaleString()}
               </p>
-              {isControlled && (
-                <div className="hidden md:inline-block bg-red-100 text-red-600 text-[10px] md:text-xs px-2 py-0.5 font-bold uppercase tracking-wider border border-red-200 w-fit">
-                  Controlled
-                </div>
-              )}
+              {/* Desktop price-level badge removed to use overlay badge instead */}
             </div>
           ) : (
             <span
