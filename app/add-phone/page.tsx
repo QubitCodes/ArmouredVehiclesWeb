@@ -234,6 +234,14 @@ export default function AddPhonePage() {
                   setPhoneInput(value);
                   setCountryCode(data.dialCode);
                 }}
+                inputProps={{
+                  onKeyDown: (e: any) => {
+                    if (e.key === 'Enter' && !loadingState) {
+                      e.preventDefault();
+                      handleSendOtp();
+                    }
+                  }
+                }}
                 enableSearch={true}
                 disableSearchIcon={true}
                 searchPlaceholder="Search Country..."
