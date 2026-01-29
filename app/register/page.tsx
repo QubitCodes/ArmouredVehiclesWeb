@@ -208,6 +208,7 @@ export default function RegisterPage() {
                 placeholder="Email Address"
                 value={form.email}
                 onChange={handleChange}
+                onKeyDown={(e) => { if (e.key === 'Enter') { e.preventDefault(); handleStart(); } }}
                 className="w-full mb-5 px-4 py-3 border border-[#D6CFC2] bg-transparent text-sm text-black focus:outline-none"
               />
               <button

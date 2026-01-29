@@ -254,6 +254,7 @@ function LoginForm() {
                             value={identifier}
                             disabled={stage !== 'start'}
                             onChange={(e) => setIdentifier(e.target.value)}
+                            onKeyDown={(e) => { if (e.key === 'Enter') { e.preventDefault(); handleContinue(); } }}
                             className="w-full mb-3 px-4 py-3 border border-[#C7B88A] bg-transparent text-sm text-black placeholder:text-[#9D9A95] focus:outline-none disabled:opacity-50"
                         />
 
