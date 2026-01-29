@@ -415,9 +415,22 @@ const Navbar = () => {
                 </div>
 
                 {/* Categories Header */}
-                {/* <div className="px-4 py-3 bg-[#39482C]">
-                  <span className="text-sm font-bold text-white uppercase tracking-wider font-orbitron">Categories</span>
-                </div> */}
+                {/* Buttons: Supplier zone + Login */}
+                <div className="px-4 py-3 bg-white border-b border-gray-100">
+                  <div className="flex gap-3">
+                    <Link href="https://amadmin.vercel.app/vendor/login/" target="_blank" className="flex-1" onClick={() => setMenuOpen(false)}>
+                      <div className="bg-[#39482C] hover:bg-[#D35400] text-white clip-path-supplier flex items-center justify-center w-full h-[44px]">
+                        <span className="font-black text-[14px] font-orbitron uppercase">SUPPLIER ZONE</span>
+                      </div>
+                    </Link>
+
+                    <Link href="/login" className="flex-1" onClick={() => setMenuOpen(false)}>
+                      <div className="bg-[#D35400] hover:bg-[#39482C] text-white clip-path-supplier flex items-center justify-center w-full h-[44px]">
+                        <span className="font-black text-[14px] font-orbitron uppercase">LOGIN</span>
+                      </div>
+                    </Link>
+                  </div>
+                </div>
                 {navItems.length === 0 ? (
                   <div className="flex items-center justify-center py-6 bg-white">
                     <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-[#D35400]"></div>
