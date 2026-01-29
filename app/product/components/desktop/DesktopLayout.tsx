@@ -233,7 +233,7 @@ const DesktopLayout = ({ id, product }: { id?: string; product?: any }) => {
                     </div>
 
                     {/* Right: Product Details Box - Takes 1/3 width */}
-                    <div className="lg:col-span-1">
+                    <div className="lg:col-span-1 lg:pr-[140px]">
                         <div className="bg-[#F0EBE3] rounded-lg p-6 shadow-md sticky font-orbitron top-32">
                             <h3 className="text-xl font-bold text-black mb-4">
                                 {product?.name}
