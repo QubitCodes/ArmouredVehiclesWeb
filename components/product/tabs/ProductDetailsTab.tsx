@@ -8,7 +8,7 @@ interface ProductDetailsTabProps {
 
 export default function ProductDetailsTab({ product }: ProductDetailsTabProps) {
     return (
-        <div className="bg-[#EBE3D6] p-6 font-sans text-black">
+        <div className="p-6 font-sans text-black">
             <h3 className="font-orbitron font-bold text-lg mb-4 uppercase">PRODUCT DETAILS</h3>
 
             <div className="text-xs md:text-sm leading-relaxed mb-8 space-y-4">

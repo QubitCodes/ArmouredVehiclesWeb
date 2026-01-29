@@ -35,7 +35,7 @@ export default function ProductSpecificationsTable({ productId }: { productId: n
 
     return (
         <div className="my-1 font-sans max-w-4xl">
-            <div className="bg-[#EBE3D6] p-3 sm:p-4">
+            <div className=" p-3 sm:p-4">
                 <Typography variant="h2" className="font-orbitron text-base sm:text-lg font-bold text-black mb-3 sm:mb-4 uppercase tracking-wider">
                     Technical Details
                 </Typography>
@@ -69,7 +69,7 @@ export default function ProductSpecificationsTable({ productId }: { productId: n
                             return (
                                 <div key={section.title.id} className={`flex flex-col ${sIdx > 0 ? 'mt-3' : ''}`}>
                                     {/* Section Header */}
-                                    <div className="bg-[#F0EBE3] border-b border-[#D8D0C0] py-2 sm:py-2.5 px-3 sm:px-4">
+                                    <div className=" border-b border-[#D8D0C0] py-2 sm:py-2.5 px-3 sm:px-4">
                                         <Typography className="text-xs sm:text-xs font-bold text-black uppercase tracking-wider font-orbitron">
                                             {section.title.label}
                                         </Typography>
@@ -95,7 +95,7 @@ export default function ProductSpecificationsTable({ productId }: { productId: n
                                                                         key={item.id}
                                                                         className={`flex flex-row ${shouldBorderBottom ? 'border-b border-[#D8D0C0]' : ''} ${isRightCol ? '' : 'lg:border-r lg:border-[#D8D0C0]'}`}
                                                                     >
-                                                                        <div className="w-1/3 sm:w-1/3 sm:min-w-40 bg-[#EBE3D6] py-2.5 sm:py-3 px-3 sm:px-4 sm:border-r border-[#D8D0C0] flex items-center">
+                                                                        <div className="w-1/3 sm:w-1/3 sm:min-w-40 py-2.5 sm:py-3 px-3 sm:px-4 sm:border-r border-[#D8D0C0] flex items-center">
                                                                             <Typography className="text-xs sm:text-sm font-bold text-black">
                                                                                 {item.label}
                                                                             </Typography>

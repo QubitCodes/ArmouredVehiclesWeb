@@ -15,7 +15,7 @@ export default function AttributesTab({ product }: AttributesTabProps) {
     }
 
     return (
-        <div className="bg-[#EBE3D6] font-sans text-black space-y-6">
+        <div className=" font-sans text-black space-y-6">
             {/* Technical Details (API-driven) */}
             {product?.id != null && (
                 <ProductSpecificationsTable productId={Number(product.id)} />

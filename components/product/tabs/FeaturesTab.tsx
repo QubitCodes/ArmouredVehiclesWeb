@@ -6,7 +6,7 @@ interface FeaturesTabProps {
 
 export default function FeaturesTab({ features = [] }: FeaturesTabProps) {
     return (
-        <div className="bg-[#EBE3D6] p-6 font-sans text-black">
+        <div className=" p-6 font-sans text-black">
             <h3 className="font-orbitron font-bold text-lg mb-4 uppercase">FEATURES</h3>
 
             {(!features || features.length === 0) ? (

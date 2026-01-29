@@ -32,7 +32,7 @@ export default function ReviewsTab({ reviews = [], rating = 0, reviewCount = 0 }
     });
 
     return (
-        <div className="bg-[#EBE3D6] p-4 font-sans text-black">
+        <div className=" p-4 font-sans text-black">
             <h3 className="font-orbitron font-bold text-xl mb-6 uppercase">Product Ratings & Reviews</h3>
 
             <div className="flex flex-col lg:flex-row gap-8">

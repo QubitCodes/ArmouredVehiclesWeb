@@ -225,7 +225,7 @@ const DesktopLayout = ({ id, product }: { id?: string; product?: any }) => {
 
 
             {/* product tabs */}
-            <Container className="my-6">
+            {/* <Container className="my-6"> */}
                 <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
                     {/* Left: Tabbed Content - Takes 2/3 width */}
                     <div className="lg:col-span-2">
@@ -375,7 +375,7 @@ const DesktopLayout = ({ id, product }: { id?: string; product?: any }) => {
                         </div>
                     </div>
                 </div>
-            </Container>
+            {/* </Container> */}
 
             {
                 showGallery && (

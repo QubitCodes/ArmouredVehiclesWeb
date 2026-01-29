@@ -54,12 +54,12 @@ const TabbedSection = ({
   };
 
   return (
-    <div className={`bg-[#EBE3D6] ${className}`}>
+    <div className={` ${className}`}>
 
       {/* ---------------- DESKTOP: STICKY TABS + STACKED CONTENT ---------------- */}
       <div className="hidden md:block">
         {/* Sticky Header - positioned below main navbar (navbar ~120px on desktop) */}
-        <div className="sticky top-[120px] z-[51] bg-[#F0EBE3] border-b border-gray-300 shadow-sm pointer-events-auto">
+        <div className="sticky top-[127px] z-[51]  border-b border-gray-300 shadow-sm pointer-events-auto">
           <div className="flex container-figma relative">
             {tabs.map((tab) => (
               <button
@@ -67,7 +67,7 @@ const TabbedSection = ({
                 type="button"
                 onClick={() => scrollToSection(tab.id)}
                 className={`flex-1 px-6 py-4 font-bold text-sm font-[Orbitron] uppercase tracking-wider transition-colors text-center flex items-center justify-center cursor-pointer relative z-10 ${activeTab === tab.id
-                  ? "text-black border-b-2 border-black bg-[#EBE3D6]"
+                  ? "text-black border-b-2 border-black bg-[#F0EBE3]"
                   : "text-gray-600 hover:text-black bg-[#F0EBE3]"
                   }`}
               >
