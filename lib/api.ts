@@ -301,12 +301,12 @@ export const api = {
 
     // --- Firebase Auth ---
     checkUser: async (identifier: string): Promise<{ exists: boolean; data?: any }> => {
-      // POST /auth/user-exists
+      // POST /auth/user-exists - filter by customer userType
       try {
         const response = await fetch(`${API_BASE}/auth/user-exists`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ identifier }),
+            body: JSON.stringify({ identifier, userType: 'customer' }),
         });
         const data = await response.json();
         // 200 = Exists, 404 = Not found
