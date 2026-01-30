@@ -9,6 +9,8 @@ import { useRouter } from "next/navigation";
 import { useAuth } from "@/lib/auth-context";
 import ShippingSection from "./shipping/ShippingSection";
 
+import { useEffect, useState } from "react";
+
 
 
 
@@ -57,6 +59,12 @@ export default function ProductPurchaseSection({
 
     const { isInWishlist, toggleWishlist } = useWishlist();
     const isLiked = isInWishlist(productId);
+    const [inputValue, setInputValue] = useState<string | null>(null);
+
+    useEffect(() => {
+        const hasMin = typeof minOrderQuantity === 'number' && minOrderQuantity > 0;
+        setQuantity(hasMin ? (minOrderQuantity as number) : 0);
+    }, [minOrderQuantity, setQuantity]);
 
     function getDeliveryRange(minDays: number, maxDays: number) {
         const start = new Date();
@@ -132,24 +140,34 @@ export default function ProductPurchaseSection({
                                 )}
                                 <div className="flex items-center border border-[#B7B1A8] bg-[#EBE4D7] mt-1 h-10 w-40">
                                     <button
-                                        onClick={() => setQuantity(Math.max(typeof minOrderQuantity === 'number' && minOrderQuantity > 0 ? minOrderQuantity : 1, quantity - 1))}
+                                        onClick={() => {
+                                            setQuantity(Math.max(typeof minOrderQuantity === 'number' && minOrderQuantity > 0 ? minOrderQuantity : 0, quantity - 1));
+                                            setInputValue(null);
+                                        }}
                                         className="w-10 h-full flex items-center justify-center text-black hover:bg-[#D8D1C5] transition"
                                     >
                                         <Minus size={16} />
                                     </button>
                                     <input
                                         type="number"
-                                        value={quantity}
+                                        value={inputValue ?? String(quantity)}
+                                        onFocus={() => setInputValue("")}
                                         onChange={(e) => {
-                                            const val = parseInt(e.target.value);
-                                            const min = (typeof minOrderQuantity === 'number' && minOrderQuantity > 0) ? minOrderQuantity : 1;
+                                            const raw = e.target.value;
+                                            setInputValue(raw);
+                                            const val = parseInt(raw);
+                                            const min = (typeof minOrderQuantity === 'number' && minOrderQuantity > 0) ? minOrderQuantity : 0;
                                             if (!isNaN(val) && val >= min) setQuantity(val);
                                         }}
+                                        onBlur={() => setInputValue(null)}
                                         className="flex-1 w-full h-full bg-transparent text-center text-black outline-none appearance-none [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none"
-                                        min={(typeof minOrderQuantity === 'number' && minOrderQuantity > 0) ? minOrderQuantity : 1}
+                                        min={(typeof minOrderQuantity === 'number' && minOrderQuantity > 0) ? minOrderQuantity : 0}
                                     />
                                     <button
-                                        onClick={() => setQuantity(quantity + 1)}
+                                        onClick={() => {
+                                            setQuantity(quantity + 1);
+                                            setInputValue(null);
+                                        }}
                                         className="w-10 h-full flex items-center justify-center text-black hover:bg-[#D8D1C5] transition"
                                     >
                                         <Plus size={16} />
