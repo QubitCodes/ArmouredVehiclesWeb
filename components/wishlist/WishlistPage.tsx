@@ -2,14 +2,14 @@
 
 import { useMemo, useState } from "react";
 import Image from "next/image";
-import { Trash2, ChevronLeft, ChevronRight, Truck, Star } from "lucide-react";
+import { Trash2, Star } from "lucide-react";
 import { useAuth } from "@/lib/auth-context";
 import { useRouter } from "next/navigation";
 import { type WishlistItem } from "@/app/services/wishlist";
 import { useWishlist } from "@/hooks/use-wishlist";
 
 type UiWishlistItem = {
-  id: number; // wishlist item id
+  id: string | number; // wishlist item id
   name: string;
   price?: number;
   images: string[];
@@ -21,26 +21,58 @@ type UiWishlistItem = {
 };
 
 export default function WishlistPage() {
-  const [currentImageIndex, setCurrentImageIndex] = useState<Record<number, number>>({});
   const { isAuthenticated, isLoading } = useAuth();
   const router = useRouter();
+  const handleRemove = async (itemId: string | number) => {
+    // removeItem expects a number type in the hook, but API may return string IDs
+    await removeItem(itemId as unknown as number);
+  };
 
   // Use centralized hook
   const { wishlistItems: rawItems, removeItem, isLoading: isListLoading, isError } = useWishlist();
 
   const items: UiWishlistItem[] = useMemo(() => {
     return (rawItems as WishlistItem[]).map((wi) => {
-      const p = wi.product;
+      const p: any = wi.product;
       const rawPrice = p?.price ?? p?.base_price;
       const priceNum = typeof rawPrice === "string" ? Number(rawPrice) : rawPrice;
-      const images = p?.gallery?.length ? p.gallery : p?.image ? [p.image] : ["/placeholder.jpg"];
+
+      // Prefer media -> gallery -> image
+      let normalizedImages: string[] = [];
+      const media: any[] = Array.isArray(p?.media) ? p.media : [];
+      if (media.length) {
+        normalizedImages = media
+          .filter((m: any) => !!m?.url)
+          .sort((a: any, b: any) => (b?.is_cover === true ? 1 : 0) - (a?.is_cover === true ? 1 : 0))
+          .map((m: any) => String(m.url));
+      }
+      if (normalizedImages.length === 0) {
+        const gallery: any[] = Array.isArray(p?.gallery) ? p.gallery : [];
+        if (gallery.length) {
+          normalizedImages = gallery
+            .map((g: any) => (typeof g === "string" ? g : g?.url))
+            .filter((u: any) => typeof u === "string" && u.length > 0);
+        }
+      }
+      if (normalizedImages.length === 0 && typeof p?.image === "string" && p.image.length > 0) {
+        normalizedImages = [p.image];
+      }
+      if (normalizedImages.length === 0) {
+        normalizedImages = ["/placeholder.jpg"];
+      }
+
+      const ratingNum = typeof p?.rating === "number" ? p.rating : Number(p?.rating) || 0;
+      const reviewsStr = typeof p?.review_count !== "undefined" && p.review_count !== null
+        ? String(p.review_count)
+        : (typeof p?.reviewCount !== "undefined" && p.reviewCount !== null ? String(p.reviewCount) : undefined);
+
       return {
-        id: wi.id, // This is the Wishlist Item ID needed for delete
+        id: String(wi.id),
         name: p?.name ?? `Product #${wi.productId}`,
         price: priceNum,
-        images,
-        rating: p?.rating ?? 0,
-        reviews: p?.reviewCount ? String(p.reviewCount) : undefined,
+        images: normalizedImages,
+        rating: ratingNum,
+        reviews: reviewsStr,
         deliveryText: "Delivery by tomorrow",
         isHighValue: false,
         isControlled: p?.is_controlled,
@@ -52,21 +84,6 @@ export default function WishlistPage() {
     await Promise.allSettled((rawItems as WishlistItem[]).map((wi) => removeItem(wi.id)));
   };
 
-  const handlePrevImage = (itemId: number, totalImages: number) => {
-    setCurrentImageIndex((prev) => ({
-      ...prev,
-      [itemId]: ((prev[itemId] || 0) - 1 + totalImages) % totalImages,
-    }));
-  };
-
-  const handleNextImage = (itemId: number, totalImages: number) => {
-    setCurrentImageIndex((prev) => ({
-      ...prev,
-      [itemId]: ((prev[itemId] || 0) + 1) % totalImages,
-    }));
-  };
-
-  const getCurrentImageIndex = (itemId: number) => currentImageIndex[itemId] || 0;
 
   return (
     <main className="flex-1">
@@ -161,54 +178,15 @@ export default function WishlistPage() {
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 lg:gap-5">
           {items.map((item) => (
             <div key={item.id} className="bg-[#F0EBE3] border border-[#CCCCCC] overflow-hidden">
-              {/* Product Image with Navigation */}
-              <div className="relative p-4 aspect-square flex items-center justify-center group bg-[#EBE3D6]">
-                <button
-                  onClick={() => handlePrevImage(item.id, item.images.length)}
-                  className="absolute left-2 top-1/2 -translate-y-1/2 w-8 h-8 bg-white/80 rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity shadow-md hover:bg-white z-10"
-                >
-                  <ChevronLeft size={18} className="text-[#666]" />
-                </button>
-
-                {/* Image Slider */}
-                <div className="relative w-full h-full overflow-hidden">
-                  <div
-                    className="flex transition-transform duration-300 ease-in-out h-full"
-                    style={{ transform: `translateX(-${getCurrentImageIndex(item.id) * 100}%)` }}
-                  >
-                    {item.images.map((img, idx) => (
-                      <div key={idx} className="min-w-full h-full flex items-center justify-center">
-                        <Image
-                          src={img}
-                          alt={`${item.name} - Image ${idx + 1}`}
-                          width={280}
-                          height={280}
-                          className="w-full h-full object-cover"
-                        />
-                      </div>
-                    ))}
-                  </div>
-                </div>
-
-                <button
-                  onClick={() => handleNextImage(item.id, item.images.length)}
-                  className="absolute right-2 top-1/2 -translate-y-1/2 w-8 h-8 bg-white/80 rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity shadow-md hover:bg-white z-10"
-                >
-                  <ChevronRight size={18} className="text-[#666]" />
-                </button>
-
-
-              </div>
-              <div className="px-4">
-                <div className="relative w-full h-0.5 bg-[#E8E3D6] ">
-                  <div
-                    className="absolute top-0 left-0 h-full bg-[#C2B280] transition-all duration-300"
-                    style={{
-                      width: `${100 / item.images.length}%`,
-                      left: `${(getCurrentImageIndex(item.id) * 100) / item.images.length}%`
-                    }}
-                  ></div>
-                </div>
+              {/* Product Image (single, no slider) */}
+              <div className="relative p-4 aspect-square flex items-center justify-center bg-[#EBE3D6]">
+                <Image
+                  src={item.images[0]}
+                  alt={item.name}
+                  width={280}
+                  height={280}
+                  className="w-full h-full object-cover"
+                />
               </div>
 
               {/* Product Info */}
@@ -273,7 +251,7 @@ export default function WishlistPage() {
                     </button>
                   )}
                   <button
-                    onClick={() => removeItem(item.id)}
+                    onClick={() => handleRemove(item.id)}
                     className="flex items-center gap-1 text-[#666] hover:text-[#E74C3C] text-xs transition-colors underline"
                   >
                     <Trash2 size={14} />
