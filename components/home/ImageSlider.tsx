@@ -177,7 +177,7 @@ export function ImageSlider() {
   const realSlide = extendedSlides[currentIndex];
 
   return (
-    <div className="relative h-[350px] sm:h-[650px] lg:h-[700px] w-full overflow-hidden lg:-mt-16 group bg-black">
+    <div className="relative w-full aspect-[4/3] sm:aspect-[21/9] lg:aspect-[3/1] overflow-hidden lg:-mt-16 group bg-[#111]">
 
       {/* BACKGROUND SLIDES */}
       <div className="absolute inset-0 w-full h-full overflow-hidden">
