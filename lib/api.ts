@@ -624,8 +624,14 @@ filters: {
 
   // --- Web Frontend ---
   webFrontend: {
-    getSliders: () => fetchJson<any>('/web-frontend/sliders'),
-    getAds: (location?: string) => fetchJson<any>(`/web-frontend/ads${location ? `?location=${location}` : ''}`),
+    getSliders: async () => {
+      const res = await fetchJson<any>('/web-frontend/sliders');
+      return Array.isArray(res) ? res : res?.data ?? [];
+    },
+    getAds: async (location?: string) => {
+      const res = await fetchJson<any>(`/web-frontend/ads${location ? `?location=${location}` : ''}`);
+      return Array.isArray(res) ? res : res?.data ?? [];
+    },
   },
 
   // --- User ---
