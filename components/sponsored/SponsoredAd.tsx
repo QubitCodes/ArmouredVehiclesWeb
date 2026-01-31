@@ -14,14 +14,19 @@ export default function SponsoredAd() {
 
   useEffect(() => {
     // Fetch ad for sidebar location
+    console.log("Fetching sidebar ads...");
     api.webFrontend.getAds('sidebar')
       .then(res => {
+        console.log("Sidebar Ads Response:", res);
         const data = Array.isArray(res) ? res : res?.data;
         if (Array.isArray(data) && data.length > 0) {
+          console.log("Setting sidebar ad:", data[0]);
           setAd(data[0]);
+        } else {
+          console.log("No sidebar ads found");
         }
       })
-      .catch(err => console.error(err));
+      .catch(err => console.error("Error fetching sidebar ads:", err));
   }, []);
 
   if (!ad) return null;
