@@ -648,13 +648,13 @@ const Navbar = () => {
       {/* SECONDARY NAVBAR (Desktop Only) - Horizontal Slider */}
       <div
         className={`bg-[#39482C] text-white relative hidden lg:block
-  transition-all duration-300 ease-in-out
-  ${showSecondaryNav ? "translate-y-0 opacity-100" : "-translate-y-full opacity-0"}
+  transition-all duration-300 ease-in-out overflow-hidden
+  ${showSecondaryNav ? "max-h-[50px] opacity-100 pointer-events-auto" : "max-h-0 opacity-0 pointer-events-none"}
   `}
       >
         <div className="container-figma relative">
           <div className="flex items-center h-[50px] relative" ref={containerRef}>
-            
+
             {/* Left Scroll Button */}
             {canScrollLeft && (
               <button
