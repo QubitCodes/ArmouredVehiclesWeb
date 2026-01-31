@@ -983,9 +983,8 @@ function CategoryContent() {
                         </div>
                         {/* Sponsored Ad Section */}
 
-                        <div className="mt-6">
-                            <SponsoredAd />
-                        </div>
+                        {/* Sponsored Ad Section */}
+                        <SponsoredAd />
                     </aside>
 
 
