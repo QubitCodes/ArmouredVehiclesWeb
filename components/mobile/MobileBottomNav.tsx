@@ -161,7 +161,7 @@ const MobileBottomNav = () => {
                 {/* USER INFO */}
                 <div className="px-4 py-4 border-b">
                   <p className="font-medium text-black">
-                    Hello, {user?.name || 'User'}
+                    Hello, {user?.name?.split(' ')[0] || 'User'}
                   </p>
                   <p className="text-sm text-gray-500">
                     {user?.email || ''}

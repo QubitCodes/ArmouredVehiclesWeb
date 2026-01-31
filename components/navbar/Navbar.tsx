@@ -524,7 +524,7 @@ const Navbar = () => {
                       onClick={() => setProfileDropdownOpen(!profileDropdownOpen)}
                       className="flex items-center gap-2 hover:opacity-80 transition-opacity"
                     >
-                      <span className="text-black font-inter text-[16px]">{user?.name || 'User'}</span>
+                      <span className="text-black font-inter text-[16px]">{user?.name?.split(' ')[0] || 'User'}</span>
                       <Image
                         src="/icons/profileicon.svg"
                         alt="Profile"
@@ -550,7 +550,7 @@ const Navbar = () => {
                       <div className="absolute right-0 top-full mt-2 w-[250px] bg-white border border-[#E5E5E5] shadow-lg z-50">
                         {/* User Info Header */}
                         <div className="px-4 py-3 border-b border-[#E5E5E5] bg-white">
-                          <p className="font-inter font-medium text-[14px] text-black">Hello, {user?.name || 'User'}</p>
+                          <p className="font-inter font-medium text-[14px] text-black">Hello, {user?.name?.split(' ')[0] || 'User'}</p>
                           <p className="font-inter text-[12px] text-[#666]">{user?.email || ''}</p>
                         </div>
 
