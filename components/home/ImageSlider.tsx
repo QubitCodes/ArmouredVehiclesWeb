@@ -73,7 +73,6 @@ export function ImageSlider() {
   useEffect(() => {
     const updateSize = () => {
       setIsMobile(window.innerWidth < 640);
-      // setCurrentIndex(1); // reset to first extended slide
     };
 
     updateSize();
@@ -83,50 +82,74 @@ export function ImageSlider() {
 
   // Auto play
   useEffect(() => {
-    if (activeSlides.length <= 1) return; // No auto play if 0 or 1 slide
+    if (activeSlides.length <= 1) return;
 
     const timer = setInterval(() => {
-      goToNext();
+      // Safety check before moving next
+      setCurrentIndex((prev) => {
+        // If we somehow drifted passed the end, snap back immediately to 1 (real first)
+        if (prev >= extendedSlides.length - 1) {
+          setTransitionEnabled(false);
+          return 1;
+        }
+        setTransitionEnabled(true);
+        return prev + 1;
+      });
     }, 5000);
 
     return () => clearInterval(timer);
-  });
+  }, [activeSlides.length, extendedSlides.length]);
 
   // NEXT button handler
   const goToNext = useCallback(() => {
     if (activeSlides.length <= 1) return;
-    setTransitionEnabled(true);
-    setCurrentIndex((prev) => prev + 1);
-  }, [activeSlides.length]);
+
+    setCurrentIndex(prev => {
+      if (prev >= extendedSlides.length - 1) {
+        setTransitionEnabled(false);
+        return 1;
+      }
+      setTransitionEnabled(true);
+      return prev + 1;
+    });
+  }, [activeSlides.length, extendedSlides.length]);
 
   // PREV button handler
   const goToPrevious = useCallback(() => {
     if (activeSlides.length <= 1) return;
-    setTransitionEnabled(true);
-    setCurrentIndex((prev) => prev - 1);
-  }, [activeSlides.length]);
+    setCurrentIndex(prev => {
+      if (prev <= 0) {
+        setTransitionEnabled(false);
+        return extendedSlides.length - 2;
+      }
+      setTransitionEnabled(true);
+      return prev - 1;
+    });
+  }, [activeSlides.length, extendedSlides.length]);
 
   // Fix looping when you reach cloned slides
   useEffect(() => {
     const el = sliderRef.current;
     if (!el) return;
 
-    const handleTransitionEnd = () => {
+    const handleTransitionEnd = (e: TransitionEvent) => {
+      // Ensure we only listen to the transform transition of the container
+      if (e.target !== el) return;
+
       const lastIndex = extendedSlides.length - 1;
 
-      // If at cloned-first -> snap to real first
-      if (currentIndex === lastIndex) {
+      if (currentIndex >= lastIndex) {
         setTransitionEnabled(false);
         setCurrentIndex(1); // real first
       }
 
-      // If at cloned-last -> snap to real last
-      if (currentIndex === 0) {
+      if (currentIndex <= 0) {
         setTransitionEnabled(false);
         setCurrentIndex(lastIndex - 1); // real last
       }
     };
 
+    // Use native event listener
     el.addEventListener('transitionend', handleTransitionEnd);
     return () => el.removeEventListener('transitionend', handleTransitionEnd);
   }, [currentIndex, extendedSlides.length]);
@@ -154,7 +177,7 @@ export function ImageSlider() {
   const realSlide = extendedSlides[currentIndex];
 
   return (
-    <div className="relative h-[350px] sm:h-[650px] lg:h-[700px] w-full overflow-hidden lg:-mt-16 group">
+    <div className="relative h-[350px] sm:h-[650px] lg:h-[700px] w-full overflow-hidden lg:-mt-16 group bg-black">
 
       {/* BACKGROUND SLIDES */}
       <div className="absolute inset-0 w-full h-full overflow-hidden">
@@ -168,9 +191,6 @@ export function ImageSlider() {
         >
           {extendedSlides.map((slide, index) => {
             // Logic for Slide Container (Link or Div)
-            // Case 1: Link !empty && Button Text empty -> Slider is Link
-            // Case 2: Link !empty && Button Text !empty -> Button is Link, Slider is Div
-            // Case 3: Link empty -> Slider is Div
             const link = slide.link;
             const buttonText = slide.button_text;
 
@@ -189,33 +209,13 @@ export function ImageSlider() {
                   src={slide.image_url}
                   alt={slide.title || 'Slide'}
                   fill
-                  className="object-cover"
+                  className="object-contain"
                 />
-                {/* Overlay gradient for text readability if needed? The original didn't have one explicitly but maybe image had it. */}
-                <div className="absolute inset-0 bg-black/20" />
               </Container>
             );
           })}
         </div>
       </div>
-
-      {/* CONTENT (Text) - We only render text for the CURRENT active slide overtop */}
-      {/* 
-         Wait, the original code rendered text separately from the background slider? 
-         Original: 
-         <div className="absolute inset-0 ..."> ... slides ... </div>
-         <div className="container-figma ..."> ... text ... </div>
-         
-         The text was STATIC over the carousel? 
-         "const realSlide = extendedSlides[currentIndex] || extendedSlides[1];"
-         Yes, the text changes as currentIndex changes.
-         This means the TEXT is not moving with the slide, but FADING/Changing?
-         The original code:
-         <h1 className="... transition-opacity ..." ... > { ... content ... } </h1>
-         It re-renders `realSlide`.
-         
-         So I should keep this structure. `realSlide` is derived from `currentIndex`.
-      */}
 
       {realSlide && (
         <div className={`container-figma h-full flex relative z-10 pointer-events-none ${isMobile ? 'items-center pb-15' : 'items-center'
@@ -278,7 +278,6 @@ export function ImageSlider() {
               )}
 
               {/* BUTTON */}
-              {/* Rule: If button is not empty, and link is empty, then the button will not be visible */}
               {realSlide.button_text && realSlide.link && (
                 <div className="mt-8">
                   <a
