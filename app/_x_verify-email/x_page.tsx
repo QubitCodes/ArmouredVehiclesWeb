@@ -5,7 +5,7 @@ import Link from "next/link";
 import { useState, useRef, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { useAuth } from "@/lib/auth-context";
-import { startOtpRegister, verifyEmailOtp } from "@/app/services/auth";
+import { x_startOtpRegister, x_verifyEmailOtp } from "@/app/services/auth";
 import { toast } from "sonner";
 
 export default function VerifyEmailPage() {
@@ -61,7 +61,7 @@ export default function VerifyEmailPage() {
         try {
             setCanResend(false);
             // using startOtpRegister to trigger email OTP for existing or new user
-            await startOtpRegister({
+            await x_startOtpRegister({
                 email,
                 name: user?.name || 'User',
                 username: user?.username || email.split('@')[0],
@@ -106,7 +106,7 @@ export default function VerifyEmailPage() {
 
         try {
             setLoading(true);
-            await verifyEmailOtp({
+            await x_verifyEmailOtp({
                 userId: user.id || localStorage.getItem('registration_userId') || '',
                 email: user.email!,
                 code

@@ -241,7 +241,7 @@ export const api = {
   // --- Auth ---
   auth: {
     /** @deprecated OTP login is legacy. Use verifyFirebase instead. */
-    otpLoginStart: async (email: string): Promise<OtpStartResponse> => {
+    x_otpLoginStart: async (email: string): Promise<OtpStartResponse> => {
       const response = await fetch(`${API_BASE}/auth/otp/login/start`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -253,7 +253,7 @@ export const api = {
     },
 
     /** @deprecated OTP login is legacy. Use verifyFirebase instead. */
-    otpLoginVerify: async (email: string, code: string): Promise<AuthResponse> => {
+    x_otpLoginVerify: async (email: string, code: string): Promise<AuthResponse> => {
       const response = await fetch(`${API_BASE}/auth/otp/login/verify`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },

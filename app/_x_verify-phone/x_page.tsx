@@ -6,7 +6,7 @@ import { useRef, useState, useEffect } from "react";
 import { ChevronLeft } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useAuth } from "@/lib/auth-context";
-import { resendPhoneOtp, verifyPhoneOtp } from "@/app/services/auth";
+import { x_resendPhoneOtp, x_verifyPhoneOtp } from "@/app/services/auth";
 import { toast } from "sonner";
 
 
@@ -80,7 +80,7 @@ export default function VerifyPhonePage() {
         if (!user?.phone) return;
         try {
             setCanResend(false);
-            await resendPhoneOtp({
+            await x_resendPhoneOtp({
                 userId: user.id || '',
                 phone: user.phone
             });
@@ -104,7 +104,7 @@ export default function VerifyPhonePage() {
 
         try {
             setLoading(true);
-            await verifyPhoneOtp({
+            await x_verifyPhoneOtp({
                 userId: user.id || '',
                 phone: user.phone || '', // verifyPhoneOtp logic in controller might ignore this if using user context, but API requires it usually
                 code

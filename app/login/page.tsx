@@ -6,7 +6,7 @@ import Navbar from "@/components/navbar/Navbar";
 import Footer from "@/components/footer/Footer";
 import { useEffect, useRef, useState, Suspense } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
-import { startOtpLogin, verifyOtpLogin } from "../services/auth";
+// import { startOtpLogin, verifyOtpLogin } from "../services/auth";
 import { useAuth } from "@/lib/auth-context";
 import { storeTokens, storeUser, api } from "@/lib/api"; // Added api
 import { useFirebaseAuth } from "@/hooks/useFirebaseAuth"; // Added hook
@@ -86,9 +86,9 @@ function LoginForm() {
         }
 
         switch (true) {
-            case !user.email_verified && user.email: router.push('/verify-email'); break;
+            // case !user.email_verified && user.email: router.push('/verify-email'); break;
             case !user.phone: router.push('/add-phone'); break;
-            case !user.phone_verified: router.push('/verify-phone'); break;
+            // case !user.phone_verified: router.push('/verify-phone'); break;
             case !user.profile: router.push('/create-account'); break;
             case (user.onboardingStep && user.onboardingStep > 0):
                 router.push(`/buyer-onboarding/step/${user.onboardingStep}`);
