@@ -622,6 +622,12 @@ filters: {
 },
 
 
+  // --- Web Frontend ---
+  webFrontend: {
+    getSliders: () => fetchJson<any>('/web-frontend/sliders'),
+    getAds: (location?: string) => fetchJson<any>(`/web-frontend/ads${location ? `?location=${location}` : ''}`),
+  },
+
   // --- User ---
   user: {
     getCurrent: async () => {
