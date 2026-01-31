@@ -999,6 +999,14 @@ function CategoryContent() {
 
                             {/* Active Filters Pills */}
                             <div className="flex flex-wrap gap-2 items-center mx-4 flex-1">
+                                {/* Search Pill */}
+                                {searchQueryParam && (
+                                    <div className="flex items-center gap-1 bg-[#D35400] text-white px-2 py-1 rounded-full text-xs animate-fadeIn">
+                                        <span>Search: {searchQueryParam}</span>
+                                        <X size={12} className="cursor-pointer" onClick={() => updateUrl({ search: null })} />
+                                    </div>
+                                )}
+
                                 {/* Category Pill */}
                                 {selectedCategoryId && (
                                     <div className="flex items-center gap-1 bg-[#D35400] text-white px-2 py-1 rounded-full text-xs animate-fadeIn">
