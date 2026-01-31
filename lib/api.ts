@@ -240,60 +240,27 @@ async function fetchJson<T>(endpoint: string, options: RequestInit = {}, retry =
 export const api = {
   // --- Auth ---
   auth: {
-    login: async (email: string, password: string): Promise<AuthResponse> => {
-      // Direct fetch to avoid interceptor circular logic, but simplified
-      const response = await fetch(`${API_BASE}/auth/login`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email, password }),
-      });
-
-      const data = await response.json();
-      if (!response.ok) throw new Error(data.error || 'Login failed');
-
-      storeTokens(data.accessToken, data.refreshToken, data.expiresIn);
-      storeUser(data.user);
-      return data;
-    },
-
-    register: async (name: string, email: string, password: string, userType = 'customer'): Promise<AuthResponse> => {
-      const response = await fetch(`${API_BASE}/auth/register`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ name, email, password, userType }),
-      });
-
-      const data = await response.json();
-      if (!response.ok) throw new Error(data.error || 'Registration failed');
-
-      storeTokens(data.accessToken, data.refreshToken, data.expiresIn);
-      storeUser(data.user);
-      return data;
-    },
-
-    // OTP Login Flow
+    /** @deprecated OTP login is legacy. Use verifyFirebase instead. */
     otpLoginStart: async (email: string): Promise<OtpStartResponse> => {
       const response = await fetch(`${API_BASE}/auth/otp/login/start`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ email }),
       });
-
       const data = await response.json();
       if (!response.ok) throw new Error(data.error || data.message || 'OTP start failed');
       return data;
     },
 
+    /** @deprecated OTP login is legacy. Use verifyFirebase instead. */
     otpLoginVerify: async (email: string, code: string): Promise<AuthResponse> => {
       const response = await fetch(`${API_BASE}/auth/otp/login/verify`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ email, code }),
       });
-
       const data = await response.json();
       if (!response.ok) throw new Error(data.error || 'OTP verify failed');
-
       storeTokens(data.accessToken, data.refreshToken, data.expiresIn);
       storeUser(data.user);
       return data;
@@ -301,7 +268,6 @@ export const api = {
 
     // --- Firebase Auth ---
     checkUser: async (identifier: string): Promise<{ exists: boolean; data?: any }> => {
-      // POST /auth/user-exists - filter by customer userType
       try {
         const response = await fetch(`${API_BASE}/auth/user-exists`, {
             method: 'POST',
@@ -309,15 +275,12 @@ export const api = {
             body: JSON.stringify({ identifier, userType: 'customer' }),
         });
         const data = await response.json();
-        // 200 = Exists, 404 = Not found
         if (response.status === 200) return { exists: true, data: data.data };
         if (response.status === 404) return { exists: false };
         throw new Error(data.message || 'Check user failed');
       } catch (err) {
-        // If 404 was thrown as error by fetchJson wrapper (if we used it), handle it.
-        // But here we use raw fetch. 
         console.error('Check user error', err);
-        return { exists: false }; // Conservative fallback
+        return { exists: false };
       }
     },
 
@@ -327,7 +290,6 @@ export const api = {
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ idToken }),
         });
-
         const res = await response.json();
         if (!response.ok) {
             const error = new Error(res.message || 'Firebase verification failed');
@@ -335,10 +297,7 @@ export const api = {
             (error as any).data = res.data || res.misc; 
             throw error;
         }
-
-        // Unwrap data envelope (BaseController returns { data: ... })
         const payload = res.data ?? res;
-
         storeTokens(payload.accessToken, payload.refreshToken, payload.expiresIn);
         storeUser(payload.user);
         return payload;
@@ -350,15 +309,9 @@ export const api = {
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify(data),
         });
-
         const resData = await response.json();
-        if (!response.ok) {
-            throw new Error(resData.message || 'Registration failed');
-        }
-
-        // Unwrap
+        if (!response.ok) throw new Error(resData.message || 'Registration failed');
         const payload = resData.data ?? resData;
-
         storeTokens(payload.accessToken, payload.refreshToken, payload.expiresIn);
         storeUser(payload.user);
         return payload;
@@ -371,7 +324,6 @@ export const api = {
         console.error("Logout API failed", err);
       } finally {
         clearTokens();
-        // Optional: Redirect to login page here if needed
       }
     },
 
@@ -379,18 +331,16 @@ export const api = {
     
     me: async () => {
         const res = await fetchJson<any>('/profile');
-        // Profile endpoint returns { data: { user, profile } }
-        // We return just the user to match expected interface
         return res?.data?.user || res?.user;
     },
     
     getSessions: () => fetchJson<Session[]>('/auth/sessions'),
     revokeSession: (sessionId: string) => fetchJson<{ message: string }>(`/auth/sessions/${sessionId}`, { method: 'DELETE' }),
     
-        updateProfile: async (data: { name?: string; email?: string; phone?: string; countryCode?: string; avatar?: string }) => {
-          const res = await fetchJson<any>('/profile', { method: 'PUT', body: JSON.stringify(data) });
-          return res?.data?.user || res?.user;
-        },
+    updateProfile: async (data: { name?: string; email?: string; phone?: string; countryCode?: string; avatar?: string }) => {
+      const res = await fetchJson<any>('/profile', { method: 'PUT', body: JSON.stringify(data) });
+      return res?.data?.user || res?.user;
+    },
   },
 
   // --- Products ---

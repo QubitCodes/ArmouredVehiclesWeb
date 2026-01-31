@@ -9,8 +9,6 @@ interface AuthContextType {
   user: User | null;
   isLoading: boolean;
   isAuthenticated: boolean;
-  login: (email: string, password: string) => Promise<void>;
-  register: (name: string, email: string, password: string, userType?: string) => Promise<void>;
   logout: () => Promise<void>;
   refreshUser: () => Promise<void>;
 }
@@ -154,25 +152,6 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     }
   }, [user, isLoading, pathname, router]);
 
-  const login = useCallback(async (email: string, password: string) => {
-    setIsLoading(true);
-    try {
-      const response = await api.auth.login(email, password);
-      setUser(response.user);
-    } finally {
-      setIsLoading(false);
-    }
-  }, []);
-
-  const register = useCallback(async (name: string, email: string, password: string, userType: string = 'customer') => {
-    setIsLoading(true);
-    try {
-      const response = await api.auth.register(name, email, password, userType);
-      setUser(response.user);
-    } finally {
-      setIsLoading(false);
-    }
-  }, []);
 
   const logout = useCallback(async () => {
     setIsLoading(true);
@@ -208,8 +187,6 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     user,
     isLoading,
     isAuthenticated: !!user,
-    login,
-    register,
     logout,
     refreshUser,
   };

@@ -1,55 +1,14 @@
 import API from "./api";
 
-export const registerConsumer = (data: {
-  name: string;
-  email: string;
-  password: string;
-}) => {
-  return API.post("/auth/register", {
-    ...data,
-    userType: "customer",
-  });
-};
-
-export const loginConsumer = (data: { identifier: string; password: string }) => {
-  return API.post("/auth/login", {
-    ...data,
-  });
-}
-
-export const loginSeller = (data: { email: string; password: string }) => {
-  return API.post("/auth/login", {
-    ...data,
-    userType: "seller",
-  });
-};
-
+/** @deprecated Standard auth is legacy. */
 export const logout = (refreshToken: string) => {
   return API.post("/auth/logout", { refreshToken });
 };
 
-
-export const registerSeller = (data: {
-  name: string;
-  email: string;
-  password: string;
-}) => {
-  return API.post("/auth/register", {
-    ...data,
-    userType: "seller",
-  });
-}
-
-// OTP Login Flow (Email-based)
-export const startOtpLogin = (identifier: string) => {
-  return API.post("/auth/otp/login/start", { identifier });
-};
-
-export const verifyOtpLogin = (identifier: string, code: string) => {
-  return API.post("/auth/otp/login/verify", { identifier, code });
-};
+// Firebase/OTP flows (Active)
 
 // OTP Registration Flow (Customer)
+/** @deprecated OTP Registration is legacy. Use Firebase flows instead. */
 export const startOtpRegister = (payload: {
   identifier?: string;
   email: string;
@@ -63,6 +22,7 @@ export const startOtpRegister = (payload: {
   });
 };
 
+/** @deprecated OTP Verification is legacy. Use Firebase flows instead. */
 export const verifyEmailOtp = (payload: {
   userId: string;
   email: string;
@@ -71,6 +31,7 @@ export const verifyEmailOtp = (payload: {
   return API.post("/auth/otp/register/verify", payload);
 };
 
+/** @deprecated OTP Phone Binding is legacy. Use Firebase flows instead. */
 export const setPhone = (payload: {
   userId: string;
   phone: string;
@@ -79,6 +40,7 @@ export const setPhone = (payload: {
   return API.post("/auth/otp/set-phone", payload);
 };
 
+/** @deprecated OTP Phone Verification is legacy. Use Firebase flows instead. */
 export const verifyPhoneOtp = (payload: {
   userId: string;
   phone: string;
@@ -88,6 +50,7 @@ export const verifyPhoneOtp = (payload: {
   return API.post("/auth/otp/phone/register/verify", payload);
 };
 
+/** @deprecated OTP Resend is legacy. Use Firebase flows instead. */
 export const resendPhoneOtp = (payload: {
   userId: string;
   phone: string;

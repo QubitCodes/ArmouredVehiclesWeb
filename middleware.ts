@@ -15,10 +15,6 @@ const protectedRoutes = [
   '/security-settings',
   '/notifications',
   '/warranty-claims',
-  '/vendor/dashboard',
-  '/vendor/products',
-  '/vendor/orders',
-  '/vendor/settings',
   '/buyer-onboarding',
 ];
 
