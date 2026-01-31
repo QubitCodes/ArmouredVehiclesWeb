@@ -15,7 +15,7 @@ export default function SponsoredAd() {
   useEffect(() => {
     // Fetch ad for sidebar location
     console.log("Fetching sidebar ads...");
-    api.webFrontend.getAds('sidebar')
+    api.webFrontend.getAds('products_sidebar')
       .then(res => {
         console.log("Sidebar Ads Response:", res);
         const data = Array.isArray(res) ? res : res?.data;
