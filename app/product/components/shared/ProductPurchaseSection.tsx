@@ -224,7 +224,7 @@ export default function ProductPurchaseSection({
                 )}
             </div>
 
-           
+
 
 
             {/* CONDITION & AVAILABILITY */}
@@ -273,30 +273,30 @@ export default function ProductPurchaseSection({
 
                 return canSeeBadges && (status || approvalStatus);
             })() && (
-                <div className="flex flex-col gap-2 mt-4 border-t pt-4 pb-2">
-                    {status && (
-                        <div className="flex justify-start items-center gap-2">
-                            <span className="font-semibold text-sm text-[#6F6F6F]">Status:</span>
-                            <span className={`px-2 py-0.5 rounded text-xs font-bold uppercase
+                    <div className="flex flex-col gap-2 mt-4 border-t pt-4 pb-2">
+                        {status && (
+                            <div className="flex justify-start items-center gap-2">
+                                <span className="font-semibold text-sm text-[#6F6F6F]">Status:</span>
+                                <span className={`px-2 py-0.5 rounded text-xs font-bold uppercase
                                 ${status === 'published' ? 'bg-[#E6F4EA] text-[#1E8E3E]' : 'bg-[#F1F3F4] text-[#5F6368]'}
                             `}>
-                                {status}
-                            </span>
-                        </div>
-                    )}
-                    {approvalStatus && (
-                        <div className="flex justify-start items-center gap-2">
-                            <span className="font-semibold text-sm text-[#6F6F6F]">Approval:</span>
-                            <span className={`px-2 py-0.5 rounded text-xs font-bold uppercase
+                                    {status}
+                                </span>
+                            </div>
+                        )}
+                        {approvalStatus && (
+                            <div className="flex justify-start items-center gap-2">
+                                <span className="font-semibold text-sm text-[#6F6F6F]">Approval:</span>
+                                <span className={`px-2 py-0.5 rounded text-xs font-bold uppercase
                                 ${approvalStatus === 'approved' ? 'bg-[#E6F4EA] text-[#1E8E3E]' :
-                                    approvalStatus === 'rejected' ? 'bg-[#FCE8E6] text-[#C5221F]' : 'bg-[#FEF7E0] text-[#B06000]'}
+                                        approvalStatus === 'rejected' ? 'bg-[#FCE8E6] text-[#C5221F]' : 'bg-[#FEF7E0] text-[#B06000]'}
                             `}>
-                                {approvalStatus.replace('_', ' ')}
-                            </span>
-                        </div>
-                    )}
-                </div>
-            )}
+                                    {approvalStatus.replace('_', ' ')}
+                                </span>
+                            </div>
+                        )}
+                    </div>
+                )}
 
             {/* {isAuthenticated && (
                 <div className=" items-center gap-3">
@@ -484,6 +484,16 @@ export default function ProductPurchaseSection({
                 {/* SHIPPING */}
                 <ShippingSection />
 
+
+                {/* MIN ORDER QUANTITY */}
+                {typeof minOrderQuantity === 'number' && minOrderQuantity > 0 && (
+                    <div className="grid grid-cols-[90px_1fr] gap-2">
+                        <span className="font-medium">Minimum Order Quantity:</span>
+                        <div className="font-semibold text-black">
+                            {minOrderQuantity}
+                        </div>
+                    </div>
+                )}
 
                 {/* RETURNS */}
                 <div className="grid grid-cols-[90px_1fr] gap-2">

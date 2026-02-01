@@ -195,6 +195,19 @@ async function fetchJson<T>(endpoint: string, options: RequestInit = {}, retry =
 
   const response = await fetch(url, { cache: 'no-store', ...options, headers });
 
+  // 1.5 Global Auth Status Check (New Header)
+  const authStatus = response.headers.get('x-auth-status');
+  if (authStatus === 'invalid') {
+      console.warn('[API] Invalid Token detected via Header. Disconnecting...');
+      if (typeof window !== 'undefined') {
+          clearTokens();
+          window.dispatchEvent(new Event('auth:invalid'));
+      }
+      // Continue to process response? Usually safe to continue as public, 
+      // but if the endpoint failed 401, step 2 will handle it.
+      // If endpoint succeeded (200) but token was bad (Hybrid), we just log out locally.
+  }
+
   // 2. Error handling: If 401 Unauthorized, try to refresh and retry ONCE
   if (response.status === 401) {
     if (retry && getRefreshToken()) {
@@ -205,9 +218,10 @@ async function fetchJson<T>(endpoint: string, options: RequestInit = {}, retry =
         }
     }
     
-    // If we are here, it means 401 and either no refresh token or refresh failed
+    // If we are here, it means 401 and either no refresh token or refresh failed (or retry failed)
     // Redirect to login
     if (typeof window !== 'undefined') {
+        clearTokens(); // Ensure storage is cleared
         const currentPath = window.location.pathname;
         if (!currentPath.startsWith('/login')) {
              window.location.href = `/login?returnUrl=${encodeURIComponent(currentPath)}`;

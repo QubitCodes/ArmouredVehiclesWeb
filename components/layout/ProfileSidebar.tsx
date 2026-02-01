@@ -16,10 +16,10 @@ const sidebarNav = {
     { id: "address", label: "Address", iconImg: "/order/Frame4.png", href: "/address" },
     // { id: "payments", label: "Payments", iconImg: "/order/Frame5.png", href: "/payments" },
   ],
-  others: [
-    { id: "notifications", label: "Notifications", iconImg: "/order/Frame6.png", href: "/notifications" },
-    { id: "security", label: "Security Settings", iconImg: "/order/Frame7.png", href: "/security-settings" },
-  ],
+  // others: [
+  //   { id: "notifications", label: "Notifications", iconImg: "/order/Frame6.png", href: "/notifications" },
+  //   { id: "security", label: "Security Settings", iconImg: "/order/Frame7.png", href: "/security-settings" },
+  // ],
 };
 
 // Mobile navigation tabs - combined from all categories
@@ -51,7 +51,7 @@ export default function ProfileSidebar() {
     .join("")
     .toUpperCase()
     .slice(0, 2);
-    
+
   // Mock completion for now as we don't have it in user object yet
   const profileCompletion = 80;
 
@@ -65,16 +65,15 @@ export default function ProfileSidebar() {
             <button
               key={item.id}
               onClick={() => router.push(item.href)}
-              className={`flex-shrink-0 flex items-center gap-2 px-4 py-2.5 text-sm font-medium transition-colors border ${
-                isActive(item.href)
-                  ? "bg-[#3D4A26] text-white border-[#3D4A26]"
-                  : "bg-white text-[#3D4A26] border-[#3D4A26] hover:bg-[#3D4A26]/10"
-              }`}
+              className={`flex-shrink-0 flex items-center gap-2 px-4 py-2.5 text-sm font-medium transition-colors border ${isActive(item.href)
+                ? "bg-[#3D4A26] text-white border-[#3D4A26]"
+                : "bg-white text-[#3D4A26] border-[#3D4A26] hover:bg-[#3D4A26]/10"
+                }`}
             >
-              <Image 
-                src={item.iconImg} 
-                alt={item.label} 
-                width={16} 
+              <Image
+                src={item.iconImg}
+                alt={item.label}
+                width={16}
                 height={16}
                 className={isActive(item.href) ? "brightness-0 invert" : ""}
               />
@@ -154,11 +153,10 @@ export default function ProfileSidebar() {
                 <button
                   key={item.id}
                   onClick={() => router.push(item.href)}
-                  className={`w-full flex items-center gap-3 px-3 py-2.5 text-sm font-medium text-white transition-colors ${
-                    isActive(item.href)
-                      ? "bg-[#4A5D3A]"
-                      : "hover:bg-[#4A5D3A]"
-                  }`}
+                  className={`w-full flex items-center gap-3 px-3 py-2.5 text-sm font-medium text-white transition-colors ${isActive(item.href)
+                    ? "bg-[#4A5D3A]"
+                    : "hover:bg-[#4A5D3A]"
+                    }`}
                 >
                   <Image src={item.iconImg} alt={item.label} width={18} height={18} />
                   {item.label}
@@ -179,11 +177,10 @@ export default function ProfileSidebar() {
                 <button
                   key={item.id}
                   onClick={() => router.push(item.href)}
-                  className={`w-full flex items-center gap-3 px-3 py-2.5 text-sm font-medium text-white transition-colors ${
-                    isActive(item.href)
-                      ? "bg-[#4A5D3A]"
-                      : "hover:bg-[#4A5D3A]"
-                  }`}
+                  className={`w-full flex items-center gap-3 px-3 py-2.5 text-sm font-medium text-white transition-colors ${isActive(item.href)
+                    ? "bg-[#4A5D3A]"
+                    : "hover:bg-[#4A5D3A]"
+                    }`}
                 >
                   <Image src={item.iconImg} alt={item.label} width={18} height={18} />
                   {item.label}
@@ -194,7 +191,7 @@ export default function ProfileSidebar() {
         </div>
 
         {/* Others */}
-        <div>
+        {/* <div>
           <h4 className="font-orbitron font-extrabold text-[16px] uppercase leading-none tracking-normal text-[#1A1A1A] px-1 py-3">
             Others
           </h4>
@@ -204,11 +201,10 @@ export default function ProfileSidebar() {
                 <button
                   key={item.id}
                   onClick={() => router.push(item.href)}
-                  className={`w-full flex items-center gap-3 px-3 py-2.5 text-sm font-medium text-white transition-colors ${
-                    isActive(item.href)
+                  className={`w-full flex items-center gap-3 px-3 py-2.5 text-sm font-medium text-white transition-colors ${isActive(item.href)
                       ? "bg-[#4A5D3A]"
                       : "hover:bg-[#4A5D3A]"
-                  }`}
+                    }`}
                 >
                   <Image src={item.iconImg} alt={item.label} width={18} height={18} />
                   {item.label}
@@ -216,7 +212,7 @@ export default function ProfileSidebar() {
               ))}
             </nav>
           </div>
-        </div>
+        </div> */}
 
         {/* Log Out */}
         <button

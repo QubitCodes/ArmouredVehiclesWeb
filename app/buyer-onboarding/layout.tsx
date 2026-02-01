@@ -41,6 +41,24 @@ function OnboardingContent({ children }: { children: React.ReactNode }) {
 
   return (
     <section className="min-h-screen bg-[#EBE3D6] px-6 py-12">
+      <div className="max-w-4xl mx-auto mb-6">
+        {profileData?.onboarding_status === 'rejected' && (
+          <div className="bg-red-50 border border-red-200 rounded-lg p-4 text-red-700 mb-6">
+            <div className="flex gap-3">
+              <div className="font-bold">Application Rejected:</div>
+              <div>{profileData.rejection_reason || "Your application was rejected."}</div>
+            </div>
+          </div>
+        )}
+        {profileData?.onboarding_status === 'update_needed' && (
+          <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-4 text-yellow-800 mb-6">
+            <div className="flex gap-3">
+              <div className="font-bold">Update Required:</div>
+              <div>{profileData.rejection_reason || "Please update your application details."}</div>
+            </div>
+          </div>
+        )}
+      </div>
       <Stepper currentStep={currentStep} />
       {children}
     </section>

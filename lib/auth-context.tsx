@@ -54,16 +54,23 @@ export function AuthProvider({ children }: { children: ReactNode }) {
             setUser(freshUser);
             // Update storage with fresh data
             import('./api').then(m => m.storeUser(freshUser));
-          } catch (err) {
-            console.error('Failed to fetch user profile with token:', err);
-            // If we had a stored user but the token is invalid, we should probably log out
-            // But let's check if it's just a network error vs 401
-            // For now, if fetch fails and we have no stored user, we are definitely not logged in.
-            if (!storedUser) {
+          } catch (err: any) {
+            console.error('Failed to fetch fresh user profile:', err);
+
+            // If the token is invalid (401) or we failed to verify, we MUST log out
+            // to correct the optimistic UI state.
+            // Check for 401 status or specific error messages if possible, 
+            // but for safety during init, if we can't verify, we should probably logout.
+            // (Unless it's a network error - checking for 'Failed to fetch' might be good)
+
+            const isAuthError = err.message === 'Failed to fetch' ? false : true;
+            // Assume strict security: if we can't verify the token on boot, kill the session
+            // Exception: Network offline? (Hard to detect reliably in SSR context mixed)
+
+            if (isAuthError) {
               clearTokens();
+              setUser(null);
             }
-            // If we have a stored user, we might keep them logged in optimistically or force logout?
-            // Usually 401 causes a redirect in api.ts anyway.
           }
 
           // Ensure cookie is synced for Middleware
@@ -84,6 +91,21 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     };
 
     initAuth();
+  }, []);
+
+  // Listen for global auth invalidation (from api.ts X-Auth-Status)
+  useEffect(() => {
+    const handleAuthInvalid = () => {
+      console.warn('[AuthContext] Received auth:invalid event. Logging out...');
+      setUser(null);
+      clearTokens();
+      // Optional: Redirect to login if on a protected route?
+      // Since existing middleware effect depends on 'user', setting it to null
+      // should trigger the existing protection logic automatically.
+    };
+
+    window.addEventListener('auth:invalid', handleAuthInvalid);
+    return () => window.removeEventListener('auth:invalid', handleAuthInvalid);
   }, []);
 
   // Persistent Onboarding Redirection Middleware
@@ -137,15 +159,18 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       }
 
       // 3. Onboarding Completion Check (Steps 1-4)
-      if (onboardingStep && onboardingStep > 0 && onboardingStep < 5) {
+      // 3. Onboarding Completion Check (Steps 1-4)
+      if (onboardingStep !== null && onboardingStep !== undefined && onboardingStep > 0) {
         // User needs to complete onboarding
         // Allowed paths: /buyer-onboarding, /seller-onboarding (if applicable), /logout
+
+        // Define route mapping for steps if needed, or just standard route
 
         if (!pathname.startsWith('/buyer-onboarding') &&
           !pathname.startsWith('/seller-onboarding') &&
           !pathname.startsWith('/logout')) {
 
-          console.log(`[AuthMiddleware] Redirecting incomplete user from ${pathname} to /buyer-onboarding`);
+          console.log(`[AuthMiddleware] Redirecting incomplete user from ${pathname} to /buyer-onboarding/step/${onboardingStep}`);
           router.replace(`/buyer-onboarding/step/${onboardingStep}`);
         }
       }
