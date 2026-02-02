@@ -90,8 +90,9 @@ function LoginForm() {
             case !user.phone: router.push('/add-phone'); break;
             // case !user.phone_verified: router.push('/verify-phone'); break;
             case !user.profile: router.push('/create-account'); break;
-            case (user.onboardingStep && user.onboardingStep > 0):
-                router.push(`/buyer-onboarding/step/${user.onboardingStep}`);
+            case ((user.onboardingStep ?? user.onboarding_step) && (user.onboardingStep ?? user.onboarding_step) > 0):
+                const step = user.onboardingStep ?? user.onboarding_step;
+                router.push(`/buyer-onboarding/step/${step}`);
                 break;
             default: router.push('/'); break;
         }
@@ -115,6 +116,7 @@ function LoginForm() {
 
             // 1. Check if user exists
             const { exists, data, bypass } = await api.auth.checkUser(input);
+            console.log("[Login] CheckUser Response:", { exists, data, bypass });
 
             // DEV BACKDOOR HANDLER
             if (bypass && data?.user) {
