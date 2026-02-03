@@ -26,6 +26,7 @@ export default function OrderSummary({ orderId }: OrderSummaryProps) {
   const searchParams = useSearchParams();
   const sessionId = searchParams.get('session_id');
   const [showSuccessPopup, setShowSuccessPopup] = useState(false);
+  const [showCancelPopup, setShowCancelPopup] = useState(false);
   const [isVerifying, setIsVerifying] = useState(false);
   const [paymentStatus, setPaymentStatus] = useState<string | null>(null);
 
@@ -113,6 +114,18 @@ export default function OrderSummary({ orderId }: OrderSummaryProps) {
   // Handle manual flag
   useEffect(() => {
     if (searchParams.get('payment_success') === 'true') setShowSuccessPopup(true);
+    if (searchParams.get('cancelled') === 'true') {
+      setShowCancelPopup(true);
+      // Still verify to record the "incomplete" status in DB
+      if (sessionId && orderId && !isVerifying) {
+        setIsVerifying(true);
+        import("@/lib/api").then(({ api }) => {
+          api.checkout.verifySession({ sessionId, orderId })
+            .catch(err => console.error("Verify session for cancellation failed", err))
+            .finally(() => setIsVerifying(false));
+        });
+      }
+    }
     if (searchParams.get('approval_required') === 'true') {
       setPaymentStatus('pending_approval');
       setShowSuccessPopup(true);
@@ -184,6 +197,46 @@ export default function OrderSummary({ orderId }: OrderSummaryProps) {
                 <span className="w-1.5 h-1.5 rounded-full bg-[#27AE60]"></span>  Encrypted & Secure
               </p>
             </div>
+          </div>
+        </div>
+      )}
+
+      {/* Cancel Popup Modal */}
+      {showCancelPopup && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4 animate-in fade-in duration-300">
+          <div className="bg-[#EBE3D6] max-w-md w-full p-8 shadow-2xl relative border-2 border-[#C2B280]" style={{ clipPath: 'polygon(20px 0, 100% 0, 100% calc(100% - 20px), calc(100% - 20px) 100%, 0 100%, 0 20px)' }}>
+            <button
+              onClick={() => setShowCancelPopup(false)}
+              className="absolute top-4 right-4 text-[#666] hover:text-[#D35400]"
+            >
+              <X className="w-6 h-6" />
+            </button>
+
+            <div className="text-center mb-6">
+              <div className="w-20 h-20 mx-auto mb-4 bg-red-100 rounded-full flex items-center justify-center">
+                <X className="w-10 h-10 text-red-600" strokeWidth={3} />
+              </div>
+              <h2 className="font-orbitron font-black text-2xl uppercase tracking-wide text-[#1A1A1A] mb-2">
+                Payment Cancelled
+              </h2>
+              <p className="text-[#6E6E6E]">
+                Your payment process was incomplete or cancelled.
+              </p>
+            </div>
+
+            <div className="bg-[#F0EBE3] p-4 mb-6 border border-[#C2B280]">
+              <p className="text-sm text-[#666] text-center">
+                No charges were made to your account. You can retry the payment whenever you are ready.
+              </p>
+            </div>
+
+            <button
+              onClick={() => setShowCancelPopup(false)}
+              className="w-full bg-[#D35400] text-white font-orbitron font-bold text-sm uppercase py-3 hover:bg-[#B51E17] transition-colors"
+              style={{ clipPath: 'polygon(10px 0, 100% 0, 100% calc(100% - 10px), calc(100% - 10px) 100%, 0 100%, 0 10px)' }}
+            >
+              Got it
+            </button>
           </div>
         </div>
       )}
