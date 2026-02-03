@@ -186,7 +186,10 @@ export default function OrdersPage() {
                   <div className="flex items-center justify-between mb-3">
                     <p className="font-semibold text-sm text-black">{activeOrder.estimatedDelivery || ""}</p>
                     <div className="flex flex-col items-end gap-1">
-                      <p className="font-bold text-black">{totalPrice.toFixed(2)} AED</p>
+                      <p className="font-bold text-black flex items-center gap-1">
+                        <Image src="/icons/currency/dirham.svg" alt="AED" width={14} height={12} className="inline-block" />
+                        {totalPrice.toFixed(2)}
+                      </p>
                       <p className="text-xs text-[#666]">
                         <span className="text-[#009900]">{statusText}</span>
                         <span className="text-[#666]"> · {statusNote}</span>

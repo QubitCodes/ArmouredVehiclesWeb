@@ -33,7 +33,7 @@ import { useAuth } from "@/lib/auth-context";
 
 const DesktopLayout = ({ id, product }: { id?: string; product?: any }) => {
     const [selectedImage, setSelectedImage] = useState(0);
-    const [quantity, setQuantity] = useState(10);
+    const [quantity, setQuantity] = useState(1);
     const [showGallery, setShowGallery] = useState(false);
     const [expandedVehicle, setExpandedVehicle] = useState<string | null>("genesis");
     const addItem = useCartStore((s) => s.addItem);
@@ -226,155 +226,155 @@ const DesktopLayout = ({ id, product }: { id?: string; product?: any }) => {
 
             {/* product tabs */}
             {/* <Container className="my-6"> */}
-                <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-                    {/* Left: Tabbed Content - Takes 2/3 width */}
-                    <div className="lg:col-span-2">
-                        <TabbedSection tabs={tabContent} defaultTab="technical-details" />
-                    </div>
+            <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                {/* Left: Tabbed Content - Takes 2/3 width */}
+                <div className="lg:col-span-2">
+                    <TabbedSection tabs={tabContent} defaultTab="technical-details" />
+                </div>
 
-                    {/* Right: Product Details Box - Takes 1/3 width */}
-                    <div className="lg:col-span-1 lg:pr-[140px]">
-                        <div className="bg-[#F0EBE3] rounded-lg p-6 shadow-md sticky font-orbitron top-42">
-                            <h3 className="text-xl font-bold text-black mb-4">
-                                {product?.name}
-                            </h3>
-                            
-                            {/* SKU - Always visible */}
-                            <div className="mb-6">
-                                <div className="flex items-center gap-2">
-                                    <span className="text-gray-600">SKU:</span>
-                                    <span className="font-semibold text-[#2E3A59]">
-                                        {product?.sku || "N/A"}
-                                    </span>
+                {/* Right: Product Details Box - Takes 1/3 width */}
+                <div className="lg:col-span-1 lg:pr-[140px]">
+                    <div className="bg-[#F0EBE3] rounded-lg p-6 shadow-md sticky font-orbitron top-42">
+                        <h3 className="text-xl font-bold text-black mb-4">
+                            {product?.name}
+                        </h3>
+
+                        {/* SKU - Always visible */}
+                        <div className="mb-6">
+                            <div className="flex items-center gap-2">
+                                <span className="text-gray-600">SKU:</span>
+                                <span className="font-semibold text-[#2E3A59]">
+                                    {product?.sku || "N/A"}
+                                </span>
+                            </div>
+                        </div>
+
+                        {isLoading ? (
+                            <div className="space-y-3 mb-6">
+                                <div className="text-center text-gray-400 py-8">
+                                    Loading...
                                 </div>
                             </div>
-                            
-                            {isLoading ? (
+                        ) : isAuthenticated ? (
+                            <>
                                 <div className="space-y-3 mb-6">
-                                    <div className="text-center text-gray-400 py-8">
-                                        Loading...
-                                    </div>
-                                </div>
-                            ) : isAuthenticated ? (
-                                <>
-                                    <div className="space-y-3 mb-6">
-                                        
-                                        <div className="flex justify-between items-center">
-                                            <span className="text-gray-600">Price:</span>
-                                            <div className="flex items-center gap-1">
-                                                <Image
-                                                    src="/icons/currency/dirham.svg"
-                                                    alt="Currency"
-                                                    width={20}
-                                                    height={20}
-                                                />
-                                                <span className="text-2xl font-bold text-[#2E3A59]">
-                                                    {product?.price || "0.00"}
-                                                </span>
-                                            </div>
-                                        </div>
 
-                                        {product?.originalPrice && product?.originalPrice > product?.price && (
-                                            <div className="flex justify-between items-center">
-                                                <span className="text-gray-600">Original:</span>
-                                                <div className="flex items-center gap-1">
-                                                    <Image
-                                                        src="/icons/currency/dirham.svg"
-                                                        alt="Currency"
-                                                        width={14}
-                                                        height={14}
-                                                    />
-                                                    <span className="text-sm line-through text-gray-400">
-                                                        {product?.originalPrice}
-                                                    </span>
-                                                </div>
-                                            </div>
-                                        )}
-                                        
-                                        <div className="flex justify-between items-center">
-                                            <span className="text-gray-600">Stock:</span>
-                                            <span className={`font-semibold ${product?.stock > 0 ? 'text-green-600' : 'text-red-600'}`}>
-                                                {product?.stock > 0 ? `${product?.stock} units` : "Out of stock"}
+                                    <div className="flex justify-between items-center">
+                                        <span className="text-gray-600">Price:</span>
+                                        <div className="flex items-center gap-1">
+                                            <Image
+                                                src="/icons/currency/dirham.svg"
+                                                alt="Currency"
+                                                width={20}
+                                                height={20}
+                                            />
+                                            <span className="text-2xl font-bold text-[#2E3A59]">
+                                                {product?.price || "0.00"}
                                             </span>
                                         </div>
                                     </div>
 
-                                    <div className="space-y-3">
-                                {/* ADD TO CART */}
-                                <button
-                                    className="w-full h-11 bg-[#2F3A1D] clip-path-supplier
+                                    {product?.originalPrice && product?.originalPrice > product?.price && (
+                                        <div className="flex justify-between items-center">
+                                            <span className="text-gray-600">Original:</span>
+                                            <div className="flex items-center gap-1">
+                                                <Image
+                                                    src="/icons/currency/dirham.svg"
+                                                    alt="Currency"
+                                                    width={14}
+                                                    height={14}
+                                                />
+                                                <span className="text-sm line-through text-gray-400">
+                                                    {product?.originalPrice}
+                                                </span>
+                                            </div>
+                                        </div>
+                                    )}
+
+                                    <div className="flex justify-between items-center">
+                                        <span className="text-gray-600">Stock:</span>
+                                        <span className={`font-semibold ${product?.stock > 0 ? 'text-green-600' : 'text-red-600'}`}>
+                                            {product?.stock > 0 ? `${product?.stock} units` : "Out of stock"}
+                                        </span>
+                                    </div>
+                                </div>
+
+                                <div className="space-y-3">
+                                    {/* ADD TO CART */}
+                                    <button
+                                        className="w-full h-11 bg-[#2F3A1D] clip-path-supplier
                                                flex items-center justify-center
                                                hover:bg-[#3D4A26] transition-colors
                                                disabled:opacity-50 disabled:cursor-not-allowed"
-                                    onClick={async () => {
-                                        if (!product) return;
-                                        addItem({
-                                            id: String(product.id ?? product?.sku ?? Math.random()),
-                                            name: product?.name ?? "Unnamed Product",
-                                            price: Number(product?.price ?? 0),
-                                            image: product?.image,
-                                            sku: product?.sku,
-                                            stock: product?.stock,
-                                        }, quantity);
-                                        if (product?.id != null) {
-                                            await syncAddToServer(Number(product.id), quantity);
-                                        }
-                                        router.push("/cart");
-                                    }}
-                                    disabled={!product?.stock || product?.stock <= 0}
-                                >
-                                    <span className="font-orbitron font-black text-[16px] uppercase text-white">
-                                        Add To Cart
-                                    </span>
-                                </button>
-                                
-                                {/* ADD TO WISHLIST */}
-                                <button
-                                    className="relative w-full h-10 bg-transparent"
-                                    onClick={() => {
-                                        // Add to wishlist logic
-                                    }}
-                                >
-                                    {/* BORDER */}
-                                    <span
-                                        className="absolute inset-0 clip-path-supplier bg-[#3D4A26]"
-                                        aria-hidden
-                                    />
-                                    
-                                    {/* INNER WHITE */}
-                                    <span
-                                        className="absolute inset-[1px] clip-path-supplier bg-white"
-                                        aria-hidden
-                                    />
-                                    
-                                    {/* CONTENT */}
-                                    <span
-                                        className="relative z-10 flex items-center justify-center gap-1
+                                        onClick={async () => {
+                                            if (!product) return;
+                                            addItem({
+                                                id: String(product.id ?? product?.sku ?? Math.random()),
+                                                name: product?.name ?? "Unnamed Product",
+                                                price: Number(product?.price ?? 0),
+                                                image: product?.image,
+                                                sku: product?.sku,
+                                                stock: product?.stock,
+                                            }, quantity);
+                                            if (product?.id != null) {
+                                                await syncAddToServer(Number(product.id), quantity);
+                                            }
+                                            router.push("/cart");
+                                        }}
+                                        disabled={!product?.stock || product?.stock <= 0}
+                                    >
+                                        <span className="font-orbitron font-black text-[16px] uppercase text-white">
+                                            Add To Cart
+                                        </span>
+                                    </button>
+
+                                    {/* ADD TO WISHLIST */}
+                                    <button
+                                        className="relative w-full h-10 bg-transparent"
+                                        onClick={() => {
+                                            // Add to wishlist logic
+                                        }}
+                                    >
+                                        {/* BORDER */}
+                                        <span
+                                            className="absolute inset-0 clip-path-supplier bg-[#3D4A26]"
+                                            aria-hidden
+                                        />
+
+                                        {/* INNER WHITE */}
+                                        <span
+                                            className="absolute inset-[1px] clip-path-supplier bg-white"
+                                            aria-hidden
+                                        />
+
+                                        {/* CONTENT */}
+                                        <span
+                                            className="relative z-10 flex items-center justify-center gap-1
                                                    h-full w-full font-orbitron font-black
                                                    text-sm uppercase text-[#3D4A26]"
-                                    >
-                                        <Heart size={14} strokeWidth={2} />
-                                        Add To Wishlist
-                                    </span>
-                                </button>
-                            </div>
-                                </>
-                            ) : (
-                                <div className="text-start py-8">
-                                    <span
-                                        onClick={() => {
-                                            const currentPath = window.location.pathname;
-                                            router.push(`/login?redirect=${encodeURIComponent(currentPath)}`);
-                                        }}
-                                        className="text-[20px] font-medium text-black cursor-pointer hover:underline"
-                                    >
-                                        Login to access product pricing
-                                    </span>
+                                        >
+                                            <Heart size={14} strokeWidth={2} />
+                                            Add To Wishlist
+                                        </span>
+                                    </button>
                                 </div>
-                            )}
-                        </div>
+                            </>
+                        ) : (
+                            <div className="text-start py-8">
+                                <span
+                                    onClick={() => {
+                                        const currentPath = window.location.pathname;
+                                        router.push(`/login?redirect=${encodeURIComponent(currentPath)}`);
+                                    }}
+                                    className="text-[20px] font-medium text-black cursor-pointer hover:underline"
+                                >
+                                    Login to access product pricing
+                                </span>
+                            </div>
+                        )}
                     </div>
                 </div>
+            </div>
             {/* </Container> */}
 
             {

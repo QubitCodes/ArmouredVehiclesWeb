@@ -138,7 +138,10 @@ export default function OrderSummary({ orderId }: OrderSummaryProps) {
               </div>
               <div className="flex justify-between border-t border-[#C2B280] pt-2 mt-2">
                 <span className="text-sm text-[#666]">Total Amount:</span>
-                <span className="text-lg font-bold text-black">AED {totalAmount.toFixed(2)}</span>
+                <span className="text-lg font-bold text-black flex items-center gap-1">
+                  <Image src="/icons/currency/dirham.svg" alt="AED" width={16} height={14} className="inline-block" />
+                  {totalAmount.toFixed(2)}
+                </span>
               </div>
             </div>
 
@@ -256,7 +259,7 @@ export default function OrderSummary({ orderId }: OrderSummaryProps) {
                             {itemName}
                           </h3>
                           <div className="flex items-center gap-1">
-                            <span className="text-[10px] lg:text-xs font-bold text-black">AED</span>
+                            <Image src="/icons/currency/dirham.svg" alt="AED" width={14} height={12} className="inline-block" />
                             <span className="font-semibold text-xs lg:text-sm text-black">
                               {itemPrice.toFixed(2)}
                             </span>
@@ -290,38 +293,88 @@ export default function OrderSummary({ orderId }: OrderSummaryProps) {
               <div className="flex items-center justify-between">
                 <span className="font-inter font-normal text-[14px] leading-[100%] tracking-[0%] text-[#666]">Items value <span className="text-[#666]">({allItemsCount} items)</span></span>
                 <div className="flex items-center gap-1">
-                  <span className="text-xs font-bold text-black">AED</span>
-                  <span className="text-sm text-black">{totalAmount.toFixed(2)}</span>
+                  <Image src="/icons/currency/dirham.svg" alt="AED" width={14} height={12} className="inline-block" />
+                  <span className="text-sm text-black">
+                    {/* Calculate Item Subtotal (Total - VAT - Shipping - Packing) or sum item prices? */}
+                    {/* Simplified: Sum of line items price * qty */}
+                    {subOrders.reduce((acc: number, o: any) => acc + (o.items?.reduce((iAcc: number, item: any) => iAcc + (Number(item.price) * item.quantity), 0) || 0), 0).toFixed(2)}
+                  </span>
                 </div>
               </div>
 
+              {/* Shipping & Packing */}
+              {(() => {
+                const totalShipping = subOrders.reduce((acc: number, o: any) => acc + Number(o.total_shipping || 0), 0);
+                const totalPacking = subOrders.reduce((acc: number, o: any) => acc + Number(o.total_packing || 0), 0);
+
+                return (
+                  <>
+                    {totalShipping > 0 && (
+                      <div className="flex items-center justify-between">
+                        <span className="font-inter font-normal text-[14px] leading-[100%] tracking-[0%] text-[#666]">Shipping</span>
+                        <div className="flex items-center gap-1">
+                          <Image src="/icons/currency/dirham.svg" alt="AED" width={14} height={12} className="inline-block" />
+                          <span className="text-sm text-black">
+                            {totalShipping.toFixed(2)}
+                          </span>
+                        </div>
+                      </div>
+                    )}
+
+                    {totalPacking > 0 && (
+                      <div className="flex items-center justify-between">
+                        <span className="font-inter font-normal text-[14px] leading-[100%] tracking-[0%] text-[#666]">Packing</span>
+                        <div className="flex items-center gap-1">
+                          <Image src="/icons/currency/dirham.svg" alt="AED" width={14} height={12} className="inline-block" />
+                          <span className="text-sm text-black">
+                            {totalPacking.toFixed(2)}
+                          </span>
+                        </div>
+                      </div>
+                    )}
+                  </>
+                );
+              })()}
+
               <div className="flex items-center justify-between">
-                <button
-                  onClick={() => setShowFees(!showFees)}
-                  className="flex items-center gap-1 text-sm text-[#666]"
-                >
-                  Fees
-                  <ChevronDown size={14} className={`transition-transform ${showFees ? 'rotate-180' : ''}`} />
-                </button>
-                <span className="text-sm text-[#009900] font-medium">Free</span>
+                <span className="font-inter font-normal text-[14px] leading-[100%] tracking-[0%] text-[#666]">VAT</span>
+                <div className="flex items-center gap-1">
+                  <Image src="/icons/currency/dirham.svg" alt="AED" width={14} height={12} className="inline-block" />
+                  <span className="text-sm text-black">
+                    {subOrders.reduce((acc: number, o: any) => acc + Number(o.vat_amount || 0), 0).toFixed(2)}
+                  </span>
+                </div>
               </div>
 
-              <div className="flex items-center justify-between bg-[#EBE3D6] p-3">
-                <span className="text-sm text-[#666]">Shipping Fee</span>
-                <span className="text-sm text-[#009900] font-medium">Free</span>
-              </div>
-
-              <div className="flex items-center justify-between pt-3">
+              <div className="flex items-center justify-between pt-3 border-t border-[#C2B280] mt-2">
                 <span className="font-inter font-semibold text-[16px] leading-[100%] tracking-[0%] text-[#6E6E6E]">Order total <span className="font-normal text-[#666]">inc. VAT</span></span>
                 <div className="flex items-center gap-1">
-                  <span className="text-[#6E6E6E] font-bold text-xs">AED</span>
+                  <Image src="/icons/currency/dirham.svg" alt="AED" width={16} height={14} className="inline-block" />
                   <span className="font-inter font-semibold text-[16px] leading-[100%] tracking-[0%] text-[#6E6E6E]">{totalAmount.toFixed(2)}</span>
                 </div>
               </div>
             </div>
           </div>
 
-          {/* Column 2 - Delivery Address */}
+          {/* Column 2 - Payment Details */}
+          <div className="bg-[#F0EBE3] border border-[#C2B280] p-4 lg:p-5">
+            <div className="flex items-center justify-between mb-4">
+              <h2 className="font-orbitron font-bold text-sm uppercase tracking-wider text-black">
+                Payment Details
+              </h2>
+            </div>
+            <div className="inline-flex items-center gap-2 bg-[#EBE3D6] p-3">
+              <Image src="/order/paysvg3.svg" alt={paymentMethod} width={80} height={32} />
+              <span className="text-sm text-[#666]">
+                {paymentMethod}{paymentLast4 ? ` ****${paymentLast4}` : ""}
+              </span>
+            </div>
+          </div>
+        </div>
+
+        {/* Second Row: 1 Column - Delivery Address */}
+        <div className="lg:grid lg:grid-cols-2 lg:gap-4">
+
           <div className="bg-[#F0EBE3] border border-[#C2B280] p-4 lg:p-5 mb-4 lg:mb-0">
             <h2 className="font-orbitron font-bold text-sm uppercase tracking-wider text-black mb-4">
               Delivery Address
@@ -380,23 +433,7 @@ export default function OrderSummary({ orderId }: OrderSummaryProps) {
               })()}
             </div>
           </div>
-        </div>
 
-        {/* Second Row: 1 Column */}
-        <div className="lg:grid lg:grid-cols-2 lg:gap-4">
-          <div className="bg-[#F0EBE3] border border-[#C2B280] p-4 lg:p-5">
-            <div className="flex items-center justify-between mb-4">
-              <h2 className="font-orbitron font-bold text-sm uppercase tracking-wider text-black">
-                Payment Details
-              </h2>
-            </div>
-            <div className="inline-flex items-center gap-2 bg-[#EBE3D6] p-3">
-              <Image src="/order/paysvg3.svg" alt={paymentMethod} width={80} height={32} />
-              <span className="text-sm text-[#666]">
-                {paymentMethod}{paymentLast4 ? ` ****${paymentLast4}` : ""}
-              </span>
-            </div>
-          </div>
         </div>
       </div>
 

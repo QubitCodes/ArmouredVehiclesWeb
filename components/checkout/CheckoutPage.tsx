@@ -6,7 +6,7 @@ import Image from "next/image";
 import { ArrowLeft, Check, Phone } from "lucide-react";
 import OrderSummary from "@/components/cart/OrderSummary";
 import PaymentMethodModal from "@/components/modal/PaymentMethodModal";
-import { getAccessToken } from "@/lib/api";
+import api, { getAccessToken } from "@/lib/api";
 import { Address } from "@/lib/types";
 import { getAddresses } from "@/app/services/address";
 import { useCartStore } from "@/lib/cart-store";
@@ -30,6 +30,7 @@ export default function CheckoutPage() {
   const [showSplitWarning, setShowSplitWarning] = useState(false); // New state for split warning
   const [isProcessing, setIsProcessing] = useState(false);
   const [address, setAddress] = useState<Address | null>(null);
+  const [vatPercent, setVatPercent] = useState(5);
 
   useEffect(() => {
     if (getAccessToken()) {
@@ -58,6 +59,20 @@ export default function CheckoutPage() {
     })();
   }, []);
 
+  useEffect(() => {
+    const fetchSettings = async () => {
+      try {
+        const settings = await api.settings.getPublic();
+        if (settings && typeof settings.vat_percentage === 'number') {
+          setVatPercent(settings.vat_percentage);
+        }
+      } catch (err) {
+        console.error("Failed to fetch settings", err);
+      }
+    };
+    fetchSettings();
+  }, []);
+
   const uiItems = useMemo(
     () =>
       storeItems.map((i) => ({
@@ -72,7 +87,7 @@ export default function CheckoutPage() {
 
   const subtotal = cartSubtotal;
   const shippingFee = subtotal > 500 ? 0 : 40;
-  const estimatedVAT = subtotal * 0.05;
+  const estimatedVAT = subtotal * (vatPercent / 100);
   const discount = 0;
   const total = subtotal + shippingFee + estimatedVAT - discount;
 
@@ -229,7 +244,10 @@ export default function CheckoutPage() {
                     <h3 className="font-inter font-medium text-[14px] text-[#1A1A1A] leading-snug">{product.name}</h3>
                     <div className="flex items-center gap-2 mt-1">
                       <span className="text-[13px] text-[#6E6E6E]">Qty: {product.qty}</span>
-                      <span className="font-semibold text-[14px] text-[#1A1A1A]">{product.price.toFixed(2)}</span>
+                      <div className="flex items-center gap-1 font-semibold text-[14px] text-[#1A1A1A]">
+                        <Image src="/icons/currency/dirham.svg" alt="AED" width={14} height={12} className="inline-block" />
+                        {product.price.toFixed(2)}
+                      </div>
                     </div>
                   </div>
                 </div>

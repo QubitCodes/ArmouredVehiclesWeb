@@ -15,43 +15,43 @@ export default function TrackingDetails({ orderId }: TrackingDetailsProps) {
 
   if (isLoading) {
     return (
-        <div className="flex-1 flex items-center justify-center min-h-[50vh]">
-            <div className="flex flex-col items-center gap-4">
-              <div className="animate-spin">
-                <Package className="w-12 h-12 text-[#D35400]" />
-              </div>
-              <p className="text-[#6E6E6E]">Loading order details...</p>
-            </div>
+      <div className="flex-1 flex items-center justify-center min-h-[50vh]">
+        <div className="flex flex-col items-center gap-4">
+          <div className="animate-spin">
+            <Package className="w-12 h-12 text-[#D35400]" />
+          </div>
+          <p className="text-[#6E6E6E]">Loading order details...</p>
         </div>
+      </div>
     );
   }
 
   if (error || !order) {
     return (
-        <div className="flex-1 flex items-center justify-center min-h-[50vh]">
-            <div className="text-center">
-                <h2 className="text-xl font-bold mb-2">Order not found</h2>
-                <button
-                  onClick={() => router.back()}
-                  className="px-6 py-2 bg-[#D35400] text-white rounded hover:bg-[#B84A00]"
-                >
-                  Go Back
-                </button>
-            </div>
+      <div className="flex-1 flex items-center justify-center min-h-[50vh]">
+        <div className="text-center">
+          <h2 className="text-xl font-bold mb-2">Order not found</h2>
+          <button
+            onClick={() => router.back()}
+            className="px-6 py-2 bg-[#D35400] text-white rounded hover:bg-[#B84A00]"
+          >
+            Go Back
+          </button>
         </div>
+      </div>
     );
   }
 
   const formattedDate = new Date(order.createdAt).toLocaleDateString('en-GB', {
-      day: 'numeric', month: 'short', year: 'numeric'
+    day: 'numeric', month: 'short', year: 'numeric'
   });
 
   const deliveryAddress = order.address || {
-      name: "N/A",
-      address_line1: "Address not available",
-      city: "",
-      country: "",
-      phone: ""
+    name: "N/A",
+    address_line1: "Address not available",
+    city: "",
+    country: "",
+    phone: ""
   };
 
   return (
@@ -100,19 +100,19 @@ export default function TrackingDetails({ orderId }: TrackingDetailsProps) {
               </p>
               {order.order_status === 'cancelled' && (
                 <p className="text-sm text-[#666]">
-                    Reason: <span className="text-[#D35400]">{order.comments || "N/A"}</span>
+                  Reason: <span className="text-[#D35400]">{order.comments || "N/A"}</span>
                 </p>
               )}
             </div>
           </div>
           {(order.order_status === 'pending_review' || order.order_status === 'pending_approval') && (
-             <div className="relative clip-path-supplier bg-[#3D4A26] p-[1px] w-full lg:w-auto">
-                <button 
-                  className="clip-path-supplier bg-[#EBE3D6] hover:bg-[#3D4A26] text-[#000] hover:text-white px-6 py-2 text-sm font-bold font-orbitron uppercase tracking-wide transition-colors w-full lg:w-auto"
-                >
-                  Cancel Order
-                </button>
-             </div>
+            <div className="relative clip-path-supplier bg-[#3D4A26] p-[1px] w-full lg:w-auto">
+              <button
+                className="clip-path-supplier bg-[#EBE3D6] hover:bg-[#3D4A26] text-[#000] hover:text-white px-6 py-2 text-sm font-bold font-orbitron uppercase tracking-wide transition-colors w-full lg:w-auto"
+              >
+                Cancel Order
+              </button>
+            </div>
           )}
         </div>
       </div>
@@ -155,21 +155,22 @@ export default function TrackingDetails({ orderId }: TrackingDetailsProps) {
         {order.items?.map((item) => (
           <div key={item.id} className="p-4 lg:p-5 flex items-start gap-4">
             <div className="w-16 h-16 lg:w-20 lg:h-20 flex-shrink-0 bg-white p-1">
-                <Image
+              <Image
                 src={item.image || item.product?.image || "/placeholder.jpg"}
                 alt={item.name || item.product_name || "Product"}
                 width={80}
                 height={80}
                 className="w-full h-full object-contain"
-                />
+              />
             </div>
             <div className="flex-1 min-w-0">
               <h3 className="text-sm font-medium text-black mb-1 line-clamp-2">
                 {item.name || item.product_name || item.product?.name || "Product"}
               </h3>
               <div className="flex items-center gap-1 mb-1">
-                <span className="font-semibold text-sm text-black">
-                  {parseFloat(item.price).toFixed(2)} AED
+                <span className="font-semibold text-sm text-black flex items-center gap-1">
+                  <Image src="/icons/currency/dirham.svg" alt="AED" width={14} height={12} className="inline-block" />
+                  {parseFloat(item.price).toFixed(2)}
                 </span>
                 <span className="text-xs text-[#666]">x {item.quantity}</span>
               </div>

@@ -211,16 +211,16 @@ export default function WishlistPage() {
                 {/* Product Price */}
                 <div className="flex items-center justify-between w-full mb-3">
                   <div className="flex items-center gap-2">
-                  <Image
-                    src="/icons/currency/dirham.svg"
-                    alt="AED"
-                    width={18}
-                    height={16}
-                    className="flex-shrink-0 w-[18px] h-[16px] lg:w-[20px] lg:h-[18px]"
-                  />
-                  <span className="font-inter font-bold text-lg text-black">
-                    {typeof item.price === "number" ? item.price.toLocaleString() : "—"}
-                  </span>
+                    <Image
+                      src="/icons/currency/dirham.svg"
+                      alt="AED"
+                      width={18}
+                      height={16}
+                      className="flex-shrink-0 w-[18px] h-[16px] lg:w-[20px] lg:h-[18px]"
+                    />
+                    <span className="font-inter font-bold text-lg text-black">
+                      {typeof item.price === "number" ? item.price.toLocaleString() : "—"}
+                    </span>
                   </div>
                   {item.isControlled && (
                     <div className="inline-block bg-red-100 text-red-600 text-[10px] px-2 py-0.5 font-bold uppercase tracking-wider border border-red-200">

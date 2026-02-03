@@ -20,11 +20,11 @@ const ORDER_STATUS_STEPS = [
 
 function getTrackingSteps(order: Order) {
   const currentStatusIndex = ORDER_STATUS_STEPS.findIndex(s => s.status === order.order_status) || 0;
-  
+
   // Custom logic to show the flow
   // If status is 'shipped', then 'pending' and 'processing' are completed.
   // If status is 'pending', nothing is completed except maybe 'Confirmed'.
-  
+
   // Simplified mapping for now based on index
   return ORDER_STATUS_STEPS.map((step, index) => {
     let completed = false;
@@ -36,16 +36,16 @@ function getTrackingSteps(order: Order) {
     const stepIdx = statusOrder.indexOf(step.status);
 
     if (orderStatusIdx >= stepIdx) {
-        completed = true;
+      completed = true;
     }
     if (orderStatusIdx === stepIdx) {
-        current = true;
+      current = true;
     }
 
     // specific override for cancelled
     if (order.order_status === 'cancelled') {
-        completed = false;
-        current = false;
+      completed = false;
+      current = false;
     }
 
     return {
@@ -65,44 +65,44 @@ export default function TrackOrder({ orderId }: TrackOrderProps) {
 
   if (isLoading) {
     return (
-        <div className="flex-1 flex items-center justify-center min-h-[50vh]">
-            <div className="flex flex-col items-center gap-4">
-              <div className="animate-spin">
-                <Package className="w-12 h-12 text-[#D35400]" />
-              </div>
-              <p className="text-[#6E6E6E]">Loading order details...</p>
-            </div>
+      <div className="flex-1 flex items-center justify-center min-h-[50vh]">
+        <div className="flex flex-col items-center gap-4">
+          <div className="animate-spin">
+            <Package className="w-12 h-12 text-[#D35400]" />
+          </div>
+          <p className="text-[#6E6E6E]">Loading order details...</p>
         </div>
+      </div>
     );
   }
 
   if (error || !order) {
     return (
-        <div className="flex-1 flex items-center justify-center min-h-[50vh]">
-            <div className="text-center">
-                <h2 className="text-xl font-bold mb-2">Order not found</h2>
-                <button
-                  onClick={() => router.back()}
-                  className="px-6 py-2 bg-[#D35400] text-white rounded hover:bg-[#B84A00]"
-                >
-                  Go Back
-                </button>
-            </div>
+      <div className="flex-1 flex items-center justify-center min-h-[50vh]">
+        <div className="text-center">
+          <h2 className="text-xl font-bold mb-2">Order not found</h2>
+          <button
+            onClick={() => router.back()}
+            className="px-6 py-2 bg-[#D35400] text-white rounded hover:bg-[#B84A00]"
+          >
+            Go Back
+          </button>
         </div>
+      </div>
     );
   }
 
   const trackingSteps = getTrackingSteps(order);
   const deliveryAddress = order.address || {
-      name: "N/A",
-      address_line1: "Address not available",
-      city: "",
-      country: "",
-      phone: ""
+    name: "N/A",
+    address_line1: "Address not available",
+    city: "",
+    country: "",
+    phone: ""
   }; // Fallback
 
   const formattedDate = new Date(order.createdAt).toLocaleDateString('en-GB', {
-      day: 'numeric', month: 'short', year: 'numeric'
+    day: 'numeric', month: 'short', year: 'numeric'
   });
 
   return (
@@ -142,7 +142,7 @@ export default function TrackOrder({ orderId }: TrackOrderProps) {
             <div className="space-y-1">
               <p className="font-semibold text-sm text-black">{deliveryAddress.name}</p>
               <p className="text-sm text-[#666]">
-                  {deliveryAddress.address_line1}, {deliveryAddress.city}, {deliveryAddress.country}
+                {deliveryAddress.address_line1}, {deliveryAddress.city}, {deliveryAddress.country}
               </p>
               <p className="text-sm text-[#666]">
                 {deliveryAddress.phone} · {deliveryAddress.email}
@@ -162,26 +162,24 @@ export default function TrackOrder({ orderId }: TrackOrderProps) {
                 {/* Timeline Line */}
                 {index < trackingSteps.length - 1 && (
                   <div
-                    className={`absolute left-[11px] top-6 w-0.5 h-full ${
-                      step.completed ? "bg-[#D35400]" : "bg-[#CCCCCC]"
-                    }`}
+                    className={`absolute left-[11px] top-6 w-0.5 h-full ${step.completed ? "bg-[#D35400]" : "bg-[#CCCCCC]"
+                      }`}
                     style={{ height: step.current ? "100px" : "32px" }}
                   />
                 )}
 
                 {/* Status Icon */}
-                <div 
-                  className={`relative z-10 w-7 h-7 flex items-center justify-center flex-shrink-0 ${
-                    step.completed 
-                      ? "bg-[#D35400] rounded-full" 
-                      : ""
-                  }`}
+                <div
+                  className={`relative z-10 w-7 h-7 flex items-center justify-center flex-shrink-0 ${step.completed
+                    ? "bg-[#D35400] rounded-full"
+                    : ""
+                    }`}
                 >
                   <Image
                     src={
-                        step.completed 
-                        ? step.current 
-                          ? "/order/Track2.png" 
+                      step.completed
+                        ? step.current
+                          ? "/order/Track2.png"
                           : "/order/Track.png"
                         : "/order/Track1.png" // Default inactive
                     }
@@ -196,9 +194,8 @@ export default function TrackOrder({ orderId }: TrackOrderProps) {
                 <div className={`pb-6 ${step.current ? "pb-8" : ""}`}>
                   <div className="flex items-center gap-2 flex-wrap">
                     <span
-                      className={`font-medium text-sm ${
-                        step.current ? "text-[#D35400]" : step.completed ? "text-black" : "text-[#666]"
-                      }`}
+                      className={`font-medium text-sm ${step.current ? "text-[#D35400]" : step.completed ? "text-black" : "text-[#666]"
+                        }`}
                     >
                       {step.status}
                     </span>
@@ -236,15 +233,18 @@ export default function TrackOrder({ orderId }: TrackOrderProps) {
                 Item Summary
               </h2>
               <p className="text-xs text-[#666] mt-1">
-                Total Amount: <span className="font-bold text-black">{Number(order.total_amount || 0).toFixed(2)} AED</span>
+                Total Amount: <span className="font-bold text-black flex items-center gap-1">
+                  <Image src="/icons/currency/dirham.svg" alt="AED" width={14} height={12} className="inline-block" />
+                  {Number(order.total_amount || 0).toFixed(2)}
+                </span>
               </p>
             </div>
             {(order.order_status === 'pending_review' || order.order_status === 'pending_approval') && (
-                <div className="relative clip-path-supplier bg-[#3D4A26] p-[1px] w-full lg:w-auto">
+              <div className="relative clip-path-supplier bg-[#3D4A26] p-[1px] w-full lg:w-auto">
                 <button className="clip-path-supplier bg-[#EBE3D6] hover:bg-[#3D4A26] text-[#000] hover:text-white px-6 py-2 text-sm font-bold font-orbitron uppercase tracking-wide transition-colors w-full lg:w-auto">
-                    Cancel Order
+                  Cancel Order
                 </button>
-                </div>
+              </div>
             )}
           </div>
         </div>
@@ -253,21 +253,22 @@ export default function TrackOrder({ orderId }: TrackOrderProps) {
         {order.items?.map((item: any) => (
           <div key={item.id} className="p-4 lg:p-5 flex items-start gap-4">
             <div className="w-16 h-16 lg:w-20 lg:h-20 flex-shrink-0 bg-white p-1">
-                <Image
+              <Image
                 src={item.image || "/product/product 1.png"}
                 alt={item.name || item.product?.name || "Product"}
                 width={80}
                 height={80}
                 className="w-full h-full object-contain"
-                />
+              />
             </div>
             <div className="flex-1 min-w-0">
               <h3 className="text-sm font-medium text-black mb-1 line-clamp-2">
                 {item.name || item.product?.name}
               </h3>
               <div className="flex items-center gap-1 mb-1">
-                <span className="font-semibold text-sm text-black">
-                  {parseFloat(item.price).toFixed(2)} AED
+                <span className="font-semibold text-sm text-black flex items-center gap-1">
+                  <Image src="/icons/currency/dirham.svg" alt="AED" width={14} height={12} className="inline-block" />
+                  {parseFloat(item.price).toFixed(2)}
                 </span>
                 <span className="text-xs text-[#666]">x {item.quantity}</span>
               </div>

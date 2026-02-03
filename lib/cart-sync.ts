@@ -13,17 +13,17 @@ async function findServerCartItemId(productId: number) {
     // The server cart item usually has an 'id' (cart item id) and 'productId' (product id).
     // Sometimes it might be nested in 'product'. 
     const match = items.find((ci: any) => {
-        const pId = ci.productId ?? ci.product_id ?? ci.product?.id;
-        // console.log(`Debug: Checking item ${ci.id}, pId found: ${pId}`);
-        return String(pId) === String(productId);
+      const pId = ci.productId ?? ci.product_id ?? ci.product?.id;
+      // console.log(`Debug: Checking item ${ci.id}, pId found: ${pId}`);
+      return String(pId) === String(productId);
     });
-    
+
     if (!match) {
-        console.warn(`Cart sync warning: Could not find server cart item for product ID ${productId}`);
+      console.warn(`Cart sync warning: Could not find server cart item for product ID ${productId}`);
     } else {
-        // console.log(`Debug: Found match, cart item ID: ${match.id}`);
+      // console.log(`Debug: Found match, cart item ID: ${match.id}`);
     }
-    
+
     return match?.id as number | undefined;
   } catch (e) {
     console.error("Error finding server cart item id", e);
@@ -62,10 +62,10 @@ export async function syncRemoveFromServer(productId: number) {
     const cartItemId = await findServerCartItemId(productId);
     console.log(`[SyncRemove] ProductId: ${productId} -> CartItemId: ${cartItemId}`);
     if (cartItemId) {
-        const res = await api.cart.remove(cartItemId);
-        console.log(`[SyncRemove] Remove result:`, res);
+      const res = await api.cart.remove(cartItemId);
+      console.log(`[SyncRemove] Remove result:`, res);
     } else {
-        console.warn(`[SyncRemove] Could not find cart item to remove for product ${productId}`);
+      console.warn(`[SyncRemove] Could not find cart item to remove for product ${productId}`);
     }
   } catch (e) {
     console.error("Cart remove sync failed", e);
@@ -92,6 +92,8 @@ export async function hydrateCartFromServer() {
       stock: ci.product?.stock,
       is_controlled: ci.product?.is_controlled,
       vendorId: ci.product?.vendor_id || ci.product?.vendorId,
+      shipping_charge: Number(ci.product?.shipping_charge || 0),
+      packing_charge: Number(ci.product?.packing_charge || 0),
     }));
     const setItems = useCartStore.getState().setItems;
     setItems(mapped);

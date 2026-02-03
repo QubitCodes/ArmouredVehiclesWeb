@@ -63,7 +63,7 @@ export default function ProductPurchaseSection({
 
     useEffect(() => {
         const hasMin = typeof minOrderQuantity === 'number' && minOrderQuantity > 0;
-        setQuantity(hasMin ? (minOrderQuantity as number) : 0);
+        setQuantity(hasMin ? (minOrderQuantity as number) : 1);
     }, [minOrderQuantity, setQuantity]);
 
     function getDeliveryRange(minDays: number, maxDays: number) {
@@ -141,7 +141,7 @@ export default function ProductPurchaseSection({
                                 <div className="flex items-center border border-[#B7B1A8] bg-[#EBE4D7] mt-1 h-10 w-40">
                                     <button
                                         onClick={() => {
-                                            setQuantity(Math.max(typeof minOrderQuantity === 'number' && minOrderQuantity > 0 ? minOrderQuantity : 0, quantity - 1));
+                                            setQuantity(Math.max(typeof minOrderQuantity === 'number' && minOrderQuantity > 0 ? minOrderQuantity : 1, quantity - 1));
                                             setInputValue(null);
                                         }}
                                         className="w-10 h-full flex items-center justify-center text-black hover:bg-[#D8D1C5] transition"
@@ -156,12 +156,12 @@ export default function ProductPurchaseSection({
                                             const raw = e.target.value;
                                             setInputValue(raw);
                                             const val = parseInt(raw);
-                                            const min = (typeof minOrderQuantity === 'number' && minOrderQuantity > 0) ? minOrderQuantity : 0;
+                                            const min = (typeof minOrderQuantity === 'number' && minOrderQuantity > 0) ? minOrderQuantity : 1;
                                             if (!isNaN(val) && val >= min) setQuantity(val);
                                         }}
                                         onBlur={() => setInputValue(null)}
                                         className="flex-1 w-full h-full bg-transparent text-center text-black outline-none appearance-none [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none"
-                                        min={(typeof minOrderQuantity === 'number' && minOrderQuantity > 0) ? minOrderQuantity : 0}
+                                        min={(typeof minOrderQuantity === 'number' && minOrderQuantity > 0) ? minOrderQuantity : 1}
                                     />
                                     <button
                                         onClick={() => {

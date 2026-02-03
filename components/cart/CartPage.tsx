@@ -32,6 +32,8 @@ type UiCartItem = {
   qty: number;
   stock?: string;
   isControlled?: boolean;
+  shipping_charge: number;
+  packing_charge: number;
 };
 
 export default function CartPage() {
@@ -39,6 +41,7 @@ export default function CartPage() {
   const [isCheckoutLoading, setIsCheckoutLoading] = useState(false);
   // Using persisted store; no async loading needed
   const [error, setError] = useState<string | null>(null);
+  const [vatPercent, setVatPercent] = useState(5);
   const storeItems = useCartStore((s) => s.items);
   const updateQtyStore = useCartStore((s) => s.updateQty);
   const removeItemStore = useCartStore((s) => s.removeItem);
@@ -61,8 +64,24 @@ export default function CartPage() {
             : "Out of Stock"
           : undefined,
       isControlled: i.is_controlled,
+      shipping_charge: Number(i.shipping_charge ?? 0),
+      packing_charge: Number(i.packing_charge ?? 0),
     }));
   }, [storeItems]);
+
+  useEffect(() => {
+    const fetchSettings = async () => {
+      try {
+        const settings = await api.settings.getPublic();
+        if (settings && typeof settings.vat_percentage === 'number') {
+          setVatPercent(settings.vat_percentage);
+        }
+      } catch (err) {
+        console.error("Failed to fetch settings", err);
+      }
+    };
+    fetchSettings();
+  }, []);
 
   const handleCheckout = async () => {
     if (!address) {
@@ -139,6 +158,21 @@ export default function CartPage() {
     () => items.reduce((sum, item) => sum + item.qty, 0),
     [items]
   );
+
+  const totalShipping = useMemo(() =>
+    (storeItems || []).reduce((sum, item) => sum + (Number(item.shipping_charge || 0) * item.qty), 0),
+    [storeItems]);
+
+  const totalPacking = useMemo(() =>
+    (storeItems || []).reduce((sum, item) => sum + (Number(item.packing_charge || 0) * item.qty), 0),
+    [storeItems]);
+
+
+  // Taxable amount usually includes services (shipping/packing) often.
+  // Assuming standard VAT on everything.
+  const taxableAmount = subtotal + totalShipping + totalPacking;
+  const totalVat = taxableAmount * (vatPercent / 100);
+  const grandTotal = taxableAmount + totalVat;
 
 
   // On mount: Always hydrate from server (Source of Truth) to match Stripe/DB
@@ -374,6 +408,11 @@ export default function CartPage() {
                 isLoading={isCheckoutLoading}
                 approvalRequired={approvalRequired}
                 onboardingWarning={onboardingWarning}
+                totalShipping={totalShipping}
+                totalPacking={totalPacking}
+                totalVat={totalVat}
+                grandTotal={grandTotal}
+                vatPercent={vatPercent}
               />
             </div>
           )}

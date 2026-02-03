@@ -41,7 +41,7 @@ export function getStoredUser(): User | null {
   if (typeof window === 'undefined') return null;
   const user = localStorage.getItem(USER_KEY);
   if (!user || user === 'undefined' || user === 'null') return null;
-  
+
   try {
     return JSON.parse(user);
   } catch (e) {
@@ -56,7 +56,7 @@ export function storeTokens(accessToken: string, refreshToken: string, expiresIn
   localStorage.setItem(REFRESH_TOKEN_KEY, refreshToken);
   // Store absolute expiry time (current time + seconds)
   localStorage.setItem(TOKEN_EXPIRY_KEY, String(Date.now() + expiresIn * 1000));
-  
+
   // Sync to cookie for Middleware
   // Using encodeURIComponent to be safe, though JWTs are usually safe chars
   document.cookie = `auth_token=${encodeURIComponent(accessToken)}; path=/; max-age=${expiresIn}; SameSite=Lax`;
@@ -73,7 +73,7 @@ export function clearTokens() {
   localStorage.removeItem(ACCESS_TOKEN_KEY);
   localStorage.removeItem(REFRESH_TOKEN_KEY);
   localStorage.removeItem(TOKEN_EXPIRY_KEY);
-  
+
   // Clear cookie
   document.cookie = 'auth_token=; path=/; expires=Thu, 01 Jan 1970 00:00:01 GMT;';
   localStorage.removeItem(USER_KEY);
@@ -91,25 +91,25 @@ export function syncAuthCookie() {
   if (typeof window === 'undefined') return;
   const token = getAccessToken();
   const expiry = localStorage.getItem(TOKEN_EXPIRY_KEY);
-  
+
   if (token && expiry) {
     const expiresAt = parseInt(expiry);
     const expiresIn = Math.floor((expiresAt - Date.now()) / 1000);
-    
+
     // Only set if not expired
     if (expiresIn > 0) {
-       // console.log('Syncing auth cookie (valid)', expiresIn);
-       document.cookie = `auth_token=${encodeURIComponent(token)}; path=/; max-age=${expiresIn}; SameSite=Lax`;
+      // console.log('Syncing auth cookie (valid)', expiresIn);
+      document.cookie = `auth_token=${encodeURIComponent(token)}; path=/; max-age=${expiresIn}; SameSite=Lax`;
     } else {
-       // console.log('Syncing auth cookie (expired/backup)', 3600);
-       // Give it a grace period or let it expire naturally? 
-       // For now, if we have a token but it says expired, we might want to refresh first.
-       // But this sync is simple. Let's set it with a short life if we think it's valid enough to be in storage
-       document.cookie = `auth_token=${encodeURIComponent(token)}; path=/; max-age=3600; SameSite=Lax`;
+      // console.log('Syncing auth cookie (expired/backup)', 3600);
+      // Give it a grace period or let it expire naturally? 
+      // For now, if we have a token but it says expired, we might want to refresh first.
+      // But this sync is simple. Let's set it with a short life if we think it's valid enough to be in storage
+      document.cookie = `auth_token=${encodeURIComponent(token)}; path=/; max-age=3600; SameSite=Lax`;
     }
   } else if (token) {
-       // console.log('Syncing auth cookie (no expiry)', 3600);
-       document.cookie = `auth_token=${encodeURIComponent(token)}; path=/; max-age=3600; SameSite=Lax`;
+    // console.log('Syncing auth cookie (no expiry)', 3600);
+    document.cookie = `auth_token=${encodeURIComponent(token)}; path=/; max-age=3600; SameSite=Lax`;
   }
 }
 
@@ -185,7 +185,7 @@ async function fetchJson<T>(endpoint: string, options: RequestInit = {}, retry =
     token: (authHeaders as any).Authorization ? (authHeaders as any).Authorization.substring(0, 20) + '...' : 'NONE',
     fullToken: (authHeaders as any).Authorization
   });
-  
+
   const headers: HeadersInit = {
     'Content-Type': 'application/json',
     'x-session-id': getSessionId(), // Always send session ID
@@ -198,34 +198,34 @@ async function fetchJson<T>(endpoint: string, options: RequestInit = {}, retry =
   // 1.5 Global Auth Status Check (New Header)
   const authStatus = response.headers.get('x-auth-status');
   if (authStatus === 'invalid') {
-      console.warn('[API] Invalid Token detected via Header. Disconnecting...');
-      if (typeof window !== 'undefined') {
-          clearTokens();
-          window.dispatchEvent(new Event('auth:invalid'));
-      }
-      // Continue to process response? Usually safe to continue as public, 
-      // but if the endpoint failed 401, step 2 will handle it.
-      // If endpoint succeeded (200) but token was bad (Hybrid), we just log out locally.
+    console.warn('[API] Invalid Token detected via Header. Disconnecting...');
+    if (typeof window !== 'undefined') {
+      clearTokens();
+      window.dispatchEvent(new Event('auth:invalid'));
+    }
+    // Continue to process response? Usually safe to continue as public, 
+    // but if the endpoint failed 401, step 2 will handle it.
+    // If endpoint succeeded (200) but token was bad (Hybrid), we just log out locally.
   }
 
   // 2. Error handling: If 401 Unauthorized, try to refresh and retry ONCE
   if (response.status === 401) {
     if (retry && getRefreshToken()) {
-        const refreshed = await refreshAccessToken();
-        if (refreshed) {
-          // Retry the original request with new token
-          return fetchJson<T>(endpoint, options, false);
-        }
+      const refreshed = await refreshAccessToken();
+      if (refreshed) {
+        // Retry the original request with new token
+        return fetchJson<T>(endpoint, options, false);
+      }
     }
-    
+
     // If we are here, it means 401 and either no refresh token or refresh failed (or retry failed)
     // Redirect to login
     if (typeof window !== 'undefined') {
-        clearTokens(); // Ensure storage is cleared
-        const currentPath = window.location.pathname;
-        if (!currentPath.startsWith('/login')) {
-             window.location.href = `/login?returnUrl=${encodeURIComponent(currentPath)}`;
-        }
+      clearTokens(); // Ensure storage is cleared
+      const currentPath = window.location.pathname;
+      if (!currentPath.startsWith('/login')) {
+        window.location.href = `/login?returnUrl=${encodeURIComponent(currentPath)}`;
+      }
     }
   }
 
@@ -284,19 +284,19 @@ export const api = {
     checkUser: async (identifier: string): Promise<{ exists: boolean; data?: any; bypass?: boolean }> => {
       try {
         const response = await fetch(`${API_BASE}/auth/user-exists`, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ identifier, userType: 'customer' }),
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ identifier, userType: 'customer' }),
         });
         const data = await response.json();
         if (response.status === 200) {
-            return { exists: true, data: data.data };
+          return { exists: true, data: data.data };
         }
         // Handle Dev Backdoor Response (Status 100 often returns 200 OK via BaseController, but let's check payload)
         if (data.data?.bypass) {
-             storeTokens(data.data.accessToken, data.data.refreshToken, data.data.expiresIn);
-             storeUser(data.data.user);
-             return { exists: true, data: data.data, bypass: true };
+          storeTokens(data.data.accessToken, data.data.refreshToken, data.data.expiresIn);
+          storeUser(data.data.user);
+          return { exists: true, data: data.data, bypass: true };
         }
 
         if (response.status === 404) return { exists: false };
@@ -308,36 +308,36 @@ export const api = {
     },
 
     verifyFirebase: async (idToken: string): Promise<AuthResponse> => {
-        const response = await fetch(`${API_BASE}/auth/firebase/verify`, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ idToken }),
-        });
-        const res = await response.json();
-        if (!response.ok) {
-            const error = new Error(res.message || 'Firebase verification failed');
-            (error as any).status = response.status;
-            (error as any).data = res.data || res.misc; 
-            throw error;
-        }
-        const payload = res.data ?? res;
-        storeTokens(payload.accessToken, payload.refreshToken, payload.expiresIn);
-        storeUser(payload.user);
-        return payload;
+      const response = await fetch(`${API_BASE}/auth/firebase/verify`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ idToken }),
+      });
+      const res = await response.json();
+      if (!response.ok) {
+        const error = new Error(res.message || 'Firebase verification failed');
+        (error as any).status = response.status;
+        (error as any).data = res.data || res.misc;
+        throw error;
+      }
+      const payload = res.data ?? res;
+      storeTokens(payload.accessToken, payload.refreshToken, payload.expiresIn);
+      storeUser(payload.user);
+      return payload;
     },
 
     registerFirebase: async (data: { idToken: string; name: string; username: string; userType?: string; phone?: string; countryCode?: string }): Promise<AuthResponse> => {
-        const response = await fetch(`${API_BASE}/auth/firebase/register`, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify(data),
-        });
-        const resData = await response.json();
-        if (!response.ok) throw new Error(resData.message || 'Registration failed');
-        const payload = resData.data ?? resData;
-        storeTokens(payload.accessToken, payload.refreshToken, payload.expiresIn);
-        storeUser(payload.user);
-        return payload;
+      const response = await fetch(`${API_BASE}/auth/firebase/register`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(data),
+      });
+      const resData = await response.json();
+      if (!response.ok) throw new Error(resData.message || 'Registration failed');
+      const payload = resData.data ?? resData;
+      storeTokens(payload.accessToken, payload.refreshToken, payload.expiresIn);
+      storeUser(payload.user);
+      return payload;
     },
 
     logout: async (refreshToken?: string): Promise<void> => {
@@ -351,15 +351,15 @@ export const api = {
     },
 
     logoutAll: () => fetchJson<{ message: string }>('/auth/logout-all', { method: 'POST' }),
-    
+
     me: async () => {
-        const res = await fetchJson<any>('/profile');
-        return res?.data?.user || res?.user;
+      const res = await fetchJson<any>('/profile');
+      return res?.data?.user || res?.user;
     },
-    
+
     getSessions: () => fetchJson<Session[]>('/auth/sessions'),
     revokeSession: (sessionId: string) => fetchJson<{ message: string }>(`/auth/sessions/${sessionId}`, { method: 'DELETE' }),
-    
+
     updateProfile: async (data: { name?: string; email?: string; phone?: string; countryCode?: string; avatar?: string }) => {
       const res = await fetchJson<any>('/profile', { method: 'PUT', body: JSON.stringify(data) });
       return res?.data?.user || res?.user;
@@ -449,10 +449,10 @@ export const api = {
       return Array.isArray(res) ? res : res?.data ?? [];
     },
     // getCategories moved to api.categories.getAll
-    getSliderProduct:() => fetchJson<Product[]>('/api/products'),
+    getSliderProduct: () => fetchJson<Product[]>('/api/products'),
 
     getById: (id: number) => fetchJson<Product>(`/products/${id}`),
-    
+
     // Fetch related products by category
     getRelated: async (categoryId: number) => {
       const res = await fetchJson<any>(`/products?category_id=${categoryId}&limit=4`);
@@ -499,10 +499,10 @@ export const api = {
   // --- Wishlist ---
   wishlist: {
     get: () => fetchJson<any>('/wishlist'), // Type as any for now or WishlistResponse
-    add: (productId: number) => 
-        fetchJson<any>('/wishlist/items', { method: 'POST', body: JSON.stringify({ productId }) }),
-    remove: (itemId: number) => 
-        fetchJson<{ success: boolean }>(`/wishlist/items/${itemId}`, { method: 'DELETE' }),
+    add: (productId: number) =>
+      fetchJson<any>('/wishlist/items', { method: 'POST', body: JSON.stringify({ productId }) }),
+    remove: (itemId: number) =>
+      fetchJson<{ success: boolean }>(`/wishlist/items/${itemId}`, { method: 'DELETE' }),
   },
 
   // --- Cart ---
@@ -526,16 +526,16 @@ export const api = {
   // --- Orders ---
   orders: {
     getAll: async () => {
-        const res = await fetchJson<any>('/profile/orders');
-        return Array.isArray(res) ? res : res?.data ?? [];
+      const res = await fetchJson<any>('/profile/orders');
+      return Array.isArray(res) ? res : res?.data ?? [];
     },
     getById: async (id: string) => {
-        const res = await fetchJson<any>(`/profile/orders/${id}`);
-        return res?.data ?? res;
+      const res = await fetchJson<any>(`/profile/orders/${id}`);
+      return res?.data ?? res;
     },
     getGroup: async (id: string) => {
-        const res = await fetchJson<any>(`/profile/orders/group/${id}`);
-        return res?.data ?? res;
+      const res = await fetchJson<any>(`/profile/orders/group/${id}`);
+      return res?.data ?? res;
     },
     create: (items: any[]) => fetchJson<Order>('/orders', { method: 'POST', body: JSON.stringify({ items }) }),
   },
@@ -549,8 +549,8 @@ export const api = {
   // --- Addresses ---
   addresses: {
     getAll: async () => {
-        const res = await fetchJson<any>('/profile/addresses');
-        return res?.data?.addresses || res?.addresses || [];
+      const res = await fetchJson<any>('/profile/addresses');
+      return res?.data?.addresses || res?.addresses || [];
     },
     create: (data: any) => fetchJson<Address>('/profile/addresses', { method: 'POST', body: JSON.stringify(data) }),
     update: (id: number, data: any) => fetchJson<Address>(`/profile/addresses/${id}`, { method: 'PUT', body: JSON.stringify(data) }),
@@ -567,32 +567,32 @@ export const api = {
   },
 
   // --- Filters ---
-filters: {
-  get: (params?: {
-    categoryId?: number;
-    brand?: string[];
-    minPrice?: number;
-    maxPrice?: number;
-  }) => {
-    const search = new URLSearchParams();
+  filters: {
+    get: (params?: {
+      categoryId?: number;
+      brand?: string[];
+      minPrice?: number;
+      maxPrice?: number;
+    }) => {
+      const search = new URLSearchParams();
 
-    if (params?.categoryId)
-      search.set("categoryId", params.categoryId.toString());
+      if (params?.categoryId)
+        search.set("categoryId", params.categoryId.toString());
 
-    if (params?.minPrice !== undefined)
-      search.set("minPrice", params.minPrice.toString());
+      if (params?.minPrice !== undefined)
+        search.set("minPrice", params.minPrice.toString());
 
-    if (params?.maxPrice !== undefined)
-      search.set("maxPrice", params.maxPrice.toString());
+      if (params?.maxPrice !== undefined)
+        search.set("maxPrice", params.maxPrice.toString());
 
-    if (params?.brand?.length)
-      params.brand.forEach((b) => search.append("brand", b));
+      if (params?.brand?.length)
+        params.brand.forEach((b) => search.append("brand", b));
 
-    return fetchJson<FilterOptions>(
-      `/filters${search.toString() ? `?${search.toString()}` : ""}`
-    );
+      return fetchJson<FilterOptions>(
+        `/filters${search.toString() ? `?${search.toString()}` : ""}`
+      );
+    },
   },
-},
 
 
   // --- Web Frontend ---
@@ -610,17 +610,17 @@ filters: {
   // --- User ---
   user: {
     getCurrent: async () => {
-        const res = await fetchJson<any>('/profile');
-        // Backend returns { success: true, data: { user: {...}, profile: {...} } }
-        const data = res?.data || res;
-        const user = data?.user || data;
-        
-        // Merge profile into user if it exists and isn't already there
-        if (data?.profile && !user.profile) {
-            user.profile = data.profile;
-        }
-        
-        return user as User;
+      const res = await fetchJson<any>('/profile');
+      // Backend returns { success: true, data: { user: {...}, profile: {...} } }
+      const data = res?.data || res;
+      const user = data?.user || data;
+
+      // Merge profile into user if it exists and isn't already there
+      if (data?.profile && !user.profile) {
+        user.profile = data.profile;
+      }
+
+      return user as User;
     },
   },
 
@@ -650,6 +650,14 @@ filters: {
       { method: 'POST', body: JSON.stringify(data) }
     ),
     getOnboardingProfile: () => fetchJson<any>('/onboarding/profile'),
+  },
+
+  // --- Settings ---
+  settings: {
+    getPublic: async (): Promise<{ vat_percentage: number }> => {
+      const res = await fetchJson<any>('/settings');
+      return res?.data ?? res;
+    }
   },
 };
 

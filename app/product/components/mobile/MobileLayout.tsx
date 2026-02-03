@@ -60,7 +60,7 @@ export default function MobileLayout({ id, product }: { id?: string; product?: a
     const similarProducts = Array.isArray(product?.similarProducts) ? product.similarProducts : [];
 
     const [selectedImage, setSelectedImage] = useState(0);
-    const [quantity, setQuantity] = useState(10);
+    const [quantity, setQuantity] = useState(1);
     const [showGallery, setShowGallery] = useState(false);
 
     return (

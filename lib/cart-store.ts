@@ -13,6 +13,8 @@ export type CartItemLocal = {
   stock?: number;
   is_controlled?: boolean;
   vendorId?: string; // Add vendorId
+  shipping_charge?: number;
+  packing_charge?: number;
 };
 
 interface CartState {
