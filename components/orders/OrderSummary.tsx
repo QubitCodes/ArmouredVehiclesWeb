@@ -71,9 +71,22 @@ export default function OrderSummary({ orderId }: OrderSummaryProps) {
   const allItemsCount = subOrders.reduce((c: number, o: any) => c + (o.items?.length || 0), 0);
 
   // Payment Logic (Assume common payment across group)
-  const transactionDetails = (primaryOrder as any).transaction_details || {};
-  const paymentMethod = transactionDetails?.payment_method_type || transactionDetails?.brand || (primaryOrder as any).payment_method || "Card";
-  const paymentLast4 = transactionDetails?.last4 || "";
+  const transactionDetails = (() => {
+    const raw = (primaryOrder as any).transaction_details;
+    if (!raw) return {};
+
+    try {
+      const parsed = typeof raw === 'string' ? JSON.parse(raw) : raw;
+      const payments = Array.isArray(parsed) ? parsed : [parsed];
+      // Find FIRST successful payment
+      return payments.find((p: any) => p.payment_status === 'paid' || p.payment_status === 'no_payment_required') || payments[payments.length - 1] || {};
+    } catch (e) {
+      return {};
+    }
+  })();
+
+  const paymentMethod = (transactionDetails as any)?.payment_details?.brand || (transactionDetails as any)?.brand || (primaryOrder as any).payment_method || "Card";
+  const paymentLast4 = (transactionDetails as any)?.payment_details?.last4 || (transactionDetails as any)?.last4 || "";
 
   useEffect(() => {
     // If we have a session_id and order_id (from URL redirect), verify the payment
