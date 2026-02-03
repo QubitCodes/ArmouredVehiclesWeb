@@ -6,6 +6,9 @@ import { ArrowLeft, ChevronDown, Check, MoreVertical, X } from "lucide-react";
 import { useState, useEffect } from "react";
 import { useOrderGroup } from "@/lib/hooks/orders";
 import api from "@/lib/api";
+import dynamic from 'next/dynamic';
+
+const EmbeddedPayment = dynamic(() => import('@/components/checkout/EmbeddedPayment'), { ssr: false });
 
 interface OrderSummaryProps {
   orderId: string;
@@ -26,20 +29,28 @@ export default function OrderSummary({ orderId }: OrderSummaryProps) {
   const [isVerifying, setIsVerifying] = useState(false);
   const [paymentStatus, setPaymentStatus] = useState<string | null>(null);
 
+  // Embedded Payment State
+  const [showPaymentModal, setShowPaymentModal] = useState(false);
+  const [clientSecret, setClientSecret] = useState<string | null>(null);
+
   // Retry Logic
   const [isRetrying, setIsRetrying] = useState(false);
   const handleRetryPayment = async () => {
     if (!group?.group_id) return;
     setIsRetrying(true);
     try {
-      const res = await api.checkout.retryPayment({ orderGroupId: group.group_id });
-      // Handle standard API response envelope { data: { paymentUrl: ... } }
-      const url = (res as any).data?.paymentUrl || res.paymentUrl;
+      // Try embedded first
+      const res = await api.checkout.retryPayment({ orderGroupId: group.group_id, embedded: true });
+      const data = (res as any).data || res;
 
-      if (url) {
-        window.location.href = url;
+      if (data.clientSecret) {
+        setClientSecret(data.clientSecret);
+        setShowPaymentModal(true);
+      } else if (data.paymentUrl) {
+        // Fallback to hosted
+        window.location.href = data.paymentUrl;
       } else {
-        console.error("No payment URL returned", res);
+        console.error("No payment option returned", data);
       }
     } catch (err) {
       console.error("Retry payment failed", err);
@@ -125,6 +136,45 @@ export default function OrderSummary({ orderId }: OrderSummaryProps) {
 
   return (
     <div className="flex-1 relative">
+      {/* Embedded Payment Modal */}
+      {/* Embedded Payment Modal */}
+      {showPaymentModal && clientSecret && (
+        <div className="fixed inset-0 z-[60] flex items-center justify-center bg-black/80 p-4 animate-in fade-in duration-300 backdrop-blur-sm">
+          <div
+            className="bg-[#EBE3D6] w-full max-w-2xl max-h-[90vh] overflow-hidden shadow-2xl relative border-2 border-[#C2B280] flex flex-col"
+            style={{ clipPath: 'polygon(20px 0, 100% 0, 100% calc(100% - 20px), calc(100% - 20px) 100%, 0 100%, 0 20px)' }}
+          >
+            {/* Header */}
+            <div className="flex justify-between items-center p-6 border-b border-[#C2B280] bg-[#F0EBE3]">
+              <h3 className="text-xl font-orbitron font-black uppercase text-[#1A1A1A] tracking-wider">
+                Complete Secure Payment
+              </h3>
+              <button
+                onClick={() => setShowPaymentModal(false)}
+                className="text-[#666] hover:text-[#D35400] transition-colors p-1 rounded-full hover:bg-black/5"
+              >
+                <X className="w-6 h-6" />
+              </button>
+            </div>
+
+            {/* Stripe Container */}
+            <div className="p-6 flex-1 overflow-y-auto bg-white/50">
+              {/* Wrapper to control stripe padding/width if needed */}
+              <div className="min-h-[400px]">
+                <EmbeddedPayment clientSecret={clientSecret} />
+              </div>
+            </div>
+
+            {/* Footer / Trust Badge area */}
+            <div className="p-3 bg-[#39482C] text-center">
+              <p className="text-[#F0EBE3] text-xs uppercase font-medium tracking-widest flex items-center justify-center gap-2">
+                <span className="w-1.5 h-1.5 rounded-full bg-[#27AE60]"></span>  Encrypted & Secure
+              </p>
+            </div>
+          </div>
+        </div>
+      )}
+
       {/* Success Popup Modal */}
       {showSuccessPopup && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4 animate-in fade-in duration-300">
@@ -391,18 +441,53 @@ export default function OrderSummary({ orderId }: OrderSummaryProps) {
               const isRequest = subOrders.some((o: any) => o.type === 'request');
 
               if (isPaid) {
+                const details = transactionDetails as any;
+                // Handle both new nested structure and potential flat structure fallback
+                const brand = details?.payment_details?.brand || details?.brand || 'Card';
+                const last4 = details?.payment_details?.last4 || details?.last4 || '';
+                const receiptUrl = details?.receipt_url;
+                const paidAt = details?.timestamp ? new Date(details.timestamp).toLocaleDateString() : orderDate;
+
                 return (
-                  <div className="flex flex-col gap-2 bg-[#EBE3D6] p-3">
-                    <div className="flex items-center gap-2">
-                      <Image src="/order/paysvg3.svg" alt={paymentMethod} width={80} height={32} />
-                      <span className="text-sm text-[#666]">
-                        {paymentMethod}{paymentLast4 ? ` ****${paymentLast4}` : ""}
-                      </span>
+                  <div className="flex flex-col gap-3 bg-[#EBE3D6] p-4 border border-[#C2B280]/50">
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center gap-2">
+                        {/* Generic Card Icon or Brand Specific */}
+                        <div className="bg-white p-1 rounded border border-[#C2B280]">
+                          <span className="font-bold text-xs uppercase text-black">{brand}</span>
+                        </div>
+                        <span className="text-sm font-medium text-black">
+                          **** {last4}
+                        </span>
+                      </div>
+                      <div className="flex items-center gap-1 bg-green-100 px-2 py-0.5 rounded-full border border-green-200">
+                        <div className="w-1.5 h-1.5 rounded-full bg-green-600"></div>
+                        <span className="text-[10px] font-bold text-green-700 uppercase">Paid</span>
+                      </div>
                     </div>
-                    <div className="flex items-center gap-2 mt-1">
-                      <div className="w-2 h-2 rounded-full bg-green-500"></div>
-                      <span className="text-xs font-bold text-green-700 uppercase">Payment Successful</span>
+
+                    <div className="flex flex-col gap-1 text-xs text-[#666]">
+                      <div className="flex justify-between">
+                        <span>Date:</span>
+                        <span className="font-medium text-black">{paidAt}</span>
+                      </div>
+                      <div className="flex justify-between">
+                        <span>Transaction ID:</span>
+                        <span className="font-medium text-black truncate max-w-[150px]" title={details?.transaction_id}>{details?.transaction_id || 'N/A'}</span>
+                      </div>
                     </div>
+
+                    {receiptUrl && (
+                      <a
+                        href={receiptUrl}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="text-xs text-[#D35400] underline hover:text-[#B51E17] flex items-center gap-1 mt-1"
+                      >
+                        <Download className="w-3 h-3" />
+                        Download Receipt
+                      </a>
+                    )}
                   </div>
                 );
               } else if (isRequest) {
