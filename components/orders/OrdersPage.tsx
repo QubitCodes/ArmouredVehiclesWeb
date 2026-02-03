@@ -173,11 +173,26 @@ export default function OrdersPage() {
             const extraCount = totalItemsCount - 1;
             const title = extraCount > 0 ? `${baseName} + ${extraCount} products` : baseName;
 
-            // Status from the most relevant sub-order (e.g. the one preventing completion)
+            // Status from the most relevant sub-order
             const activeOrder = group.subOrders.find((o: any) => !["delivered", "cancelled"].includes(o.order_status)) || group.subOrders[0];
             const statusText = formatStatusText(activeOrder);
-            const statusNote = activeOrder.estimatedDelivery ? `ETA: ${activeOrder.estimatedDelivery}` : "on time";
+            const statusNote = activeOrder.estimatedDelivery ? `ETA: ${activeOrder.estimatedDelivery}` : "On Time";
             const totalPrice = group.totalAmount;
+
+            // Payment Status Logic
+            const isRequest = group.subOrders.some((o: any) => o.type === 'request');
+            const isPaid = group.subOrders.every((o: any) => o.payment_status === 'paid');
+
+            let paymentText = "Payment Pending";
+            let paymentColor = "text-red-600"; // Default pending
+
+            if (isRequest) {
+              paymentText = "Request Submitted";
+              paymentColor = "text-[#D35400]"; // Orange
+            } else if (isPaid) {
+              paymentText = "Paid";
+              paymentColor = "text-[#27AE60]"; // Green
+            }
 
             return (
               <div key={index} className="bg-[#F0EBE3] border border-[#C2B280] overflow-hidden">
@@ -192,7 +207,14 @@ export default function OrdersPage() {
                       </p>
                       <p className="text-xs text-[#666]">
                         <span className="text-[#009900]">{statusText}</span>
-                        <span className="text-[#666]"> · {statusNote}</span>
+
+                        {/* <span className="text-[#666]"> · </span>
+
+                        <span className="text-[#666]">{statusNote}</span> */}
+
+                        <span className="text-[#666]"> ·</span>
+
+                        <span className={`text-xs font-bold uppercase ${paymentColor}`}>{paymentText}</span>
                       </p>
                     </div>
                   </div>
@@ -239,7 +261,15 @@ export default function OrdersPage() {
                     <p className="font-semibold text-sm text-black">{activeOrder.estimatedDelivery || ""}</p>
                     <p className="text-sm">
                       <span className="text-[#009900]">{statusText}</span>
-                      <span className="text-[#666]"> · {statusNote}</span>
+
+                      {/* <span className="text-[#666]"> · </span>
+
+                      <span className="text-[#666]">{statusNote}</span> */}
+
+                      <span className="text-[#666]"> · </span>
+
+                      <span className={`text-xs font-bold uppercase ${paymentColor}`}>{paymentText}</span>
+
                     </p>
                   </div>
                   <div className="flex items-center gap-3">

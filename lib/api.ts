@@ -521,6 +521,7 @@ export const api = {
   checkout: {
     createSession: (data?: any) => fetchJson<{ url?: string; testMode?: boolean; orderId?: string; error?: string; requiresApproval?: boolean; type?: string; paymentUrl?: string; redirectUrl?: string }>('/checkout/create', { method: 'POST', body: JSON.stringify(data) }),
     verifySession: (data: { sessionId: string; orderId: string }) => fetchJson<{ success: boolean; amount?: number; currency?: string; status?: string; orderId?: string }>('/checkout/verify-session', { method: 'POST', body: JSON.stringify(data) }),
+    retryPayment: (data: { orderGroupId: string }) => fetchJson<{ message?: string; paymentUrl: string }>('/checkout/retry', { method: 'POST', body: JSON.stringify(data) }),
   },
 
   // --- Orders ---

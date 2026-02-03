@@ -5,6 +5,7 @@ import Image from "next/image";
 import { ArrowLeft, ChevronDown, Check, MoreVertical, X } from "lucide-react";
 import { useState, useEffect } from "react";
 import { useOrderGroup } from "@/lib/hooks/orders";
+import api from "@/lib/api";
 
 interface OrderSummaryProps {
   orderId: string;
@@ -24,6 +25,28 @@ export default function OrderSummary({ orderId }: OrderSummaryProps) {
   const [showSuccessPopup, setShowSuccessPopup] = useState(false);
   const [isVerifying, setIsVerifying] = useState(false);
   const [paymentStatus, setPaymentStatus] = useState<string | null>(null);
+
+  // Retry Logic
+  const [isRetrying, setIsRetrying] = useState(false);
+  const handleRetryPayment = async () => {
+    if (!group?.group_id) return;
+    setIsRetrying(true);
+    try {
+      const res = await api.checkout.retryPayment({ orderGroupId: group.group_id });
+      // Handle standard API response envelope { data: { paymentUrl: ... } }
+      const url = (res as any).data?.paymentUrl || res.paymentUrl;
+
+      if (url) {
+        window.location.href = url;
+      } else {
+        console.error("No payment URL returned", res);
+      }
+    } catch (err) {
+      console.error("Retry payment failed", err);
+    } finally {
+      setIsRetrying(false);
+    }
+  };
 
   // If group is loaded, extracting common details from first order or group root
   const subOrders = group?.orders || [];
@@ -363,12 +386,58 @@ export default function OrderSummary({ orderId }: OrderSummaryProps) {
                 Payment Details
               </h2>
             </div>
-            <div className="inline-flex items-center gap-2 bg-[#EBE3D6] p-3">
-              <Image src="/order/paysvg3.svg" alt={paymentMethod} width={80} height={32} />
-              <span className="text-sm text-[#666]">
-                {paymentMethod}{paymentLast4 ? ` ****${paymentLast4}` : ""}
-              </span>
-            </div>
+            {(() => {
+              const isPaid = subOrders.every((o: any) => o.payment_status === 'paid');
+              const isRequest = subOrders.some((o: any) => o.type === 'request');
+
+              if (isPaid) {
+                return (
+                  <div className="flex flex-col gap-2 bg-[#EBE3D6] p-3">
+                    <div className="flex items-center gap-2">
+                      <Image src="/order/paysvg3.svg" alt={paymentMethod} width={80} height={32} />
+                      <span className="text-sm text-[#666]">
+                        {paymentMethod}{paymentLast4 ? ` ****${paymentLast4}` : ""}
+                      </span>
+                    </div>
+                    <div className="flex items-center gap-2 mt-1">
+                      <div className="w-2 h-2 rounded-full bg-green-500"></div>
+                      <span className="text-xs font-bold text-green-700 uppercase">Payment Successful</span>
+                    </div>
+                  </div>
+                );
+              } else if (isRequest) {
+                return (
+                  <div className="bg-[#EBE3D6] p-3 text-sm text-[#666]">
+                    <div className="flex items-center gap-2 mb-2">
+                      <div className="w-2 h-2 rounded-full bg-[#D35400]"></div>
+                      <span className="font-bold text-[#D35400] text-xs uppercase">Request Submitted</span>
+                    </div>
+                    <p className="text-xs">Your purchase request is pending approval. You will be notified once updates are available.</p>
+                  </div>
+                );
+              } else {
+                // Not a request, and NOT paid
+                return (
+                  <div className="bg-[#EBE3D6] p-3">
+                    <div className="flex items-center gap-2 mb-3">
+                      <div className="w-2 h-2 rounded-full bg-red-500"></div>
+                      <span className="font-bold text-red-600 text-sm uppercase">Payment Pending</span>
+                    </div>
+                    <p className="text-xs text-[#666] mb-4 leading-relaxed">
+                      The payment for this order was not completed. Please proceed to payment to confirm your order.
+                    </p>
+                    <button
+                      onClick={handleRetryPayment}
+                      disabled={isRetrying}
+                      className="w-full bg-[#D35400] text-white font-orbitron font-bold text-xs uppercase py-3 hover:bg-[#B51E17] transition-colors disabled:opacity-50"
+                      style={{ clipPath: 'polygon(10px 0, 100% 0, 100% calc(100% - 10px), calc(100% - 10px) 100%, 0 100%, 0 10px)' }}
+                    >
+                      {isRetrying ? 'Processing...' : 'Complete Payment'}
+                    </button>
+                  </div>
+                );
+              }
+            })()}
           </div>
         </div>
 
