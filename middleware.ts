@@ -13,7 +13,7 @@ const protectedRoutes = [
   '/returns',
   '/security-settings',
   '/notifications',
-  '/warranty-claims',
+  // '/warranty-claims',
   '/buyer-onboarding',
 ];
 

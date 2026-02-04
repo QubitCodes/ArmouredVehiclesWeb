@@ -9,7 +9,7 @@ const sidebarNav = {
     { id: "orders", label: "Orders", iconImg: "/order/Vector.png", href: "/orders" },
     { id: "wishlist", label: "Wishlist", iconImg: "/order/Frame.png", href: "/wishlist" },
     { id: "returns", label: "Returns", iconImg: "/order/Frame1.png", href: "/returns" },
-    { id: "warranty", label: "Warranty Claims", iconImg: "/order/Frame2.png", href: "/warranty-claims" },
+    // { id: "warranty", label: "Warranty Claims", iconImg: "/order/Frame2.png", href: "/warranty-claims" },
   ],
   myAccount: [
     { id: "profile", label: "User Profile", iconImg: "/order/Frame3.png", href: "/profile" },
