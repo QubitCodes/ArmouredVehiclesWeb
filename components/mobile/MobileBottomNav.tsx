@@ -138,7 +138,7 @@ const MobileBottomNav = () => {
                 <Link href="/login" onClick={() => setAccountOpen(false)}>
                   <div className="bg-[#D35400] hover:bg-[#39482C] text-white clip-path-supplier flex items-center justify-center w-full h-12 my-3">
                     <span className="font-black text-[20px] font-orbitron uppercase">
-                      LOGIN
+                      CUSTOMER
                     </span>
                   </div>
                 </Link>
@@ -146,7 +146,7 @@ const MobileBottomNav = () => {
                 <Link href="https://amadmin.vercel.app/vendor/login/" target='_blank' onClick={() => setAccountOpen(false)}>
                   <div className="bg-[#39482C] hover:bg-[#D35400] text-white clip-path-supplier flex items-center justify-center w-full h-12 my-3">
                     <span className="font-black text-[20px] font-orbitron uppercase">
-                      SUPPLIER ZONE
+                      SUPPLIER
                     </span>
                   </div>
                 </Link>

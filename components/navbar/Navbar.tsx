@@ -335,7 +335,7 @@ const Navbar = () => {
                 <Link href="/login" className="hidden">
                   <div className="bg-[#D35400] text-white hover:bg-[#39482C] clip-path-supplier flex items-center justify-center px-4 h-[38px]">
                     <span className="font-black text-[13px] font-orbitron uppercase">
-                      LOGIN
+                      CUSTOMER
                     </span>
                   </div>
                 </Link>
@@ -418,15 +418,17 @@ const Navbar = () => {
                 {/* Buttons: Supplier zone + Login */}
                 <div className="px-4 py-3 bg-white border-b border-gray-100">
                   <div className="flex gap-3">
-                    <Link href="https://amadmin.vercel.app/vendor/login/" target="_blank" className="flex-1" onClick={() => setMenuOpen(false)}>
-                      <div className="bg-[#39482C] hover:bg-[#D35400] text-white clip-path-supplier flex items-center justify-center w-full h-[44px]">
-                        <span className="font-black text-[14px] font-orbitron uppercase">SUPPLIER ZONE</span>
-                      </div>
-                    </Link>
+                    {(!isAuthenticated || user?.userType !== 'customer') && (
+                      <Link href="https://amadmin.vercel.app/vendor/login/" target="_blank" className="flex-1" onClick={() => setMenuOpen(false)}>
+                        <div className="bg-[#39482C] hover:bg-[#D35400] text-white clip-path-supplier flex items-center justify-center w-full h-[44px]">
+                          <span className="font-black text-[14px] font-orbitron uppercase">SUPPLIER</span>
+                        </div>
+                      </Link>
+                    )}
 
                     <Link href="/login" className="flex-1" onClick={() => setMenuOpen(false)}>
                       <div className="bg-[#D35400] hover:bg-[#39482C] text-white clip-path-supplier flex items-center justify-center w-full h-[44px]">
-                        <span className="font-black text-[14px] font-orbitron uppercase">LOGIN</span>
+                        <span className="font-black text-[14px] font-orbitron uppercase">CUSTOMER</span>
                       </div>
                     </Link>
                   </div>
@@ -508,13 +510,15 @@ const Navbar = () => {
 
             {/* Right Buttons */}
             <div className="flex items-center space-x-4">
-              <Link href="https://amadmin.vercel.app/vendor/login/" target='_blank'>
-                <div className="bg-[#39482C] hover:bg-[#D35400] text-white clip-path-supplier flex items-center justify-center w-[260px] h-[45px]">
-                  <span className="font-black text-[20px] font-orbitron uppercase">
-                    SUPPLIER ZONE
-                  </span>
-                </div>
-              </Link>
+              {(!isAuthenticated || user?.userType !== 'customer') && (
+                <Link href="https://amadmin.vercel.app/vendor/login/" target='_blank'>
+                  <div className="bg-[#39482C] hover:bg-[#D35400] text-white clip-path-supplier flex items-center justify-center w-[160px] h-[45px]">
+                    <span className="font-black text-[20px] font-orbitron uppercase">
+                      SUPPLIER
+                    </span>
+                  </div>
+                </Link>
+              )}
 
               {isAuthenticated ? (
                 <>
@@ -631,9 +635,9 @@ const Navbar = () => {
                 pathname === '/login' ? null : (
                   <>
                     <Link href="/login">
-                      <div className="bg-[#D35400] hover:bg-[#39482C] text-white clip-path-supplier flex items-center justify-center w-[140px] h-[45px]">
+                      <div className="bg-[#D35400] hover:bg-[#39482C] text-white clip-path-supplier flex items-center justify-center w-[180px] h-[45px] px-6">
                         <span className="font-black text-[20px] font-orbitron uppercase">
-                          LOGIN
+                          CUSTOMER
                         </span>
                       </div>
                     </Link>
