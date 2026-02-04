@@ -108,8 +108,8 @@ export default function PaymentMethodModal({
             {/* Card Option */}
             <label
               className={`flex items-center gap-3 p-4 border-2 rounded-lg cursor-pointer transition-all mb-3 ${selectedPaymentMethod === "card"
-                  ? "border-[#D35400] bg-[#FFF8F0]"
-                  : "border-[#C2B280] bg-white"
+                ? "border-[#D35400] bg-[#FFF8F0]"
+                : "border-[#C2B280] bg-white"
                 }`}>
               <input
                 type="radio"
