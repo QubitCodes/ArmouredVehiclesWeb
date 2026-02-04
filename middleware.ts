@@ -5,7 +5,6 @@ import type { NextRequest } from 'next/server';
 const protectedRoutes = [
   '/profile',
   '/cart',
-  '/checkout',
   '/orders',
   '/orders/',
   '/wishlist',
@@ -31,17 +30,17 @@ export function middleware(request: NextRequest) {
     if (!token) {
       console.log(`[Middleware] Redirecting to login. Path: ${pathname}`);
       console.log('[Middleware] Received Cookies:', request.cookies.getAll().map(c => `${c.name}=${c.value.substring(0, 10)}...`));
-      
+
       // Redirect to login if token is missing
       const loginUrl = new URL('/login', request.url);
       loginUrl.searchParams.set('returnUrl', pathname);
-      
+
       const response = NextResponse.redirect(loginUrl);
       response.headers.set('X-Middleware-Reason', 'missing_token');
       response.headers.set('X-Middleware-Debug-Cookies', request.cookies.getAll().map(c => c.name).join(','));
       return response;
     } else {
-        // console.log(`[Middleware] Token found for ${pathname}`);
+      // console.log(`[Middleware] Token found for ${pathname}`);
     }
   }
 
