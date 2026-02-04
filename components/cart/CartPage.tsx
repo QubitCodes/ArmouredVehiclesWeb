@@ -1,13 +1,15 @@
 "use client";
 import Link from "next/link";
-import { ArrowLeft } from "lucide-react";
+import { ArrowLeft, X } from "lucide-react";
 import { useRouter } from "next/navigation";
 import CartItem from "./CartItem";
 import OrderSummary from "./OrderSummary";
 import { useEffect, useMemo, useState } from "react";
+import dynamic from "next/dynamic";
 import { Typography } from "../ui";
 import { Container } from "../ui";
 import SelectAddressModal from "../modal/SelectAddressModal";
+const EmbeddedPayment = dynamic(() => import("@/components/checkout/EmbeddedPayment"), { ssr: false });
 import api from "@/lib/api";
 import { useCartStore } from "@/lib/cart-store";
 import {
@@ -42,6 +44,11 @@ export default function CartPage() {
   // Using persisted store; no async loading needed
   const [error, setError] = useState<string | null>(null);
   const [vatPercent, setVatPercent] = useState(5);
+
+  // Embedded Payment State
+  const [showPaymentModal, setShowPaymentModal] = useState(false);
+  const [clientSecret, setClientSecret] = useState<string | null>(null);
+
   const storeItems = useCartStore((s) => s.items);
   const updateQtyStore = useCartStore((s) => s.updateQty);
   const removeItemStore = useCartStore((s) => s.removeItem);
@@ -91,11 +98,16 @@ export default function CartPage() {
 
     setIsCheckoutLoading(true);
     try {
-      const res: any = await api.checkout.createSession({ addressId: address.id });
+      const res: any = await api.checkout.createSession({
+        addressId: address.id,
+        embedded: true
+      });
       const data = res.data || res;
 
-      if (data.paymentUrl) {
-        window.location.href = data.paymentUrl;
+      console.log("[CHECKOUT DEBUG] Frontend Data:", data);
+      if (data.clientSecret) {
+        setClientSecret(data.clientSecret);
+        setShowPaymentModal(true);
       } else if (data.requiresApproval) {
         const targetId = data.orderId || (data as any).id;
         router.push(`/orders/summary/${targetId}?approval_required=true`);
@@ -423,6 +435,43 @@ export default function CartPage() {
         <SelectAddressModal
           onClose={() => setShowAddressModal(false)}
         />
+      )}
+
+      {/* Embedded Payment Modal */}
+      {showPaymentModal && clientSecret && (
+        <div className="fixed inset-0 z-[60] flex items-center justify-center bg-black/80 p-4 animate-in fade-in duration-300 backdrop-blur-sm">
+          <div
+            className="bg-[#EBE3D6] w-full max-w-2xl max-h-[90vh] overflow-hidden shadow-2xl relative border-2 border-[#C2B280] flex flex-col"
+            style={{ clipPath: 'polygon(20px 0, 100% 0, 100% calc(100% - 20px), calc(100% - 20px) 100%, 0 100%, 0 20px)' }}
+          >
+            {/* Header */}
+            <div className="flex justify-between items-center p-6 border-b border-[#C2B280] bg-[#F0EBE3]">
+              <h3 className="text-xl font-orbitron font-black uppercase text-[#1A1A1A] tracking-wider">
+                Complete Secure Payment
+              </h3>
+              <button
+                onClick={() => setShowPaymentModal(false)}
+                className="text-[#666] hover:text-[#D34D24] transition-colors p-1 rounded-full hover:bg-black/5"
+              >
+                <X className="w-6 h-6" />
+              </button>
+            </div>
+
+            {/* Stripe Container */}
+            <div className="p-6 flex-1 overflow-y-auto bg-white/50">
+              <div className="min-h-[400px]">
+                <EmbeddedPayment clientSecret={clientSecret} />
+              </div>
+            </div>
+
+            {/* Footer */}
+            <div className="p-3 bg-[#39482C] text-center">
+              <p className="text-[#F0EBE3] text-xs uppercase font-medium tracking-widest flex items-center justify-center gap-2">
+                <span className="w-1.5 h-1.5 rounded-full bg-[#27AE60]"></span>  Encrypted & Secure
+              </p>
+            </div>
+          </div>
+        </div>
       )}
     </section>
   );

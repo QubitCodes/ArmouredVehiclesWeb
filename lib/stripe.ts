@@ -8,7 +8,7 @@ export const stripe = new Stripe(
 
 // Stripe API URLs for client-side use
 export const STRIPE_PUBLISHABLE_KEY = process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY;
-export const APP_URL = process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000';
+export const APP_URL = process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3001';
 
 // Payment status types
 export type PaymentStatus = 'pending' | 'succeeded' | 'processing' | 'requires_action' | 'failed';

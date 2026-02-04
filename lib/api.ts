@@ -187,11 +187,15 @@ async function fetchJson<T>(endpoint: string, options: RequestInit = {}, retry =
   });
 
   const headers: HeadersInit = {
-    'Content-Type': 'application/json',
     'x-session-id': getSessionId(), // Always send session ID
     ...authHeaders,
     ...options.headers,
   };
+
+  // Only set application/json if not sending FormData (FormData needs browser-generated boundary)
+  if (!(options.body instanceof FormData)) {
+    (headers as any)['Content-Type'] = 'application/json';
+  }
 
   const response = await fetch(url, { cache: 'no-store', ...options, headers });
 
@@ -519,9 +523,29 @@ export const api = {
 
   // --- Checkout ---
   checkout: {
-    createSession: (data?: any) => fetchJson<{ url?: string; testMode?: boolean; orderId?: string; error?: string; requiresApproval?: boolean; type?: string; paymentUrl?: string; redirectUrl?: string }>('/checkout/create', { method: 'POST', body: JSON.stringify(data) }),
-    verifySession: (data: { sessionId: string; orderId: string }) => fetchJson<{ success: boolean; amount?: number; currency?: string; status?: string; orderId?: string }>('/checkout/verify-session', { method: 'POST', body: JSON.stringify(data) }),
-    retryPayment: (data: { orderGroupId: string; embedded?: boolean }) => fetchJson<{ message?: string; paymentUrl?: string; clientSecret?: string; sessionId?: string }>('/checkout/retry', { method: 'POST', body: JSON.stringify(data) }),
+    createSession: (data?: any) => {
+      const formData = new FormData();
+      if (data) {
+        Object.entries(data).forEach(([key, value]) => {
+          if (value !== undefined && value !== null) {
+            formData.append(key, String(value));
+          }
+        });
+      }
+      return fetchJson<{ url?: string; testMode?: boolean; orderId?: string; error?: string; requiresApproval?: boolean; type?: string; paymentUrl?: string; redirectUrl?: string; clientSecret?: string }>('/checkout/create', { method: 'POST', body: formData });
+    },
+    verifySession: (data: { sessionId: string; orderId: string }) => {
+      const formData = new FormData();
+      formData.append('sessionId', data.sessionId);
+      formData.append('orderId', data.orderId);
+      return fetchJson<{ success: boolean; amount?: number; currency?: string; status?: string; orderId?: string }>('/checkout/verify-session', { method: 'POST', body: formData });
+    },
+    retryPayment: (data: { orderGroupId: string; embedded?: boolean }) => {
+      const formData = new FormData();
+      formData.append('orderGroupId', data.orderGroupId);
+      if (data.embedded) formData.append('embedded', 'true');
+      return fetchJson<{ message?: string; paymentUrl?: string; clientSecret?: string; sessionId?: string }>('/checkout/retry', { method: 'POST', body: formData });
+    },
   },
 
   // --- Orders ---
