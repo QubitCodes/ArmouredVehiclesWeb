@@ -4,7 +4,7 @@ import api, { getAccessToken } from "@/lib/api";
 import { useCartStore, CartItemLocal } from "@/lib/cart-store";
 
 // Helper: find server cart item id by productId (for update/delete)
-async function findServerCartItemId(productId: number) {
+async function findServerCartItemId(productId: string) {
   try {
     const response: any = await api.cart.get();
     const items = Array.isArray(response) ? response : (response.data?.items || response.items || []);
@@ -31,7 +31,7 @@ async function findServerCartItemId(productId: number) {
   }
 }
 
-export async function syncAddToServer(productId: number, quantity: number) {
+export async function syncAddToServer(productId: string, quantity: number) {
   // if (!token) return; // Allow guests to sync via session ID
   try {
     await api.cart.add(productId, quantity);
@@ -41,7 +41,7 @@ export async function syncAddToServer(productId: number, quantity: number) {
   }
 }
 
-export async function syncUpdateQtyToServer(productId: number, quantity: number) {
+export async function syncUpdateQtyToServer(productId: string, quantity: number) {
   // if (!token) return;
   try {
     const cartItemId = await findServerCartItemId(productId);
@@ -56,7 +56,7 @@ export async function syncUpdateQtyToServer(productId: number, quantity: number)
   }
 }
 
-export async function syncRemoveFromServer(productId: number) {
+export async function syncRemoveFromServer(productId: string) {
   // if (!token) return;
   try {
     const cartItemId = await findServerCartItemId(productId);

@@ -110,6 +110,9 @@ const DesktopLayout = ({ id, product }: { id?: string; product?: any }) => {
     });
 
 
+    console.log("PRODUCT DESKTOP LAYOUT");
+    console.log(product);
+
     // `id` is available when rendering via `/product/[id]`.
     // Currently not used inside this component, but provided so it can be
     // used to fetch product-specific data later.
@@ -204,7 +207,7 @@ const DesktopLayout = ({ id, product }: { id?: string; product?: any }) => {
                                         stock: product?.stock,
                                     }, quantity);
                                     if (product?.id != null) {
-                                        await syncAddToServer(Number(product.id), quantity);
+                                        await syncAddToServer(String(product.id), quantity);
                                     }
                                     router.push("/cart");
                                 }}
@@ -317,7 +320,7 @@ const DesktopLayout = ({ id, product }: { id?: string; product?: any }) => {
                                                 stock: product?.stock,
                                             }, quantity);
                                             if (product?.id != null) {
-                                                await syncAddToServer(Number(product.id), quantity);
+                                                await syncAddToServer(String(product.id), quantity);
                                             }
                                             router.push("/cart");
                                         }}
