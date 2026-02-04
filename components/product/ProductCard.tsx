@@ -263,9 +263,8 @@ export default function ProductCard({
                 1
               );
 
-              const pid = id ? Number(id) : NaN;
-              if (Number.isFinite(pid)) {
-                await syncAddToServer(pid, 1);
+              if (id) {
+                await syncAddToServer(id, 1);
               }
             }
           }}

@@ -145,7 +145,7 @@ export default function MobileLayout({ id, product }: { id?: string; product?: a
                             stock: product?.stock,
                         }, quantity);
                         if (product?.id != null) {
-                            await syncAddToServer(Number(product.id), quantity);
+                            await syncAddToServer(String(product.id), quantity);
                         }
                         router.push("/cart");
                     }}

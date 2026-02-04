@@ -15,7 +15,7 @@ interface SimilarProductProps {
   rating?: number | string;
   reviews?: number | string;
   price?: number | string;
-  id?: number | string;
+  id?: string;
   sku?: string;
   isControlled?: boolean;
   action?: "ADD TO CART" | "SUBMIT AN INQUIRY";
@@ -154,9 +154,8 @@ const SimilarProductCard = ({
                 1
               );
 
-              const pid = id ? Number(id) : NaN;
-              if (Number.isFinite(pid)) {
-                await syncAddToServer(pid, 1);
+              if (id) {
+                await syncAddToServer(id, 1);
               }
             }
           }}

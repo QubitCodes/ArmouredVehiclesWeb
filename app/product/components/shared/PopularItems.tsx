@@ -62,7 +62,7 @@ export default function PopularProducts() {
           {products.map((product) => (
             <SimilarProductCard
               key={product.id}
-              id={product.id}
+              id={String(product.id)}
               sku={product.sku}
               image={product.image}
               name={product.name}

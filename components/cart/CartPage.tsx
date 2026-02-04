@@ -123,31 +123,25 @@ export default function CartPage() {
     }
   };
 
-  const updateQty = async (id: number, newQty: number) => {
+  const updateQty = async (id: string, newQty: number) => {
     try {
-      updateQtyStore(String(id), newQty);
-      const pid = Number(id);
-      if (Number.isFinite(pid)) {
-        await syncUpdateQtyToServer(pid, newQty);
-      }
+      updateQtyStore(id, newQty);
+      await syncUpdateQtyToServer(id, newQty);
     } catch (e: any) {
       console.error("Update qty failed", e);
     }
   };
 
-  const removeItem = async (id: number) => {
+  const removeItem = async (id: string) => {
     try {
-      removeItemStore(String(id));
-      const pid = Number(id);
-      if (Number.isFinite(pid)) {
-        await syncRemoveFromServer(pid);
-      }
+      removeItemStore(id);
+      await syncRemoveFromServer(id);
     } catch (e: any) {
       console.error("Remove item failed", e);
     }
   };
 
-  const handleSaveForLater = async (id: number) => {
+  const handleSaveForLater = async (id: string) => {
     if (!isLoggedIn) {
       router.push("/login");
       return;

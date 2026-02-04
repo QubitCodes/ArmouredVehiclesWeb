@@ -1105,7 +1105,7 @@ function CategoryContent() {
                                         className="block w-full"
                                     >
                                         <ProductCard
-                                            id={product.id}
+                                            id={String(product.id)}
                                             sku={product.sku}
                                             images={product.image}
                                             name={product.name}
