@@ -132,15 +132,18 @@ export default function OrderSummary({ orderId }: OrderSummaryProps) {
     }
   }, [searchParams]);
 
-  if (isLoading) {
+  if (isLoading || (isVerifying && !group)) {
     return (
-      <div className="flex-1 flex items-center justify-center p-10">
-        <p className="text-[#666]">Loading order details...</p>
+      <div className="flex-1 flex flex-col items-center justify-center p-10">
+        <div className="w-12 h-12 border-4 border-[#D1A661] border-t-transparent rounded-full animate-spin mb-4"></div>
+        <p className="text-[#666] font-orbitron uppercase text-sm tracking-widest animate-pulse">
+          {isVerifying ? "Verifying payment & securing order..." : "Loading order details..."}
+        </p>
       </div>
     );
   }
 
-  if (error || !group) {
+  if ((error || !group) && !isVerifying) {
     return (
       <div className="flex-1 flex flex-col items-center justify-center p-10">
         <p className="text-red-600 mb-4">Failed to load order details {error?.message}</p>
