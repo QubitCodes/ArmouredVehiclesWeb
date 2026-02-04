@@ -16,6 +16,7 @@ interface SimilarProductProps {
   reviews?: number | string;
   price?: number | string;
   id?: number | string;
+  sku?: string;
   isControlled?: boolean;
   action?: "ADD TO CART" | "SUBMIT AN INQUIRY";
 }
@@ -27,6 +28,7 @@ const SimilarProductCard = ({
   reviews,
   price,
   id,
+  sku,
   isControlled = false,
   action = "ADD TO CART",
 }: SimilarProductProps) => {
@@ -54,8 +56,9 @@ const SimilarProductCard = ({
   const ratingPercent = (ratingValue / 5) * 100;
 
   const handleNavigate = () => {
-    if (id) {
-      router.push(`/product/${id}`);
+    const identifier = sku ? sku.replace('SKU-', '') : id;
+    if (identifier) {
+      router.push(`/product/${identifier}`);
     }
   };
 

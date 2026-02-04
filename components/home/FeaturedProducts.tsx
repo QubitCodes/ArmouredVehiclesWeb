@@ -6,7 +6,8 @@ import { useAuth } from "@/lib/auth-context";
 import { useState, useEffect, useRef, useMemo } from "react";
 
 interface Product {
-  id: number;
+  id: string;
+  sku: string;
   name: string;
   price: number;
   image: string;
@@ -57,7 +58,8 @@ export const FeaturedProducts = () => {
         const data = await api.products.getFeatured();
 
         const mappedProducts: Product[] = data?.map((item: any) => ({
-          id: item.id,
+          id: String(item.id),
+          sku: item.sku || String(item.id),
           name: item.name,
           price: Number(item.price),
           image: item.image || "/placeholder.jpg",
@@ -343,7 +345,7 @@ export const FeaturedProducts = () => {
                         data-aos="fade-up"
                         onMouseEnter={() => setHoveredKey(uniqueKey)}
                         onMouseLeave={() => setHoveredKey(null)}
-                        onClick={() => router.push(`/product/${product.id}`)}
+                        onClick={() => router.push(`/product/${product.sku.replace('SKU-', '')}`)}
                         className={`
     bg-transparent border border-b-0 border-white 
     min-w-[174px] w-[174px] h-[300px] sm:h-[340px] flex flex-col shrink-0 snap-start
@@ -407,7 +409,7 @@ export const FeaturedProducts = () => {
                           <button
                             onClick={(e) => {
                               e.stopPropagation();
-                              router.push(`/product/${product.id}`);
+                              router.push(`/product/${product.sku.replace('SKU-', '')}`);
                             }}
                             className={`w-full h-full text-[14px] font-orbitron font-extrabold uppercase transition-all ${isHovered ? "bg-[#FF5C00] text-white" : "bg-white text-[#FF5C00]"}`}
                           >
@@ -450,7 +452,7 @@ export const FeaturedProducts = () => {
                               data-aos="fade-up"
                               onMouseEnter={() => setHoveredKey(uniqueKey)}
                               onMouseLeave={() => setHoveredKey(null)}
-                              onClick={() => router.push(`/product/${product.id}`)}
+                              onClick={() => router.push(`/product/${product.sku.replace('SKU-', '')}`)}
                               className={`
     bg-transparent border border-b-0 border-white 
     ${isMobile ? 'w-[174px]' : 'w-[200px] md:w-[260px] lg:w-[280px] xl:w-[274px] 2xl:w-[317px] 3xl:w-[350px]'} h-[300px] sm:h-[340px] md:h-[460px] lg:h-[480px] xl:h-[425px] 2xl:h-[475px] 3xl:h-[550px] flex flex-col shrink-0
@@ -515,7 +517,7 @@ export const FeaturedProducts = () => {
                                 <button
                                   onClick={(e) => {
                                     e.stopPropagation();
-                                    router.push(`/product/${product.id}`);
+                                    router.push(`/product/${product.sku.replace('SKU-', '')}`);
                                   }}
                                   className={`w-full h-full text-[14px] md:text-[18px] 3xl:text-[20px] font-orbitron font-extrabold uppercase transition-all ${isHovered ? "bg-[#FF5C00] text-white" : "bg-white text-[#FF5C00]"}`}
                                 >

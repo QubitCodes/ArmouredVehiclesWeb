@@ -455,16 +455,16 @@ export const api = {
     // getCategories moved to api.categories.getAll
     getSliderProduct: () => fetchJson<Product[]>('/api/products'),
 
-    getById: (id: number) => fetchJson<Product>(`/products/${id}`),
+    getById: (id: string | number) => fetchJson<Product>(`/products/${id}`),
 
     // Fetch related products by category
-    getRelated: async (categoryId: number) => {
+    getRelated: async (categoryId: number | string) => {
       const res = await fetchJson<any>(`/products?category_id=${categoryId}&limit=4`);
       return Array.isArray(res) ? res : res?.data ?? [];
     },
-    getSimilar: (id: number) => fetchJson<Product[]>(`/products/${id}/similar`),
-    getRecommended: (id: number) => fetchJson<Product[]>(`/products/${id}/recommended`),
-    getSpecifications: async (id: number) => {
+    getSimilar: (id: string | number) => fetchJson<Product[]>(`/products/${id}/similar`),
+    getRecommended: (id: string | number) => fetchJson<Product[]>(`/products/${id}/recommended`),
+    getSpecifications: async (id: string | number) => {
       const res = await fetchJson<any>(`/products/${id}/specifications`);
       return Array.isArray(res) ? res : res?.data ?? [];
     },
@@ -495,15 +495,15 @@ export const api = {
 
   // --- Reviews ---
   reviews: {
-    getByProduct: (productId: number) => fetchJson<Review[]>(`/products/${productId}/reviews`),
-    create: (productId: number, data: { rating: number; comment: string }) =>
+    getByProduct: (productId: string | number) => fetchJson<Review[]>(`/products/${productId}/reviews`),
+    create: (productId: string | number, data: { rating: number; comment: string }) =>
       fetchJson<Review>(`/products/${productId}/reviews`, { method: 'POST', body: JSON.stringify(data) }),
   },
 
   // --- Wishlist ---
   wishlist: {
     get: () => fetchJson<any>('/wishlist'), // Type as any for now or WishlistResponse
-    add: (productId: number) =>
+    add: (productId: string | number) =>
       fetchJson<any>('/wishlist/items', { method: 'POST', body: JSON.stringify({ productId }) }),
     remove: (itemId: number) =>
       fetchJson<{ success: boolean }>(`/wishlist/items/${itemId}`, { method: 'DELETE' }),
@@ -512,7 +512,7 @@ export const api = {
   // --- Cart ---
   cart: {
     get: () => fetchJson<CartItem[]>('/cart'),
-    add: (productId: number, quantity = 1) =>
+    add: (productId: string | number, quantity = 1) =>
       fetchJson<CartItem>('/cart/items', { method: 'POST', body: JSON.stringify({ productId, quantity }) }),
     update: (id: number, quantity: number) =>
       fetchJson<CartItem>(`/cart/items/${id}`, { method: 'PUT', body: JSON.stringify({ quantity }) }),

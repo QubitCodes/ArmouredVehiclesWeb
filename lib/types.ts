@@ -57,7 +57,7 @@ export interface VerifyEmailResponse {
 
 // Product Types
 export interface Product {
-  id: number;
+  id: string | number;
   name: string;
   sku: string;
   price: string;
@@ -99,9 +99,9 @@ export interface Category {
 
 // Cart Types
 export interface CartItem {
-  id: number;
+  id: string | number;
   userId: string;
-  productId: number;
+  productId: string | number;
   quantity: number;
   product: Product;
   createdAt: string;
@@ -128,19 +128,19 @@ export interface Order {
   createdAt: string;
   items?: OrderItem[];
   address?: {
-      name?: string;
-      address_line1?: string;
-      city?: string;
-      country?: string;
-      phone?: string;
-      email?: string;
+    name?: string;
+    address_line1?: string;
+    city?: string;
+    country?: string;
+    phone?: string;
+    email?: string;
   };
 }
 
 export interface OrderItem {
-  id: number;
+  id: string | number;
   orderId: string;
-  productId: number;
+  productId: string | number;
   vendorId?: string;
   name?: string; // Legacy/Fallback
   product_name?: string; // From DB
@@ -167,7 +167,7 @@ export interface Address {
   isDefault: boolean;
   isVerified: boolean;
   createdAt: string;
-  full_name?:string;
+  full_name?: string;
 }
 
 // Payment Method Types
@@ -197,8 +197,8 @@ export interface SavedPaymentMethod {
 
 // Review Types
 export interface Review {
-  id: number;
-  productId: number;
+  id: string | number;
+  productId: string | number;
   userId: string;
   rating: number;
   comment: string;

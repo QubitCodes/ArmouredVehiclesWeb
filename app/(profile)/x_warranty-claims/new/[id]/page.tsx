@@ -1,6 +1,6 @@
 "use client";
 
-import CreateWarrantyClaimPage from "@/components/warranty/CreateWarrantyClaimPage";
+import CreateWarrantyClaimPage from "@/components/x_warranty/CreateWarrantyClaimPage";
 import { useParams } from "next/navigation";
 
 export default function WarrantyClaimItemPage() {

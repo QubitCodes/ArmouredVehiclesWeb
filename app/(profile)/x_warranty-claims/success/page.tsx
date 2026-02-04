@@ -1,4 +1,4 @@
-import WarrantyClaimSuccessPage from "@/components/warranty/WarrantyClaimSuccessPage";
+import WarrantyClaimSuccessPage from "@/components/x_warranty/WarrantyClaimSuccessPage";
 
 export default function WarrantyClaimSuccessRoute() {
   return <WarrantyClaimSuccessPage />;

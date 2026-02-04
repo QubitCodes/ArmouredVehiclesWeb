@@ -11,6 +11,7 @@ type Product = {
   reviews: number;
   price: number;
   image: string;
+  sku?: string;
   is_controlled?: boolean;
 };
 
@@ -42,6 +43,7 @@ export default function SimilarItemsSection({ products }: Props) {
           <SimilarProductCard
             key={product.id}
             id={product.id}
+            sku={product.sku}
             image={product.image}
             name={product.name}
             rating={product.rating}

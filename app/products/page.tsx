@@ -18,6 +18,7 @@ import { useAuth } from "@/lib/auth-context";
 
 interface Product {
     id: string;
+    sku: string;
     name: string;
     price: number;
     rating: number;
@@ -327,6 +328,7 @@ function CategoryContent() {
 
                         return {
                             id: String(item.id),
+                            sku: item.sku || String(item.id),
                             name: item.name || 'Unknown Product',
                             price: normalizedPrice,
                             rating: ratingNum,
@@ -1099,11 +1101,12 @@ function CategoryContent() {
                                 {products.map((product) => (
                                     <Link
                                         key={product.id}
-                                        href={`/product/${product.id}`}
+                                        href={`/product/${product.sku.replace('SKU-', '')}`}
                                         className="block w-full"
                                     >
                                         <ProductCard
                                             id={product.id}
+                                            sku={product.sku}
                                             images={product.image}
                                             name={product.name}
                                             rating={product.rating}

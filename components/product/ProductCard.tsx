@@ -15,6 +15,7 @@ import { useWishlist } from "@/hooks/use-wishlist";
 
 interface ProductCardProps {
   id?: string;
+  sku?: string;
   images: string[];
   name: string;
   rating: number;
@@ -27,6 +28,7 @@ interface ProductCardProps {
 
 export default function ProductCard({
   id,
+  sku,
   images,
   name,
   rating,

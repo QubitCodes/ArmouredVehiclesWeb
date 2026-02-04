@@ -9,7 +9,8 @@ import { useAuth } from "@/lib/auth-context";
 
 // ---- INTERFACES ----
 interface Product {
-  id: number;
+  id: string;
+  sku: string;
   name: string;
   price: number;
   image: string; // thumbnail
@@ -44,7 +45,8 @@ export function TopSellingProducts({ title }: { title: string }) {
         // ✅ Map API response to UI model
         const mappedProducts: Product[] = Array.isArray(data)
           ? data.map((item: any) => ({
-            id: item.id,
+            id: String(item.id),
+            sku: item.sku || String(item.id),
             name: item.name || "Unknown Product",
             price: Number(item.price) || 0,
             image:
@@ -176,7 +178,7 @@ export function TopSellingProducts({ title }: { title: string }) {
         {/* MOBILE preview */}
         <div className="bg-[#EBE3D6] w-full mt-4 pb-10 pt-4 text-center relative">
 
-          <div className="relative w-[281px] mx-auto h-[255px]" onClick={() => router.push(`/product/${selectedProduct.id}`)}>
+          <div className="relative w-[281px] mx-auto h-[255px]" onClick={() => router.push(`/product/${selectedProduct.sku.replace('SKU-', '')}`)}>
             <button onClick={handlePreviousImage} className="absolute -left-10 top-1/2 -translate-y-1/2 z-30">
               <Image src="/icons/circled arrow left.svg" width={28} height={28} alt="Prev" />
             </button>
@@ -200,7 +202,7 @@ export function TopSellingProducts({ title }: { title: string }) {
               <span className="text-black/70"> <strong>Login</strong> to <strong>access</strong> product pricing.</span>
             )}
           </div>
-          <h3 className="text-sm font-bold mt-1 px-4" onClick={() => router.push(`/product/${selectedProduct.id}`)}>{selectedProduct.name}</h3>
+          <h3 className="text-sm font-bold mt-1 px-4" onClick={() => router.push(`/product/${selectedProduct.sku.replace('SKU-', '')}`)}>{selectedProduct.name}</h3>
 
           <div className="flex justify-center items-center text-[#FF5C00] mt-1 gap-1">
             {selectedProduct.rating != null && selectedProduct.reviewCount > 0 ? (
@@ -262,7 +264,7 @@ export function TopSellingProducts({ title }: { title: string }) {
 
             {/* Image */}
             <div
-              onClick={() => router.push(`/product/${selectedProduct.id}`)}
+              onClick={() => router.push(`/product/${selectedProduct.sku.replace('SKU-', '')}`)}
               className="relative w-[300px] h-[330px] sm:w-[350px] sm:h-[385px] md:w-[400px] md:h-[440px] lg:w-[420px] lg:h-[462px] xl:w-[467px] xl:h-[348px] 2xl:w-[467px] 2xl:h-[406px] cursor-pointer"
             >
               <Image src={previewImage} alt={selectedProduct.name} fill className="object-cover rounded" />
@@ -274,7 +276,7 @@ export function TopSellingProducts({ title }: { title: string }) {
             </button>
           </div>
 
-          <div className="text-lg text-black font-semibold mt-6 flex justify-between items-center gap-2 cursor-pointer" onClick={() => router.push(`/product/${selectedProduct.id}`)}>
+          <div className="text-lg text-black font-semibold mt-6 flex justify-between items-center gap-2 cursor-pointer" onClick={() => router.push(`/product/${selectedProduct.sku.replace('SKU-', '')}`)}>
             {authLoading ? (
               <span className="opacity-70">...</span>
             ) : isAuthenticated ? (
@@ -289,11 +291,11 @@ export function TopSellingProducts({ title }: { title: string }) {
             )}
           </div>
 
-          <h3 className="text-xl font-bold text-black mb-1 text-center cursor-pointer" onClick={() => router.push(`/product/${selectedProduct.id}`)}>
+          <h3 className="text-xl font-bold text-black mb-1 text-center cursor-pointer" onClick={() => router.push(`/product/${selectedProduct.sku.replace('SKU-', '')}`)}>
             {selectedProduct.name}
           </h3>
 
-          <div className="flex items-center justify-center gap-1 text-[#FF5C00] mb-2 cursor-pointer" onClick={() => router.push(`/product/${selectedProduct.id}`)}>
+          <div className="flex items-center justify-center gap-1 text-[#FF5C00] mb-2 cursor-pointer" onClick={() => router.push(`/product/${selectedProduct.sku.replace('SKU-', '')}`)}>
             {selectedProduct.rating != null && selectedProduct.reviewCount > 0 ? (
               <>
                 {[...Array(5)].map((_, i) => (

@@ -8,7 +8,7 @@ import MobileLayout from "../components/mobile/MobileLayout";
 import { fetchProductReviews } from "@/app/services/reviews";
 
 type ProductDisplay = {
-  id: number;
+  id: string | number;
   name?: string | null;
   sku?: string | null;
   price?: string | number | null;
@@ -48,10 +48,9 @@ export default function ProductDetailsPage() {
   const routeParams = useParams();
 
   const idParam =
-    (routeParams?.id as string | undefined) ?? searchParams.get("id");
+    (routeParams?.sku as string | undefined) ?? searchParams.get("sku") ?? searchParams.get("id");
 
-  const productId =
-    idParam && /^\d+$/.test(String(idParam)) ? Number(idParam) : null;
+  const productId = idParam || null;
 
   /* ---------------------------
      1️⃣ FETCH PRODUCT DETAILS
