@@ -57,6 +57,7 @@ const SimilarProductCard = ({
 
   const handleNavigate = () => {
     const identifier = sku ? sku.replace('SKU-', '') : id;
+    console.log('[SimilarProductCard] Navigating with:', { sku, id, identifier });
     if (identifier) {
       router.push(`/product/${identifier}`);
     }

@@ -5,7 +5,7 @@ import SimilarProductCard from "@/components/product/SimilarProductCard";
 
 type Product = {
   action: "ADD TO CART" | "SUBMIT AN INQUIRY" | undefined;
-  id: number;
+  id: string | number;
   name: string;
   rating: number;
   reviews: number;

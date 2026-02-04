@@ -6,7 +6,7 @@ import SimilarProductCard from "@/components/product/SimilarProductCard";
 import api from "@/lib/api";
 
 type Product = {
-  id: number;
+  id: string | number;
   name: string;
   rating: number;
   reviews: number;

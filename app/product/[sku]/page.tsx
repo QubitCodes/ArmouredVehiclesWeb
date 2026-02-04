@@ -224,6 +224,7 @@ export default function ProductDetailsPage() {
             // Filter out current product
             const filtered = similar.filter((p: any) => p.id !== productData.id).map((item: any) => ({
               id: item.id,
+              sku: item.sku,
               name: item.name,
               rating: item.rating ?? 0,
               reviews: item.reviewCount ?? 0,
