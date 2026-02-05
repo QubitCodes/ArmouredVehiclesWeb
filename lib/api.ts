@@ -505,7 +505,7 @@ export const api = {
     get: () => fetchJson<any>('/wishlist'), // Type as any for now or WishlistResponse
     add: (productId: string | number) =>
       fetchJson<any>('/wishlist/items', { method: 'POST', body: JSON.stringify({ productId }) }),
-    remove: (itemId: number) =>
+    remove: (itemId: string) =>
       fetchJson<{ success: boolean }>(`/wishlist/items/${itemId}`, { method: 'DELETE' }),
   },
 
@@ -682,6 +682,18 @@ export const api = {
     getPublic: async (): Promise<{ vat_percentage: number }> => {
       const res = await fetchJson<any>('/settings');
       return res?.data ?? res;
+    }
+  },
+
+  // --- Invoices ---
+  invoices: {
+    getByOrder: async (orderId: string) => {
+      const res = await fetchJson<any>(`/invoices/order/${orderId}`);
+      return res?.data ?? [];
+    },
+    getPublicUrl: (accessToken: string) => {
+      const updateData = process.env.NEXT_PUBLIC_APP_URL || (typeof window !== 'undefined' ? window.location.origin : 'http://localhost:3001');
+      return `${updateData}/invoices/view/${accessToken}`;
     }
   },
 };

@@ -20,13 +20,13 @@ export function useWishlist() {
   // Extract items safely
   // API returns { status: true, data: { wishlist, items: [] } }
   // OR sometimes raw array if simplified. Handling both cases.
-  const wishlistItems = Array.isArray(data) 
-    ? data 
+  const wishlistItems = Array.isArray(data)
+    ? data
     : (data as any)?.data?.items ?? (data as any)?.items ?? [];
 
   // Mutations
   const { mutateAsync: addItem } = useMutation({
-    mutationFn: async (productId: number) => {
+    mutationFn: async (productId: string) => {
       return api.wishlist.add(productId);
     },
     onSuccess: () => {
@@ -35,7 +35,7 @@ export function useWishlist() {
   });
 
   const { mutateAsync: removeItem } = useMutation({
-    mutationFn: async (itemId: number) => {
+    mutationFn: async (itemId: string) => {
       return api.wishlist.remove(itemId);
     },
     onSuccess: () => {
@@ -50,11 +50,11 @@ export function useWishlist() {
     return wishlistItems.some((item: any) => item.product_id === pid || item.productId === pid);
   };
 
-  const toggleWishlist = async (productId: number | string | undefined) => {
-    if (!isAuthenticated) return false; // Or throw error/redirect logic handle by component
+  const toggleWishlist = async (productId: string) => {
+    if (!isAuthenticated) return false;
     if (!productId) return;
 
-    const pid = Number(productId);
+    const pid = productId;
     const existingItem = wishlistItems.find((item: any) => item.product_id === pid || item.productId === pid);
 
     if (existingItem) {
