@@ -56,16 +56,6 @@ export default function ProductCard({
     setImgSrc(null);
   }, [images]);
 
-  // displayImage logic:
-  // 1. If we have a state override (imgSrc), use it (unless it's null). 
-  //    Actually simpler: derive display URL.
-  //    If images[slide] exists, try that. If it fails, fallback.
-
-  // Better approach for NextJS Image:
-  // Use state to track if current slide failed.
-  // But we have cycling slides. 
-  // Let's keep it simple: If any image fails, we can show placeholder for that slot? Or just stop cycling?
-  // Let's just track if the *current* displayed URL failed.
   const [imageError, setImageError] = useState(false);
 
   useEffect(() => {
@@ -195,8 +185,6 @@ export default function ProductCard({
             <ProductRating rating={rating} reviewCount={Number(reviews)} />
           </div>
 
-
-
           <hr className="border-t border-[#CCCCCC] my-2 md:my-3" />
 
           {/* Price */}
@@ -222,26 +210,7 @@ export default function ProductCard({
               Login to access product pricing
             </span>
           )}
-
-          {/* Delivery */}
-          {/* Delivery info removed as per request */}
-          {/* <div className="flex items-center gap-1 mt-2 whitespace-nowrap">
-      <Image
-        src="/icons/delivery.svg"
-        alt="delivery"
-        width={14}
-        height={14}
-        className="flex-shrink-0"
-      />
-      <span className="text-[9px] sm:text-[10px] md:text-sm text-gray-600 leading-tight">
-        <span className="text-[#D35400]">Standard</span> Delivery by{" "}
-        <span className="font-medium">{getDeliveryRange()}</span>
-      </span>
-    </div> */}
         </div>
-
-        {/* ✅ THIS PUSHES EMPTY SPACE BELOW DELIVERY */}
-        <div className="flex-grow" />
       </div>
 
 

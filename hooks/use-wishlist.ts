@@ -44,24 +44,22 @@ export function useWishlist() {
   });
 
   // Helpers
-  const isInWishlist = (productId: number | string | undefined) => {
+  const isInWishlist = (productId: string) => {
     if (!productId) return false;
-    const pid = Number(productId);
-    return wishlistItems.some((item: any) => item.product_id === pid || item.productId === pid);
+    return wishlistItems.some((item: any) => item.product_id === productId || item.productId === productId);
   };
 
   const toggleWishlist = async (productId: string) => {
     if (!isAuthenticated) return false;
     if (!productId) return;
 
-    const pid = productId;
-    const existingItem = wishlistItems.find((item: any) => item.product_id === pid || item.productId === pid);
+    const existingItem = wishlistItems.find((item: any) => item.product_id === productId || item.productId === productId);
 
     if (existingItem) {
       await removeItem(existingItem.id);
       return false; // Removed
     } else {
-      await addItem(pid);
+      await addItem(productId);
       return true; // Added
     }
   };
