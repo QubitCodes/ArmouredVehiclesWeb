@@ -226,7 +226,7 @@ function LoginForm() {
         <>
             <section className="relative w-full min-h-[calc(100vh-140px)] bg-[#EFE8DC]">
                 <Image
-                    src="/images/register-bg.jpg"
+                    src="/images/register-bg.jpeg"
                     alt="Login Background"
                     fill
                     priority
