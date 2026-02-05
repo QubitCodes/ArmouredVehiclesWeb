@@ -38,18 +38,19 @@ const nextConfig: NextConfig = {
         pathname: "/**",
       },
       {
-         protocol: "https",
-         hostname: "armapi2.qubyt.codes",
-         pathname: "/**",
+        protocol: "https",
+        hostname: "armapi2.qubyt.codes",
+        pathname: "/**",
       },
       {
-         protocol: "https",
-         hostname: "armapi.qubyt.codes",
-         pathname: "/**",
+        protocol: "https",
+        hostname: "armapi.qubyt.codes",
+        pathname: "/**",
       },
     ],
     dangerouslyAllowSVG: true,
     contentSecurityPolicy: "default-src 'self'; script-src 'none'; sandbox;",
+    unoptimized: true,
   },
 };
 
