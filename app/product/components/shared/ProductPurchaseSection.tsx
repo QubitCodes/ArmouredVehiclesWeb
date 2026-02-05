@@ -33,7 +33,7 @@ type Props = {
     approvalStatus?: string | null;
     individualProductPricing?: { name: string; amount: number }[] | null;
     vendorId?: string | null;
-    minOrderQuantity?: number | null;
+    minOrderQuantity?: string | number | null;
 };
 
 export default function ProductPurchaseSection({
@@ -59,12 +59,16 @@ export default function ProductPurchaseSection({
 
     const { isInWishlist, toggleWishlist } = useWishlist();
     const isLiked = isInWishlist(productId);
-    const [inputValue, setInputValue] = useState<string | null>(null);
+    const parsedMinMOQ = (() => {
+        if (!minOrderQuantity) return 1;
+        if (typeof minOrderQuantity === 'number') return Math.max(1, minOrderQuantity);
+        const match = String(minOrderQuantity).match(/^(\d+)/);
+        return match ? Math.max(1, parseInt(match[1])) : 1;
+    })();
 
     useEffect(() => {
-        const hasMin = typeof minOrderQuantity === 'number' && minOrderQuantity > 0;
-        setQuantity(hasMin ? (minOrderQuantity as number) : 1);
-    }, [minOrderQuantity, setQuantity]);
+        setQuantity(parsedMinMOQ);
+    }, [parsedMinMOQ, setQuantity]);
 
     function getDeliveryRange(minDays: number, maxDays: number) {
         const start = new Date();
@@ -135,13 +139,13 @@ export default function ProductPurchaseSection({
 
                             {/* MOQ & Quantity Controls */}
                             <div className=" items-center gap-3 mt-2">
-                                {typeof minOrderQuantity === 'number' && minOrderQuantity > 0 && (
+                                {minOrderQuantity && (
                                     <span className="text-black ">Minimum order quantity: <span className="text-black font-medium">{minOrderQuantity}</span></span>
                                 )}
                                 <div className="flex items-center border border-[#B7B1A8] bg-[#EBE4D7] mt-1 h-10 w-40">
                                     <button
                                         onClick={() => {
-                                            setQuantity(Math.max(typeof minOrderQuantity === 'number' && minOrderQuantity > 0 ? minOrderQuantity : 1, quantity - 1));
+                                            setQuantity(Math.max(parsedMinMOQ, quantity - 1));
                                             setInputValue(null);
                                         }}
                                         className="w-10 h-full flex items-center justify-center text-black hover:bg-[#D8D1C5] transition"
@@ -156,12 +160,12 @@ export default function ProductPurchaseSection({
                                             const raw = e.target.value;
                                             setInputValue(raw);
                                             const val = parseInt(raw);
-                                            const min = (typeof minOrderQuantity === 'number' && minOrderQuantity > 0) ? minOrderQuantity : 1;
+                                            const min = parsedMinMOQ;
                                             if (!isNaN(val) && val >= min) setQuantity(val);
                                         }}
                                         onBlur={() => setInputValue(null)}
                                         className="flex-1 w-full h-full bg-transparent text-center text-black outline-none appearance-none [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none"
-                                        min={(typeof minOrderQuantity === 'number' && minOrderQuantity > 0) ? minOrderQuantity : 1}
+                                        min={parsedMinMOQ}
                                     />
                                     <button
                                         onClick={() => {
@@ -486,7 +490,7 @@ export default function ProductPurchaseSection({
 
 
                 {/* MIN ORDER QUANTITY */}
-                {typeof minOrderQuantity === 'number' && minOrderQuantity > 0 && (
+                {minOrderQuantity && (
                     <div className="grid grid-cols-[90px_1fr] gap-2">
                         <span className="font-medium">Minimum Order Quantity:</span>
                         <div className="font-semibold text-black">
