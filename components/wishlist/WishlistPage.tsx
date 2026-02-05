@@ -9,7 +9,7 @@ import { type WishlistItem } from "@/app/services/wishlist";
 import { useWishlist } from "@/hooks/use-wishlist";
 
 type UiWishlistItem = {
-  id: string | number; // wishlist item id
+  id: string; // wishlist item id
   name: string;
   price?: number;
   images: string[];
@@ -23,9 +23,8 @@ type UiWishlistItem = {
 export default function WishlistPage() {
   const { isAuthenticated, isLoading } = useAuth();
   const router = useRouter();
-  const handleRemove = async (itemId: string | number) => {
-    // removeItem expects a number type in the hook, but API may return string IDs
-    await removeItem(itemId as unknown as number);
+  const handleRemove = async (itemId: string) => {
+    await removeItem(itemId);
   };
 
   // Use centralized hook

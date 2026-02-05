@@ -13,13 +13,13 @@ export interface WishlistItemProduct {
 }
 
 export interface WishlistItem {
-  id: number;
-  productId: number;
+  id: string;
+  productId: string;
   product?: WishlistItemProduct;
 }
 
 export type WishlistResponse = {
-  id?: number;
+  id?: string;
   items: WishlistItem[];
 } | WishlistItem[];
 
