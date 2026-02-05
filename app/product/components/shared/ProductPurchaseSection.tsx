@@ -59,6 +59,9 @@ export default function ProductPurchaseSection({
 
     const { isInWishlist, toggleWishlist } = useWishlist();
     const isLiked = isInWishlist(productId);
+
+    const [inputValue, setInputValue] = useState<string | null>(null);
+
     const parsedMinMOQ = (() => {
         if (!minOrderQuantity) return 1;
         if (typeof minOrderQuantity === 'number') return Math.max(1, minOrderQuantity);
