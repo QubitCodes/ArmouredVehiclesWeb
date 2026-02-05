@@ -27,7 +27,7 @@ type Props = {
     currency?: string | null;
     condition?: string | null;
     stock?: number | null;
-    productId?: string | number;
+    productId: string;
     onAddToCart?: () => void;
     status?: string | null;
     approvalStatus?: string | null;
