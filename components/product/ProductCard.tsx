@@ -14,7 +14,7 @@ import { api } from "@/lib/api";
 import { useWishlist } from "@/hooks/use-wishlist";
 
 interface ProductCardProps {
-  id?: string;
+  id: string;
   sku?: string;
   images: string[];
   name: string;
