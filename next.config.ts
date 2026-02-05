@@ -50,7 +50,7 @@ const nextConfig: NextConfig = {
     ],
     dangerouslyAllowSVG: true,
     contentSecurityPolicy: "default-src 'self'; script-src 'none'; sandbox;",
-    unoptimized: true,
+    unoptimized: true, // Comment in production
   },
 };
 
