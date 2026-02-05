@@ -58,13 +58,6 @@ function LoginForm() {
     const completeLogin = async (idToken: string, firebaseUser: any) => {
         try {
             const res = await api.auth.verifyFirebase(idToken);
-            // res = { status: true, data: { user, accessToken, ... } }
-            // Note: api.auth.verifyFirebase returns AuthResponse which has user, accessToken, etc. directly at top level 
-            // OR nested in data depending on how we standardized it. 
-            // Looking at api.ts storeTokens() usage inside it, it seems to return data object directly.
-            // Let's rely on api.ts doing storeTokens internaly as per my recent edit?
-            // Wait, api.ts verifyFirebase calls storeTokens internaly.
-
             // Just refresh user context
             await refreshUser();
 
@@ -261,7 +254,7 @@ function LoginForm() {
 
                         <input
                             type="text"
-                            placeholder="Email or Phone (e.g. +971 55...)"
+                            placeholder="Email or Phone"
                             value={identifier}
                             disabled={stage !== 'start'}
                             onChange={(e) => setIdentifier(e.target.value)}
