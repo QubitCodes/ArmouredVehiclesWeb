@@ -1,5 +1,6 @@
 "use client";
 
+import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import Image from "next/image";
 import { ArrowLeft, Package, User } from "lucide-react";
@@ -52,6 +53,40 @@ export default function TrackingDetails({ orderId }: TrackingDetailsProps) {
     city: "",
     country: "",
     phone: ""
+  };
+
+  // Invoice State
+  const [invoices, setInvoices] = useState<any[]>([]);
+  const [invoicesLoading, setInvoicesLoading] = useState(false);
+
+  useEffect(() => {
+    const fetchInvoices = async () => {
+      if (order?.id) {
+        setInvoicesLoading(true);
+        try {
+          const api = (await import("@/lib/api")).default;
+          const data = await api.invoices.getByOrder(order.id);
+          setInvoices(data);
+        } catch (err) {
+          console.error("Failed to fetch invoices", err);
+        } finally {
+          setInvoicesLoading(false);
+        }
+      }
+    };
+    fetchInvoices();
+  }, [order?.id]);
+
+  const handleOpenInvoice = async () => {
+    if (invoices.length > 0) {
+      const api = (await import("@/lib/api")).default;
+      const invoice = invoices[0]; // Take the first one (usually customer invoice for customers)
+      const url = api.invoices.getPublicUrl(invoice.access_token);
+      window.open(url, '_blank');
+    } else {
+      const { toast } = await import("sonner");
+      toast.info("Invoice is not yet available for this order.");
+    }
   };
 
   return (
@@ -137,8 +172,11 @@ export default function TrackingDetails({ orderId }: TrackingDetailsProps) {
           <h2 className="font-orbitron font-bold text-sm uppercase tracking-wider text-black">
             View Order / Invoice Summary
           </h2>
-          <span className="text-sm text-[#D35400] hover:underline font-medium cursor-pointer">
-            Find invoice and shipping details here &gt;
+          <span
+            className={`text-sm text-[#D35400] hover:underline font-medium cursor-pointer ${invoicesLoading ? 'opacity-50 cursor-wait' : ''}`}
+            onClick={handleOpenInvoice}
+          >
+            {invoicesLoading ? 'Loading invoice...' : 'Find invoice and shipping details here >'}
           </span>
         </div>
       </div>

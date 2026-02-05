@@ -7,6 +7,7 @@ import { useAuth } from "@/lib/auth-context";
 const sidebarNav = {
   ordersActivity: [
     { id: "orders", label: "Orders", iconImg: "/order/Vector.png", href: "/orders" },
+    { id: "invoices", label: "Invoices", iconImg: "/order/Frame6.png", href: "/orders/invoices" }, // Using Frame6 (Notification) icon as placeholder
     { id: "wishlist", label: "Wishlist", iconImg: "/order/Frame.png", href: "/wishlist" },
     { id: "returns", label: "Returns", iconImg: "/order/Frame1.png", href: "/returns" },
     // { id: "warranty", label: "Warranty Claims", iconImg: "/order/Frame2.png", href: "/warranty-claims" },
@@ -25,6 +26,7 @@ const sidebarNav = {
 // Mobile navigation tabs - combined from all categories
 const mobileNavTabs = [
   { id: "orders", label: "Orders", iconImg: "/order/Vector.png", href: "/orders" },
+  { id: "invoices", label: "Invoices", iconImg: "/order/Frame6.png", href: "/orders/invoices" },
   { id: "wishlist", label: "Wishlist", iconImg: "/order/Frame.png", href: "/wishlist" },
   { id: "returns", label: "Returns", iconImg: "/order/Frame1.png", href: "/returns" },
   { id: "warranty", label: "Buy", iconImg: "/order/Frame2.png", href: "/warranty-claims" },
@@ -95,21 +97,6 @@ export default function ProfileSidebar() {
               <p className="text-xs text-black/70 truncate">{userEmail}</p>
             </div>
           </div>
-          {/* Profile Completion */}
-          <div className="space-y-2">
-            <div className="flex items-center gap-2 text-sm">
-              <span className="text-black">Profile Completion</span>
-              <span className="bg-[#D35400] px-2 py-0.5 rounded text-xs font-semibold text-white">
-                {profileCompletion}%
-              </span>
-            </div>
-            <div className="w-full bg-white rounded-full h-2">
-              <div
-                className="bg-[#D35400] h-2 rounded-full transition-all"
-                style={{ width: `${profileCompletion}%` }}
-              />
-            </div>
-          </div>
         </div>
       </div>
 
@@ -126,20 +113,6 @@ export default function ProfileSidebar() {
               <p className="text-sm text-black/70">{userEmail}</p>
             </div>
           </div>
-          {/* <div className="space-y-2">
-            <div className="flex items-center gap-2 text-sm">
-              <span>Profile Completion</span>
-              <span className="bg-[#D35400] px-2 py-0.5 rounded text-xs font-semibold text-white">
-                {userData.profileCompletion}%
-              </span>
-            </div>
-            <div className="w-full bg-[#FFFFFF] rounded-full h-2">
-              <div
-                className="bg-[#D35400] h-2 rounded-full transition-all"
-                style={{ width: `${userData.profileCompletion}%` }}
-              />
-            </div>
-          </div> */}
         </div>
 
         {/* My Account */}

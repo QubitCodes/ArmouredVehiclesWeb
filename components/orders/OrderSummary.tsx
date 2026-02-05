@@ -2,7 +2,7 @@
 
 import { useRouter, useSearchParams } from "next/navigation";
 import Image from "next/image";
-import { ArrowLeft, ChevronDown, Check, MoreVertical, X, Download } from "lucide-react";
+import { ArrowLeft, ChevronDown, Check, MoreVertical, X, Download, FileText } from "lucide-react";
 import { useState, useEffect } from "react";
 import { useOrderGroup } from "@/lib/hooks/orders";
 import api from "@/lib/api";
@@ -131,6 +131,39 @@ export default function OrderSummary({ orderId }: OrderSummaryProps) {
       setShowSuccessPopup(true);
     }
   }, [searchParams]);
+
+  // Invoice Fetching Logic
+  const [invoiceToken, setInvoiceToken] = useState<string | null>(null);
+
+  useEffect(() => {
+    const fetchInvoice = async () => {
+      // Wait for group data to load
+      if (!group || !group.orders || group.orders.length === 0) return;
+
+      // Use the first order's ID. Invoices are currently linked to the primary order in a group.
+      const targetOrderId = group.orders[0].id;
+
+      try {
+        const token = localStorage.getItem('access_token');
+        const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL || 'http://localhost:3002/api/v1';
+        const res = await fetch(`${API_BASE_URL}/invoices/order/${targetOrderId}`, {
+          headers: { 'Authorization': `Bearer ${token}` }
+        });
+        const result = await res.json();
+        if (result.status && Array.isArray(result.data)) {
+          // Find customer invoice
+          const customerInvoice = result.data.find((inv: any) => inv.invoice_type === 'customer');
+          if (customerInvoice && customerInvoice.access_token) {
+            setInvoiceToken(customerInvoice.access_token);
+          }
+        }
+      } catch (e) {
+        console.error("Failed to fetch invoice", e);
+      }
+    };
+
+    fetchInvoice();
+  }, [group]);
 
   if (isLoading || (isVerifying && !group)) {
     return (
@@ -317,6 +350,17 @@ export default function OrderSummary({ orderId }: OrderSummaryProps) {
         <h1 className="font-orbitron font-black text-xl lg:text-2xl uppercase tracking-wide text-black">
           Order Summary
         </h1>
+        {invoiceToken && (
+          <a
+            href={`/invoices/view/${invoiceToken}`}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="ml-auto flex items-center gap-2 bg-[#3D4A26] text-white px-4 py-2 text-sm font-bold uppercase hover:bg-[#2c361b] transition-colors rounded clip-path-supplier"
+          >
+            <FileText className="w-4 h-4" />
+            <span className="hidden sm:inline">View Invoice</span>
+          </a>
+        )}
       </div>
 
       {/* Group Info / Shipment Info */}
@@ -592,6 +636,20 @@ export default function OrderSummary({ orderId }: OrderSummaryProps) {
                 );
               }
             })()}
+
+            {invoiceToken && (
+              <div className="mt-4 pt-4 border-t border-[#C2B280]/30">
+                <a
+                  href={`/invoices/view/${invoiceToken}`}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="flex items-center gap-2 text-sm font-bold text-[#3D4A26] hover:text-[#2c361b] transition-colors group"
+                >
+                  <FileText className="w-4 h-4 group-hover:scale-110 transition-transform" />
+                  VIEW INVOICE
+                </a>
+              </div>
+            )}
           </div>
         </div>
 
